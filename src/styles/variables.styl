@@ -37,6 +37,13 @@ define({
   --btn-card-bg-hover: var(--surface-container-lowest) var(--surface-container-low)
   --btn-card-bg-active: var(--surface-container-low) var(--surface-container)
 
+  /* 浮层内的控件应高于浮层本身，而不是回落到页面表面层级 */
+  --float-control-bg: var(--surface-container-high) var(--surface-container-high)
+  --float-control-bg-hover: unquote("color-mix(in oklab, var(--on-surface) 8%, var(--surface-container-high))") unquote("color-mix(in oklab, var(--on-surface) 8%, var(--surface-container-high))")
+  --float-control-bg-active: unquote("color-mix(in oklab, var(--on-surface) 12%, var(--surface-container-high))") unquote("color-mix(in oklab, var(--on-surface) 12%, var(--surface-container-high))")
+  --float-item-bg-hover: unquote("color-mix(in oklab, var(--on-surface) 8%, transparent)") unquote("color-mix(in oklab, var(--on-surface) 8%, transparent)")
+  --float-item-bg-active: unquote("color-mix(in oklab, var(--on-surface) 12%, transparent)") unquote("color-mix(in oklab, var(--on-surface) 12%, transparent)")
+
   --enter-btn-bg: var(--btn-regular-bg)
   --enter-btn-bg-hover: var(--btn-regular-bg-hover)
   --enter-btn-bg-active: var(--btn-regular-bg-active)
@@ -151,10 +158,10 @@ define({
   --shape-corner-xl: 28px
   --shape-corner-full: 999px
   --radius-large: var(--shape-corner-l)
-  --page-bg: var(--surface)
+  --page-bg: var(--surface-container-low)
   --card-bg: var(--surface-container-lowest)
   --float-panel-bg: var(--surface-container)
 :root.dark
   --page-bg: var(--surface)
   --card-bg: var(--surface-container-high)
-  --float-panel-bg: var(--surface-container-low)
+  --float-panel-bg: var(--surface-container)
