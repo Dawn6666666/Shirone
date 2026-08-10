@@ -24,7 +24,22 @@ export const ja: Translation = {
 	[Key.postCount]: "件の投稿",
 	[Key.postsCount]: "件の投稿",
 
-	[Key.themeColor]: "テーマカラー",
+	[Key.themeColor]: "Theme Color",
+	[Key.colorStyle]: "配色スタイル",
+	[Key.colorSpec]: "配色仕様",
+
+	[Key.styleTonalSpot]: "Tonal Spot",
+	[Key.styleVibrant]: "Vibrant",
+	[Key.styleContent]: "Content",
+	[Key.styleExpressive]: "Expressive",
+	[Key.styleRainbow]: "Rainbow",
+	[Key.styleFruitSalad]: "Fruit Salad",
+	[Key.styleMonochrome]: "Monochrome",
+	[Key.styleNeutral]: "Neutral",
+	[Key.styleFidelity]: "Fidelity",
+
+	[Key.spec2021]: "MD3 2021",
+	[Key.spec2025]: "M3 Expressive 2025",
 
 	[Key.lightMode]: "ライト",
 	[Key.darkMode]: "ダーク",

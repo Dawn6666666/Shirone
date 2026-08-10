@@ -22,6 +22,21 @@ enum I18nKey {
 	postsCount = "postsCount",
 
 	themeColor = "themeColor",
+	colorStyle = "colorStyle",
+	colorSpec = "colorSpec",
+
+	styleTonalSpot = "styleTonalSpot",
+	styleVibrant = "styleVibrant",
+	styleContent = "styleContent",
+	styleExpressive = "styleExpressive",
+	styleRainbow = "styleRainbow",
+	styleFruitSalad = "styleFruitSalad",
+	styleMonochrome = "styleMonochrome",
+	styleNeutral = "styleNeutral",
+	styleFidelity = "styleFidelity",
+
+	spec2021 = "spec2021",
+	spec2025 = "spec2025",
 
 	lightMode = "lightMode",
 	darkMode = "darkMode",

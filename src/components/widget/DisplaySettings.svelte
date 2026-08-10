@@ -3,9 +3,13 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
 import { getDefaultHue, getHue, setHue } from "@utils/setting-utils";
+import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
+import { MC_SPECS, MC_STYLES, type McSpec, type McStyle } from "@utils/mc-utils";
 
 let hue = getHue();
 const defaultHue = getDefaultHue();
+let style: McStyle = getStyle();
+let spec: McSpec = getSpec();
 
 function resetHue() {
 	hue = getDefaultHue();
@@ -13,6 +17,28 @@ function resetHue() {
 
 $: if (hue || hue === 0) {
 	setHue(hue);
+}
+
+$: if (style) {
+	setStyle(style);
+}
+
+$: if (spec) {
+	setSpec(spec);
+}
+
+function styleKey(s: McStyle): I18nKey {
+	switch (s) {
+		case "tonalSpot": return I18nKey.styleTonalSpot;
+		case "vibrant": return I18nKey.styleVibrant;
+		case "content": return I18nKey.styleContent;
+		case "expressive": return I18nKey.styleExpressive;
+		case "rainbow": return I18nKey.styleRainbow;
+		case "fruitSalad": return I18nKey.styleFruitSalad;
+		case "monochrome": return I18nKey.styleMonochrome;
+		case "neutral": return I18nKey.styleNeutral;
+		case "fidelity": return I18nKey.styleFidelity;
+	}
 }
 </script>
 
@@ -40,6 +66,27 @@ $: if (hue || hue === 0) {
     <div class="w-full h-6 px-1 bg-[oklch(0.80_0.10_0)] dark:bg-[oklch(0.70_0.10_0)] rounded select-none">
         <input aria-label={i18n(I18nKey.themeColor)} type="range" min="0" max="360" bind:value={hue}
                class="slider" id="colorSlider" step="5" style="width: 100%">
+    </div>
+
+    <div class="flex flex-col gap-2 mt-4">
+        <div class="flex gap-2 items-center justify-between">
+            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 ml-1">{i18n(I18nKey.colorStyle)}</span>
+            <select class="btn-regular rounded-md text-sm px-2 py-1 outline-none" bind:value={style}
+                    aria-label={i18n(I18nKey.colorStyle)}>
+                {#each MC_STYLES as s (s)}
+                    <option value={s}>{i18n(styleKey(s))}</option>
+                {/each}
+            </select>
+        </div>
+        <div class="flex gap-2 items-center justify-between">
+            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 ml-1">{i18n(I18nKey.colorSpec)}</span>
+            <select class="btn-regular rounded-md text-sm px-2 py-1 outline-none" bind:value={spec}
+                    aria-label={i18n(I18nKey.colorSpec)}>
+                {#each MC_SPECS as s (s)}
+                    <option value={s}>{s === "2021" ? i18n(I18nKey.spec2021) : i18n(I18nKey.spec2025)}</option>
+                {/each}
+            </select>
+        </div>
     </div>
 </div>
 

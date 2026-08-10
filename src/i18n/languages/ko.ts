@@ -24,7 +24,22 @@ export const ko: Translation = {
 	[Key.postCount]: "게시물",
 	[Key.postsCount]: "게시물",
 
-	[Key.themeColor]: "테마 색상",
+	[Key.themeColor]: "Theme Color",
+	[Key.colorStyle]: "색상 스타일",
+	[Key.colorSpec]: "색상 규격",
+
+	[Key.styleTonalSpot]: "Tonal Spot",
+	[Key.styleVibrant]: "Vibrant",
+	[Key.styleContent]: "Content",
+	[Key.styleExpressive]: "Expressive",
+	[Key.styleRainbow]: "Rainbow",
+	[Key.styleFruitSalad]: "Fruit Salad",
+	[Key.styleMonochrome]: "Monochrome",
+	[Key.styleNeutral]: "Neutral",
+	[Key.styleFidelity]: "Fidelity",
+
+	[Key.spec2021]: "MD3 2021",
+	[Key.spec2025]: "M3 Expressive 2025",
 
 	[Key.lightMode]: "밝은 모드",
 	[Key.darkMode]: "어두운 모드",

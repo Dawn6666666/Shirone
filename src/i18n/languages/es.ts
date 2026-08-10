@@ -24,7 +24,22 @@ export const es: Translation = {
 	[Key.postCount]: "publicación",
 	[Key.postsCount]: "publicaciones",
 
-	[Key.themeColor]: "Color del tema",
+	[Key.themeColor]: "Theme Color",
+	[Key.colorStyle]: "Estilo de color",
+	[Key.colorSpec]: "Especificación",
+
+	[Key.styleTonalSpot]: "Tonal Spot",
+	[Key.styleVibrant]: "Vibrant",
+	[Key.styleContent]: "Content",
+	[Key.styleExpressive]: "Expressive",
+	[Key.styleRainbow]: "Rainbow",
+	[Key.styleFruitSalad]: "Fruit Salad",
+	[Key.styleMonochrome]: "Monochrome",
+	[Key.styleNeutral]: "Neutral",
+	[Key.styleFidelity]: "Fidelity",
+
+	[Key.spec2021]: "MD3 2021",
+	[Key.spec2025]: "M3 Expressive 2025",
 
 	[Key.lightMode]: "Claro",
 	[Key.darkMode]: "Oscuro",

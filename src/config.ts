@@ -14,6 +14,10 @@ export const siteConfig: SiteConfig = {
 	themeColor: {
 		hue: 262, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
 		fixed: false, // Hide the theme color picker for visitors
+		// Dynamic Material 3 palette style (TonalSpot/Vibrant/Content/Expressive/Rainbow/FruitSalad/Monochrome/Neutral/Fidelity)
+		style: "tonalSpot",
+		// Design spec version: "2021" (MD3) or "2025" (M3 Expressive, extra color roles)
+		spec: "2021",
 	},
 	banner: {
 		enable: false,
@@ -88,3 +92,11 @@ export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	// Please select a dark theme, as this blog theme currently only supports dark background color
 	theme: "github-dark",
 };
+
+export function getDefaultStyle(): string {
+	return siteConfig.themeColor.style;
+}
+
+export function getDefaultSpec(): string {
+	return siteConfig.themeColor.spec;
+}
