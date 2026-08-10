@@ -24,7 +24,22 @@ export const id: Translation = {
 	[Key.postCount]: "postingan",
 	[Key.postsCount]: "postingan",
 
-	[Key.themeColor]: "Warna Tema",
+	[Key.themeColor]: "Theme Color",
+	[Key.colorStyle]: "Gaya Warna",
+	[Key.colorSpec]: "Spesifikasi Warna",
+
+	[Key.styleTonalSpot]: "Tonal Spot",
+	[Key.styleVibrant]: "Vibrant",
+	[Key.styleContent]: "Content",
+	[Key.styleExpressive]: "Expressive",
+	[Key.styleRainbow]: "Rainbow",
+	[Key.styleFruitSalad]: "Fruit Salad",
+	[Key.styleMonochrome]: "Monochrome",
+	[Key.styleNeutral]: "Neutral",
+	[Key.styleFidelity]: "Fidelity",
+
+	[Key.spec2021]: "MD3 2021",
+	[Key.spec2025]: "M3 Expressive 2025",
 
 	[Key.lightMode]: "Terang",
 	[Key.darkMode]: "Gelap",

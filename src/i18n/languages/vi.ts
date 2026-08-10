@@ -24,7 +24,22 @@ export const vi: Translation = {
 	[Key.postCount]: "bài viết",
 	[Key.postsCount]: "bài viết",
 
-	[Key.themeColor]: "Màu giao diện",
+	[Key.themeColor]: "Theme Color",
+	[Key.colorStyle]: "Phong cách màu",
+	[Key.colorSpec]: "Đặc tả màu",
+
+	[Key.styleTonalSpot]: "Tonal Spot",
+	[Key.styleVibrant]: "Vibrant",
+	[Key.styleContent]: "Content",
+	[Key.styleExpressive]: "Expressive",
+	[Key.styleRainbow]: "Rainbow",
+	[Key.styleFruitSalad]: "Fruit Salad",
+	[Key.styleMonochrome]: "Monochrome",
+	[Key.styleNeutral]: "Neutral",
+	[Key.styleFidelity]: "Fidelity",
+
+	[Key.spec2021]: "MD3 2021",
+	[Key.spec2025]: "M3 Expressive 2025",
 
 	[Key.lightMode]: "Sáng",
 	[Key.darkMode]: "Tối",

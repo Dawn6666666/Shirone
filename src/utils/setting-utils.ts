@@ -6,6 +6,7 @@ import {
 } from "@constants/constants.ts";
 import { expressiveCodeConfig } from "@/config";
 import type { LIGHT_DARK_MODE } from "@/types/config";
+import { applyCurrentScheme } from "@utils/theme-utils";
 
 export function getDefaultHue(): number {
 	const fallback = "250";
@@ -25,6 +26,7 @@ export function setHue(hue: number): void {
 		return;
 	}
 	r.style.setProperty("--hue", String(hue));
+	applyCurrentScheme();
 }
 
 export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
@@ -49,6 +51,9 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
 		"data-theme",
 		expressiveCodeConfig.theme,
 	);
+
+	// Dark mode affects the resolved M3/M3E scheme
+	applyCurrentScheme();
 }
 
 export function setTheme(theme: LIGHT_DARK_MODE): void {

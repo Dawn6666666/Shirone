@@ -23,49 +23,46 @@ define(vars)
         {key}: value[1]
 
 define({
-  --primary: oklch(0.70 0.14 var(--hue)) oklch(0.75 0.14 var(--hue))
-  --page-bg: oklch(0.95 0.01 var(--hue)) oklch(0.16 0.014 var(--hue))
-  --card-bg: white oklch(0.23 0.015 var(--hue))
+  /* 按钮文本 = 次级对比文字（on-surface-variant），用于中性表面容器按钮如标签、meta 图标、面板按钮 */
+  --btn-content: var(--on-surface-variant) var(--on-surface-variant)
 
-  --btn-content: oklch(0.55 0.12 var(--hue)) oklch(0.75 0.1 var(--hue))
+  /* 按钮背景 = 表面容器层级（tonal elevation） */
+  --btn-regular-bg: var(--surface-container-low) var(--surface-container)
+  --btn-regular-bg-hover: var(--surface-container) var(--surface-container-high)
+  --btn-regular-bg-active: var(--surface-container-high) var(--surface-container-highest)
 
-  --btn-regular-bg: oklch(0.95 0.025 var(--hue)) oklch(0.33 0.035 var(--hue))
-  --btn-regular-bg-hover: oklch(0.9 0.05 var(--hue)) oklch(0.38 0.04 var(--hue))
-  --btn-regular-bg-active: oklch(0.85 0.08 var(--hue)) oklch(0.43 0.045 var(--hue))
+  --btn-plain-bg-hover: var(--surface-container-low) var(--surface-container)
+  --btn-plain-bg-active: var(--surface-container) var(--surface-container-high)
 
-  --btn-plain-bg-hover: oklch(0.95 0.025 var(--hue)) oklch(0.30 0.035 var(--hue))
-  --btn-plain-bg-active: oklch(0.98 0.01 var(--hue)) oklch(0.27 0.025 var(--hue))
-
-  --btn-card-bg-hover: oklch(0.98 0.005 var(--hue)) oklch(0.3 0.03 var(--hue))
-  --btn-card-bg-active: oklch(0.9 0.03 var(--hue)) oklch(0.35 0.035 var(--hue))
+  --btn-card-bg-hover: var(--surface-container-lowest) var(--surface-container-low)
+  --btn-card-bg-active: var(--surface-container-low) var(--surface-container)
 
   --enter-btn-bg: var(--btn-regular-bg)
   --enter-btn-bg-hover: var(--btn-regular-bg-hover)
   --enter-btn-bg-active: var(--btn-regular-bg-active)
 
-  --deep-text: oklch(0.25 0.02 var(--hue))
+  /* 深色文字：用于主色背景上的深色前景（如 ButtonLink badge），与 on-primary 一致 */
+  --deep-text: var(--on-primary) var(--on-primary)
 
-  --title-active: oklch(0.6 0.1 var(--hue))
+  --title-active: var(--primary) var(--primary)
 
-  --line-divider: black(0.08) white(0.08)
+  --line-divider: var(--outline-variant) var(--outline-variant)
+  --line-color: var(--outline) var(--outline)
+  --meta-divider: var(--on-surface-variant) var(--on-surface-variant)
 
-  --line-color: black(0.1) white(0.1)
-  --meta-divider: black(0.2) white(0.2)
-
-  --inline-code-bg: var(--btn-regular-bg)
-  --inline-code-color: var(--btn-content)
-  --selection-bg: oklch(0.90 0.05 var(--hue)) oklch(0.40 0.08 var(--hue))
-  --codeblock-selection: oklch(0.40 0.08 var(--hue))
-  --codeblock-bg: oklch(0.17 0.015 var(--hue)) oklch(0.17 0.015 var(--hue))
-  --codeblock-topbar-bg: oklch(0.3 0.02 var(--hue)) oklch(0.12 0.015 var(--hue))
+  --inline-code-bg: var(--surface-container-low) var(--surface-container-high)
+  --inline-code-color: var(--on-surface-variant) var(--on-surface-variant)
+  --selection-bg: var(--primary-container) var(--primary-container)
+  --codeblock-selection: var(--primary-container) var(--primary-container)
+  /* 代码块在亮/暗模式下都保持深色：亮色用 inverse-surface，暗色用 surface-dim */
+  --codeblock-bg: var(--mc-inverse-surface, oklch(0.17 0.015 var(--hue))) var(--surface-dim)
+  --codeblock-topbar-bg: var(--mc-surface-container-high, oklch(0.17 0.015 var(--hue))) var(--surface-container-low)
 
   --license-block-bg: black(0.03) var(--codeblock-bg)
 
-  --link-underline: oklch(0.93 0.04 var(--hue)) oklch(0.40 0.08 var(--hue))
-  --link-hover: oklch(0.95 0.025 var(--hue)) oklch(0.40 0.08 var(--hue))
-  --link-active: oklch(0.90 0.05 var(--hue)) oklch(0.35 0.07 var(--hue))
-
-  --float-panel-bg: white oklch(0.19 0.015 var(--hue))
+  --link-underline: var(--primary-container) var(--primary-container)
+  --link-hover: var(--primary) var(--primary)
+  --link-active: var(--primary) var(--primary)
 
   --scrollbar-bg-light: black(0.4)
   --scrollbar-bg-hover-light: black(0.5)
@@ -84,56 +81,65 @@ define({
   --display-light-icon: 1 0
   --display-dark-icon: 0 1
 
+  /* 提示块是语义色（tip/note/warning…各有固定色相），不跟随种子色，与 M3 中 error/warning 独立于种子一致 */
   --admonitions-color-tip: oklch(0.7 0.14 180) oklch(0.75 0.14 180)
   --admonitions-color-note: oklch(0.7 0.14 250) oklch(0.75 0.14 250)
   --admonitions-color-important: oklch(0.7 0.14 310) oklch(0.75 0.14 310)
   --admonitions-color-warning: oklch(0.7 0.14 60) oklch(0.75 0.14 60)
   --admonitions-color-caution: oklch(0.6 0.2 25) oklch(0.65 0.2 25)
 
-  --toc-badge-bg: oklch(0.89 0.050 var(--hue)) var(--btn-regular-bg)
-  --toc-btn-hover: oklch(0.926 0.015 var(--hue)) oklch(0.22 0.02 var(--hue))
-  --toc-btn-active: oklch(0.90 0.015 var(--hue)) oklch(0.25 0.02 var(--hue))
+  --toc-badge-bg: var(--primary-container) var(--btn-regular-bg)
+  --toc-btn-hover: var(--surface-container-low) var(--surface-container-low)
+  --toc-btn-active: var(--surface-container) var(--surface-container)
   --toc-width: calc((100vw - var(--page-width)) / 2 - 1rem)
-  --toc-item-active: oklch(0.70 0.13 var(--hue)) oklch(0.35 0.07 var(--hue))
+  --toc-item-active: var(--primary) var(--primary)
 })
 
 /* ============================================================
    Material 3 设计令牌层（Shirone）
-   基于 --hue 动态派生 M3 色彩角色；secondary/tertiary 使用色相偏移。
+   优先使用动态配色（--mc-*，由客户端 HCT 引擎按 种子色/风格/规范 计算），
+   回退到基于 --hue 的 oklch 公式。secondary/tertiary 使用色相偏移。
    ============================================================ */
 define({
   /* 主角色 primary */
-  --primary: oklch(0.42 0.16 var(--hue)) oklch(0.80 0.14 var(--hue))
-  --on-primary: oklch(0.99 0.02 var(--hue)) oklch(0.20 0.04 var(--hue))
-  --primary-container: oklch(0.90 0.06 var(--hue)) oklch(0.36 0.10 var(--hue))
-  --on-primary-container: oklch(0.24 0.09 var(--hue)) oklch(0.90 0.05 var(--hue))
+  --primary: var(--mc-primary, oklch(0.42 0.16 var(--hue))) var(--mc-primary, oklch(0.80 0.14 var(--hue)))
+  --on-primary: var(--mc-on-primary, oklch(0.99 0.02 var(--hue))) var(--mc-on-primary, oklch(0.20 0.04 var(--hue)))
+  --primary-container: var(--mc-primary-container, oklch(0.90 0.06 var(--hue))) var(--mc-primary-container, oklch(0.36 0.10 var(--hue)))
+  --on-primary-container: var(--mc-on-primary-container, oklch(0.24 0.09 var(--hue))) var(--mc-on-primary-container, oklch(0.90 0.05 var(--hue)))
+  --inverse-primary: var(--mc-inverse-primary, oklch(0.90 0.13 var(--hue))) var(--mc-inverse-primary, oklch(0.42 0.16 var(--hue)))
 
   /* 次角色 secondary：樱粉偏移 */
-  --secondary: oklch(0.52 0.13 calc(var(--hue) + 65)) oklch(0.82 0.11 calc(var(--hue) + 65))
-  --on-secondary: oklch(0.99 0.02 var(--hue)) oklch(0.20 0.04 calc(var(--hue) + 65))
-  --secondary-container: oklch(0.90 0.05 calc(var(--hue) + 65)) oklch(0.37 0.08 calc(var(--hue) + 65))
-  --on-secondary-container: oklch(0.26 0.08 calc(var(--hue) + 65)) oklch(0.91 0.05 calc(var(--hue) + 65))
+  --secondary: var(--mc-secondary, oklch(0.52 0.13 calc(var(--hue) + 65))) var(--mc-secondary, oklch(0.82 0.11 calc(var(--hue) + 65)))
+  --on-secondary: var(--mc-on-secondary, oklch(0.99 0.02 var(--hue))) var(--mc-on-secondary, oklch(0.20 0.04 calc(var(--hue) + 65)))
+  --secondary-container: var(--mc-secondary-container, oklch(0.90 0.05 calc(var(--hue) + 65))) var(--mc-secondary-container, oklch(0.37 0.08 calc(var(--hue) + 65)))
+  --on-secondary-container: var(--mc-on-secondary-container, oklch(0.26 0.08 calc(var(--hue) + 65))) var(--mc-on-secondary-container, oklch(0.91 0.05 calc(var(--hue) + 65)))
 
   /* 第三角色 tertiary：水青偏移 */
-  --tertiary: oklch(0.50 0.12 calc(var(--hue) - 100)) oklch(0.82 0.10 calc(var(--hue) - 100))
-  --on-tertiary: oklch(0.99 0.02 var(--hue)) oklch(0.20 0.04 calc(var(--hue) - 100))
-  --tertiary-container: oklch(0.90 0.05 calc(var(--hue) - 100)) oklch(0.37 0.08 calc(var(--hue) - 100))
-  --on-tertiary-container: oklch(0.26 0.08 calc(var(--hue) - 100)) oklch(0.91 0.05 calc(var(--hue) - 100))
+  --tertiary: var(--mc-tertiary, oklch(0.50 0.12 calc(var(--hue) - 100))) var(--mc-tertiary, oklch(0.82 0.10 calc(var(--hue) - 100)))
+  --on-tertiary: var(--mc-on-tertiary, oklch(0.99 0.02 var(--hue))) var(--mc-on-tertiary, oklch(0.20 0.04 calc(var(--hue) - 100)))
+  --tertiary-container: var(--mc-tertiary-container, oklch(0.90 0.05 calc(var(--hue) - 100))) var(--mc-tertiary-container, oklch(0.37 0.08 calc(var(--hue) - 100)))
+  --on-tertiary-container: var(--mc-on-tertiary-container, oklch(0.26 0.08 calc(var(--hue) - 100))) var(--mc-on-tertiary-container, oklch(0.91 0.05 calc(var(--hue) - 100)))
+
+  /* M3 Expressive (2025) 新增：fixed / dim 角色 */
+  --primary-fixed: var(--mc-primary-fixed, oklch(0.90 0.06 var(--hue))) var(--mc-primary-fixed, oklch(0.90 0.06 var(--hue)))
+  --on-primary-fixed: var(--mc-on-primary-fixed, oklch(0.24 0.09 var(--hue))) var(--mc-on-primary-fixed, oklch(0.24 0.09 var(--hue)))
 
   /* 表面与高度（tonal elevation） */
-  --surface: oklch(0.96 0.012 var(--hue)) oklch(0.15 0.013 var(--hue))
-  --surface-container-lowest: oklch(0.985 0.006 var(--hue)) oklch(0.12 0.011 var(--hue))
-  --surface-container-low: oklch(0.965 0.01 var(--hue)) oklch(0.19 0.014 var(--hue))
-  --surface-container: oklch(0.94 0.015 var(--hue)) oklch(0.23 0.016 var(--hue))
-  --surface-container-high: oklch(0.92 0.02 var(--hue)) oklch(0.28 0.018 var(--hue))
-  --surface-container-highest: oklch(0.90 0.025 var(--hue)) oklch(0.33 0.02 var(--hue))
-  --surface-tint: var(--primary) var(--primary)
-  --on-surface: oklch(0.16 0.02 var(--hue)) oklch(0.92 0.015 var(--hue))
-  --on-surface-variant: oklch(0.34 0.03 var(--hue)) oklch(0.76 0.03 var(--hue))
+  --surface: var(--mc-surface, oklch(0.96 0.012 var(--hue))) var(--mc-surface, oklch(0.15 0.013 var(--hue)))
+  --surface-dim: var(--mc-surface-dim, oklch(0.93 0.014 var(--hue))) var(--mc-surface-dim, oklch(0.12 0.011 var(--hue)))
+  --surface-bright: var(--mc-surface-bright, oklch(0.98 0.008 var(--hue))) var(--mc-surface-bright, oklch(0.20 0.015 var(--hue)))
+  --surface-container-lowest: var(--mc-surface-container-lowest, oklch(0.985 0.006 var(--hue))) var(--mc-surface-container-lowest, oklch(0.12 0.011 var(--hue)))
+  --surface-container-low: var(--mc-surface-container-low, oklch(0.965 0.01 var(--hue))) var(--mc-surface-container-low, oklch(0.19 0.014 var(--hue)))
+  --surface-container: var(--mc-surface-container, oklch(0.94 0.015 var(--hue))) var(--mc-surface-container, oklch(0.23 0.016 var(--hue)))
+  --surface-container-high: var(--mc-surface-container-high, oklch(0.92 0.02 var(--hue))) var(--mc-surface-container-high, oklch(0.28 0.018 var(--hue)))
+  --surface-container-highest: var(--mc-surface-container-highest, oklch(0.90 0.025 var(--hue))) var(--mc-surface-container-highest, oklch(0.33 0.02 var(--hue)))
+  --surface-tint: var(--mc-surface-tint, var(--primary)) var(--mc-surface-tint, var(--primary))
+  --on-surface: var(--mc-on-surface, oklch(0.16 0.02 var(--hue))) var(--mc-on-surface, oklch(0.92 0.015 var(--hue)))
+  --on-surface-variant: var(--mc-on-surface-variant, oklch(0.34 0.03 var(--hue))) var(--mc-on-surface-variant, oklch(0.76 0.03 var(--hue)))
 
   /* 轮廓线 */
-  --outline: oklch(0.45 0.03 var(--hue)) oklch(0.62 0.03 var(--hue))
-  --outline-variant: oklch(0.76 0.02 var(--hue)) oklch(0.42 0.02 var(--hue))
+  --outline: var(--mc-outline, oklch(0.45 0.03 var(--hue))) var(--mc-outline, oklch(0.62 0.03 var(--hue)))
+  --outline-variant: var(--mc-outline-variant, oklch(0.76 0.02 var(--hue))) var(--mc-outline-variant, oklch(0.42 0.02 var(--hue)))
 })
 
 /* M3 形状尺度与表面映射 */
