@@ -96,3 +96,59 @@ define({
   --toc-width: calc((100vw - var(--page-width)) / 2 - 1rem)
   --toc-item-active: oklch(0.70 0.13 var(--hue)) oklch(0.35 0.07 var(--hue))
 })
+
+/* ============================================================
+   Material 3 设计令牌层（Shirone）
+   基于 --hue 动态派生 M3 色彩角色；secondary/tertiary 使用色相偏移。
+   ============================================================ */
+define({
+  /* 主角色 primary */
+  --primary: oklch(0.52 0.16 var(--hue)) oklch(0.80 0.14 var(--hue))
+  --on-primary: oklch(0.99 0.02 var(--hue)) oklch(0.20 0.04 var(--hue))
+  --primary-container: oklch(0.90 0.06 var(--hue)) oklch(0.36 0.10 var(--hue))
+  --on-primary-container: oklch(0.24 0.09 var(--hue)) oklch(0.90 0.05 var(--hue))
+
+  /* 次角色 secondary：樱粉偏移 */
+  --secondary: oklch(0.52 0.13 calc(var(--hue) + 65)) oklch(0.82 0.11 calc(var(--hue) + 65))
+  --on-secondary: oklch(0.99 0.02 var(--hue)) oklch(0.20 0.04 calc(var(--hue) + 65))
+  --secondary-container: oklch(0.90 0.05 calc(var(--hue) + 65)) oklch(0.37 0.08 calc(var(--hue) + 65))
+  --on-secondary-container: oklch(0.26 0.08 calc(var(--hue) + 65)) oklch(0.91 0.05 calc(var(--hue) + 65))
+
+  /* 第三角色 tertiary：水青偏移 */
+  --tertiary: oklch(0.50 0.12 calc(var(--hue) - 100)) oklch(0.82 0.10 calc(var(--hue) - 100))
+  --on-tertiary: oklch(0.99 0.02 var(--hue)) oklch(0.20 0.04 calc(var(--hue) - 100))
+  --tertiary-container: oklch(0.90 0.05 calc(var(--hue) - 100)) oklch(0.37 0.08 calc(var(--hue) - 100))
+  --on-tertiary-container: oklch(0.26 0.08 calc(var(--hue) - 100)) oklch(0.91 0.05 calc(var(--hue) - 100))
+
+  /* 表面与高度（tonal elevation） */
+  --surface: oklch(0.96 0.012 var(--hue)) oklch(0.15 0.013 var(--hue))
+  --surface-container-lowest: oklch(0.985 0.006 var(--hue)) oklch(0.12 0.011 var(--hue))
+  --surface-container-low: oklch(0.965 0.01 var(--hue)) oklch(0.19 0.014 var(--hue))
+  --surface-container: oklch(0.94 0.015 var(--hue)) oklch(0.23 0.016 var(--hue))
+  --surface-container-high: oklch(0.92 0.02 var(--hue)) oklch(0.28 0.018 var(--hue))
+  --surface-container-highest: oklch(0.90 0.025 var(--hue)) oklch(0.33 0.02 var(--hue))
+  --surface-tint: var(--primary) var(--primary)
+  --on-surface: oklch(0.22 0.02 var(--hue)) oklch(0.92 0.015 var(--hue))
+  --on-surface-variant: oklch(0.47 0.03 var(--hue)) oklch(0.76 0.03 var(--hue))
+
+  /* 轮廓线 */
+  --outline: oklch(0.52 0.03 var(--hue)) oklch(0.62 0.03 var(--hue))
+  --outline-variant: oklch(0.86 0.02 var(--hue)) oklch(0.42 0.02 var(--hue))
+})
+
+/* M3 形状尺度与表面映射 */
+:root
+  --shape-corner-xs: 4px
+  --shape-corner-s: 8px
+  --shape-corner-m: 12px
+  --shape-corner-l: 16px
+  --shape-corner-xl: 28px
+  --shape-corner-full: 999px
+  --radius-large: var(--shape-corner-l)
+  --page-bg: var(--surface)
+  --card-bg: var(--surface-container-lowest)
+  --float-panel-bg: var(--surface-container)
+:root.dark
+  --page-bg: var(--surface)
+  --card-bg: var(--surface-container-high)
+  --float-panel-bg: var(--surface-container-low)
