@@ -44,21 +44,21 @@ function styleKey(s: McStyle): I18nKey {
 
 <div id="display-setting" class="float-panel float-panel-closed absolute transition-all w-80 right-4 px-4 py-4">
     <div class="flex flex-row gap-2 mb-3 items-center justify-between">
-        <div class="flex gap-2 font-bold text-lg text-neutral-900 dark:text-neutral-100 transition relative ml-3
+        <div class="flex gap-2 font-bold text-lg text-[var(--on-surface)] transition relative ml-3
             before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
             before:absolute before:-left-3 before:top-[0.33rem]"
         >
             {i18n(I18nKey.themeColor)}
-            <button aria-label="Reset to Default" class="btn-regular w-7 h-7 rounded-md  active:scale-90 will-change-transform"
+            <button aria-label="Reset to Default" class="float-control w-7 h-7 rounded-md active:scale-90 will-change-transform"
                     class:opacity-0={hue === defaultHue} class:pointer-events-none={hue === defaultHue} on:click={resetHue}>
-                <div class="text-[var(--btn-content)]">
+                <div>
                     <Icon icon="fa6-solid:arrow-rotate-left" class="text-[0.875rem]"></Icon>
                 </div>
             </button>
         </div>
         <div class="flex gap-1">
-            <div id="hueValue" class="transition bg-[var(--btn-regular-bg)] w-10 h-7 rounded-md flex justify-center
-            font-bold text-sm items-center text-[var(--btn-content)]">
+            <div id="hueValue" class="float-control transition w-10 h-7 rounded-md flex justify-center
+            font-bold text-sm items-center">
                 {hue}
             </div>
         </div>
@@ -70,8 +70,8 @@ function styleKey(s: McStyle): I18nKey {
 
     <div class="flex flex-col gap-2 mt-4">
         <div class="flex gap-2 items-center justify-between">
-            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 ml-1">{i18n(I18nKey.colorStyle)}</span>
-            <select class="btn-regular rounded-md text-sm px-2 py-1 outline-none" bind:value={style}
+            <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorStyle)}</span>
+            <select class="float-control rounded-md text-sm px-2 py-1 outline-none" bind:value={style}
                     aria-label={i18n(I18nKey.colorStyle)}>
                 {#each MC_STYLES as s (s)}
                     <option value={s}>{i18n(styleKey(s))}</option>
@@ -79,8 +79,8 @@ function styleKey(s: McStyle): I18nKey {
             </select>
         </div>
         <div class="flex gap-2 items-center justify-between">
-            <span class="text-sm font-bold text-neutral-700 dark:text-neutral-200 ml-1">{i18n(I18nKey.colorSpec)}</span>
-            <select class="btn-regular rounded-md text-sm px-2 py-1 outline-none" bind:value={spec}
+            <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorSpec)}</span>
+            <select class="float-control rounded-md text-sm px-2 py-1 outline-none" bind:value={spec}
                     aria-label={i18n(I18nKey.colorSpec)}>
                 {#each MC_SPECS as s (s)}
                     <option value={s}>{s === "2021" ? i18n(I18nKey.spec2021) : i18n(I18nKey.spec2025)}</option>
@@ -93,6 +93,13 @@ function styleKey(s: McStyle): I18nKey {
 
 <style lang="stylus">
     #display-setting
+      select
+        color-scheme light
+
+        option
+          color var(--on-surface)
+          background var(--surface-container-high)
+
       input[type="range"]
         -webkit-appearance none
         height 1.5rem
@@ -136,5 +143,8 @@ function styleKey(s: McStyle): I18nKey {
             background rgba(255, 255, 255, 0.8)
           &:active
             background rgba(255, 255, 255, 0.6)
+
+    :global(.dark) #display-setting select
+      color-scheme dark
 
 </style>

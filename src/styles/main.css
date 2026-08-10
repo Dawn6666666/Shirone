@@ -41,6 +41,16 @@
     .float-panel-closed {
         @apply -translate-y-1 opacity-0 pointer-events-none
     }
+    .float-control {
+        @apply text-[var(--on-surface)] bg-[var(--float-control-bg)]
+        hover:bg-[var(--float-control-bg-hover)] active:bg-[var(--float-control-bg-active)];
+    }
+    .float-menu-item {
+        @apply text-[var(--on-surface)] hover:bg-[var(--float-item-bg-hover)] active:bg-[var(--float-item-bg-active)];
+    }
+    .float-menu-item.current-theme-btn {
+        @apply text-[var(--on-secondary-container)] bg-[var(--secondary-container)];
+    }
     .search-panel mark {
         @apply bg-transparent text-[var(--primary)]
     }
