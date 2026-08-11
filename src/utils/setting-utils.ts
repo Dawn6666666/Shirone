@@ -46,10 +46,14 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
 			break;
 	}
 
-	// Set the theme for Expressive Code
+	// Set the theme for Expressive Code based on current mode
+	// (light/dark code block themes)
+	const isDark = document.documentElement.classList.contains("dark");
 	document.documentElement.setAttribute(
 		"data-theme",
-		expressiveCodeConfig.theme,
+		isDark
+			? (expressiveCodeConfig.darkTheme ?? expressiveCodeConfig.theme)
+			: (expressiveCodeConfig.lightTheme ?? expressiveCodeConfig.theme),
 	);
 
 	// Dark mode affects the resolved M3/M3E scheme

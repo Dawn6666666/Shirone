@@ -61,9 +61,9 @@ define({
   --inline-code-color: var(--on-surface-variant) var(--on-surface-variant)
   --selection-bg: var(--primary-container) var(--primary-container)
   --codeblock-selection: var(--primary-container) var(--primary-container)
-  /* 代码块在亮/暗模式下都保持深色：亮色用 inverse-surface，暗色用 surface-dim */
-  --codeblock-bg: var(--mc-inverse-surface, oklch(0.17 0.015 var(--hue))) var(--surface-dim)
-  --codeblock-topbar-bg: var(--mc-surface-container-high, oklch(0.17 0.015 var(--hue))) var(--surface-container-low)
+  /* 代码块跟随明暗：白天浅色（配合 github-light），夜间深色（配合 github-dark） */
+  --codeblock-bg: var(--mc-surface-container-low, oklch(0.97 0.005 var(--hue))) var(--surface-dim)
+  --codeblock-topbar-bg: var(--mc-surface-container, oklch(0.94 0.01 var(--hue))) var(--surface-container-low)
 
   --license-block-bg: black(0.03) var(--codeblock-bg)
 
