@@ -107,7 +107,7 @@
         transform 150ms ease;
 }
 
-.expressive-code.auto-collapsible.collapsed .collapse-toggle-btn,
+/* 折叠按钮与复制按钮一致：悬停/聚焦 frame 时才显示 */
 .expressive-code.auto-collapsible .frame:hover .collapse-toggle-btn,
 .expressive-code.auto-collapsible .collapse-toggle-btn:focus-visible {
     opacity: 1;
