@@ -206,8 +206,14 @@ export type McScheme = Record<string, string | null>;
 
 /**
  * Resolve every M3/M3E color role to hex for a given seed hue, style, spec and
- * light/dark mode. Roles that don't exist in a spec (e.g. `*Dim` in 2021) are
- * resolved to `null`.
+ * light/dark mode.
+ *
+ * 关于 spec（2021 vs 2025）：在 @material/material-color-utilities@0.4.0 中
+ * `MaterialDynamicColors.colorSpec` 是静态属性、模块加载时固定为 2025 版委托
+ * （material_dynamic_colors.js:295），因此**所有角色（含 `*Dim`/`*Fixed`）
+ * 在 2021 与 2025 下都会解析出值**；2021/2025 的实际差异仅在调色板派生层
+ * （DynamicSchemePalettesDelegateImpl2021 vs 2025），不影响角色集。
+ * 仅当角色的 DynamicColor resolver 为 undefined 时，才返回 null（防御性保留）。
  */
 export function resolveScheme(
 	hue: number,

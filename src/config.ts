@@ -16,7 +16,8 @@ export const siteConfig: SiteConfig = {
 		fixed: false, // Hide the theme color picker for visitors
 		// Dynamic Material 3 palette style (TonalSpot/Vibrant/Content/Expressive/Rainbow/FruitSalad/Monochrome/Neutral/Fidelity)
 		style: "tonalSpot",
-		// Design spec version: "2021" (MD3) or "2025" (M3 Expressive, extra color roles)
+		// Design spec version: "2021" (MD3) or "2025" (M3 Expressive)。角色集一致，
+		// 差异仅在调色板派生（库的 colorSpec 静态为 2025 委托）
 		spec: "2021",
 	},
 	banner: {
