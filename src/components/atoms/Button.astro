@@ -1,10 +1,12 @@
 ---
 /**
  * M3E Button — M3 按钮原子（filled / tonal / outlined / text）。
+ * 形状跟随站内风格：默认 12px 圆角（--shape-corner-m），M3 胶囊用 class="rounded-full!" 覆盖。
  * 状态层走全局 .m3-state-layer（hover 8% / focus 10% / pressed 12%）。
+ * 提供 href 时渲染 <a>（用于导航链接，避免 a>button 非法嵌套）。
  */
 interface Props {
-	/** M3 按钮变体 */
+	/** M3 按钮变体。text 变体为中性文字 + primary 状态层（还原站内 nav 链接观感） */
 	variant?: "filled" | "tonal" | "outlined" | "text";
 	/** 高度：small 32px / medium 40px / large 48px */
 	size?: "small" | "medium" | "large";
@@ -12,6 +14,13 @@ interface Props {
 	type?: "button" | "submit" | "reset";
 	/** aria-label，图标按钮等无文字时使用 */
 	label?: string;
+	/** 提供时渲染为 <a> */
+	href?: string;
+	target?: string | null;
+	/** 占满容器宽度 */
+	full?: boolean;
+	/** 内容对齐：center / start（左）/ between（标题左、徽标右） */
+	align?: "center" | "start" | "between";
 	class?: string;
 }
 
@@ -21,41 +30,73 @@ const {
 	disabled = false,
 	type = "button",
 	label,
+	href,
+	target,
+	full = false,
+	align = "center",
 	class: className,
 } = Astro.props;
+
+const classList = [
+	"m3-button",
+	"m3-state-layer",
+	`m3-button--${variant}`,
+	`m3-button--${size}`,
+	`m3-button--${align}`,
+	{ "m3-button--full": full },
+	className,
+];
 ---
 
-<button
-    type={type}
-    {disabled}
-    aria-label={label}
-    class:list={[
-        "m3-button",
-        "m3-state-layer",
-        `m3-button--${variant}`,
-        `m3-button--${size}`,
-        className,
-    ]}
->
-    <span class="m3-button__content">
-        <slot />
-    </span>
-</button>
+{
+	href ? (
+		<a
+			href={href}
+			target={target}
+			aria-label={label}
+			class:list={classList}
+		>
+			<span class="m3-button__content"><slot /></span>
+		</a>
+	) : (
+		<button
+			type={type}
+			disabled={disabled}
+			aria-label={label}
+			class:list={classList}
+		>
+			<span class="m3-button__content"><slot /></span>
+		</button>
+	)
+}
 
 <style lang="stylus">
 .m3-button
+  display: inline-flex
   border: none
   cursor: pointer
   user-select: none
-  border-radius: var(--shape-corner-full)
+  text-decoration: none
+  border-radius: var(--shape-corner-m)
   white-space: nowrap
+  box-sizing: border-box
 
   &__content
     display: flex
     align-items: center
-    justify-content: center
     gap: 0.5rem
     min-width: 0
+
+  /* 对齐方式 */
+  &--center &__content
+    justify-content: center
+  &--start &__content
+    justify-content: flex-start
+  &--between &__content
+    justify-content: space-between
+
+  &--full
+    width: 100%
 
   /* sizes */
   &--small
@@ -97,10 +138,10 @@ const {
     box-shadow: none
     border: 1px solid var(--outline)
 
-  /* text：纯文字按钮 */
+  /* text：中性文字（on-surface），状态层用 primary → hover 主色叠影 */
   &--text
     background: transparent
-    color: var(--primary)
+    color: var(--on-surface)
     --m3e-state-color: var(--primary)
     box-shadow: none
 </style>

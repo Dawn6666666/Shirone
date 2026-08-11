@@ -162,6 +162,10 @@
     .m3-state-layer:hover::before {
         opacity: 1;
     }
+    .m3-state-layer:focus-within::before {
+        opacity: 1;
+        background: color-mix(in oklab, var(--m3e-state-color, var(--on-surface)) var(--m3e-state-focus-alpha, 10%), transparent);
+    }
     .m3-state-layer:focus-visible::before {
         opacity: 1;
         background: color-mix(in oklab, var(--m3e-state-color, var(--on-surface)) var(--m3e-state-focus-alpha, 10%), transparent);

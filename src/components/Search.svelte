@@ -12,6 +12,10 @@ let result: SearchResult[] = [];
 let isSearching = false;
 let pagefindLoaded = false;
 let initialized = false;
+let isDesktopSearchExpanded = false;
+let windowJustFocused = false;
+let focusTimer: ReturnType<typeof setTimeout>;
+let blurTimer: ReturnType<typeof setTimeout>;
 
 const fakeResult: SearchResult[] = [
 	{
@@ -45,6 +49,34 @@ const setPanelVisibility = (show: boolean, isDesktop: boolean): void => {
 	} else {
 		panel.classList.add("float-panel-closed");
 	}
+};
+
+// 展开桌面搜索：hover 受窗口焦点保护（防止切窗口误触），显式点击/触碰不受限
+const expandDesktopSearch = (force = false) => {
+	if (!force && windowJustFocused) {
+		return;
+	}
+	isDesktopSearchExpanded = true;
+	setTimeout(() => {
+		const input = document.getElementById(
+			"search-input-desktop",
+		) as HTMLInputElement;
+		input?.focus();
+	}, 0);
+};
+
+const collapseDesktopSearch = () => {
+	if (!keywordDesktop) {
+		isDesktopSearchExpanded = false;
+	}
+};
+
+// 失焦后延迟折叠，允许搜索结果点击先执行
+const handleBlur = () => {
+	blurTimer = setTimeout(() => {
+		isDesktopSearchExpanded = false;
+		setPanelVisibility(false, true);
+	}, 200);
 };
 
 const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
@@ -112,7 +144,7 @@ onMount(() => {
 			console.warn(
 				"Pagefind load error event received. Search functionality will be limited.",
 			);
-			initializeSearch(); // Initialize with pagefindLoaded as false
+			initializeSearch();
 		});
 
 		// Fallback in case events are not caught or pagefind is already loaded by the time this script runs
@@ -121,8 +153,20 @@ onMount(() => {
 				console.log("Fallback: Initializing search after timeout.");
 				initializeSearch();
 			}
-		}, 2000); // Adjust timeout as needed
+		}, 2000);
 	}
+
+	// 监听窗口焦点，防止切换窗口时自动展开搜索框
+	const handleWindowFocus = () => {
+		windowJustFocused = true;
+		clearTimeout(focusTimer);
+		focusTimer = setTimeout(() => {
+			windowJustFocused = false;
+		}, 500);
+	};
+	window.addEventListener("focus", handleWindowFocus);
+
+	return () => window.removeEventListener("focus", handleWindowFocus);
 });
 
 $: if (initialized && keywordDesktop) {
@@ -138,20 +182,42 @@ $: if (initialized && keywordMobile) {
 }
 </script>
 
-<!-- search bar for desktop view -->
-<div id="search-bar" class="hidden lg:flex transition-all items-center h-11 mr-2 rounded-lg
-      bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06]
-      dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
-">
-    <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-[var(--on-surface-variant)] opacity-60"></Icon>
-    <input placeholder="{i18n(I18nKey.search)}" bind:value={keywordDesktop} on:focus={() => search(keywordDesktop, true)}
-           class="search-input transition-all pl-10 text-sm bg-transparent outline-0
-         h-full w-40 active:w-60 focus:w-60"
+<!-- 桌面搜索：独立按钮（40px 图标按钮），hover/点击展开成胶囊搜索条 -->
+<div class="hidden lg:block relative w-10 h-10 shrink-0">
+    <div
+        id="search-bar"
+        class="m3-state-layer absolute right-0 top-0 flex items-center overflow-hidden rounded-full transition-all duration-300 h-10
+               {isDesktopSearchExpanded
+                   ? 'w-48 bg-(--surface-container-high)'
+                   : 'w-10 bg-transparent'}"
+        onmouseenter={() => { if (!isDesktopSearchExpanded) expandDesktopSearch(); }}
+        onmouseleave={collapseDesktopSearch}
+        onclick={() => {
+            // 触碰/点击显式展开（force 忽略窗口焦点保护），再聚焦输入
+            if (!isDesktopSearchExpanded) expandDesktopSearch(true);
+            const input = document.getElementById("search-input-desktop") as HTMLInputElement;
+            input?.focus();
+        }}
     >
+        <Icon icon="material-symbols:search"
+              class="pointer-events-none shrink-0 text-[1.25rem] text-[var(--on-surface-variant)] transition-all
+                     {isDesktopSearchExpanded ? 'ml-3' : 'mx-auto'}"></Icon>
+        <input
+            id="search-input-desktop"
+            name="search-desktop"
+            placeholder={i18n(I18nKey.search)}
+            bind:value={keywordDesktop}
+            tabindex={isDesktopSearchExpanded ? 0 : -1}
+            onfocus={() => { clearTimeout(blurTimer); search(keywordDesktop, true); }}
+            onblur={handleBlur}
+            class="h-full bg-transparent outline-0 text-(--on-surface) caret-(--primary) transition-all
+                   {isDesktopSearchExpanded ? 'w-32 pl-2 opacity-100' : 'w-0 opacity-0'}"
+        />
+    </div>
 </div>
 
 <!-- toggle btn for phone/tablet view -->
-<button on:click={togglePanel} aria-label="Search Panel" id="search-switch"
+<button onclick={togglePanel} aria-label="Search Panel" id="search-switch"
         class="btn-plain scale-animation lg:!hidden rounded-lg w-11 h-11 active:scale-90">
     <Icon icon="material-symbols:search" class="text-[1.25rem]"></Icon>
 </button>
@@ -160,16 +226,11 @@ $: if (initialized && keywordMobile) {
 <div id="search-panel" class="float-panel float-panel-closed search-panel absolute md:w-[30rem]
 top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2">
 
-    <!-- search bar inside panel for phone/tablet -->
-    <div id="search-bar-inside" class="flex relative lg:hidden transition-all items-center h-11 rounded-xl
-      bg-black/[0.04] hover:bg-black/[0.06] focus-within:bg-black/[0.06]
-      dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
-  ">
-        <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-[var(--on-surface-variant)] opacity-60"></Icon>
-        <input placeholder={i18n(I18nKey.search)} bind:value={keywordMobile}
-               class="search-input pl-10 absolute inset-0 text-sm bg-transparent outline-0
-               focus:w-60"
-        >
+    <!-- 面板内搜索条（移动端）：M3 胶囊填充式 -->
+    <div class="m3-state-layer flex relative lg:hidden items-center h-11 rounded-full overflow-hidden bg-(--surface-container-high)">
+        <Icon icon="material-symbols:search" class="ml-3 text-[1.25rem] text-[var(--on-surface-variant)]"></Icon>
+        <input name="search-mobile" placeholder={i18n(I18nKey.search)} bind:value={keywordMobile}
+               class="pl-2 pr-4 h-full min-w-0 flex-1 bg-transparent outline-0 text-sm text-(--on-surface) caret-(--primary)" />
     </div>
 
     <!-- search results -->
@@ -188,17 +249,6 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2">
 </div>
 
 <style>
-  input:focus {
-    outline: 0;
-  }
-  .search-input {
-    color: var(--on-surface);
-    caret-color: var(--primary);
-  }
-  .search-input::placeholder {
-    color: var(--on-surface-variant);
-    opacity: 0.72;
-  }
   .search-panel {
     max-height: calc(100vh - 100px);
     overflow-y: auto;
