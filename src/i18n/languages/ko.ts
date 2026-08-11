@@ -51,4 +51,11 @@ export const ko: Translation = {
 	[Key.publishedAt]: "게시일",
 	[Key.license]: "라이선스",
 	[Key.copySuccess]: "클립보드에 복사되었습니다",
+
+	[Key.reduceMotion]: "동작 줄이기",
+	[Key.resetConfirmTitle]: "테마를 재설정할까요?",
+	[Key.resetConfirmMessage]:
+		"기본 색상, 색상 스타일, 색상 규격으로 되돌아갑니다.",
+	[Key.cancel]: "취소",
+	[Key.reset]: "재설정",
 };

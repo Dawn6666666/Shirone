@@ -51,4 +51,11 @@ export const th: Translation = {
 	[Key.publishedAt]: "เผยแพร่เมื่อ",
 	[Key.license]: "สัญญาอนุญาต",
 	[Key.copySuccess]: "คัดลอกไปยังคลิปบอร์ดแล้ว",
+
+	[Key.reduceMotion]: "ลดการเคลื่อนไหว",
+	[Key.resetConfirmTitle]: "รีเซ็ตธีมหรือไม่",
+	[Key.resetConfirmMessage]:
+		"จะคืนค่าสีหลัก สไตล์สี และสเปกสีกลับเป็นค่าเริ่มต้น",
+	[Key.cancel]: "ยกเลิก",
+	[Key.reset]: "รีเซ็ต",
 };

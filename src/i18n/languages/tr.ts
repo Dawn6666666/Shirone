@@ -51,4 +51,11 @@ export const tr: Translation = {
 	[Key.publishedAt]: "Yayınlanma:",
 	[Key.license]: "Lisans",
 	[Key.copySuccess]: "Panoya kopyalandı",
+
+	[Key.reduceMotion]: "Hareketi azalt",
+	[Key.resetConfirmTitle]: "Tema sıfırlansın mı?",
+	[Key.resetConfirmMessage]:
+		"Varsayılan renk tonu, renk stili ve renk spesifikasyonu geri yüklenecek.",
+	[Key.cancel]: "İptal",
+	[Key.reset]: "Sıfırla",
 };

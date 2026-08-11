@@ -51,4 +51,10 @@ export const zh_TW: Translation = {
 	[Key.publishedAt]: "發佈於",
 	[Key.license]: "許可協議",
 	[Key.copySuccess]: "已複製到剪貼簿",
+
+	[Key.reduceMotion]: "減少動態效果",
+	[Key.resetConfirmTitle]: "重置主題設定？",
+	[Key.resetConfirmMessage]: "將恢復為站點預設的色相、配色風格與 Color Spec。",
+	[Key.cancel]: "取消",
+	[Key.reset]: "重設",
 };

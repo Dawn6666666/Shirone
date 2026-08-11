@@ -146,6 +146,11 @@ const bannerOffset =
 			const hue = localStorage.getItem('hue') || configHue;
 			document.documentElement.style.setProperty('--hue', hue);
 
+			// Apply reduced-motion preference before paint to avoid animation flash
+			if (localStorage.getItem('mc-motion') === 'reduced') {
+				document.documentElement.classList.add('motion-reduced');
+			}
+
 			// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
 			let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
 			offset = offset - offset % 4;

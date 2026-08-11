@@ -51,4 +51,11 @@ export const vi: Translation = {
 	[Key.publishedAt]: "Đăng vào lúc",
 	[Key.license]: "Giấy phép bản quyền",
 	[Key.copySuccess]: "Đã sao chép vào bộ nhớ tạm",
+
+	[Key.reduceMotion]: "Giảm chuyển động",
+	[Key.resetConfirmTitle]: "Đặt lại chủ đề?",
+	[Key.resetConfirmMessage]:
+		"Sẽ khôi phục hue, phong cách màu và đặc tả màu mặc định.",
+	[Key.cancel]: "Hủy",
+	[Key.reset]: "Đặt lại",
 };
