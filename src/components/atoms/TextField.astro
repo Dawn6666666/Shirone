@@ -1,0 +1,96 @@
+---
+/**
+ * M3E TextField — M3 填充式文本输入原子。
+ * 容器 --surface-container-high、底部主色下划线（focus 时亮起），
+ * 可选前导图标（图标放插槽最前）。交互由使用方通过 id/脚本驱动。
+ */
+interface Props {
+	type?: "text" | "search" | "email" | "password";
+	placeholder?: string;
+	value?: string;
+	name?: string;
+	id?: string;
+	label?: string;
+	class?: string;
+}
+
+const {
+	type = "text",
+	placeholder,
+	value,
+	name,
+	id,
+	label,
+	class: className,
+} = Astro.props;
+---
+
+<div class:list={["m3-text-field", className]}>
+    <span class="m3-text-field__icon">
+        <slot name="leading" />
+    </span>
+    <input
+        id={id}
+        type={type}
+        name={name}
+        value={value}
+        placeholder={placeholder}
+        aria-label={label}
+    />
+    <span class="m3-text-field__underline" aria-hidden="true"></span>
+</div>
+
+<style lang="stylus">
+.m3-text-field
+    position: relative
+    display: flex
+    align-items: center
+    height: 3rem
+    padding: 0 1rem
+    gap: 0.75rem
+    border-radius: var(--shape-corner-xs) var(--shape-corner-xs) 0 0
+    background: var(--surface-container-high)
+    color: var(--on-surface)
+    font: var(--m3e-type-body-large)
+    transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
+
+    &:hover
+        background: unquote("color-mix(in oklab, var(--on-surface) 8%, var(--surface-container-high))")
+
+    &:focus-within
+        background: unquote("color-mix(in oklab, var(--on-surface) 10%, var(--surface-container-high))")
+
+    &__icon
+        display: flex
+        align-items: center
+        color: var(--on-surface-variant)
+        font-size: 1.25rem
+        line-height: 1
+
+    input
+        flex: 1
+        min-width: 0
+        background: transparent
+        border: none
+        outline: none
+        color: var(--on-surface)
+        caret-color: var(--primary)
+        font: inherit
+        &::placeholder
+            color: var(--on-surface-variant)
+
+    &__underline
+        position: absolute
+        left: 0
+        right: 0
+        bottom: 0
+        height: 2px
+        background: var(--primary)
+        opacity: 0
+        transform: scaleX(0.5)
+        transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard), transform var(--m3e-duration-short) var(--m3e-easing-emphasized-decelerate)
+
+    &:focus-within &__underline
+        opacity: 1
+        transform: scaleX(1)
+</style>

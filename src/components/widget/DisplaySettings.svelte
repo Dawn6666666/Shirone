@@ -1,31 +1,44 @@
 <script lang="ts">
+import Slider from "@components/atoms/Slider.svelte";
+import SegmentedButton from "@components/atoms/SegmentedButton.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
 import { getDefaultHue, getHue, setHue } from "@utils/setting-utils";
 import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
-import { MC_SPECS, MC_STYLES, type McSpec, type McStyle } from "@utils/mc-utils";
+import { MC_SPECS, MC_STYLES, resolveScheme, type McSpec, type McStyle } from "@utils/mc-utils";
+import { onMount } from "svelte";
 
-let hue = getHue();
 const defaultHue = getDefaultHue();
-let style: McStyle = getStyle();
-let spec: McSpec = getSpec();
+let hue = $state(getHue());
+let style = $state<McStyle>(getStyle());
+let spec = $state<McSpec>(getSpec());
+let dark = $state(
+	typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+);
+
+// 明暗切换时重算色卡（LightDarkSwitch 改 <html> 的 class）
+onMount(() => {
+	const observer = new MutationObserver(() => {
+		dark = document.documentElement.classList.contains("dark");
+	});
+	observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+	return () => observer.disconnect();
+});
 
 function resetHue() {
 	hue = getDefaultHue();
 }
 
-$: if (hue || hue === 0) {
-	setHue(hue);
-}
-
-$: if (style) {
+$effect(() => {
+	if (hue || hue === 0) setHue(hue);
+});
+$effect(() => {
 	setStyle(style);
-}
-
-$: if (spec) {
+});
+$effect(() => {
 	setSpec(spec);
-}
+});
 
 function styleKey(s: McStyle): I18nKey {
 	switch (s) {
@@ -40,6 +53,28 @@ function styleKey(s: McStyle): I18nKey {
 		case "fidelity": return I18nKey.styleFidelity;
 	}
 }
+
+/** 某个风格在当前色相/明暗/规范下的 primary/secondary/tertiary */
+function styleColors(s: McStyle, h: number, d: boolean, sp: McSpec) {
+	const scheme = resolveScheme(h, d, s, sp);
+	return {
+		primary: scheme.primary ?? "#888",
+		secondary: scheme.secondary ?? "#888",
+		tertiary: scheme.tertiary ?? "#888",
+	};
+}
+
+/** 当前主色（标题右侧预览圆点） */
+const currentColor = $derived(styleColors(style, hue, dark, spec).primary);
+
+/** 9 个风格的色卡预览（3×3 网格） */
+const stylePreviews = $derived(
+	MC_STYLES.map((s) => ({
+		style: s,
+		label: i18n(styleKey(s)),
+		colors: styleColors(s, hue, dark, spec),
+	})),
+);
 </script>
 
 <div id="display-setting" class="float-panel float-panel-closed absolute transition-all w-80 right-4 px-4 py-4">
@@ -49,102 +84,98 @@ function styleKey(s: McStyle): I18nKey {
             before:absolute before:-left-3 before:top-[0.33rem]"
         >
             {i18n(I18nKey.themeColor)}
-            <button aria-label="Reset to Default" class="float-control w-7 h-7 rounded-md active:scale-90 will-change-transform"
-                    class:opacity-0={hue === defaultHue} class:pointer-events-none={hue === defaultHue} on:click={resetHue}>
-                <div>
-                    <Icon icon="fa6-solid:arrow-rotate-left" class="text-[0.875rem]"></Icon>
-                </div>
+            <button aria-label="Reset to Default" class="float-control w-7 h-7 rounded-md active:scale-90 will-change-transform flex items-center justify-center"
+                    class:opacity-0={hue === defaultHue} class:pointer-events-none={hue === defaultHue} onclick={resetHue}>
+                <Icon icon="fa6-solid:arrow-rotate-left" class="text-[0.875rem]"></Icon>
             </button>
         </div>
-        <div class="flex gap-1">
+        <div class="flex gap-1 items-center">
             <div id="hueValue" class="float-control transition w-10 h-7 rounded-md flex justify-center
             font-bold text-sm items-center">
                 {hue}
             </div>
+            <!-- 当前主色实时预览 -->
+            <div class="h-7 w-7 rounded-full" title={i18n(I18nKey.themeColor)}
+                 style={`background: ${currentColor}; box-shadow: inset 0 0 0 1px var(--outline-variant)`}></div>
         </div>
     </div>
-    <div class="w-full h-6 px-1 bg-[oklch(0.80_0.10_0)] dark:bg-[oklch(0.70_0.10_0)] rounded select-none">
-        <input aria-label={i18n(I18nKey.themeColor)} type="range" min="0" max="360" bind:value={hue}
-               class="slider" id="colorSlider" step="5" style="width: 100%">
-    </div>
+    <Slider bind:value={hue} min={0} max={360} step={5} label={i18n(I18nKey.themeColor)} />
 
-    <div class="flex flex-col gap-2 mt-4">
-        <div class="flex gap-2 items-center justify-between">
-            <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorStyle)}</span>
-            <select class="float-control rounded-md text-sm px-2 py-1 outline-none" bind:value={style}
-                    aria-label={i18n(I18nKey.colorStyle)}>
-                {#each MC_STYLES as s (s)}
-                    <option value={s}>{i18n(styleKey(s))}</option>
-                {/each}
-            </select>
+    <div class="flex flex-col gap-3 mt-4">
+        <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorStyle)}</span>
+        <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label={i18n(I18nKey.colorStyle)}>
+            {#each stylePreviews as p (p.style)}
+                <button
+                    type="button"
+                    role="radio"
+                    aria-checked={style === p.style}
+                    title={p.label}
+                    aria-label={p.label}
+                    class="m3-style-cell"
+                    class:selected={style === p.style}
+                    onclick={() => (style = p.style)}
+                >
+                    <span class="m3-style-cell__dots">
+                        <span class="m3-style-cell__dot" style={`background: ${p.colors.primary}`}></span>
+                        <span class="m3-style-cell__dot" style={`background: ${p.colors.secondary}`}></span>
+                        <span class="m3-style-cell__dot" style={`background: ${p.colors.tertiary}`}></span>
+                    </span>
+                    <span class="m3-style-cell__name">{p.label}</span>
+                </button>
+            {/each}
         </div>
-        <div class="flex gap-2 items-center justify-between">
+
+        <div class="flex flex-col gap-1.5">
             <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorSpec)}</span>
-            <select class="float-control rounded-md text-sm px-2 py-1 outline-none" bind:value={spec}
-                    aria-label={i18n(I18nKey.colorSpec)}>
-                {#each MC_SPECS as s (s)}
-                    <option value={s}>{s === "2021" ? i18n(I18nKey.spec2021) : i18n(I18nKey.spec2025)}</option>
-                {/each}
-            </select>
+            <SegmentedButton
+                options={MC_SPECS.map((s) => ({
+                    value: s,
+                    label: s === "2021" ? i18n(I18nKey.spec2021) : i18n(I18nKey.spec2025),
+                }))}
+                bind:value={spec}
+                label={i18n(I18nKey.colorSpec)}
+            />
         </div>
     </div>
 </div>
 
 
 <style lang="stylus">
-    #display-setting
-      select
-        color-scheme light
+    .m3-style-cell
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: center
+        gap: 0.375rem
+        padding: 0.5rem 0.25rem
+        border: none
+        border-radius: var(--shape-corner-s)
+        background: transparent
+        color: var(--on-surface-variant)
+        font: var(--m3e-type-label-small)
+        cursor: pointer
+        user-select: none
+        transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard), color var(--m3e-duration-short) var(--m3e-easing-standard)
+        &:hover
+            background: unquote("color-mix(in oklab, var(--on-surface) 6%, transparent)")
+        &.selected
+            background: var(--secondary-container)
+            color: var(--on-secondary-container)
 
-        option
-          color var(--on-surface)
-          background var(--surface-container-high)
+        &__dots
+            display: flex
+            gap: 0.25rem
 
-      input[type="range"]
-        -webkit-appearance none
-        height 1.5rem
-        background-image var(--color-selection-bar)
-        transition background-image 0.15s ease-in-out
+        &__dot
+            width: 0.625rem
+            height: 0.625rem
+            border-radius: var(--shape-corner-full)
+            box-shadow: unquote("inset 0 0 0 1px color-mix(in oklab, var(--on-surface) 20%, transparent)")
 
-        /* Input Thumb */
-        &::-webkit-slider-thumb
-          -webkit-appearance none
-          height 1rem
-          width 0.5rem
-          border-radius 0.125rem
-          background rgba(255, 255, 255, 0.7)
-          box-shadow none
-          &:hover
-            background rgba(255, 255, 255, 0.8)
-          &:active
-            background rgba(255, 255, 255, 0.6)
-
-        &::-moz-range-thumb
-          -webkit-appearance none
-          height 1rem
-          width 0.5rem
-          border-radius 0.125rem
-          border-width 0
-          background rgba(255, 255, 255, 0.7)
-          box-shadow none
-          &:hover
-            background rgba(255, 255, 255, 0.8)
-          &:active
-            background rgba(255, 255, 255, 0.6)
-
-        &::-ms-thumb
-          -webkit-appearance none
-          height 1rem
-          width 0.5rem
-          border-radius 0.125rem
-          background rgba(255, 255, 255, 0.7)
-          box-shadow none
-          &:hover
-            background rgba(255, 255, 255, 0.8)
-          &:active
-            background rgba(255, 255, 255, 0.6)
-
-    :global(.dark) #display-setting select
-      color-scheme dark
+        &__name
+            max-width: 100%
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
 
 </style>

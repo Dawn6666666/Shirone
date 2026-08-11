@@ -147,6 +147,17 @@ define({
   /* 轮廓线 */
   --outline: var(--mc-outline, oklch(0.45 0.03 var(--hue))) var(--mc-outline, oklch(0.62 0.03 var(--hue)))
   --outline-variant: var(--mc-outline-variant, oklch(0.76 0.02 var(--hue))) var(--mc-outline-variant, oklch(0.42 0.02 var(--hue)))
+
+  /* 表面变体 / 反色表面（snackbar、错误容器） */
+  --surface-variant: var(--mc-surface-variant, oklch(0.90 0.02 var(--hue))) var(--mc-surface-variant, oklch(0.32 0.02 var(--hue)))
+  --inverse-surface: var(--mc-inverse-surface, oklch(0.16 0.02 var(--hue))) var(--mc-inverse-surface, oklch(0.92 0.015 var(--hue)))
+  --inverse-on-surface: var(--mc-inverse-on-surface, oklch(0.96 0.012 var(--hue))) var(--mc-inverse-on-surface, oklch(0.16 0.02 var(--hue)))
+
+  /* 错误角色：与警示色一致，固定色相（~27°），不跟随种子色 */
+  --error: var(--mc-error, oklch(0.57 0.21 27)) var(--mc-error, oklch(0.82 0.15 27))
+  --on-error: var(--mc-on-error, oklch(0.99 0.01 27)) var(--mc-on-error, oklch(0.28 0.11 27))
+  --error-container: var(--mc-error-container, oklch(0.93 0.06 27)) var(--mc-error-container, oklch(0.45 0.15 27))
+  --on-error-container: var(--mc-on-error-container, oklch(0.36 0.12 27)) var(--mc-on-error-container, oklch(0.95 0.05 27))
 })
 
 /* M3 形状尺度与表面映射 */
@@ -165,3 +176,38 @@ define({
   --page-bg: var(--surface)
   --card-bg: var(--surface-container-high)
   --float-panel-bg: var(--surface-container)
+
+/* ============================================================
+   M3E 动效 / 高度 / 字体阶梯令牌
+   动效曲线与时长遵循 M3 (2025) motion spec；
+   高度层级叠加在动态 --mc-shadow 上（无 JS 时回退到黑色）。
+   ============================================================ */
+:root
+  /* 动效时长 */
+  --m3e-duration-short: 150ms
+  --m3e-duration-medium: 250ms
+  --m3e-duration-long: 400ms
+
+  /* 动效曲线（M3 motion spec） */
+  --m3e-easing-standard: cubic-bezier(0.2, 0, 0, 1)
+  --m3e-easing-emphasized: cubic-bezier(0.2, 0, 0, 1)
+  --m3e-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1)
+  --m3e-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15)
+
+  /* 高度（tonal elevation）：level 0-5。color-mix 需 unquote 防 Stylus 误解析 */
+  --m3e-elevation-0: none
+  --m3e-elevation-1: unquote("0 1px 2px color-mix(in srgb, var(--mc-shadow, #000) 6%, transparent)")
+  --m3e-elevation-2: unquote("0 1px 2px color-mix(in srgb, var(--mc-shadow, #000) 8%, transparent), 0 2px 6px 1px color-mix(in srgb, var(--mc-shadow, #000) 6%, transparent)")
+  --m3e-elevation-3: unquote("0 2px 4px color-mix(in srgb, var(--mc-shadow, #000) 10%, transparent), 0 4px 12px 2px color-mix(in srgb, var(--mc-shadow, #000) 8%, transparent)")
+  --m3e-elevation-4: unquote("0 4px 8px color-mix(in srgb, var(--mc-shadow, #000) 12%, transparent), 0 8px 20px 4px color-mix(in srgb, var(--mc-shadow, #000) 10%, transparent)")
+  --m3e-elevation-5: unquote("0 6px 12px color-mix(in srgb, var(--mc-shadow, #000) 14%, transparent), 0 12px 28px 6px color-mix(in srgb, var(--mc-shadow, #000) 12%, transparent)")
+
+  /* 字体阶梯（font 简写：weight size/line-height family）。"/" 需 unquote 防 Stylus 当除法 */
+  --m3e-type-label-small: unquote("500 0.6875rem/1rem var(--font-sans)")
+  --m3e-type-label-medium: unquote("500 0.75rem/1rem var(--font-sans)")
+  --m3e-type-label-large: unquote("500 0.875rem/1.25rem var(--font-sans)")
+  --m3e-type-body-medium: unquote("400 0.875rem/1.25rem var(--font-sans)")
+  --m3e-type-body-large: unquote("400 1rem/1.5rem var(--font-sans)")
+  --m3e-type-title-medium: unquote("500 1rem/1.5rem var(--font-sans)")
+  --m3e-type-title-large: unquote("400 1.375rem/1.75rem var(--font-sans)")
+  --m3e-type-headline-small: unquote("400 1.5rem/2rem var(--font-sans)")

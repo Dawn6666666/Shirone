@@ -50,4 +50,5 @@ export const id: Translation = {
 	[Key.author]: "Penulis",
 	[Key.publishedAt]: "Diterbitkan pada",
 	[Key.license]: "Lisensi",
+	[Key.copySuccess]: "Disalin ke papan klip",
 };
