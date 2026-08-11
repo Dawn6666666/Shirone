@@ -4,6 +4,7 @@ import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
 import { url } from "@utils/url-utils.ts";
 import { onMount } from "svelte";
+import SearchBar from "@components/molecules/SearchBar.svelte";
 import type { SearchResult } from "@/global";
 
 let keywordDesktop = "";
@@ -12,10 +13,6 @@ let result: SearchResult[] = [];
 let isSearching = false;
 let pagefindLoaded = false;
 let initialized = false;
-let isDesktopSearchExpanded = false;
-let windowJustFocused = false;
-let focusTimer: ReturnType<typeof setTimeout>;
-let blurTimer: ReturnType<typeof setTimeout>;
 
 const fakeResult: SearchResult[] = [
 	{
@@ -49,34 +46,6 @@ const setPanelVisibility = (show: boolean, isDesktop: boolean): void => {
 	} else {
 		panel.classList.add("float-panel-closed");
 	}
-};
-
-// 展开桌面搜索：hover 受窗口焦点保护（防止切窗口误触），显式点击/触碰不受限
-const expandDesktopSearch = (force = false) => {
-	if (!force && windowJustFocused) {
-		return;
-	}
-	isDesktopSearchExpanded = true;
-	setTimeout(() => {
-		const input = document.getElementById(
-			"search-input-desktop",
-		) as HTMLInputElement;
-		input?.focus();
-	}, 0);
-};
-
-const collapseDesktopSearch = () => {
-	if (!keywordDesktop) {
-		isDesktopSearchExpanded = false;
-	}
-};
-
-// 失焦后延迟折叠，允许搜索结果点击先执行
-const handleBlur = () => {
-	blurTimer = setTimeout(() => {
-		isDesktopSearchExpanded = false;
-		setPanelVisibility(false, true);
-	}, 200);
 };
 
 const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
@@ -155,18 +124,6 @@ onMount(() => {
 			}
 		}, 2000);
 	}
-
-	// 监听窗口焦点，防止切换窗口时自动展开搜索框
-	const handleWindowFocus = () => {
-		windowJustFocused = true;
-		clearTimeout(focusTimer);
-		focusTimer = setTimeout(() => {
-			windowJustFocused = false;
-		}, 500);
-	};
-	window.addEventListener("focus", handleWindowFocus);
-
-	return () => window.removeEventListener("focus", handleWindowFocus);
 });
 
 $: if (initialized && keywordDesktop) {
@@ -182,41 +139,15 @@ $: if (initialized && keywordMobile) {
 }
 </script>
 
-<!-- 桌面搜索：独立按钮（40px 图标按钮），hover/点击展开成胶囊搜索条 -->
-<div class="hidden lg:block relative w-10 h-10 shrink-0">
-    <div
-        id="search-bar"
-        class="m3-state-layer absolute right-0 top-0 flex items-center overflow-hidden rounded-full transition-all duration-300 h-10
-               {isDesktopSearchExpanded
-                   ? 'w-48 bg-(--surface-container-high)'
-                   : 'w-10 bg-transparent'}"
-        onmouseenter={() => { if (!isDesktopSearchExpanded) expandDesktopSearch(); }}
-        onmouseleave={collapseDesktopSearch}
-        onclick={() => {
-            // 触碰/点击显式展开（force 忽略窗口焦点保护），再聚焦输入
-            if (!isDesktopSearchExpanded) expandDesktopSearch(true);
-            const input = document.getElementById("search-input-desktop") as HTMLInputElement;
-            input?.focus();
-        }}
-    >
-        <Icon icon="material-symbols:search"
-              class="pointer-events-none shrink-0 text-[1.25rem] transition-all
-                     {isDesktopSearchExpanded
-                         ? 'ml-3 text-[var(--on-surface-variant)]'
-                         : 'mx-auto text-[var(--on-surface)]'}"></Icon>
-        <input
-            id="search-input-desktop"
-            name="search-desktop"
-            placeholder={i18n(I18nKey.search)}
-            bind:value={keywordDesktop}
-            tabindex={isDesktopSearchExpanded ? 0 : -1}
-            onfocus={() => { clearTimeout(blurTimer); search(keywordDesktop, true); }}
-            onblur={handleBlur}
-            class="h-full bg-transparent outline-0 text-(--on-surface) caret-(--primary) transition-all
-                   {isDesktopSearchExpanded ? 'w-32 pl-2 opacity-100' : 'w-0 opacity-0'}"
-        />
-    </div>
-</div>
+<!-- 桌面搜索：SearchBar 分子（40px 图标按钮，hover/点击展开成胶囊搜索条） -->
+<SearchBar
+    bind:value={keywordDesktop}
+    id="search-input-desktop"
+    name="search-desktop"
+    placeholder={i18n(I18nKey.search)}
+    onfocus={() => search(keywordDesktop, true)}
+    oncollapse={() => setPanelVisibility(false, true)}
+/>
 
 <!-- toggle btn for phone/tablet view -->
 <button onclick={togglePanel} aria-label="Search Panel" id="search-switch"
