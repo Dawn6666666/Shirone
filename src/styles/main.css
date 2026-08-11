@@ -10,7 +10,6 @@
 @import "./scrollbar.css" layer(components);
 @import "./markdown.css" layer(components);
 @import "./expressive-code.css" layer(components);
-@import "./photoswipe.css" layer(components);
 
 @layer components {
     .card-base {
