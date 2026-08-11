@@ -51,4 +51,11 @@ export const en: Translation = {
 	[Key.publishedAt]: "Published at",
 	[Key.license]: "License",
 	[Key.copySuccess]: "Copied to clipboard",
+
+	[Key.reduceMotion]: "Reduce motion",
+	[Key.resetConfirmTitle]: "Reset theme settings?",
+	[Key.resetConfirmMessage]:
+		"This will restore the default hue, color style and color spec.",
+	[Key.cancel]: "Cancel",
+	[Key.reset]: "Reset",
 };

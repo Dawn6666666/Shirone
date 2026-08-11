@@ -51,4 +51,11 @@ export const id: Translation = {
 	[Key.publishedAt]: "Diterbitkan pada",
 	[Key.license]: "Lisensi",
 	[Key.copySuccess]: "Disalin ke papan klip",
+
+	[Key.reduceMotion]: "Kurangi animasi",
+	[Key.resetConfirmTitle]: "Atur ulang tema?",
+	[Key.resetConfirmMessage]:
+		"Hue, gaya warna, dan spesifikasi warna akan dikembalikan ke bawaan.",
+	[Key.cancel]: "Batal",
+	[Key.reset]: "Atur ulang",
 };

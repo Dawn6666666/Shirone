@@ -51,4 +51,11 @@ export const ja: Translation = {
 	[Key.publishedAt]: "公開日",
 	[Key.license]: "ライセンス",
 	[Key.copySuccess]: "クリップボードにコピーしました",
+
+	[Key.reduceMotion]: "動きを減らす",
+	[Key.resetConfirmTitle]: "テーマをリセットしますか？",
+	[Key.resetConfirmMessage]:
+		"既定の色相・配色スタイル・配色仕様に戻ります。",
+	[Key.cancel]: "キャンセル",
+	[Key.reset]: "リセット",
 };

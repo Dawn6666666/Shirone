@@ -51,4 +51,10 @@ export const zh_CN: Translation = {
 	[Key.publishedAt]: "发布于",
 	[Key.license]: "许可协议",
 	[Key.copySuccess]: "已复制到剪贴板",
+
+	[Key.reduceMotion]: "减少动态效果",
+	[Key.resetConfirmTitle]: "重置主题设置？",
+	[Key.resetConfirmMessage]: "将恢复为站点默认的色相、配色风格与 Color Spec。",
+	[Key.cancel]: "取消",
+	[Key.reset]: "重置",
 };

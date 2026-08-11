@@ -68,3 +68,19 @@ export function setTheme(theme: LIGHT_DARK_MODE): void {
 export function getStoredTheme(): LIGHT_DARK_MODE {
 	return (localStorage.getItem("theme") as LIGHT_DARK_MODE) || DEFAULT_THEME;
 }
+
+const MOTION_KEY = "mc-motion";
+
+/** 是否开启「减少动态效果」（手动覆盖 prefers-reduced-motion） */
+export function getMotionPreference(): boolean {
+	return localStorage.getItem(MOTION_KEY) === "reduced";
+}
+
+export function applyMotionPreference(reduced: boolean): void {
+	document.documentElement.classList.toggle("motion-reduced", reduced);
+}
+
+export function setMotionPreference(reduced: boolean): void {
+	localStorage.setItem(MOTION_KEY, reduced ? "reduced" : "full");
+	applyMotionPreference(reduced);
+}

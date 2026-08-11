@@ -42,6 +42,13 @@ enum I18nKey {
 	darkMode = "darkMode",
 	systemMode = "systemMode",
 
+	reduceMotion = "reduceMotion",
+
+	resetConfirmTitle = "resetConfirmTitle",
+	resetConfirmMessage = "resetConfirmMessage",
+	cancel = "cancel",
+	reset = "reset",
+
 	more = "more",
 
 	author = "author",

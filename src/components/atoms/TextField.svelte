@@ -12,6 +12,7 @@ let {
     id = "",
     label = "",
     onfocus = () => {},
+    oninput = () => {},
     class: className = "",
 }: {
     type?: string;
@@ -21,13 +22,14 @@ let {
     id?: string;
     label?: string;
     onfocus?: () => void;
+    oninput?: () => void;
     class?: string;
 } = $props();
 </script>
 
 <div class="m3-text-field {className}">
     <span class="m3-text-field__icon"><slot name="leading" /></span>
-    <input {type} {name} {id} bind:value {placeholder} aria-label={label} {onfocus} />
+    <input {type} {name} {id} bind:value {placeholder} aria-label={label} {onfocus} {oninput} />
     <span class="m3-text-field__underline" aria-hidden="true"></span>
 </div>
 
