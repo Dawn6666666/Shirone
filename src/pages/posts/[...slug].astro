@@ -1,17 +1,17 @@
 ---
+import { render } from "astro:content";
 import path from "node:path";
-import License from "@components/molecules/License.astro";
 import Markdown from "@components/content/Markdown.astro";
+import ImageWrapper from "@components/molecules/ImageWrapper.astro";
+import License from "@components/molecules/License.astro";
+import PostMetadata from "@components/molecules/PostMeta.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
-import { render } from "astro:content";
 import { licenseConfig } from "src/config";
-import ImageWrapper from "@components/molecules/ImageWrapper.astro";
-import PostMetadata from "@components/molecules/PostMeta.astro";
 import { profileConfig, siteConfig } from "../../config";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
 
@@ -28,8 +28,8 @@ const { Content, headings } = await render(entry);
 
 const { remarkPluginFrontmatter } = await render(entry);
 const imageBasePath = entry.filePath
-    ? path.relative(path.resolve("src"), path.dirname(entry.filePath))
-    : path.join("content/posts/", getDir(entry.id));
+	? path.relative(path.resolve("src"), path.dirname(entry.filePath))
+	: path.join("content/posts/", getDir(entry.id));
 
 const jsonLd = {
 	"@context": "https://schema.org",

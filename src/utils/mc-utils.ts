@@ -11,8 +11,10 @@
  * working as before; the engine returns concrete hex values for every M3 role.
  */
 import {
+	type DynamicColor,
+	type DynamicScheme,
 	Hct,
-	MaterialDynamicColors,
+	type MaterialDynamicColors,
 	SchemeContent,
 	SchemeExpressive,
 	SchemeFidelity,
@@ -22,8 +24,6 @@ import {
 	SchemeRainbow,
 	SchemeTonalSpot,
 	SchemeVibrant,
-	type DynamicColor,
-	type DynamicScheme,
 } from "@material/material-color-utilities";
 
 /** Palette style — mirrors `com.materialkolor.PaletteStyle`. */

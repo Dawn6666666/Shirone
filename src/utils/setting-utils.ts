@@ -4,9 +4,9 @@ import {
 	DEFAULT_THEME,
 	LIGHT_MODE,
 } from "@constants/constants.ts";
+import { applyCurrentScheme } from "@utils/theme-utils";
 import { expressiveCodeConfig } from "@/config";
 import type { LIGHT_DARK_MODE } from "@/types/config";
-import { applyCurrentScheme } from "@utils/theme-utils";
 
 export function getDefaultHue(): number {
 	const fallback = "250";

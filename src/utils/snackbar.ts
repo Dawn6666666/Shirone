@@ -7,5 +7,7 @@ export const SNACKBAR_EVENT = "m3e:snackbar";
 
 export function showSnackbar(message: string): void {
 	if (typeof window === "undefined") return;
-	window.dispatchEvent(new CustomEvent(SNACKBAR_EVENT, { detail: { message } }));
+	window.dispatchEvent(
+		new CustomEvent(SNACKBAR_EVENT, { detail: { message } }),
+	);
 }

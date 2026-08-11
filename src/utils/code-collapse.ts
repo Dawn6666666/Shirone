@@ -113,10 +113,7 @@ export class CodeBlockCollapser {
 
 	private updateButton(button: HTMLButtonElement, collapsed: boolean) {
 		button.setAttribute("aria-expanded", String(!collapsed));
-		button.setAttribute(
-			"aria-label",
-			collapsed ? "展开代码块" : "折叠代码块",
-		);
+		button.setAttribute("aria-label", collapsed ? "展开代码块" : "折叠代码块");
 		button.title = collapsed ? "展开代码块" : "折叠代码块";
 	}
 
@@ -145,8 +142,6 @@ const setupCollapse = () => {
 };
 
 setupCollapse();
-
-export {};
 
 declare global {
 	interface Window {

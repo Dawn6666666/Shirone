@@ -1,10 +1,10 @@
 <script lang="ts">
+import SearchBar from "@components/molecules/SearchBar.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
 import { url } from "@utils/url-utils.ts";
 import { onMount } from "svelte";
-import SearchBar from "@components/molecules/SearchBar.svelte";
 import type { SearchResult } from "@/global";
 
 let keywordDesktop = "";

@@ -5,15 +5,15 @@
  * 用法：<SegmentedButton options={[{value, label}]} bind:value={spec} />
  */
 let {
-    options = [],
-    value = $bindable(""),
-    label = "",
-    disabled = false,
+	options = [],
+	value = $bindable(""),
+	label = "",
+	disabled = false,
 }: {
-    options: { value: string; label: string }[];
-    value?: string;
-    label?: string;
-    disabled?: boolean;
+	options: { value: string; label: string }[];
+	value?: string;
+	label?: string;
+	disabled?: boolean;
 } = $props();
 </script>
 
