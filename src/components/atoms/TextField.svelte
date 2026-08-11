@@ -1,42 +1,33 @@
----
+<script lang="ts">
 /**
- * M3E TextField — M3 填充式文本输入原子。
+ * M3E TextField — M3 填充式文本输入原子（Svelte，可嵌入 Svelte 组件）。
  * 容器 --surface-container-high、底部主色下划线（focus 时亮起），
- * 可选前导图标（图标放插槽最前）。交互由使用方通过 id/脚本驱动。
+ * 前导图标用命名插槽：<svelte:fragment slot="leading">...</svelte:fragment>
  */
-interface Props {
-	type?: "text" | "search" | "email" | "password";
-	placeholder?: string;
-	value?: string;
-	name?: string;
-	id?: string;
-	label?: string;
-	class?: string;
-}
+let {
+    type = "text",
+    placeholder = "",
+    value = $bindable(""),
+    name = "",
+    id = "",
+    label = "",
+    onfocus = () => {},
+    class: className = "",
+}: {
+    type?: string;
+    placeholder?: string;
+    value?: string;
+    name?: string;
+    id?: string;
+    label?: string;
+    onfocus?: () => void;
+    class?: string;
+} = $props();
+</script>
 
-const {
-	type = "text",
-	placeholder,
-	value,
-	name,
-	id,
-	label,
-	class: className,
-} = Astro.props;
----
-
-<div class:list={["m3-text-field", className]}>
-    <span class="m3-text-field__icon">
-        <slot name="leading" />
-    </span>
-    <input
-        id={id}
-        type={type}
-        name={name}
-        value={value}
-        placeholder={placeholder}
-        aria-label={label}
-    />
+<div class="m3-text-field {className}">
+    <span class="m3-text-field__icon"><slot name="leading" /></span>
+    <input {type} {name} {id} bind:value {placeholder} aria-label={label} {onfocus} />
     <span class="m3-text-field__underline" aria-hidden="true"></span>
 </div>
 
@@ -48,17 +39,17 @@ const {
     height: 3rem
     padding: 0 1rem
     gap: 0.75rem
-    border-radius: var(--shape-corner-xs) var(--shape-corner-xs) 0 0
+    border-radius: var(--shape-corner-m)
     background: var(--surface-container-high)
     color: var(--on-surface)
     font: var(--m3e-type-body-large)
     transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
 
     &:hover
-        background: unquote("color-mix(in oklab, var(--on-surface) 8%, var(--surface-container-high))")
+        background: unquote("color-mix(in oklab, var(--on-surface) 12%, var(--surface-container-high))")
 
     &:focus-within
-        background: unquote("color-mix(in oklab, var(--on-surface) 10%, var(--surface-container-high))")
+        background: unquote("color-mix(in oklab, var(--on-surface) 16%, var(--surface-container-high))")
 
     &__icon
         display: flex
@@ -81,10 +72,11 @@ const {
 
     &__underline
         position: absolute
-        left: 0
-        right: 0
-        bottom: 0
+        left: 0.5rem
+        right: 0.5rem
+        bottom: 0.25rem
         height: 2px
+        border-radius: var(--shape-corner-full)
         background: var(--primary)
         opacity: 0
         transform: scaleX(0.5)
