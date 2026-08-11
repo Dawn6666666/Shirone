@@ -200,8 +200,10 @@ $: if (initialized && keywordMobile) {
         }}
     >
         <Icon icon="material-symbols:search"
-              class="pointer-events-none shrink-0 text-[1.25rem] text-[var(--on-surface-variant)] transition-all
-                     {isDesktopSearchExpanded ? 'ml-3' : 'mx-auto'}"></Icon>
+              class="pointer-events-none shrink-0 text-[1.25rem] transition-all
+                     {isDesktopSearchExpanded
+                         ? 'ml-3 text-[var(--on-surface-variant)]'
+                         : 'mx-auto text-[var(--on-surface)]'}"></Icon>
         <input
             id="search-input-desktop"
             name="search-desktop"
