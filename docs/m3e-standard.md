@@ -190,4 +190,4 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
 | `src/components/atoms/*` | 8 个原子组件 |
-| `src/components/widget/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
+| `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
