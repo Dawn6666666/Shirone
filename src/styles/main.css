@@ -50,9 +50,6 @@
     .float-menu-item.current-theme-btn {
         @apply text-[var(--on-secondary-container)] bg-[var(--secondary-container)];
     }
-    .m3-menu-item.current-theme-btn {
-        @apply text-[var(--on-secondary-container)] bg-[var(--secondary-container)];
-    }
     .search-panel mark {
         @apply bg-transparent text-[var(--primary)]
     }
