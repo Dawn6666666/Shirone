@@ -63,13 +63,13 @@
 
     .copy-btn {
         all: initial;
-        /* 按钮要比代码块背景高一层 tonal surface，才能浮出来。
-           亮色代码块是深色 inverse-surface，按钮用浅灰 surface-container-high；
-           暗色代码块是 surface-dim，按钮用高一级的 surface-container-high。 */
+        /* 按钮比代码块背景高一层 tonal surface，配阴影浮出。
+           白天代码块浅色（surface-container-low），按钮 surface-container-high；
+           夜间代码块深色（surface-dim），按钮 surface-container-high。 */
         @apply flex items-center justify-center
         bg-[var(--surface-container-high)] hover:bg-[var(--surface-container-highest)] active:bg-[var(--surface-container-highest)]
         dark:bg-[var(--surface-container-high)] dark:hover:bg-[var(--surface-container-highest)] dark:active:bg-[var(--surface-container-highest)]
-        opacity-0 shadow-lg shadow-black/50 absolute active:scale-90 h-8 w-8 top-3 right-3 text-sm rounded-lg transition-all ease-in-out z-20 cursor-pointer;
+        opacity-0 shadow-lg shadow-black/30 dark:shadow-black/50 absolute active:scale-90 h-8 w-8 top-3 right-3 text-sm rounded-lg transition-all ease-in-out z-20 cursor-pointer;
     }
     .frame:hover .copy-btn {
         opacity: 1;

@@ -89,8 +89,10 @@ export const licenseConfig: LicenseConfig = {
 
 export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	// Note: Some styles (such as background color) are being overridden, see the astro.config.mjs file.
-	// Please select a dark theme, as this blog theme currently only supports dark background color
+	// 代码块跟随明暗模式切换深浅主题
 	theme: "github-dark",
+	lightTheme: "github-light",
+	darkTheme: "github-dark",
 };
 
 export function getDefaultStyle(): string {
