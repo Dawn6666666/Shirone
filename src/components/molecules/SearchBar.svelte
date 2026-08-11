@@ -9,21 +9,21 @@ import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
 
 let {
-    value = $bindable(""),
-    expanded = $bindable(false),
-    id = "search-input",
-    name = "search",
-    placeholder = "",
-    onfocus = () => {},
-    oncollapse = () => {},
+	value = $bindable(""),
+	expanded = $bindable(false),
+	id = "search-input",
+	name = "search",
+	placeholder = "",
+	onfocus = () => {},
+	oncollapse = () => {},
 }: {
-    value?: string;
-    expanded?: boolean;
-    id?: string;
-    name?: string;
-    placeholder?: string;
-    onfocus?: () => void;
-    oncollapse?: () => void;
+	value?: string;
+	expanded?: boolean;
+	id?: string;
+	name?: string;
+	placeholder?: string;
+	onfocus?: () => void;
+	oncollapse?: () => void;
 } = $props();
 
 let windowJustFocused = false;
@@ -32,44 +32,44 @@ let blurTimer: ReturnType<typeof setTimeout>;
 
 // hover 展开受窗口焦点保护：切换窗口后 500ms 内不响应，防止误触
 const expand = (force = false): void => {
-    if (!force && windowJustFocused) return;
-    expanded = true;
-    setTimeout(() => {
-        const input = document.getElementById(id) as HTMLInputElement;
-        input?.focus();
-    }, 0);
+	if (!force && windowJustFocused) return;
+	expanded = true;
+	setTimeout(() => {
+		const input = document.getElementById(id) as HTMLInputElement;
+		input?.focus();
+	}, 0);
 };
 
 // 输入有关键字时不折叠（继续编辑 / 点击结果）
 const collapse = (): void => {
-    if (!value) {
-        expanded = false;
-    }
+	if (!value) {
+		expanded = false;
+	}
 };
 
 // 失焦后延迟折叠，允许搜索结果点击先执行
 const handleBlur = (): void => {
-    blurTimer = setTimeout(() => {
-        expanded = false;
-        oncollapse();
-    }, 200);
+	blurTimer = setTimeout(() => {
+		expanded = false;
+		oncollapse();
+	}, 200);
 };
 
 const handleFocus = (): void => {
-    clearTimeout(blurTimer);
-    onfocus();
+	clearTimeout(blurTimer);
+	onfocus();
 };
 
 onMount(() => {
-    const handleWindowFocus = () => {
-        windowJustFocused = true;
-        clearTimeout(focusTimer);
-        focusTimer = setTimeout(() => {
-            windowJustFocused = false;
-        }, 500);
-    };
-    window.addEventListener("focus", handleWindowFocus);
-    return () => window.removeEventListener("focus", handleWindowFocus);
+	const handleWindowFocus = () => {
+		windowJustFocused = true;
+		clearTimeout(focusTimer);
+		focusTimer = setTimeout(() => {
+			windowJustFocused = false;
+		}, 500);
+	};
+	window.addEventListener("focus", handleWindowFocus);
+	return () => window.removeEventListener("focus", handleWindowFocus);
 });
 </script>
 

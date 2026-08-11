@@ -5,25 +5,25 @@
  * 前导图标用命名插槽：<svelte:fragment slot="leading">...</svelte:fragment>
  */
 let {
-    type = "text",
-    placeholder = "",
-    value = $bindable(""),
-    name = "",
-    id = "",
-    label = "",
-    onfocus = () => {},
-    oninput = () => {},
-    class: className = "",
+	type = "text",
+	placeholder = "",
+	value = $bindable(""),
+	name = "",
+	id = "",
+	label = "",
+	onfocus = () => {},
+	oninput = () => {},
+	class: className = "",
 }: {
-    type?: string;
-    placeholder?: string;
-    value?: string;
-    name?: string;
-    id?: string;
-    label?: string;
-    onfocus?: () => void;
-    oninput?: () => void;
-    class?: string;
+	type?: string;
+	placeholder?: string;
+	value?: string;
+	name?: string;
+	id?: string;
+	label?: string;
+	onfocus?: () => void;
+	oninput?: () => void;
+	class?: string;
 } = $props();
 </script>
 

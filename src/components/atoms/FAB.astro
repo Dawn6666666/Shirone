@@ -12,7 +12,13 @@ interface Props {
 	class?: string;
 }
 
-const { size = "regular", disabled = false, type = "button", label, class: className } = Astro.props;
+const {
+	size = "regular",
+	disabled = false,
+	type = "button",
+	label,
+	class: className,
+} = Astro.props;
 ---
 
 <button

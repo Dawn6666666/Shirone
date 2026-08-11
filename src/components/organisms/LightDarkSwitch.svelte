@@ -1,4 +1,5 @@
 <script lang="ts">
+import Menu from "@components/atoms/Menu.svelte";
 import { AUTO_MODE, DARK_MODE, LIGHT_MODE } from "@constants/constants.ts";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
@@ -8,7 +9,6 @@ import {
 	getStoredTheme,
 	setTheme,
 } from "@utils/setting-utils.ts";
-import Menu from "@components/atoms/Menu.svelte";
 import { onMount } from "svelte";
 import type { LIGHT_DARK_MODE } from "@/types/config.ts";
 

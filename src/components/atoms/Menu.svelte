@@ -6,13 +6,13 @@
  * 插槽内放 <button class="m3-menu-item"> 项（样式由本组件 :global 提供）。
  */
 let {
-    open = $bindable(false),
-    label = "",
-    class: className = "",
+	open = $bindable(false),
+	label = "",
+	class: className = "",
 }: {
-    open?: boolean;
-    label?: string;
-    class?: string;
+	open?: boolean;
+	label?: string;
+	class?: string;
 } = $props();
 
 let menuEl = $state<HTMLDivElement | undefined>();
@@ -21,22 +21,22 @@ let menuEl = $state<HTMLDivElement | undefined>();
 // 延迟一个宏任务再挂载：触发按钮本次点击（导致 open=true 的事件）会冒泡到
 // document，若不延迟会被误判为「菜单外部点击」而立即关闭（真实点击下复现）。
 $effect(() => {
-    if (!open) return;
-    const onKeydown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") open = false;
-    };
-    const onClick = (e: MouseEvent) => {
-        if (menuEl && !menuEl.contains(e.target as Node)) open = false;
-    };
-    const timer = setTimeout(() => {
-        document.addEventListener("keydown", onKeydown);
-        document.addEventListener("click", onClick);
-    }, 0);
-    return () => {
-        clearTimeout(timer);
-        document.removeEventListener("keydown", onKeydown);
-        document.removeEventListener("click", onClick);
-    };
+	if (!open) return;
+	const onKeydown = (e: KeyboardEvent) => {
+		if (e.key === "Escape") open = false;
+	};
+	const onClick = (e: MouseEvent) => {
+		if (menuEl && !menuEl.contains(e.target as Node)) open = false;
+	};
+	const timer = setTimeout(() => {
+		document.addEventListener("keydown", onKeydown);
+		document.addEventListener("click", onClick);
+	}, 0);
+	return () => {
+		clearTimeout(timer);
+		document.removeEventListener("keydown", onKeydown);
+		document.removeEventListener("click", onClick);
+	};
 });
 </script>
 

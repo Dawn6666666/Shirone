@@ -6,30 +6,30 @@
  *      <svelte:fragment slot="actions">按钮区</svelte:fragment>
  */
 let {
-    open = $bindable(false),
-    title = "",
+	open = $bindable(false),
+	title = "",
 }: {
-    open?: boolean;
-    title?: string;
+	open?: boolean;
+	title?: string;
 } = $props();
 
 let dialogEl = $state<HTMLDivElement | undefined>();
 
 function close() {
-    open = false;
+	open = false;
 }
 
 function onKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-        close();
-    }
+	if (e.key === "Escape") {
+		close();
+	}
 }
 
 // 打开时聚焦容器，保证 ESC 等键盘事件可接收
 $effect(() => {
-    if (open) {
-        dialogEl?.focus();
-    }
+	if (open) {
+		dialogEl?.focus();
+	}
 });
 </script>
 

@@ -1,17 +1,29 @@
 <script lang="ts">
 import Dialog from "@components/atoms/Dialog.svelte";
-import Slider from "@components/atoms/Slider.svelte";
 import SegmentedButton from "@components/atoms/SegmentedButton.svelte";
+import Slider from "@components/atoms/Slider.svelte";
 import Switch from "@components/atoms/Switch.svelte";
 import TextField from "@components/atoms/TextField.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
-import { getDefaultHue, getHue, getMotionPreference, setHue, setMotionPreference } from "@utils/setting-utils";
+import {
+	MC_SPECS,
+	MC_STYLES,
+	type McSpec,
+	type McStyle,
+	resolveScheme,
+} from "@utils/mc-utils";
+import {
+	getDefaultHue,
+	getHue,
+	getMotionPreference,
+	setHue,
+	setMotionPreference,
+} from "@utils/setting-utils";
 import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
-import { getDefaultSpec, getDefaultStyle } from "@/config";
-import { MC_SPECS, MC_STYLES, resolveScheme, type McSpec, type McStyle } from "@utils/mc-utils";
 import { onMount } from "svelte";
+import { getDefaultSpec, getDefaultStyle } from "@/config";
 
 const defaultHue = getDefaultHue();
 const defaultStyle = getDefaultStyle() as McStyle;
@@ -20,7 +32,8 @@ let hue = $state(getHue());
 let style = $state<McStyle>(getStyle());
 let spec = $state<McSpec>(getSpec());
 let dark = $state(
-	typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+	typeof document !== "undefined" &&
+		document.documentElement.classList.contains("dark"),
 );
 
 // 色相数字输入框的中间态（TextField 的 value 是 string）
@@ -33,7 +46,10 @@ onMount(() => {
 	const observer = new MutationObserver(() => {
 		dark = document.documentElement.classList.contains("dark");
 	});
-	observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+	observer.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["class"],
+	});
 	motionReduced = getMotionPreference();
 	return () => observer.disconnect();
 });
@@ -55,7 +71,9 @@ function onHueInput() {
 }
 
 /** 是否有可重置的偏离（控制 Reset 按钮可见性） */
-const isDirty = $derived(hue !== defaultHue || style !== defaultStyle || spec !== defaultSpec);
+const isDirty = $derived(
+	hue !== defaultHue || style !== defaultStyle || spec !== defaultSpec,
+);
 
 $effect(() => {
 	if (hue || hue === 0) setHue(hue);
@@ -78,15 +96,24 @@ $effect(() => {
 
 function styleKey(s: McStyle): I18nKey {
 	switch (s) {
-		case "tonalSpot": return I18nKey.styleTonalSpot;
-		case "vibrant": return I18nKey.styleVibrant;
-		case "content": return I18nKey.styleContent;
-		case "expressive": return I18nKey.styleExpressive;
-		case "rainbow": return I18nKey.styleRainbow;
-		case "fruitSalad": return I18nKey.styleFruitSalad;
-		case "monochrome": return I18nKey.styleMonochrome;
-		case "neutral": return I18nKey.styleNeutral;
-		case "fidelity": return I18nKey.styleFidelity;
+		case "tonalSpot":
+			return I18nKey.styleTonalSpot;
+		case "vibrant":
+			return I18nKey.styleVibrant;
+		case "content":
+			return I18nKey.styleContent;
+		case "expressive":
+			return I18nKey.styleExpressive;
+		case "rainbow":
+			return I18nKey.styleRainbow;
+		case "fruitSalad":
+			return I18nKey.styleFruitSalad;
+		case "monochrome":
+			return I18nKey.styleMonochrome;
+		case "neutral":
+			return I18nKey.styleNeutral;
+		case "fidelity":
+			return I18nKey.styleFidelity;
 	}
 }
 

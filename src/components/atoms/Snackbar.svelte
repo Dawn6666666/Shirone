@@ -13,19 +13,19 @@ let visible = $state(false);
 let timer: ReturnType<typeof setTimeout> | null = null;
 
 function show(msg: string) {
-    message = msg;
-    visible = true;
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => (visible = false), 3500);
+	message = msg;
+	visible = true;
+	if (timer) clearTimeout(timer);
+	timer = setTimeout(() => (visible = false), 3500);
 }
 
 onMount(() => {
-    const listener = (e: Event) => {
-        const detail = (e as CustomEvent<{ message?: string }>).detail;
-        if (detail?.message) show(detail.message);
-    };
-    window.addEventListener(SNACKBAR_EVENT, listener);
-    return () => window.removeEventListener(SNACKBAR_EVENT, listener);
+	const listener = (e: Event) => {
+		const detail = (e as CustomEvent<{ message?: string }>).detail;
+		if (detail?.message) show(detail.message);
+	};
+	window.addEventListener(SNACKBAR_EVENT, listener);
+	return () => window.removeEventListener(SNACKBAR_EVENT, listener);
 });
 </script>
 

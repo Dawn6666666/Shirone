@@ -5,17 +5,17 @@
  * + 白色矩形滑块（hover/active 亮度微调）。仅供色相选择使用。
  */
 let {
-    value = $bindable(50),
-    min = 0,
-    max = 100,
-    step = 1,
-    label = "",
+	value = $bindable(50),
+	min = 0,
+	max = 100,
+	step = 1,
+	label = "",
 }: {
-    value?: number;
-    min?: number;
-    max?: number;
-    step?: number;
-    label?: string;
+	value?: number;
+	min?: number;
+	max?: number;
+	step?: number;
+	label?: string;
 } = $props();
 </script>
 

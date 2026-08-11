@@ -9,15 +9,15 @@
  *      <Switch bind:checked={setting} label="Enable X" icons />
  */
 let {
-    checked = $bindable(false),
-    disabled = false,
-    label = "",
-    icons = false,
+	checked = $bindable(false),
+	disabled = false,
+	label = "",
+	icons = false,
 }: {
-    checked?: boolean;
-    disabled?: boolean;
-    label?: string;
-    icons?: boolean;
+	checked?: boolean;
+	disabled?: boolean;
+	label?: string;
+	icons?: boolean;
 } = $props();
 </script>
 

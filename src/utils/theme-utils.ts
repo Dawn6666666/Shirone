@@ -1,5 +1,11 @@
-import { MC_SPECS, MC_STYLES, resolveScheme, type McSpec, type McStyle } from "@utils/mc-utils";
-import { getDefaultStyle, getDefaultSpec } from "@/config";
+import {
+	MC_SPECS,
+	MC_STYLES,
+	type McSpec,
+	type McStyle,
+	resolveScheme,
+} from "@utils/mc-utils";
+import { getDefaultSpec, getDefaultStyle } from "@/config";
 
 const STYLE_KEY = "mc-style";
 const SPEC_KEY = "mc-spec";
