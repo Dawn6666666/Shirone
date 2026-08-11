@@ -120,7 +120,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`、`onfocus`/`oninput`、`leading` 命名插槽 | surface-container-high、聚焦主色下划线 |
 | Switch | `Switch.svelte` | `checked`（$bindable）、`disabled`、`label`、`icons`（M3E 图标变体：传 `icons` 时 thumb 恒 24px 显示 ✓/✕；缺省为 thumb 16↔24 动态无图标的经典样式）；原生 checkbox 自绘 track/thumb | 选中 secondary-container + 状态层 |
 | Dialog | `Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦 | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` |
-| Menu | `Menu.svelte` | `open`（$bindable）、`label`、class；受控容器，ESC/外部点击关闭，`:global(.m3-menu-item)` 项样式 | surface-container、`--m3e-elevation-2` |
+| Menu | `Menu.svelte` | `open`（$bindable）、`label`、class；受控容器，ESC/外部点击关闭，`:global(.m3-menu-item)` 项样式 + `.selected` 选中态 | surface-container、`--m3e-elevation-2` |
 | Snackbar | `Snackbar.svelte` | 由事件总线 `showSnackbar(msg)` 触发 | inverse-surface / inverse-on-surface、`--m3e-elevation-3` |
 
 约定：

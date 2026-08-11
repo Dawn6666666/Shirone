@@ -17,7 +17,9 @@ let {
 
 let menuEl = $state<HTMLDivElement | undefined>();
 
-// open 为 true 时挂 ESC + 外部点击关闭
+// open 为 true 时挂 ESC + 外部点击关闭。
+// 延迟一个宏任务再挂载：触发按钮本次点击（导致 open=true 的事件）会冒泡到
+// document，若不延迟会被误判为「菜单外部点击」而立即关闭（真实点击下复现）。
 $effect(() => {
     if (!open) return;
     const onKeydown = (e: KeyboardEvent) => {
@@ -26,9 +28,12 @@ $effect(() => {
     const onClick = (e: MouseEvent) => {
         if (menuEl && !menuEl.contains(e.target as Node)) open = false;
     };
-    document.addEventListener("keydown", onKeydown);
-    document.addEventListener("click", onClick);
+    const timer = setTimeout(() => {
+        document.addEventListener("keydown", onKeydown);
+        document.addEventListener("click", onClick);
+    }, 0);
     return () => {
+        clearTimeout(timer);
         document.removeEventListener("keydown", onKeydown);
         document.removeEventListener("click", onClick);
     };
@@ -49,7 +54,7 @@ $effect(() => {
 .m3-menu
     min-width: 7rem
     padding: 0.25rem
-    border-radius: var(--shape-corner-s)
+    border-radius: var(--shape-corner-l)
     background: var(--surface-container)
     box-shadow: var(--m3e-elevation-2)
     max-height: 20rem
@@ -82,4 +87,9 @@ $effect(() => {
         &:focus-visible
             outline: 2px solid var(--primary)
             outline-offset: -2px
+
+    /* 选中态（M3 菜单规范）：调用方给菜单项加 .selected，如 LightDarkSwitch 当前模式 */
+    :global(.m3-menu-item.selected)
+        background: var(--secondary-container)
+        color: var(--on-secondary-container)
 </style>
