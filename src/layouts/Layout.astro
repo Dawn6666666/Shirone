@@ -81,6 +81,9 @@ const bannerOffset =
 	  data-overlayscrollbars-initialize
 >
 	<head>
+		<!-- Fix the CSS cascade-layer order. Tailwind's `base` layer (preflight resets like `button { color: inherit }`)
+		     must precede `components`, otherwise component classes like `.btn-plain` lose to the resets in dark mode. -->
+		<style is:inline>@layer properties, theme, base, components, utilities;</style>
 
 		<title>{pageTitle}</title>
 
