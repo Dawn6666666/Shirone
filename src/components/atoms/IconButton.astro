@@ -1,0 +1,65 @@
+---
+/**
+ * M3E IconButton — M3 图标按钮原子（40px）。
+ * variant: standard（透明）/ tonal（次级容器）/ filled（主色）。
+ */
+interface Props {
+	variant?: "standard" | "tonal" | "filled";
+	disabled?: boolean;
+	type?: "button" | "submit" | "reset";
+	label: string;
+	class?: string;
+}
+
+const {
+	variant = "standard",
+	disabled = false,
+	type = "button",
+	label,
+	class: className,
+} = Astro.props;
+---
+
+<button
+    type={type}
+    disabled={disabled}
+    aria-label={label}
+    class:list={[
+        "m3-icon-button",
+        "m3-state-layer",
+        `m3-icon-button--${variant}`,
+        className,
+    ]}
+>
+    <slot />
+</button>
+
+<style lang="stylus">
+.m3-icon-button
+  width: 2.5rem
+  height: 2.5rem
+  border-radius: var(--shape-corner-full)
+  border: none
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  cursor: pointer
+  user-select: none
+  font-size: 1.25rem
+  line-height: 1
+
+  &--standard
+    background: transparent
+    color: var(--on-surface-variant)
+    --m3e-state-color: var(--on-surface)
+
+  &--tonal
+    background: var(--secondary-container)
+    color: var(--on-secondary-container)
+    --m3e-state-color: var(--on-secondary-container)
+
+  &--filled
+    background: var(--primary)
+    color: var(--on-primary)
+    --m3e-state-color: var(--on-primary)
+</style>

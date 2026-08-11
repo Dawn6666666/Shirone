@@ -1,0 +1,106 @@
+---
+/**
+ * M3E Button — M3 按钮原子（filled / tonal / outlined / text）。
+ * 状态层走全局 .m3-state-layer（hover 8% / focus 10% / pressed 12%）。
+ */
+interface Props {
+	/** M3 按钮变体 */
+	variant?: "filled" | "tonal" | "outlined" | "text";
+	/** 高度：small 32px / medium 40px / large 48px */
+	size?: "small" | "medium" | "large";
+	disabled?: boolean;
+	type?: "button" | "submit" | "reset";
+	/** aria-label，图标按钮等无文字时使用 */
+	label?: string;
+	class?: string;
+}
+
+const {
+	variant = "filled",
+	size = "medium",
+	disabled = false,
+	type = "button",
+	label,
+	class: className,
+} = Astro.props;
+---
+
+<button
+    type={type}
+    {disabled}
+    aria-label={label}
+    class:list={[
+        "m3-button",
+        "m3-state-layer",
+        `m3-button--${variant}`,
+        `m3-button--${size}`,
+        className,
+    ]}
+>
+    <span class="m3-button__content">
+        <slot />
+    </span>
+</button>
+
+<style lang="stylus">
+.m3-button
+  border: none
+  cursor: pointer
+  user-select: none
+  border-radius: var(--shape-corner-full)
+  white-space: nowrap
+
+  &__content
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: 0.5rem
+    min-width: 0
+
+  /* sizes */
+  &--small
+    height: 2rem
+    padding: 0 1rem
+    font: var(--m3e-type-label-medium)
+  &--medium
+    height: 2.5rem
+    padding: 0 1.5rem
+    font: var(--m3e-type-label-large)
+  &--large
+    height: 3rem
+    padding: 0 1.75rem
+    font: var(--m3e-type-label-large)
+
+  /* filled：主色容器，最高视觉层级 */
+  &--filled
+    background: var(--primary)
+    color: var(--on-primary)
+    --m3e-state-color: var(--on-primary)
+    box-shadow: var(--m3e-elevation-1)
+    &:hover
+      box-shadow: var(--m3e-elevation-2)
+
+  /* tonal：次级容器，介于 filled 与 text 之间 */
+  &--tonal
+    background: var(--secondary-container)
+    color: var(--on-secondary-container)
+    --m3e-state-color: var(--on-secondary-container)
+    box-shadow: var(--m3e-elevation-1)
+    &:hover
+      box-shadow: var(--m3e-elevation-2)
+
+  /* outlined：透明底 + 轮廓线 */
+  &--outlined
+    background: transparent
+    color: var(--primary)
+    --m3e-state-color: var(--primary)
+    box-shadow: none
+    border: 1px solid var(--outline)
+
+  /* text：纯文字按钮 */
+  &--text
+    background: transparent
+    color: var(--primary)
+    --m3e-state-color: var(--primary)
+    box-shadow: none
+</style>

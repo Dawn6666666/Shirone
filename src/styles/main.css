@@ -134,6 +134,50 @@
     .btn-regular-dark.success {
         @apply bg-[var(--primary)] dark:bg-[var(--primary)]
     }
+
+    /* ============================================================
+       M3 状态层（state layer）原子工具类
+       叠加色用 --m3e-state-color（默认 on-surface），透明度遵循
+       M3 规范：hover 8% / focus 10% / pressed 12%。配合
+       isolation: isolate 使 ::before 盖在容器底色之上、内容之下。
+       ============================================================ */
+    .m3-state-layer {
+        @apply relative isolate transition;
+        -webkit-tap-highlight-color: transparent;
+        transition-property: background-color, color, border-color, box-shadow, opacity, transform;
+        transition-duration: var(--m3e-duration-short);
+        transition-timing-function: var(--m3e-easing-standard);
+    }
+    .m3-state-layer::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        background: color-mix(in oklab, var(--m3e-state-color, var(--on-surface)) var(--m3e-state-hover-alpha, 8%), transparent);
+        opacity: 0;
+        transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard);
+        pointer-events: none;
+    }
+    .m3-state-layer:hover::before {
+        opacity: 1;
+    }
+    .m3-state-layer:focus-visible::before {
+        opacity: 1;
+        background: color-mix(in oklab, var(--m3e-state-color, var(--on-surface)) var(--m3e-state-focus-alpha, 10%), transparent);
+    }
+    .m3-state-layer:active::before {
+        opacity: 1;
+        background: color-mix(in oklab, var(--m3e-state-color, var(--on-surface)) var(--m3e-state-pressed-alpha, 12%), transparent);
+    }
+    .m3-state-layer:focus-visible {
+        outline: 2px solid var(--m3e-focus-outline, var(--primary));
+        outline-offset: 2px;
+    }
+    .m3-state-layer[disabled] {
+        pointer-events: none;
+        opacity: 0.38;
+    }
 }
 
 .custom-md img, #post-cover img {

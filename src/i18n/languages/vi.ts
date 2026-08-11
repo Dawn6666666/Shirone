@@ -50,4 +50,5 @@ export const vi: Translation = {
 	[Key.author]: "Tác giả",
 	[Key.publishedAt]: "Đăng vào lúc",
 	[Key.license]: "Giấy phép bản quyền",
+	[Key.copySuccess]: "Đã sao chép vào bộ nhớ tạm",
 };

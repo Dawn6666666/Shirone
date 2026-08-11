@@ -50,4 +50,5 @@ export const ko: Translation = {
 	[Key.author]: "저자",
 	[Key.publishedAt]: "게시일",
 	[Key.license]: "라이선스",
+	[Key.copySuccess]: "클립보드에 복사되었습니다",
 };

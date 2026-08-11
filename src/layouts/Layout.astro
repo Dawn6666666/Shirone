@@ -4,6 +4,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import ConfigCarrier from "@components/ConfigCarrier.astro";
+import Snackbar from "@components/atoms/Snackbar.svelte";
 import { expressiveCodeConfig, profileConfig, siteConfig } from "@/config";
 import {
 	AUTO_MODE,
@@ -161,6 +162,7 @@ const bannerOffset =
 		  data-overlayscrollbars-initialize
 	>
 		<ConfigCarrier></ConfigCarrier>
+		<Snackbar client:only="svelte"></Snackbar>
 		<slot />
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
