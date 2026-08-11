@@ -61,36 +61,6 @@
         }
     }
 
-    .copy-btn {
-        all: initial;
-        /* 按钮比代码块背景高一层 tonal surface，配阴影浮出。
-           白天代码块浅色（surface-container-low），按钮 surface-container-high；
-           夜间代码块深色（surface-dim），按钮 surface-container-high。 */
-        @apply flex items-center justify-center
-        bg-[var(--surface-container-high)] hover:bg-[var(--surface-container-highest)] active:bg-[var(--surface-container-highest)]
-        dark:bg-[var(--surface-container-high)] dark:hover:bg-[var(--surface-container-highest)] dark:active:bg-[var(--surface-container-highest)]
-        opacity-0 shadow-lg shadow-black/30 dark:shadow-black/50 absolute active:scale-90 h-8 w-8 top-3 right-3 text-sm rounded-lg transition-all ease-in-out z-20 cursor-pointer;
-    }
-    .frame:hover .copy-btn {
-        opacity: 1;
-    }
-
-    .copy-btn-icon {
-        @apply absolute top-1/2 left-1/2 transition -translate-x-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none;
-    }
-    .copy-btn .copy-icon {
-        @apply opacity-100 fill-[var(--on-surface-variant)] dark:fill-white/75;
-    }
-    .copy-btn.success .copy-icon {
-        @apply opacity-0 fill-[var(--on-surface-variant)]
-    }
-    .copy-btn .success-icon {
-        @apply opacity-0 fill-[var(--on-surface-variant)] dark:fill-white/75;
-    }
-    .copy-btn.success .success-icon {
-        @apply opacity-100
-    }
-
     .expressive-code {
         @apply my-4;
         ::selection {
