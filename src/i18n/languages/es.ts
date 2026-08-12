@@ -39,7 +39,7 @@ export const es: Translation = {
 	[Key.styleFidelity]: "Fidelity",
 
 	[Key.spec2021]: "MD3 2021",
-	[Key.spec2025]: "M3 Expressive 2025",
+	[Key.spec2025]: "M3E 2025",
 
 	[Key.lightMode]: "Claro",
 	[Key.darkMode]: "Oscuro",
