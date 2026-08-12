@@ -195,17 +195,18 @@ onMount(() => {
             outline: 2px solid var(--secondary)
             outline-offset: 2px
 
-    /* 展开区：Divider + 内容，AnimatedVisibility（官方 DockedEnterTransition） */
+    /* 展开区：Divider + 内容，官方 DockedEnterTransition（fadeIn + expandVertically
+       600ms emphasized-decelerate）/ DockedExitTransition（fadeOut + shrinkVertically 350ms linear）。
+       transition 定义在目标态控制「进入该状态」的时长/曲线 */
     &__expand
         overflow: hidden
         max-height: 0
         opacity: 0
         border-radius: 0 0 var(--shape-corner-xl) var(--shape-corner-xl)
         transition:
-            max-height var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
-            opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+            max-height 350ms linear,
+            opacity 350ms linear
 
-    /* 展开态：容器整体 surface-container-high + corner-extra-large（官方 docked） */
     &--expanded
         background: var(--surface-container-high)
         border-radius: var(--shape-corner-xl)
@@ -220,6 +221,9 @@ onMount(() => {
         .m3-search-bar__expand
             max-height: 24rem
             opacity: 1
+            transition:
+                max-height 600ms var(--m3e-easing-emphasized-decelerate),
+                opacity 600ms var(--m3e-easing-emphasized-decelerate)
 
     &__divider
         height: 1px
@@ -227,9 +231,16 @@ onMount(() => {
         background: var(--outline)
         margin: 0
 
-    /* 内容区（建议/结果，调用方提供）：可滚动 */
+    /* 内容区（建议/结果，调用方提供）：可滚动；
+       展开时容器展开后延迟淡入（官方 AnimationForContentFadeInSpec：100ms + 50ms delay） */
     &__content
         max-height: 20rem
         overflow-y: auto
         padding: 0.5rem
+        opacity: 0
+        transition: opacity 100ms var(--m3e-easing-standard)
+
+    &--expanded &__content
+        opacity: 1
+        transition: opacity 100ms var(--m3e-easing-standard) 50ms
 </style>
