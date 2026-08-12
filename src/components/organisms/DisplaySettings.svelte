@@ -1,5 +1,4 @@
 <script lang="ts">
-import Dialog from "@components/atoms/Dialog.svelte";
 import SegmentedButton from "@components/atoms/SegmentedButton.svelte";
 import Slider from "@components/atoms/Slider.svelte";
 import Switch from "@components/atoms/Switch.svelte";
@@ -36,7 +35,6 @@ let dark = $state(
 );
 
 let motionReduced = $state(false);
-let resetOpen = $state(false);
 
 // 明暗切换时重算色卡（LightDarkSwitch 改 <html> 的 class）
 onMount(() => {
@@ -51,12 +49,11 @@ onMount(() => {
 	return () => observer.disconnect();
 });
 
-/** 完整重置：色相 / 配色风格 / Color Spec 全部还原为站点默认 */
+/** 完整重置：色相 / 配色风格 / Color Spec 全部还原为站点默认（点击即生效，无确认弹窗） */
 function confirmReset() {
 	hue = defaultHue;
 	style = defaultStyle;
 	spec = defaultSpec;
-	resetOpen = false;
 }
 
 /** 是否有可重置的偏离（控制 Reset 按钮可见性） */
@@ -131,7 +128,7 @@ const stylePreviews = $derived(
         >
             {i18n(I18nKey.themeColor)}
             <button aria-label="Reset to Default" class="float-control w-7 h-7 rounded-md active:scale-90 will-change-transform flex items-center justify-center"
-                    class:opacity-0={!isDirty} class:pointer-events-none={!isDirty} onclick={() => (resetOpen = true)}>
+                    class:opacity-0={!isDirty} class:pointer-events-none={!isDirty} onclick={confirmReset}>
                 <Icon icon="fa6-solid:arrow-rotate-left" class="text-[0.875rem]"></Icon>
             </button>
         </div>
@@ -192,32 +189,8 @@ const stylePreviews = $derived(
     </div>
 </div>
 
-<!-- 重置确认（Dialog 为 fixed 定位，需放在 overflow-hidden 面板之外避免被裁剪） -->
-<Dialog bind:open={resetOpen} title={i18n(I18nKey.resetConfirmTitle)}>
-    <p>{i18n(I18nKey.resetConfirmMessage)}</p>
-    <svelte:fragment slot="actions">
-        <button type="button" class="m3-dialog-btn" onclick={() => (resetOpen = false)}>{i18n(I18nKey.cancel)}</button>
-        <button type="button" class="m3-dialog-btn" onclick={confirmReset}>{i18n(I18nKey.reset)}</button>
-    </svelte:fragment>
-</Dialog>
-
 
 <style lang="stylus">
-    .m3-dialog-btn
-        border: none
-        border-radius: var(--shape-corner-full)
-        padding: 0.625rem 1.25rem
-        background: transparent
-        color: var(--primary)
-        font: var(--m3e-type-label-large)
-        cursor: pointer
-        transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
-        &:hover
-            background: unquote("color-mix(in oklab, var(--primary) 8%, transparent)")
-        &:focus-visible
-            outline: 2px solid var(--primary)
-            outline-offset: 2px
-
     .m3-style-cell
         display: flex
         flex-direction: column
