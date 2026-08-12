@@ -203,4 +203,9 @@
         width: 0.875rem;
         height: 0.875rem;
     }
+
+    /* 移动端不显示代码语言标记，节省空间 */
+    .expressive-code [data-language]::before {
+        display: none !important;
+    }
 }
