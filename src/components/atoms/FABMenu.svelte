@@ -1,13 +1,17 @@
 <script lang="ts">
 /**
  * M3E FABMenu — 悬浮菜单原子（M3 Expressive 2025，移植自 Compose
- * FloatingActionButtonMenu，参考 FolkPatch 生产用法）。
- * FAB 触发器（全圆）+ 菜单列组合；展开时图标切换为 close（Crossfade 风格），
- * 菜单项 56px、图标 18px + body-medium 文字。
- * 菜单项由调用方通过 .m3-fab-menu-item 类提供。
+ * FloatingActionButtonMenu + ToggleFloatingActionButton）。
+ *
+ * 变体：
+ * - size：small(56)/medium(80)/large(96)，展开时统一收缩到 56 全圆 + close 图标
+ * - align：end（默认，右对齐）/ start（左对齐）
+ * - containerColor：收起容器色（默认 primary-container），展开变 primary
+ * - 图标 Crossfade 切换（add ↔ close）
+ * 菜单项由调用方通过 .m3-fab-menu-item 类提供（56px 全圆、图标 18px + body-medium）。
  *
  * 用法：
- *   <FABMenu bind:expanded={open} label="菜单">
+ *   <FABMenu bind:expanded={open} label="菜单" size="medium" align="start">
  *     <button class="m3-fab-menu-item" onclick={...}>
  *       <Icon icon="material-symbols:edit" /> 编辑
  *     </button>
@@ -20,19 +24,28 @@ let {
     icon = "material-symbols:add",
     iconExpanded = "material-symbols:close",
     label = "",
+    size = "small",
+    align = "end",
+    containerColor = "var(--primary-container)",
+    containerContentColor = "var(--on-primary-container)",
     class: className = "",
 }: {
     expanded?: boolean;
     icon?: string;
     iconExpanded?: string;
     label?: string;
+    size?: "small" | "medium" | "large";
+    align?: "end" | "start" | "center";
+    containerColor?: string;
+    containerContentColor?: string;
     class?: string;
 } = $props();
 </script>
 
 <div
-    class="m3-fab-menu {className}"
+    class="m3-fab-menu m3-fab-menu--{size} m3-fab-menu--{align} {className}"
     class:m3-fab-menu--expanded={expanded}
+    style={`--fab-container-color: ${containerColor}; --fab-on-container-color: ${containerContentColor}`}
 >
     <div class="m3-fab-menu__items" aria-hidden={!expanded}>
         <slot />
@@ -59,7 +72,6 @@ let {
     position: relative
     display: inline-flex
     flex-direction: column
-    align-items: flex-end
 
     /* 菜单列：FAB 上方展开 */
     &__items
@@ -68,37 +80,84 @@ let {
         margin-bottom: 0.5rem
         display: flex
         flex-direction: column
-        align-items: flex-end
         gap: 0.25rem
         white-space: nowrap
 
-    /* FAB 触发器：全圆 + primary-container（M3 FAB 规范） */
+    /* FAB 触发器：尺寸/圆角/图标随 expanded 变形（展开收缩到 56 全圆） */
     &__fab
         display: flex
         align-items: center
         justify-content: center
-        width: 3.5rem
-        height: 3.5rem
+        width: var(--fab-size)
+        height: var(--fab-size)
         border: none
-        border-radius: var(--shape-corner-full)
-        background: var(--primary-container)
-        color: var(--on-primary-container)
-        --m3e-state-color: var(--on-primary-container)
+        border-radius: var(--fab-radius)
+        background: var(--fab-container-color)
+        color: var(--fab-on-container-color)
+        --m3e-state-color: var(--fab-on-container-color)
         box-shadow: var(--m3e-elevation-3)
         cursor: pointer
+        transition:
+            width var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+            height var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+            border-radius var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+            background-color var(--m3e-duration-medium) var(--m3e-easing-standard),
+            color var(--m3e-duration-medium) var(--m3e-easing-standard)
 
-    /* 图标 Crossfade 切换：两个图标叠放，随 expanded 淡入淡出 */
+    &--expanded &__fab
+        width: 3.5rem
+        height: 3.5rem
+        border-radius: var(--shape-corner-full)
+        background: var(--primary)
+        color: var(--on-primary)
+        --m3e-state-color: var(--on-primary)
+
+    /* 图标 Crossfade：两个图标叠放，随 expanded 淡入淡出，尺寸随 --fab-icon */
     &__icon
         position: absolute
         display: flex
         opacity: 1
         transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard)
         > :global(svg)
-            width: 1.5rem
-            height: 1.5rem
+            width: var(--fab-icon)
+            height: var(--fab-icon)
+            transition: width var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate), height var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
 
     &__icon--hidden
         opacity: 0
+
+    &--expanded &__icon > :global(svg)
+        width: 1.25rem
+        height: 1.25rem
+
+    /* === 尺寸三档（官方 FabBaseline/FabMedium/FabLargeTokens） === */
+    &--small
+        --fab-size: 3.5rem
+        --fab-radius: 16px
+        --fab-icon: 1.5rem
+    &--medium
+        --fab-size: 5rem
+        --fab-radius: 20px
+        --fab-icon: 1.75rem
+    &--large
+        --fab-size: 6rem
+        --fab-radius: 28px
+        --fab-icon: 2.25rem
+
+    /* === 对齐变体（官方 horizontalAlignment + center） === */
+    &--end
+        align-items: flex-end
+        .m3-fab-menu__items
+            align-items: flex-end
+    &--start
+        align-items: flex-start
+        .m3-fab-menu__items
+            align-items: flex-start
+    &--center
+        align-items: center
+        .m3-fab-menu__items
+            left: 50%
+            transform: translateX(-50%)
 
     /* 菜单项（调用方提供）：56px 全圆、图标 18px + body-medium */
     :global(.m3-fab-menu-item)
