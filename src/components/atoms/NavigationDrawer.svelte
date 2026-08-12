@@ -12,7 +12,7 @@
  * 用法：<NavigationDrawer items={[{value,label,icon}]} bind:open={open} />
  */
 import Icon from "@iconify/svelte";
-import { onMount } from "svelte";
+import { onMount, tick } from "svelte";
 
 let {
 	items = [],
@@ -36,9 +36,20 @@ let {
 	class?: string;
 } = $props();
 
+let drawerEl: HTMLElement | undefined = $state();
+
 function onOverlayClick() {
 	open = false;
 }
+
+// 打开时键盘焦点移到抽屉首个可聚焦项（官方 ModalNavigationDrawer 行为）
+$effect(() => {
+	if (open) {
+		tick().then(() => {
+			drawerEl?.querySelector<HTMLElement>(".m3-drawer__item")?.focus();
+		});
+	}
+});
 
 // Esc 关闭
 onMount(() => {
@@ -57,7 +68,7 @@ onMount(() => {
     class:m3-drawer-root--open={open}
 >
     <div class="m3-drawer__scrim" onclick={onOverlayClick} aria-hidden="true"></div>
-    <aside class="m3-drawer" role="dialog" aria-modal="true" aria-label={label}>
+    <aside bind:this={drawerEl} class="m3-drawer" role="dialog" aria-modal="true" aria-label={label}>
         <div class="m3-drawer__head">{@render header?.()}</div>
         <div class="m3-drawer__items">
             {#each items as item (item.value)}
