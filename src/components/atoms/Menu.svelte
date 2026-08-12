@@ -7,17 +7,45 @@
  * variant: standard（surface 基，默认）/ vibrant（tertiary 基，高强调，慎用）。
  * 菜单项状态：.selected（单选高亮）/ .checked（勾选）；分组用 .m3-menu-group（组间距 2px）。
  */
+import { onMount } from "svelte";
+import {
+	MENU_EXCLUSIVE_EVENT,
+	announceMenuOpened,
+	nextMenuInstanceId,
+} from "@utils/menu-bus";
+
 let {
 	open = $bindable(false),
 	label = "",
 	variant = "standard",
+	exclusive = true,
 	class: className = "",
 }: {
 	open?: boolean;
 	label?: string;
 	variant?: "standard" | "vibrant";
+	exclusive?: boolean;
 	class?: string;
 } = $props();
+
+const instanceId = nextMenuInstanceId();
+
+// 互斥单开：打开时广播，其他同总线实例自动关闭。
+// 延迟一个宏任务广播，让触发交互（导致 open=true 的点击）先完成。
+$effect(() => {
+	if (!exclusive || !open) return;
+	const t = setTimeout(() => announceMenuOpened(instanceId), 0);
+	return () => clearTimeout(t);
+});
+
+onMount(() => {
+	const onExclusive = (e: Event) => {
+		const detail = (e as CustomEvent).detail;
+		if (detail?.instanceId !== instanceId && open) open = false;
+	};
+	document.addEventListener(MENU_EXCLUSIVE_EVENT, onExclusive);
+	return () => document.removeEventListener(MENU_EXCLUSIVE_EVENT, onExclusive);
+});
 
 let menuEl = $state<HTMLDivElement | undefined>();
 
