@@ -1,7 +1,7 @@
 <script lang="ts">
 /**
- * M3E ProgressIndicator — 进度指示原子（官方 ProgressIndicator.kt 移植）。
- * variant: linear（4dp 高轨道）/ circular（圆环，size 直径 40 / strokeWidth 厚度 4 可调）。
+ * M3E ProgressIndicator — 进度指示原子（官方 ProgressIndicator.kt / WavyProgressIndicator.kt 移植）。
+ * variant: linear（4dp 高轨道）/ circular（圆环，size 直径 / strokeWidth 厚度可调）。
  * progress: 0-1 定值模式；省略/undefined = indeterminate。
  * 颜色：active = primary、track = surface-container-highest（官方默认）。
  *
@@ -10,12 +10,28 @@
  * tail 900→1750ms，总循环 1750ms），线从 head 生长、tail 消失，无跳变闪烁。
  * Web 用 @property CSS 变量 + keyframes 实现 head/tail 插值。
  *
+ * wavy（官方 WavyProgressIndicator，Expressive 波浪形态）：
+ *   linear wavy = 240×10dp 容器（LinearContainerWidth / WaveHeight），active 为波浪线
+ *     （官方 fullProgressPath 二次贝塞尔，controlY = height - strokeWidth），
+ *     determinate 振幅按 progress 阈值（≤0.1 / ≥0.95 → 0 直线，中间 → 1 满波），
+ *     增大/减小分别用 500ms standard / emphasized-accelerate tween；
+ *     indeterminate 固定振幅 1，双线 head/tail + 波横向流动（每波长一个周期）。
+ *   circular wavy = 48×48 容器（WaveSize），圆 ↔ 星形齿 morph（9 齿，
+ *     RoundedPolygon.star innerRadius 0.75 / 外角 0.35 smooth 0.4 / 内角 0.5），
+ *     determinate 起点 3 点钟（官方未加基准旋转），indeterminate 三层动画：
+ *     全局 1080° 匀速 + 附加步进 90°@300ms 停 1.2s（6000ms）+ 弧长 0.1↔0.87，
+ *     起点 12 点钟（基准 +90°）。
+ *
  * 用法：<ProgressIndicator progress={0.6} />
  *      <ProgressIndicator />                        ← indeterminate（dual 双线）
- *      <ProgressIndicator indeterminate="wave" />   ← 波浪
+ *      <ProgressIndicator indeterminate="wave" />   ← 旧波浪（mask 流带）
  *      <ProgressIndicator indeterminate="single" />
- *      <ProgressIndicator indeterminate="dot" />
+ *      <ProgressIndicator variant="linear" wavy progress={0.6} />   ← 官方 wavy 线性
+ *      <ProgressIndicator variant="circular" wavy />                ← 官方 wavy 圆形
  */
+import { buildLinearWavePath, buildCircularStarPath, circularWavyVertexCount, cubicBezier } from "@utils/wavy-progress";
+import { untrack } from "svelte";
+
 let {
 	variant = "linear",
 	progress,
@@ -26,8 +42,12 @@ let {
 	trackColor = "var(--surface-container-highest)",
 	strokeCap = "round",
 	gapSize = 4,
-	size = 40,
+	size = undefined as number | undefined,
 	strokeWidth = 4,
+	wavy = false,
+	wavelength = 0,
+	waveSpeed = 0,
+	amplitude,
 	class: className = "",
 }: {
 	variant?: "linear" | "circular";
@@ -37,8 +57,7 @@ let {
 	/** determinate linear 填充末端 stop 圆点（官方 StopSize 4dp），默认显示 */
 	showStop?: boolean;
 	/** indeterminate 动画变体（linear：dual 双线官方默认 / wave 波浪 / single 单线；
-	    circular：dual 官方弧伸缩 / single 固定弧 / wave 官方带弧度旋转组合：
-	    全局 3 圈匀速 + 每 1.5s 快转 90° 停 1.2s + 弧长 0.1↔0.87） */
+	    circular：dual 官方弧伸缩 / single 固定弧 / wave 官方带弧度旋转组合） */
 	indeterminate?: "dual" | "wave" | "single";
 	/** active 指示器颜色（官方 color 参数） */
 	color?: string;
@@ -48,26 +67,272 @@ let {
 	strokeCap?: "round" | "butt";
 	/** active 与 track 之间的间隙 px（官方 gapSize 参数，默认 4） */
 	gapSize?: number;
-	/** circular 直径 px（官方 CircularProgressIndicatorTokens.Size 默认 40；thick 变体 52） */
+	/** circular 直径 px（默认 40；wavy 模式默认 48 = 官方 WaveSize；thick 变体 52+8） */
 	size?: number;
 	/** circular 描边厚度 px（官方 ActiveThickness/TrackThickness 默认 4；thick 变体 8） */
 	strokeWidth?: number;
+	/** 官方 Wavy 形态：linear = 240×10 波浪条，circular = 48×48 圆↔星 morph */
+	wavy?: boolean;
+	/** 波长 px（默认：linear determinate 40 / indeterminate 20，circular 15） */
+	wavelength?: number;
+	/** 波速 px/s（默认 = wavelength，即每秒移动一个波长） */
+	waveSpeed?: number;
+	/** 振幅：number = 固定值（indeterminate 默认 1）；(progress)=>number = 按进度
+	    （determinate 默认官方 indicatorAmplitude：≤0.1 / ≥0.95 → 0，其余 → 1） */
+	amplitude?: number | ((progress: number) => number);
 	class?: string;
 } = $props();
 
 // 响应式派生：progress 变化时实时重算（const 只算一次会导致滑块拖动不更新）
 const determinate = $derived(progress !== undefined && progress >= 0);
 const pct = $derived(determinate ? Math.max(0, Math.min(100, progress * 100)) : 0);
-// circular：动态尺寸（size 直径 / strokeWidth 厚度），圆心与半径随 size 变化
-const circCenter = $derived(size / 2);
-const circR = $derived(Math.max((size - strokeWidth) / 2, 0.5));
+// circular：动态尺寸（size 直径 / strokeWidth 厚度），wavy 默认 48（官方 WaveSize）
+const resolvedSize = $derived(size ?? (wavy ? 48 : 40));
+const circCenter = $derived(resolvedSize / 2);
+const circR = $derived(Math.max((resolvedSize - strokeWidth) / 2, 0.5));
 // 圆环周长 = 2πr（SVG 坐标系 = 实际像素，viewBox 随 size 动态生成）
 const CIRC = $derived(2 * Math.PI * circR);
 // circular gap 像素：官方 adjustedGapSize = gapSize + strokeWidth（round cap 弧端补偿）
 const gapPx = $derived(gapSize + strokeWidth);
+
+/* ===================== wavy（官方 WavyProgressIndicator） ===================== */
+const WAVY_LINEAR_W = 240; // 官方 LinearContainerWidth
+const WAVY_LINEAR_H = 10; // 官方 WaveHeight
+
+const wavyLinearWaveLength = $derived(wavelength > 0 ? wavelength : determinate ? 40 : 20);
+const wavyLinearWaveSpeed = $derived(waveSpeed > 0 ? waveSpeed : wavyLinearWaveLength);
+// 全宽路径 = 容器宽 + 左右各 2 个波长余量（官方 widthWithExtraPhase）
+const wavyLinearPathW = $derived(WAVY_LINEAR_W + wavyLinearWaveLength * 2);
+// 振幅 0..1 直接重建路径（官方 scaleY 近似：controlY 按振幅缩放，stroke 保持 4dp）
+const wavyLinearPathD = $derived(buildLinearWavePath(wavyLinearPathW, wavyLinearWaveLength, WAVY_LINEAR_H, strokeWidth, wavyAmp));
+// pathLength=100 归一化：1px 宽度对应的归一化长度
+const wavyLinearUnitsPerPx = $derived(100 / wavyLinearPathW);
+const wavyCapW = $derived(strokeCap === "butt" ? 0 : strokeWidth / 2);
+// determinate active 头位置（官方 barHead.coerceIn(capW, width-capW)）
+const wavyLinearHeadPx = $derived(
+	determinate
+		? Math.max(0, Math.min(WAVY_LINEAR_W - wavyCapW, Math.max(wavyCapW, progress * WAVY_LINEAR_W)))
+		: 0
+);
+const wavyLinearHeadUnits = $derived(wavyLinearHeadPx * wavyLinearUnitsPerPx);
+// 一个波长的归一化长度（dashoffset 流动量）
+const wavyLinearWaveLenUnits = $derived(wavyLinearWaveLength * wavyLinearUnitsPerPx);
+// 波流动画时长（官方 (wavelength/waveSpeed)*1000ms）
+const wavyLinearFlowMs = $derived((wavyLinearWaveLength / wavyLinearWaveSpeed) * 1000);
+// determinate track 起始 x（官方 head + gap + 2*capW）
+const wavyLinearTrackX1 = $derived(
+	(() => {
+		const head = wavyLinearHeadPx;
+		const cap = wavyCapW;
+		const gap = head < cap ? 0 : Math.min(head - cap, gapSize);
+		const spacing = gap + cap * 2;
+		return Math.max(cap, head + spacing);
+	})()
+);
+const wavyLinearTrackX2 = $derived(WAVY_LINEAR_W - wavyCapW);
+// determinate stop 圆点（官方 drawStopIndicator：右端 4dp，progress 接近末端时缩小消失）
+const wavyStop = $derived(
+	(() => {
+		const stopMax = Math.min(strokeWidth, 4);
+		const offset = stopMax === strokeWidth ? 0 : strokeWidth / 4;
+		const baseX = WAVY_LINEAR_W - stopMax - offset;
+		const progressX = wavyLinearHeadPx + wavyCapW;
+		let size = stopMax;
+		let x = baseX;
+		if (baseX <= progressX) {
+			size = Math.max(0, stopMax - (progressX - baseX));
+			x = progressX;
+		}
+		return { x: x + size / 2, size };
+	})()
+);
+
+// circular wavy：顶点数 = max(5, round(2πr/波长))，星形内半径 0.75 / 外角 0.35 smooth 0.4 / 内角 0.5
+const wavyCircWaveLength = $derived(wavelength > 0 ? wavelength : 15);
+const wavyCircWaveSpeed = $derived(waveSpeed > 0 ? waveSpeed : wavyCircWaveLength);
+const wavyCircNumVertices = $derived(circularWavyVertexCount(resolvedSize, strokeWidth, wavyCircWaveLength));
+// 官方 offset 动画时长 = (波长/波速)*1000*顶点数
+const wavyCircFlowMs = $derived((wavyCircWaveLength / wavyCircWaveSpeed) * 1000 * wavyCircNumVertices);
+
+// 官方 determinate 振幅回调：≤0.1 / ≥0.95 为 0（直线/圆），中间为 1（满波/满星）
+const officialIndicatorAmplitude = (p: number): number => (p <= 0.1 || p >= 0.95 ? 0 : 1);
+
+const wavyAmpTarget = $derived(
+	wavy
+		? determinate
+			? typeof amplitude === "function"
+				? amplitude(progress)
+				: (amplitude ?? officialIndicatorAmplitude(progress))
+			: typeof amplitude === "number"
+				? amplitude
+				: 1
+		: 0
+);
+
+// 初始振幅（SSR/首帧直接按当前 progress 得到正确形态，避免闪动）
+function initialWavyAmp(): number {
+	if (!wavy) return 0;
+	if (typeof amplitude === "number") return amplitude;
+	const hasProgress = typeof progress === "number" && progress >= 0;
+	if (typeof amplitude === "function") return hasProgress ? amplitude(progress as number) : 1;
+	return hasProgress ? officialIndicatorAmplitude(progress as number) : 1;
+}
+let wavyAmp = $state(initialWavyAmp());
+let wavyAmpJob: number | null = null;
+let wavyAmpInited = false;
+
+// 振幅动画：官方 Increasing 500ms standard / Decreasing 500ms emphasized-accelerate
+$effect(() => {
+	const cleanup = (): void => {
+		if (wavyAmpJob !== null) cancelAnimationFrame(wavyAmpJob);
+		wavyAmpJob = null;
+	};
+	if (!wavy) return cleanup;
+	const target = wavyAmpTarget;
+	if (!wavyAmpInited) {
+		wavyAmpInited = true;
+		untrack(() => {
+			wavyAmp = target;
+		});
+		return cleanup;
+	}
+	const current = untrack(() => wavyAmp);
+	if (Math.abs(target - current) < 0.001) return cleanup;
+	cleanup();
+	const from = current;
+	const easing = target > from ? cubicBezier(0.2, 0, 0, 1) : cubicBezier(0.3, 0, 0.8, 0.15);
+	const start = performance.now();
+	const duration = 500;
+	const step = (now: number): void => {
+		const t = Math.min((now - start) / duration, 1);
+		untrack(() => {
+			wavyAmp = from + (target - from) * easing(t);
+		});
+		if (t < 1) wavyAmpJob = requestAnimationFrame(step);
+		else wavyAmpJob = null;
+	};
+	wavyAmpJob = requestAnimationFrame(step);
+	return cleanup;
+});
+
+// wavy circular 星形路径（随振幅 morph）
+const wavyStarD = $derived(
+	buildCircularStarPath({
+		numVertices: wavyCircNumVertices,
+		innerRadius: 0.75,
+		outerRounding: 0.35,
+		outerSmoothing: 0.4,
+		innerRounding: 0.5,
+		radius: Math.max((resolvedSize - strokeWidth) / 2, 0.5),
+		cx: resolvedSize / 2,
+		cy: resolvedSize / 2,
+		amplitude: wavyAmp,
+	})
+);
+
 </script>
 
-{#if variant === "linear"}
+{#if wavy && variant === "linear"}
+    <div
+        class="m3-progress m3-progress--linear m3-progress--wavy {className}"
+        class:m3-progress--indeterminate={!determinate}
+        class:m3-progress--butt={strokeCap === "butt"}
+        role="progressbar"
+        aria-label={label}
+        aria-valuenow={determinate ? pct : undefined}
+        aria-valuemin={determinate ? 0 : undefined}
+        aria-valuemax={determinate ? 100 : undefined}
+        style={`--pi-color: ${color}; --pi-track: ${trackColor}; --pi-wave-len: ${-wavyLinearWaveLenUnits}; --pi-wave-dur: ${wavyLinearFlowMs}ms; --pi-wave-shift: ${-wavyLinearWaveLength}px`}
+    >
+        {#if determinate}
+            <svg class="m3-progress__wavy-track" viewBox="0 0 240 10" width="240" height="10">
+                {#if wavyLinearTrackX2 > wavyLinearTrackX1}
+                    <line x1={wavyLinearTrackX1} x2={wavyLinearTrackX2} y1="5" y2="5" stroke={trackColor} stroke-width={strokeWidth} stroke-linecap={strokeCap}></line>
+                {/if}
+            </svg>
+            {#if progress > 0}
+                <div class="m3-progress__wavy-active" style={`width: ${WAVY_LINEAR_W}px`}>
+                    <svg class="m3-progress__wavy-wave" viewBox={`0 0 ${wavyLinearPathW} 10`} width={wavyLinearPathW} height="10">
+                        <g>
+                            <path class:m3-progress__wavy-flow={wavyAmp > 0} d={wavyLinearPathD} pathLength="100"
+                                  fill="none" stroke={color} stroke-width={strokeWidth} stroke-linecap={strokeCap}
+                                  stroke-dasharray={`${wavyLinearHeadUnits} 100`}></path>
+                        </g>
+                    </svg>
+                </div>
+            {/if}
+            {#if showStop && wavyStop.size > 0.5}
+                <span class="m3-progress__stop m3-progress__stop--wavy" style={`left: ${wavyStop.x}px; width: ${wavyStop.size}px; height: ${wavyStop.size}px`} aria-hidden="true"></span>
+            {/if}
+        {:else}
+            <div class="m3-progress__track"></div>
+            <div class="m3-progress__line m3-progress__line--1 m3-progress__line--wavy">
+                <svg class="m3-progress__wavy-wave" viewBox={`0 0 ${wavyLinearPathW} 10`} width={wavyLinearPathW} height="10">
+                    <g>
+                        <path class="m3-progress__wavy-shift" d={wavyLinearPathD} fill="none" stroke={color} stroke-width={strokeWidth} stroke-linecap={strokeCap}></path>
+                    </g>
+                </svg>
+            </div>
+            <div class="m3-progress__line m3-progress__line--2 m3-progress__line--wavy">
+                <svg class="m3-progress__wavy-wave" viewBox={`0 0 ${wavyLinearPathW} 10`} width={wavyLinearPathW} height="10">
+                    <g>
+                        <path class="m3-progress__wavy-shift" d={wavyLinearPathD} fill="none" stroke={color} stroke-width={strokeWidth} stroke-linecap={strokeCap}></path>
+                    </g>
+                </svg>
+            </div>
+        {/if}
+    </div>
+{:else if wavy && variant === "circular"}
+    <svg
+        class="m3-progress m3-progress--circular m3-progress--wavy m3-progress--circular-wavy {className}"
+        class:m3-progress--indeterminate={!determinate}
+        style={`--pi-color: ${color}; --pi-track: ${trackColor}; --pi-size: ${resolvedSize}px; --pi-circ-flow-dur: ${wavyCircFlowMs}ms`}
+        role="progressbar"
+        aria-label={label}
+        aria-valuenow={determinate ? pct : undefined}
+        aria-valuemin={determinate ? 0 : undefined}
+        aria-valuemax={determinate ? 100 : undefined}
+        viewBox={`0 0 ${resolvedSize} ${resolvedSize}`}
+    >
+        {#if determinate}
+            <circle
+                class="m3-progress__track-rest"
+                cx={circCenter}
+                cy={circCenter}
+                r={circR}
+                fill="none"
+                stroke-width={strokeWidth}
+                stroke-linecap={strokeCap}
+                stroke-dasharray={`${Math.max(CIRC * (1 - progress) - gapPx * 2, 0)} ${CIRC}`}
+                stroke-dashoffset={`${-(CIRC * progress + gapPx)}`}
+            ></circle>
+            <path
+                class="m3-progress__wavy-circ-star"
+                class:m3-progress__wavy-circ-flow={wavyAmp > 0}
+                d={wavyStarD}
+                pathLength="100"
+                fill="none"
+                stroke={color}
+                stroke-width={strokeWidth}
+                stroke-linecap={strokeCap}
+                stroke-dasharray={`${progress * 100} ${100 - progress * 100}`}
+            ></path>
+        {:else}
+            <g class="m3-progress__wavy-circ-rotator">
+                <circle class="m3-progress__track" cx={circCenter} cy={circCenter} r={circR} fill="none" stroke-width={strokeWidth}></circle>
+                <path
+                    class="m3-progress__wavy-circ-star m3-progress__wavy-circ-indet"
+                    d={wavyStarD}
+                    pathLength="100"
+                    fill="none"
+                    stroke={color}
+                    stroke-width={strokeWidth}
+                    stroke-linecap={strokeCap}
+                ></path>
+            </g>
+        {/if}
+    </svg>
+{:else if variant === "linear"}
     <div
         class="m3-progress m3-progress--linear {className}"
         class:m3-progress--indeterminate={!determinate}
@@ -100,13 +365,13 @@ const gapPx = $derived(gapSize + strokeWidth);
     <svg
         class="m3-progress m3-progress--circular m3-progress--circular-{indeterminate} {className}"
         class:m3-progress--indeterminate={!determinate}
-        style={`--pi-color: ${color}; --pi-track: ${trackColor}; --pi-circ: ${CIRC}px; --pi-size: ${size}px`}
+        style={`--pi-color: ${color}; --pi-track: ${trackColor}; --pi-circ: ${CIRC}px; --pi-size: ${resolvedSize}px`}
         role="progressbar"
         aria-label={label}
         aria-valuenow={determinate ? pct : undefined}
         aria-valuemin={determinate ? 0 : undefined}
         aria-valuemax={determinate ? 100 : undefined}
-        viewBox={`0 0 ${size} ${size}`}
+        viewBox={`0 0 ${resolvedSize} ${resolvedSize}`}
     >
         {#if determinate}
             <!-- circle + dasharray/dashoffset（可 CSS transition 平滑转动）：
@@ -317,6 +582,75 @@ const gapPx = $derived(gapSize + strokeWidth);
                 /* 官方弧长伸缩 0.1↔0.87（6000ms，上行 standard / 回落 linear） */
                 animation: m3-progress-circular-wave-sweep 6000ms linear infinite
 
+    /* === wavy（官方 WavyProgressIndicator：Expressive 波浪形态） === */
+    &.m3-progress--wavy.m3-progress--linear
+        position: relative
+        width: 240px
+        height: 10px
+        overflow: hidden
+        /* 官方 LinearContainerWidth 240 / WaveHeight 10，clipToBounds */
+
+        .m3-progress__wavy-track
+            position: absolute
+            inset: 0
+            width: 240px
+            height: 10px
+
+        .m3-progress__wavy-active
+            position: absolute
+            top: 0
+            left: 0
+            height: 10px
+            overflow: hidden
+
+        .m3-progress__wavy-wave
+            position: absolute
+            top: 0
+            left: 0
+            max-width: none
+            display: block
+
+        /* determinate 波流动画：官方段 [s, head+s] 平移 -s 组合——dashoffset 前移一个波长
+           同时 translateX 左移一个波长（同时长同步），波浪连续填满 [0, head]，波峰自头部向尾部（左）流动，无空隙 */
+        .m3-progress__wavy-flow
+            animation:
+                m3-progress-wavy-flow-dash var(--pi-wave-dur) linear infinite,
+                m3-progress-wavy-shift var(--pi-wave-dur) linear infinite
+
+        /* indeterminate 波流动画：路径左移一个波长（--pi-wave-shift 负 px） */
+        .m3-progress__wavy-shift
+            animation: m3-progress-wavy-shift var(--pi-wave-dur) linear infinite
+
+        /* indeterminate 双线复用 pi-h1/pi-t1 时序；内部 SVG 波浪被行容器裁剪 */
+        &.m3-progress--indeterminate .m3-progress__line--wavy
+            background: none
+            border-radius: 0
+            overflow: hidden
+
+        .m3-progress__stop--wavy
+            top: 50%
+            transform: translate(-50%, -50%)
+
+    &.m3-progress--wavy.m3-progress--circular
+        /* 官方 circular wavy：determinate 起点 3 点钟（不加基准旋转）；
+           indeterminate 起点 12 点钟（rotator 内 +90° 基准） */
+        transform: none
+
+        .m3-progress__wavy-circ-rotator
+            transform-box: view-box
+            transform-origin: center
+            /* 官方 composite：基准 90° + 全局 1080° 匀速 + 附加步进 360°（6000ms） */
+            animation: m3-progress-circular-wavy-rotate 6000ms linear infinite
+
+        .m3-progress__wavy-circ-flow
+            /* determinate 波流动画：dashoffset 平移一个波长（弧沿路径滑动，齿形周期无缝回绕，不旋转） */
+            animation: m3-progress-circ-wave-dash var(--pi-circ-flow-dur) linear infinite
+
+        .m3-progress__wavy-circ-indet
+            /* indeterminate：弧长伸缩 + 波流动画（随 rotator 整体刚性旋转，官方行为） */
+            animation:
+                m3-progress-circular-wavy-sweep 6000ms linear infinite,
+                m3-progress-circ-wave-dash var(--pi-circ-flow-dur) linear infinite
 /* 官方 Line1/Line2 head/tail 关键帧（1750ms 总循环） */
 @keyframes pi-h1
     0%
@@ -413,4 +747,68 @@ const gapPx = $derived(gapSize + strokeWidth);
         animation-timing-function: linear
     100%
         transform: rotate(1350deg)
+/* linear wavy 波流动画：dashoffset 平移一个波长（--pi-wave-len 负值，normalized 单位） */
+@keyframes m3-progress-wavy-flow-dash
+    from
+        stroke-dashoffset: 0
+    to
+        stroke-dashoffset: var(--pi-wave-len)
+
+/* linear wavy indeterminate 波流动画：路径左移一个波长（--pi-wave-shift 负 px） */
+@keyframes m3-progress-wavy-shift
+    from
+        transform: translateX(0)
+    to
+        transform: translateX(var(--pi-wave-shift))
+
+/* circular wavy indeterminate 合成旋转（6000ms 周期）：基准 90°（12 点）+ 全局 1080° 匀速
+   + 附加步进 360°（每 1.5s：300ms 强调减速转 90°，随后停 1.2s，共 4 步）。
+   各段 easing：步进段 cubic-bezier(0.05, 0.7, 0.1, 1)（官方 EasingEmphasizedDecelerate），
+   停顿段 linear（随全局匀速） */
+@keyframes m3-progress-circular-wavy-rotate
+    0%
+        transform: rotate(90deg)
+        animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1)
+    5%
+        transform: rotate(234deg)
+        animation-timing-function: linear
+    25%
+        transform: rotate(450deg)
+        animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1)
+    30%
+        transform: rotate(594deg)
+        animation-timing-function: linear
+    50%
+        transform: rotate(810deg)
+        animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1)
+    55%
+        transform: rotate(954deg)
+        animation-timing-function: linear
+    75%
+        transform: rotate(1170deg)
+        animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1)
+    80%
+        transform: rotate(1314deg)
+        animation-timing-function: linear
+    100%
+        transform: rotate(1530deg)
+
+/* circular wavy 弧长伸缩（normalized 100 单位）：sweep 0.1 ↔ 0.87（6000ms，
+   上行 standard cubic-bezier(0.2,0,0,1)、回落 linear） */
+@keyframes m3-progress-circular-wavy-sweep
+    0%
+        stroke-dasharray: 10 90
+        animation-timing-function: cubic-bezier(0.2, 0, 0, 1)
+    50%
+        stroke-dasharray: 87 13
+        animation-timing-function: linear
+    100%
+        stroke-dasharray: 10 90
+
+/* circular wavy 波流动画：dashoffset 平移一个波长（弧沿路径滑动，齿形周期无缝回绕） */
+@keyframes m3-progress-circ-wave-dash
+    from
+        stroke-dashoffset: 0
+    to
+        stroke-dashoffset: -100
 </style>
