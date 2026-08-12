@@ -70,7 +70,7 @@ const CIRC = 2 * Math.PI * 18;
     </div>
 {:else}
     <svg
-        class="m3-progress m3-progress--circular {className}"
+        class="m3-progress m3-progress--circular m3-progress--circular-{indeterminate} {className}"
         class:m3-progress--indeterminate={!determinate}
         role="progressbar"
         aria-label={label}
@@ -88,7 +88,7 @@ const CIRC = 2 * Math.PI * 18;
             fill="none"
             stroke-width="4"
             stroke-linecap="round"
-            stroke-dasharray={determinate ? `${CIRC * progress} ${CIRC}` : `${CIRC * 0.25} ${CIRC}`}
+            stroke-dasharray={determinate ? `${CIRC * progress} ${CIRC}` : undefined}
             style={determinate ? `stroke-dashoffset: 0` : undefined}
         ></circle>
     </svg>
@@ -195,11 +195,24 @@ const CIRC = 2 * Math.PI * 18;
             stroke: var(--primary)
             transition: stroke-dasharray var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
 
-        /* indeterminate：弧长不变 + 整体旋转扫过 */
-        &.m3-progress--indeterminate
-            animation: m3-progress-circular-indeterminate 1.2s linear infinite
+        /* === indeterminate 变体（官方三层动画：弧长伸缩 + 全局旋转 + 步进） === */
+        &.m3-progress--indeterminate.m3-progress--circular-dual
+            /* 官方：弧长 0.1↔0.87 伸缩 + 360° 旋转，6000ms（globalRotation + progress） */
+            animation: m3-progress-circular-rotate 6000ms linear infinite
             .m3-progress__active
-                transform-origin: center
+                animation: m3-progress-circular-dual-sweep 6000ms linear infinite
+
+        &.m3-progress--indeterminate.m3-progress--circular-single
+            /* 固定弧长 + 快速旋转（经典） */
+            animation: m3-progress-circular-rotate 1200ms linear infinite
+            .m3-progress__active
+                stroke-dasharray: 28.3 113.1
+
+        &.m3-progress--indeterminate.m3-progress--circular-wave
+            /* 弧长快速伸缩（0.15↔0.6 波浪感）+ 旋转 */
+            animation: m3-progress-circular-rotate 1600ms linear infinite
+            .m3-progress__active
+                animation: m3-progress-circular-wave-sweep 1600ms ease-in-out infinite
 
 /* 官方 Line1/Line2 head/tail 关键帧（1750ms 总循环） */
 @keyframes pi-h1
@@ -241,9 +254,24 @@ const CIRC = 2 * Math.PI * 18;
         -webkit-mask-position: 40px 0
         mask-position: 40px 0
 
-@keyframes m3-progress-circular-indeterminate
+/* circular indeterminate：整体旋转（弧长动画由 dasharray 变体控制） */
+@keyframes m3-progress-circular-rotate
     from
         transform: rotate(-90deg)
     to
         transform: rotate(270deg)
+
+/* 官方弧长伸缩：0.1 ↔ 0.87 周长（6000ms） */
+@keyframes m3-progress-circular-dual-sweep
+    0%, 100%
+        stroke-dasharray: 11.3 113.1
+    50%
+        stroke-dasharray: 98.4 113.1
+
+/* wave：弧长快速伸缩（0.15 ↔ 0.6，1600ms） */
+@keyframes m3-progress-circular-wave-sweep
+    0%, 100%
+        stroke-dasharray: 17 113.1
+    50%
+        stroke-dasharray: 67.9 113.1
 </style>
