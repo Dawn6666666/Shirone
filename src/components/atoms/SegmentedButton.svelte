@@ -1,22 +1,31 @@
 <script lang="ts">
 /**
- * M3E SegmentedButton — M3 分段按钮原子（单选语义）。
+ * M3E SegmentedButton — M3 分段按钮（单选 / 多选，官方 SegmentedButton +
+ * MultiChoiceSegmentedButton）。
  * 容器 --surface-container，选中段 --secondary-container。
  * 选中段显示 check 图标（官方 fadeIn + scaleIn，origin 底部左角）。
- * 用法：<SegmentedButton options={[{value, label}]} bind:value={spec} />
+ * 单选：<SegmentedButton options={[{value,label}]} bind:value={spec} />
+ * 多选：<SegmentedButton multiple options={...} bind:checkedValues={[]} />
  */
 import Icon from "@iconify/svelte";
 
 let {
 	options = [],
 	value = $bindable(""),
+	checkedValues = $bindable([]),
 	label = "",
 	disabled = false,
+	multiple = false,
 }: {
 	options: { value: string; label: string }[];
+	/** 单选值（$bindable） */
 	value?: string;
+	/** 多选选中集（$bindable，multiple 时） */
+	checkedValues?: string[];
 	label?: string;
 	disabled?: boolean;
+	/** true = 多选（官方 MultiChoiceSegmentedButton） */
+	multiple?: boolean;
 } = $props();
 </script>
 
@@ -24,16 +33,26 @@ let {
     {#each options as opt (opt.value)}
         <label
             class="m3-segmented__segment"
-            class:selected={value === opt.value}
+            class:selected={multiple ? checkedValues.includes(opt.value) : value === opt.value}
         >
-            <input
-                type="radio"
-                name={label}
-                value={opt.value}
-                bind:group={value}
-                {disabled}
-                hidden
-            />
+            {#if multiple}
+                <input
+                    type="checkbox"
+                    value={opt.value}
+                    bind:group={checkedValues}
+                    {disabled}
+                    hidden
+                />
+            {:else}
+                <input
+                    type="radio"
+                    name={label}
+                    value={opt.value}
+                    bind:group={value}
+                    {disabled}
+                    hidden
+                />
+            {/if}
             <span class="m3-segmented__check" aria-hidden="true">
                 <Icon icon="material-symbols:check"></Icon>
             </span>
