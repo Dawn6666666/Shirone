@@ -231,8 +231,8 @@ function onDialClick(e: MouseEvent) {
 	&__header
 		display: flex
 		align-items: center
-		justify-content: center
-		gap: 16px
+		justify-content: space-between
+		width: 100%
 		height: 96px
 
 	&__time
@@ -254,7 +254,6 @@ function onDialClick(e: MouseEvent) {
 
 		&--active
 			color: var(--on-surface)
-			background: unquote("color-mix(in oklab, var(--on-surface) 8%, transparent)")
 
 	&__colon
 		color: var(--on-surface-variant)
