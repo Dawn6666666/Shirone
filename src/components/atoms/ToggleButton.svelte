@@ -19,6 +19,7 @@ let {
     label = "",
     controlled = false,
     class: className = "",
+    style = "",
     onclick,
     onpointerdown,
 }: {
@@ -29,6 +30,7 @@ let {
     /** 受控模式：点击不自动切换 checked，仅触发 onclick 回调（由父级管理状态） */
     controlled?: boolean;
     class?: string;
+    style?: string;
     onclick?: () => void;
     onpointerdown?: (e: PointerEvent) => void;
 } = $props();
@@ -44,6 +46,7 @@ function handleClick() {
     class="m3-toggle-button m3-toggle-button--{variant} m3-state-layer {className}"
     class:m3-toggle-button--checked={checked}
     class:m3-toggle-button--disabled={disabled}
+    {style}
     aria-pressed={checked}
     disabled={disabled}
     onclick={handleClick}
