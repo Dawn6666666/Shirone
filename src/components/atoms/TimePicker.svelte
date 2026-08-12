@@ -1,11 +1,14 @@
 <script lang="ts">
+import Icon from "@iconify/svelte";
+
 /**
- * M3E TimePicker — 时间选择器（官方 TimePicker 表盘版移植，简化：未做输入模式）。
+ * M3E TimePicker — 时间选择器（官方 TimePicker 移植，表盘 + 输入双模式）。
  * 表盘 256dp：小时（12h 单环 / 24h 双环：外 1-12 + 内 13-24，0 显示为 24）→ 分钟（60 刻度 + 每 5 分钟数字）；
  * 点击按角度吸附最近的小时/分钟（官方 ClockFace 行为），刻度为视觉点、数字按钮可精确点选；
- * 选中手柄 48dp primary-container 全圆（非整 5 分钟时手柄内显示分钟数字）、轨道 2dp primary + 中心点 8dp；
- * 头部分段显示 HH:MM（点击切回对应阶段），12h 模式右侧 上午/下午（tertiary-container 选中）；
- * value 为 24h "HH:MM"（ISO 风格，如 "14:30"），选完分钟即提交（onchange）。
+ * 输入模式（官方 TimeInput）：HH:MM 两个填充输入框，自动过滤非数字、小时满两位自动跳分钟、实时校验
+ * （h24 0-23 / h12 1-12，分钟 0-59），非法显示 error 下划线，合法即提交；
+ * 表头右上角键盘/时钟图标切换两种模式；选中手柄 48dp primary-container、轨道 2dp primary + 中心点 8dp；
+ * 12h AM/PM 用 tertiary-container；value 为 24h "HH:MM"（如 "14:30"）。
  */
 let {
 	value = $bindable(""),
@@ -26,6 +29,12 @@ let {
 let stage = $state<"hour" | "minute">("hour");
 let hour = $state(0);
 let minute = $state(0);
+let mode = $state<"clock" | "input">("clock");
+let hourText = $state("");
+let minuteText = $state("");
+let hourError = $state(false);
+let minuteError = $state(false);
+let minuteInputEl = $state<HTMLInputElement>();
 
 const m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(value);
 if (m) {
@@ -60,6 +69,62 @@ function setPeriod(period: "am" | "pm") {
 	if ((hour >= 12) !== isPm) {
 		hour = (hour + 12) % 24;
 		commit();
+	}
+}
+
+/* ---- 输入模式 ---- */
+function initInputFields() {
+	hourText = String(h12 ? displayHour() : hour).padStart(2, "0");
+	minuteText = String(minute).padStart(2, "0");
+	hourError = false;
+	minuteError = false;
+}
+
+function validateHour(s: string): boolean {
+	if (!/^\d{1,2}$/.test(s)) return false;
+	const n = Number(s);
+	return h12 ? n >= 1 && n <= 12 : n >= 0 && n <= 23;
+}
+
+function validateMinute(s: string): boolean {
+	if (!/^\d{1,2}$/.test(s)) return false;
+	const n = Number(s);
+	return n >= 0 && n <= 59;
+}
+
+function commitFromInput() {
+	hourError = hourText.length > 0 && !validateHour(hourText);
+	minuteError = minuteText.length > 0 && !validateMinute(minuteText);
+	if (hourError || minuteError || hourText === "" || minuteText === "") return;
+	let h = Number(hourText);
+	if (h12) {
+		h = hour >= 12 ? (h === 12 ? 12 : h + 12) : h === 12 ? 0 : h;
+	}
+	hour = h;
+	minute = Number(minuteText);
+	commit();
+}
+
+function onHourInput() {
+	hourText = hourText.replace(/\D/g, "").slice(0, 2);
+	commitFromInput();
+	if (hourText.length === 2 && !hourError) {
+		minuteInputEl?.focus();
+		minuteInputEl?.select();
+	}
+}
+
+function onMinuteInput() {
+	minuteText = minuteText.replace(/\D/g, "").slice(0, 2);
+	commitFromInput();
+}
+
+function toggleMode() {
+	if (mode === "clock") {
+		initInputFields();
+		mode = "input";
+	} else {
+		mode = "clock";
 	}
 }
 
@@ -130,90 +195,135 @@ function onDialClick(e: MouseEvent) {
 
 <div class="m3-time-picker {className}" role="group" aria-label={label}>
 	<div class="m3-time-picker__header">
-		<div class="m3-time-picker__time" role="group" aria-label="当前时间">
-			<button
-				type="button"
-				class="m3-time-picker__segment"
-				class:m3-time-picker__segment--active={stage === "hour"}
-				aria-label="选择小时"
-				onclick={() => (stage = "hour")}
-			>{h12 ? String(displayHour()) : String(hour).padStart(2, "0")}</button>
-			<span class="m3-time-picker__colon" aria-hidden="true">:</span>
-			<button
-				type="button"
-				class="m3-time-picker__segment"
-				class:m3-time-picker__segment--active={stage === "minute"}
-				aria-label="选择分钟"
-				onclick={() => (stage = "minute")}
-			>{String(minute).padStart(2, "0")}</button>
-		</div>
-		{#if h12}
-			<div class="m3-time-picker__period" role="group" aria-label="上午/下午">
+		{#if mode === "clock"}
+			<div class="m3-time-picker__time" role="group" aria-label="当前时间">
 				<button
 					type="button"
-					class="m3-time-picker__period-btn"
-					class:m3-time-picker__period-btn--selected={hour < 12}
-					onclick={() => setPeriod("am")}
-				>上午</button>
+					class="m3-time-picker__segment"
+					class:m3-time-picker__segment--active={stage === "hour"}
+					aria-label="选择小时"
+					onclick={() => (stage = "hour")}
+				>{h12 ? String(displayHour()) : String(hour).padStart(2, "0")}</button>
+				<span class="m3-time-picker__colon" aria-hidden="true">:</span>
 				<button
 					type="button"
-					class="m3-time-picker__period-btn"
-					class:m3-time-picker__period-btn--selected={hour >= 12}
-					onclick={() => setPeriod("pm")}
-				>下午</button>
+					class="m3-time-picker__segment"
+					class:m3-time-picker__segment--active={stage === "minute"}
+					aria-label="选择分钟"
+					onclick={() => (stage = "minute")}
+				>{String(minute).padStart(2, "0")}</button>
+			</div>
+		{:else}
+			<div class="m3-time-picker__inputs" role="group" aria-label="输入时间">
+				<input
+					type="text"
+					class="m3-time-picker__input"
+					class:m3-time-picker__input--error={hourError}
+					class:m3-time-picker__input--focused={false}
+					aria-label="小时"
+					inputmode="numeric"
+					maxlength="2"
+					bind:value={hourText}
+					oninput={onHourInput}
+				/>
+				<span class="m3-time-picker__colon" aria-hidden="true">:</span>
+				<input
+					type="text"
+					class="m3-time-picker__input"
+					class:m3-time-picker__input--error={minuteError}
+					aria-label="分钟"
+					inputmode="numeric"
+					maxlength="2"
+					bind:value={minuteText}
+					bind:this={minuteInputEl}
+					oninput={onMinuteInput}
+				/>
 			</div>
 		{/if}
-	</div>
-	<div class="m3-time-picker__dial" role="group" aria-label={stage === "hour" ? "选择小时" : "选择分钟"}>
-		<span class="m3-time-picker__track" style={`transform: rotate(${trackAngle}deg)`} aria-hidden="true"></span>
-		<span class="m3-time-picker__center" aria-hidden="true"></span>
-		<button
-			type="button"
-			class="m3-time-picker__overlay"
-			tabindex="-1"
-			aria-hidden="true"
-			onclick={onDialClick}
-		></button>
-		{#if stage === "hour"}
-			{#each hourItems as item (item.v)}
-				<button
-					type="button"
-					class="m3-time-picker__num"
-					class:m3-time-picker__num--inner={item.r === INNER_R}
-					class:m3-time-picker__num--selected={hour === item.v}
-					style={pos(item.r, item.angle)}
-					aria-label={`${item.label} 点`}
-					onclick={() => selectHour(item.v)}
-				>{item.label}</button>
-			{/each}
-		{:else}
-			{#each minuteTicks as tick (tick.m)}
-				<span
-					class="m3-time-picker__tick"
-					class:m3-time-picker__tick--selected={minute === tick.m}
-					style={pos(OUTER_R, tick.angle)}
-					aria-hidden="true"
-				></span>
-			{/each}
-			{#each minuteNumbers as item (item.m)}
-				<button
-					type="button"
-					class="m3-time-picker__num m3-time-picker__num--minute"
-					class:m3-time-picker__num--selected={minute === item.m}
-					style={pos(OUTER_R, item.angle)}
-					aria-label={`${item.m} 分`}
-					onclick={() => selectMinute(item.m)}
-				>{item.label}</button>
-			{/each}
-			{#if showMinuteHandle}
-				<span
-					class="m3-time-picker__handle"
-					style={pos(OUTER_R, (minute / 60) * 360)}
-					aria-hidden="true"
-				>{String(minute).padStart(2, "0")}</span>
+		<div class="m3-time-picker__header-right">
+			{#if h12}
+				<div class="m3-time-picker__period" role="group" aria-label="上午/下午">
+					<button
+						type="button"
+						class="m3-time-picker__period-btn"
+						class:m3-time-picker__period-btn--selected={hour < 12}
+						onclick={() => setPeriod("am")}
+					>上午</button>
+					<button
+						type="button"
+						class="m3-time-picker__period-btn"
+						class:m3-time-picker__period-btn--selected={hour >= 12}
+						onclick={() => setPeriod("pm")}
+					>下午</button>
+				</div>
 			{/if}
-		{/if}
+			<button
+				type="button"
+				class="m3-time-picker__mode-btn"
+				aria-label={mode === "clock" ? "切换为键盘输入" : "切换为表盘"}
+				title={mode === "clock" ? "键盘输入" : "表盘"}
+				onclick={toggleMode}
+			>
+				{#if mode === "clock"}
+					<Icon icon="material-symbols:keyboard" />
+				{:else}
+					<Icon icon="material-symbols:schedule" />
+				{/if}
+			</button>
+		</div>
 	</div>
+	{#if mode === "clock"}
+		<div class="m3-time-picker__dial" role="group" aria-label={stage === "hour" ? "选择小时" : "选择分钟"}>
+			<span class="m3-time-picker__track" style={`transform: rotate(${trackAngle}deg)`} aria-hidden="true"></span>
+			<span class="m3-time-picker__center" aria-hidden="true"></span>
+			<button
+				type="button"
+				class="m3-time-picker__overlay"
+				tabindex="-1"
+				aria-hidden="true"
+				onclick={onDialClick}
+			></button>
+			{#if stage === "hour"}
+				{#each hourItems as item (item.v)}
+					<button
+						type="button"
+						class="m3-time-picker__num"
+						class:m3-time-picker__num--inner={item.r === INNER_R}
+						class:m3-time-picker__num--selected={hour === item.v}
+						style={pos(item.r, item.angle)}
+						aria-label={`${item.label} 点`}
+						onclick={() => selectHour(item.v)}
+					>{item.label}</button>
+				{/each}
+			{:else}
+				{#each minuteTicks as tick (tick.m)}
+					<span
+						class="m3-time-picker__tick"
+						class:m3-time-picker__tick--selected={minute === tick.m}
+						style={pos(OUTER_R, tick.angle)}
+						aria-hidden="true"
+					></span>
+				{/each}
+				{#each minuteNumbers as item (item.m)}
+					<button
+						type="button"
+						class="m3-time-picker__num m3-time-picker__num--minute"
+						class:m3-time-picker__num--selected={minute === item.m}
+						style={pos(OUTER_R, item.angle)}
+						aria-label={`${item.m} 分`}
+						onclick={() => selectMinute(item.m)}
+					>{item.label}</button>
+				{/each}
+				{#if showMinuteHandle}
+					<span
+						class="m3-time-picker__handle"
+						style={pos(OUTER_R, (minute / 60) * 360)}
+						aria-hidden="true"
+					>{String(minute).padStart(2, "0")}</span>
+				{/if}
+			{/if}
+		</div>
+	{/if}
 </div>
 
 <style lang="stylus">
@@ -258,6 +368,11 @@ function onDialClick(e: MouseEvent) {
 	&__colon
 		color: var(--on-surface-variant)
 
+	&__header-right
+		display: flex
+		align-items: center
+		gap: 8px
+
 	&__period
 		display: flex
 		flex-direction: column
@@ -285,6 +400,60 @@ function onDialClick(e: MouseEvent) {
 
 			&:hover
 				background: var(--tertiary-container)
+
+	&__mode-btn
+		display: flex
+		align-items: center
+		justify-content: center
+		width: 40px
+		height: 40px
+		border: none
+		border-radius: var(--shape-corner-full)
+		background: none
+		color: var(--on-surface-variant)
+		cursor: pointer
+		transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard), color var(--m3e-duration-short) var(--m3e-easing-standard)
+
+		&:hover
+			background: unquote("color-mix(in oklab, var(--on-surface) 8%, transparent)")
+			color: var(--on-surface)
+
+		> :global(svg)
+			width: 20px
+			height: 20px
+
+	&__inputs
+		display: flex
+		align-items: center
+		gap: 6px
+
+	&__input
+		width: 56px
+		height: 64px
+		box-sizing: border-box
+		border: none
+		outline: none
+		border-radius: var(--shape-corner-xs) var(--shape-corner-xs) 0 0
+		background: var(--surface-container-highest)
+		color: var(--on-surface)
+		caret-color: var(--primary)
+		font: var(--m3e-type-headline-medium)
+		text-align: center
+		transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard), box-shadow var(--m3e-duration-short) var(--m3e-easing-standard)
+
+		&:hover
+			background: unquote("color-mix(in oklab, var(--on-surface) 8%, var(--surface-container-highest))")
+
+		&:focus
+			box-shadow: inset 0 -2px 0 var(--primary)
+
+		&::placeholder
+			color: var(--on-surface-variant)
+
+		&--error
+			box-shadow: inset 0 -2px 0 var(--error)
+			&:focus
+				box-shadow: inset 0 -2px 0 var(--error)
 
 	&__dial
 		position: relative
