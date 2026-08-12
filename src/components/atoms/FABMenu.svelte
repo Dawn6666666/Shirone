@@ -18,6 +18,12 @@
  *   </FABMenu>
  */
 import Icon from "@iconify/svelte";
+import { onMount } from "svelte";
+import {
+	MENU_EXCLUSIVE_EVENT,
+	announceMenuOpened,
+	nextMenuInstanceId,
+} from "@utils/menu-bus";
 
 let {
     expanded = $bindable(false),
@@ -28,6 +34,7 @@ let {
     align = "end",
     containerColor = "var(--primary-container)",
     containerContentColor = "var(--on-primary-container)",
+    exclusive = true,
     class: className = "",
 }: {
     expanded?: boolean;
@@ -38,8 +45,27 @@ let {
     align?: "end" | "start" | "center";
     containerColor?: string;
     containerContentColor?: string;
+    exclusive?: boolean;
     class?: string;
 } = $props();
+
+const instanceId = nextMenuInstanceId();
+
+// 互斥单开：展开时广播，其他同总线实例自动收起
+$effect(() => {
+    if (!exclusive || !expanded) return;
+    const t = setTimeout(() => announceMenuOpened(instanceId), 0);
+    return () => clearTimeout(t);
+});
+
+onMount(() => {
+    const onExclusive = (e: Event) => {
+        const detail = (e as CustomEvent).detail;
+        if (detail?.instanceId !== instanceId && expanded) expanded = false;
+    };
+    document.addEventListener(MENU_EXCLUSIVE_EVENT, onExclusive);
+    return () => document.removeEventListener(MENU_EXCLUSIVE_EVENT, onExclusive);
+});
 </script>
 
 <div

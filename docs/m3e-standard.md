@@ -116,7 +116,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | Chip | `Chip.astro` | variant: `assist`（描边）/`filter`（选中 → secondary-container）/`tonal`（站内药丸）；`selected`、`href` | surface-container-low / outline-variant / secondary-container / btn-regular 系 |
 | IconButton | `IconButton.astro` | variant: `standard/tonal/filled`；`label`、`id`、`href/target/rel`（渲染 `<a>`） | on-surface-variant / secondary-container / primary |
 | FAB | `FAB.astro` | size: `small(40)/regular(56)`；`label`、`disabled` | primary-container ＋ `--m3e-elevation-3` |
-| FABMenu | `FABMenu.svelte` | M3E 悬浮菜单：`expanded`（$bindable）、`icon`/`iconExpanded`（Crossfade 切换）、`label`、`size`（small 56 / medium 80 / large 96，展开收缩到 56 全圆 + close 20px）、`align`（end/start/center）、`containerColor`/`containerContentColor`（默认 primary-container/on-primary-container，展开变 primary）；菜单项 `.m3-fab-menu-item`（56px 全圆、18px 图标 + body-medium）+ stagger 展开 | primary-container / primary、`--m3e-elevation-3` |
+| FABMenu | `FABMenu.svelte` | M3E 悬浮菜单：`expanded`（$bindable）、`icon`/`iconExpanded`（Crossfade 切换）、`label`、`size`（small 56 / medium 80 / large 96，展开收缩到 56 全圆 + close 20px）、`align`（end/start/center）、`containerColor`/`containerContentColor`（默认 primary-container/on-primary-container，展开变 primary）、`exclusive`（默认 true：单开互斥，展开时经 `menu-bus` 通知其他菜单/FABMenu 收起；false 则不参与）；菜单项 `.m3-fab-menu-item`（56px 全圆、18px 图标 + body-medium）+ stagger 展开 | primary-container / primary、`--m3e-elevation-3` |
 | Slider | `Slider.svelte` | `value`（$bindable）、`min/max/step`、`label` | 彩虹轨道 `--color-selection-bar`、主色圆点 thumb |
 | SegmentedButton | `SegmentedButton.svelte` | `options: {value,label}[]`、`value`（$bindable）、`label` | container 底、选中段 secondary-container |
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`、`onfocus`/`oninput`、`leading` 命名插槽 | surface-container-high、聚焦主色下划线 |
@@ -126,7 +126,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | Badge | `Badge.svelte` | `content`（有内容显示 label-small 文字，否则 6px 圆点）、`disabled`；配 `BadgedBox.svelte` 锚定到右上角 | error / on-error |
 | Divider | `Divider.svelte` | `vertical`、`thickness`、`color`；默认 1px | outline-variant |
 | Dialog | `Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦 | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` |
-| Menu | `Menu.svelte` | `open`（$bindable）、`label`、`variant`（standard/vibrant，vibrant 为 tertiary 基高强调）、class；受控容器，ESC/外部点击关闭（点击其他菜单内不关闭，支持多菜单共存），`:global(.m3-menu-item)` 项样式（44px）＋ `.selected`/`.checked` 状态、`.m3-menu-group` 分组（surface-container-low 背景 + hover 8→16px 形状变形、组间距 2px）、`width: max-content` 宽度稳定 | surface-container / tertiary-container、`--m3e-elevation-2` |
+| Menu | `Menu.svelte` | `open`（$bindable）、`label`、`variant`（standard/vibrant，vibrant 为 tertiary 基高强调）、`exclusive`（默认 true：单开互斥，打开时经 `menu-bus` 通知其他菜单/FABMenu 关闭；false 则不参与）、class；受控容器，ESC/外部点击关闭（点击其他菜单内不关闭），`:global(.m3-menu-item)` 项样式（44px）＋ `.selected`/`.checked` 状态、`.m3-menu-group` 分组（surface-container-low 背景 + hover 8→16px 形状变形、组间距 2px）、`width: max-content` 宽度稳定 | surface-container / tertiary-container、`--m3e-elevation-2` |
 | Snackbar | `Snackbar.svelte` | 由事件总线 `showSnackbar(msg)` 触发 | inverse-surface / inverse-on-surface、`--m3e-elevation-3` |
 
 约定：
@@ -196,6 +196,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/theme-utils.ts` | 角色 → `--mc-*` 映射、localStorage（`mc-style`/`mc-spec`）、`applyCurrentScheme` |
 | `src/utils/setting-utils.ts` | 色相 / 明暗 / Expressive Code 主题联动 |
 | `src/utils/snackbar.ts` | Snackbar 事件总线 |
+| `src/utils/menu-bus.ts` | 菜单互斥事件总线（Menu/FABMenu 单开联动，`exclusive` 参数） |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
 | `src/components/atoms/*` | 17 个原子组件 |
