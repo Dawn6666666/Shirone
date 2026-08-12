@@ -10,11 +10,28 @@
     }
 }
 
-/* 复制按钮与折叠按钮：统一尺寸、背景、图标色，右对齐成一行 */
+/* 针对 Terminal / Header 标题栏的按钮垂直定位变量 */
+.expressive-code .frame {
+    --code-action-top: 0.75rem;
+}
+
+.expressive-code .frame.is-terminal,
+.expressive-code .frame.has-title {
+    --code-action-top: calc(var(--button-spacing, 0px) + 0.25rem);
+}
+
+/* 官方复制按钮层级与定位规范 */
+.expressive-code .copy {
+    top: var(--code-action-top) !important;
+    right: 0.75rem !important;
+    z-index: 20;
+}
+
+/* 自定义复制按钮保留兼容样式 */
 .expressive-code .copy-btn {
     all: initial;
     position: absolute;
-    top: 0.75rem;
+    top: var(--code-action-top);
     right: 0.75rem;
     z-index: 20;
     display: flex;
@@ -87,7 +104,7 @@
 .expressive-code.auto-collapsible .collapse-toggle-btn {
     all: initial;
     position: absolute;
-    top: 0.75rem;
+    top: var(--code-action-top);
     right: 3.5rem;
     z-index: 20;
     display: flex;
@@ -154,10 +171,18 @@
     pointer-events: none;
 }
 
-/* 移动端：按钮更小 */
+/* 移动端：按钮更小与定位调整 */
 @media (width < 768px) {
+    .expressive-code .frame {
+        --code-action-top: 0.5rem;
+    }
+
+    .expressive-code .frame.is-terminal,
+    .expressive-code .frame.has-title {
+        --code-action-top: calc(var(--button-spacing, 0px) + 0.25rem);
+    }
+
     .expressive-code .copy-btn {
-        top: 0.5rem;
         right: 0.5rem;
         width: 1.75rem;
         height: 1.75rem;
@@ -169,7 +194,6 @@
     }
 
     .expressive-code.auto-collapsible .collapse-toggle-btn {
-        top: 0.5rem;
         right: 3rem;
         width: 1.75rem;
         height: 1.75rem;
