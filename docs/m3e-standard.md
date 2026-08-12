@@ -112,6 +112,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | 原子 | 文件 | 变体 / props | 关键令牌 |
 |---|---|---|---|
 | Button | `Button.astro` | variant: `filled/tonal/outlined/text`；size: `small(32)/medium(40)/large(48)`；`href/target`（渲染 `<a>`）、`full`、`align: center/start/between`、`disabled`；hover 阴影提升过渡（filled/tonal elevation-1→2，150ms） | primary / secondary-container / outline / on-surface；`--m3e-state-color` 按变体 |
+| Button | `Button.svelte` | 按钮（官方 Button 移植，token 对齐 v0.192 md-comp-{filled,elevated,filled-tonal,outlined,text}-button + latest 尺寸）：五种变体 filled（primary 实底 + on-primary）/ elevated（surface-container-low + primary + elevation-1，hover 升 level2）/ tonal（secondary-container 实底）/ outlined（透明 + outline 描边）/ text（透明无描边）；尺寸 latest：xsmall 32/图标20、small 40/20（默认）、medium 56/24、large 96/32、xlarge 136/40；可选 leading 图标（Iconify）；label-large、corner-full；交互：原生 button + m3-state-layer，filled/elevated/tonal hover 阴影提升（level0→1 / 1→2）；disabled 对齐官方（filled/elevated/tonal 容器 12% + 文字/图标 38%，outlined 边框 12% + 文字 38%，text 文字 38%） | primary / on-primary、secondary-container / on-secondary-container、surface-container-low、outline |
 | AppBar | `AppBar.svelte` | 顶部应用栏（官方 AppBar.kt）：`variant`（**small** 64dp 标题 title-large / **center** 同高标题居中 / **medium** 112dp 标题 headline-small 大字靠下 / **large** 152dp 标题 headline-medium 大字靠下）、`title`（string 或 snippet）、`navigationIcon`/`actions` 插槽（通常 IconButton，渲染在起始/末尾端）；布局 small/center 单行 [nav][title][actions]，medium/large 顶部 64px 工具行 + 底部大字标题（官方 expanded 静态版，scrollBehavior 折叠未做）；背景 surface、标题 on-surface、图标 on-surface-variant（官方 token） | surface / on-surface / on-surface-variant |
 | Card | `Card.svelte` | 卡片（官方 Card.kt）：`variant`（**filled** 默认 surface-container-highest 无阴影 / **elevated** surface-container-low + 阴影 Level1 hover Level2 / **outlined** surface + outline-variant 1px 边框 hover outline）、形状 corner-medium（12px，官方 ContainerShape）；`onClick` 传入渲染为原生 `<button>`（可点击卡片，`enabled=false` 禁用 opacity 0.38），省略渲染为普通容器 div；可点击卡片 hover/pressed 加 on-surface overlay（4%/8%）+ `focus-visible` primary 焦点环；`color` 覆盖容器背景（`--m3-card-bg`）；内容溢出圆角裁剪 | surface-container-highest / surface-container-low / surface、outline-variant；`--m3e-elevation-1/2` |
 | SplitButton | `SplitButton.svelte` | M3E 分离式按钮：`variant`（filled/tonal/outlined/elevated）、`size`（xs/s/m/l/xl，M3E 五档 32–136）、`menuOpen`（$bindable，trailing 激活旋转 180°）、`onclick`（leading 主操作）；leading/trailing 插槽；**两段相接内角在 hover/pressed 时变形更圆**（4→12px 等，官方 SplitButton*Tokens） | primary / secondary-container / outline；`--m3e-elevation-*` |
@@ -225,5 +226,5 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/menu-bus.ts` | 菜单互斥事件总线（Menu/FABMenu 单开联动，`exclusive` 参数） |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 39 个原子组件 |
+| `src/components/atoms/*` | 40 个原子组件 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
