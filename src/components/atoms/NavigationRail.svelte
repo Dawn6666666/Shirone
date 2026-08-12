@@ -18,12 +18,15 @@ let {
 	items = [],
 	value = $bindable(""),
 	label = "导航",
+	alwaysShowLabel = true,
 	header,
 	class: className = "",
 }: {
 	items: { value: string; label: string; icon?: string }[];
 	value?: string;
 	label?: string;
+	/** false = 折叠模式（官方 alwaysShowLabel）：仅选中项显示 label，其余只图标 */
+	alwaysShowLabel?: boolean;
 	/** header 插槽（顶部，通常 FAB/头像/Logo） */
 	header?: import("svelte").Snippet;
 	class?: string;
@@ -40,6 +43,7 @@ let {
                 type="button"
                 class="m3-nav-rail__item"
                 class:m3-nav-rail__item--active={value === item.value}
+                class:m3-nav-rail__item--collapsed={!alwaysShowLabel}
                 aria-current={value === item.value ? "page" : undefined}
                 onclick={() => (value = item.value)}
             >
@@ -153,4 +157,14 @@ let {
 
     &__item--active &__label
         color: var(--secondary)
+
+    /* 折叠模式（alwaysShowLabel=false，官方 CollapsedTokens）：
+       仅选中项显示 label，其余只图标（item min 56、icon 居中） */
+    &__item--collapsed
+        min-height: 56px
+        grid-template-rows: 32px auto
+
+        &:not(.m3-nav-rail__item--active)
+            .m3-nav-rail__label
+                display: none
 </style>
