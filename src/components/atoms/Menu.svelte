@@ -1,17 +1,21 @@
 <script lang="ts">
 /**
- * M3E Menu — M3 菜单原子（受控容器）。
+ * M3E Menu — M3E 菜单原子（受控容器）。
  * 父级持有触发器与定位（渲染时可用 class 控制位置/显隐）；
  * 本组件负责容器样式、role="menu"、ESC 关闭与点击外部关闭。
  * 插槽内放 <button class="m3-menu-item"> 项（样式由本组件 :global 提供）。
+ * variant: standard（surface 基，默认）/ vibrant（tertiary 基，高强调，慎用）。
+ * 菜单项状态：.selected（单选高亮）/ .checked（勾选）；分组用 .m3-menu-group（组间距 2px）。
  */
 let {
 	open = $bindable(false),
 	label = "",
+	variant = "standard",
 	class: className = "",
 }: {
 	open?: boolean;
 	label?: string;
+	variant?: "standard" | "vibrant";
 	class?: string;
 } = $props();
 
@@ -41,7 +45,7 @@ $effect(() => {
 </script>
 
 <div
-    class="m3-menu {className}"
+    class="m3-menu m3-menu--{variant} {className}"
     class:closed={!open}
     role="menu"
     aria-label={label}
@@ -72,7 +76,7 @@ $effect(() => {
         align-items: center
         gap: 0.5rem
         width: 100%
-        height: 2.5rem
+        height: 2.75rem
         padding: 0 1rem
         border: none
         border-radius: var(--shape-corner-s)
@@ -88,8 +92,28 @@ $effect(() => {
             outline: 2px solid var(--primary)
             outline-offset: -2px
 
-    /* 选中态（M3 菜单规范）：调用方给菜单项加 .selected，如 LightDarkSwitch 当前模式 */
-    :global(.m3-menu-item.selected)
+    /* 选中/勾选态（M3 菜单规范）：.selected 单选高亮、.checked 勾选 */
+    :global(.m3-menu-item.selected),
+    :global(.m3-menu-item.checked)
         background: var(--secondary-container)
         color: var(--on-secondary-container)
+
+    /* 分组：组间 2px 间距（官方 SegmentedGap），替代/并列 divider */
+    :global(.m3-menu-group + .m3-menu-group)
+        margin-top: 2px
+
+    /* === vibrant 变体：tertiary 基，高强调（官方 VibrantMenuTokens） === */
+    &--vibrant
+        background: var(--tertiary-container)
+        color: var(--on-tertiary-container)
+        :global(.m3-menu-item)
+            color: var(--on-tertiary-container)
+            &:hover
+                background: unquote("color-mix(in oklab, var(--on-tertiary-container) 8%, transparent)")
+            &:focus-visible
+                outline: 2px solid var(--tertiary)
+        :global(.m3-menu-item.selected),
+        :global(.m3-menu-item.checked)
+            background: var(--tertiary)
+            color: var(--on-tertiary)
 </style>
