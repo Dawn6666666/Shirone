@@ -30,7 +30,7 @@ theme-utils.ts  写入 :root 的 --mc-* 自定义属性（localStorage 持久化
 variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…），带 oklch 回退
    │
    ▼
-原子组件（Button / SplitButton / Chip / IconButton / FAB / Slider / SegmentedButton / TextField / Switch / Dialog / Menu / Snackbar）
+原子组件（Button / SplitButton / Chip / IconButton / FAB / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar）
    │
    ▼
 分子/有机体（Navbar / SideBar / Search / PostCard…）
@@ -120,6 +120,10 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | SegmentedButton | `SegmentedButton.svelte` | `options: {value,label}[]`、`value`（$bindable）、`label` | container 底、选中段 secondary-container |
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`、`onfocus`/`oninput`、`leading` 命名插槽 | surface-container-high、聚焦主色下划线 |
 | Switch | `Switch.svelte` | `checked`（$bindable）、`disabled`、`label`、`icons`（M3E 图标变体：传 `icons` 时 thumb 恒 24px 显示 ✓/✕；缺省为 thumb 16↔24 动态无图标的经典样式）；原生 checkbox 自绘 track/thumb | 选中 secondary-container + 状态层 |
+| Checkbox | `Checkbox.svelte` | `checked`（$bindable，`boolean \| null`）、`disabled`、`label`、`triState`（半选横线）；原生 checkbox 自绘 18px 方框 | primary / on-surface-variant、禁用 0.38 |
+| RadioButton | `RadioButton.svelte` | `checked`（$bindable）、`disabled`、`label`、`onchange`；原生 radio 自绘 20px 环 + 12px 内点 | primary / on-surface-variant、禁用 0.38 |
+| Badge | `Badge.svelte` | `content`（有内容显示 label-small 文字，否则 6px 圆点）、`disabled`；配 `BadgedBox.svelte` 锚定到右上角 | error / on-error |
+| Divider | `Divider.svelte` | `vertical`、`thickness`、`color`；默认 1px | outline-variant |
 | Dialog | `Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦 | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` |
 | Menu | `Menu.svelte` | `open`（$bindable）、`label`、`variant`（standard/vibrant，vibrant 为 tertiary 基高强调）、class；受控容器，ESC/外部点击关闭，`:global(.m3-menu-item)` 项样式（44px）＋ `.selected`/`.checked` 状态、`.m3-menu-group` 分组（组间距 2px） | surface-container / tertiary-container、`--m3e-elevation-2` |
 | Snackbar | `Snackbar.svelte` | 由事件总线 `showSnackbar(msg)` 触发 | inverse-surface / inverse-on-surface、`--m3e-elevation-3` |
@@ -193,5 +197,5 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/snackbar.ts` | Snackbar 事件总线 |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 12 个原子组件 |
+| `src/components/atoms/*` | 16 个原子组件 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
