@@ -15,12 +15,15 @@
  *     （官方 fullProgressPath 二次贝塞尔，controlY = height - strokeWidth），
  *     determinate 振幅按 progress 阈值（≤0.1 / ≥0.95 → 0 直线，中间 → 1 满波），
  *     增大/减小分别用 500ms standard / emphasized-accelerate tween；
- *     indeterminate 固定振幅 1，双线 head/tail + 波横向流动（每波长一个周期）。
+ *     indeterminate 固定振幅 1，双线 head/tail + 波横向流动（每波长一个周期）；
+ *     波浪锚定轨道全局坐标（官方 PathMeasure 取样 [tail+shift, head+shift] 平移 -shift），
+ *     窗口滑动时波浪相位不变、双线同相连续。
  *   circular wavy = 48×48 容器（WaveSize），圆 ↔ 星形齿 morph（9 齿，
  *     RoundedPolygon.star innerRadius 0.75 / 外角 0.35 smooth 0.4 / 内角 0.5），
  *     determinate 起点 3 点钟（官方未加基准旋转），indeterminate 三层动画：
  *     全局 1080° 匀速 + 附加步进 90°@300ms 停 1.2s（6000ms）+ 弧长 0.1↔0.87，
  *     起点 12 点钟（基准 +90°）。
+ *     弧内齿形流动（dashoffset 前移一圈 + 同步反向旋转抵消，官方取样后 rotate(-shift)）。
  *
  * 用法：<ProgressIndicator progress={0.6} />
  *      <ProgressIndicator />                        ← indeterminate（dual 双线）
@@ -420,10 +423,10 @@ const wavyStarD = $derived(
 /* head/tail 插值变量（官方 FirstLine/SecondLine 关键帧时序，总循环 1750ms）：
    Line1 head 0→1000ms(57.14%)、tail 250→1250ms(14.29%→71.43%)
    Line2 head 650→1500ms(37.14%→85.71%)、tail 900→1750ms(51.43%→100%) */
-@property --pi-h1 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --pi-t1 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --pi-h2 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --pi-t2 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --pi-h1 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --pi-t1 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --pi-h2 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --pi-t2 { syntax: "<number>"; inherits: true; initial-value: 0; }
 /* circular 弧长 sweep 比例（0.1↔0.87，相对周长 --pi-circ，随 size 自适应） */
 @property --pi-sweep { syntax: "<number>"; inherits: false; initial-value: 0.1; }
 
@@ -627,6 +630,12 @@ const wavyStarD = $derived(
             border-radius: 0
             overflow: hidden
 
+        &.m3-progress--indeterminate .m3-progress__line--1.m3-progress__line--wavy .m3-progress__wavy-wave
+            left: calc(-1 * var(--pi-t1) * 240px - 2px)
+
+        &.m3-progress--indeterminate .m3-progress__line--2.m3-progress__line--wavy .m3-progress__wavy-wave
+            left: calc(-1 * var(--pi-t2) * 240px - 2px)
+
         .m3-progress__stop--wavy
             top: 50%
             transform: translate(-50%, -50%)
@@ -643,14 +652,23 @@ const wavyStarD = $derived(
             animation: m3-progress-circular-wavy-rotate 6000ms linear infinite
 
         .m3-progress__wavy-circ-flow
-            /* determinate 波流动画：dashoffset 平移一个波长（弧沿路径滑动，齿形周期无缝回绕，不旋转） */
-            animation: m3-progress-circ-wave-dash var(--pi-circ-flow-dur) linear infinite
+            /* determinate 波流动画：dashoffset 平移一个波长 + 同步反向旋转一圈，
+               官方取样 [shift, head+shift] 后 rotate(-shift) —— 弧端固定、齿形在弧内流动 */
+            animation:
+                m3-progress-circ-wave-dash var(--pi-circ-flow-dur) linear infinite,
+                m3-progress-circ-wave-counterrotate var(--pi-circ-flow-dur) linear infinite
+            transform-box: view-box
+            transform-origin: center
 
         .m3-progress__wavy-circ-indet
-            /* indeterminate：弧长伸缩 + 波流动画（随 rotator 整体刚性旋转，官方行为） */
+            /* indeterminate：弧长伸缩 + 波流动画 + 同步反向旋转
+               （弧端固定于轨道、齿形流动，整体随 rotator 刚性旋转，官方行为） */
             animation:
                 m3-progress-circular-wavy-sweep 6000ms linear infinite,
-                m3-progress-circ-wave-dash var(--pi-circ-flow-dur) linear infinite
+                m3-progress-circ-wave-dash var(--pi-circ-flow-dur) linear infinite,
+                m3-progress-circ-wave-counterrotate var(--pi-circ-flow-dur) linear infinite
+            transform-box: view-box
+            transform-origin: center
 /* 官方 Line1/Line2 head/tail 关键帧（1750ms 总循环） */
 @keyframes pi-h1
     0%
@@ -811,4 +829,12 @@ const wavyStarD = $derived(
         stroke-dashoffset: 0
     to
         stroke-dashoffset: -100
+
+/* circular wavy 波流动画同步反向旋转：dashoffset 前移一圈使弧窗口绕圆滑动，
+   这里反向旋转一圈将其抵消 —— 弧端固定、星形齿在弧内流动（官方 rotate(-shift)） */
+@keyframes m3-progress-circ-wave-counterrotate
+    from
+        transform: rotate(0deg)
+    to
+        transform: rotate(-360deg)
 </style>
