@@ -22,6 +22,10 @@ let {
 	label = "加载中",
 	showStop = true,
 	indeterminate = "dual",
+	color = "var(--primary)",
+	trackColor = "var(--surface-container-highest)",
+	strokeCap = "round",
+	gapSize = 4,
 	class: className = "",
 }: {
 	variant?: "linear" | "circular";
@@ -30,8 +34,17 @@ let {
 	label?: string;
 	/** determinate linear 填充末端 stop 圆点（官方 StopSize 4dp），默认显示 */
 	showStop?: boolean;
-	/** indeterminate linear 动画变体：dual 双线（官方，默认）/ wave 波浪 / single 单线 */
+	/** indeterminate 动画变体（linear：dual 双线官方默认 / wave 波浪 / single 单线；
+	    circular：dual 官方弧伸缩 / single 固定弧 / wave 弧长波浪） */
 	indeterminate?: "dual" | "wave" | "single";
+	/** active 指示器颜色（官方 color 参数） */
+	color?: string;
+	/** 轨道颜色（官方 trackColor 参数） */
+	trackColor?: string;
+	/** 线端形状：round 圆头（官方默认）/ butt 平头 */
+	strokeCap?: "round" | "butt";
+	/** active 与 track 之间的间隙 px（官方 gapSize 参数，默认 4） */
+	gapSize?: number;
 	class?: string;
 } = $props();
 
@@ -40,23 +53,28 @@ const determinate = $derived(progress !== undefined && progress >= 0);
 const pct = $derived(determinate ? Math.max(0, Math.min(100, progress * 100)) : 0);
 // 圆环：周长 = 2πr（r = (40 - 4)/2 = 18）
 const CIRC = 2 * Math.PI * 18;
+// circular gap 像素：官方 adjustedGapSize = gapSize + strokeWidth（round cap 弧端补偿）
+const gapPx = $derived(gapSize + 4);
 </script>
 
 {#if variant === "linear"}
     <div
         class="m3-progress m3-progress--linear {className}"
         class:m3-progress--indeterminate={!determinate}
+        class:m3-progress--butt={strokeCap === "butt"}
         role="progressbar"
         aria-label={label}
         aria-valuenow={determinate ? pct : undefined}
         aria-valuemin={determinate ? 0 : undefined}
         aria-valuemax={determinate ? 100 : undefined}
+        style={`--pi-progress: ${pct}; --pi-gap: ${gapSize}px; --pi-color: ${color}; --pi-track: ${trackColor}`}
     >
         <div class="m3-progress__track">
             {#if determinate}
-                <div class="m3-progress__active" style={`width: ${pct}%`}></div>
+                <div class="m3-progress__track-fill"></div>
+                <div class="m3-progress__active"></div>
                 {#if showStop && pct > 0 && pct < 100}
-                    <span class="m3-progress__stop" style={`left: ${pct}%`} aria-hidden="true"></span>
+                    <span class="m3-progress__stop" aria-hidden="true"></span>
                 {/if}
             {:else if indeterminate === "wave"}
                 <div class="m3-progress__line m3-progress__line--wave"></div>
@@ -72,6 +90,7 @@ const CIRC = 2 * Math.PI * 18;
     <svg
         class="m3-progress m3-progress--circular m3-progress--circular-{indeterminate} {className}"
         class:m3-progress--indeterminate={!determinate}
+        style={`--pi-color: ${color}; --pi-track: ${trackColor}`}
         role="progressbar"
         aria-label={label}
         aria-valuenow={determinate ? pct : undefined}
@@ -79,18 +98,46 @@ const CIRC = 2 * Math.PI * 18;
         aria-valuemax={determinate ? 100 : undefined}
         viewBox="0 0 40 40"
     >
-        <circle class="m3-progress__track" cx="20" cy="20" r="18" fill="none" stroke-width="4"></circle>
-        <circle
-            class="m3-progress__active"
-            cx="20"
-            cy="20"
-            r="18"
-            fill="none"
-            stroke-width="4"
-            stroke-linecap="round"
-            stroke-dasharray={determinate ? `${CIRC * progress} ${CIRC}` : undefined}
-            style={determinate ? `stroke-dashoffset: 0` : undefined}
-        ></circle>
+        {#if determinate}
+            <!-- circle + dasharray/dashoffset（可 CSS transition 平滑转动）：
+                 active 完整 0→progress（rotate -90 到 12 点起）；
+                 track 从 active 末端 + gap 开始，dashoffset 负值（SVG 正值向后移）。
+                 绘制顺序：先 track 后 active（官方 active 在顶层），避免 track 圆头
+                 round cap 盖到 active 颜色弧上形成圆点 -->
+            <circle
+                class="m3-progress__track-rest"
+                cx="20"
+                cy="20"
+                r="18"
+                fill="none"
+                stroke-width="4"
+                stroke-linecap="round"
+                stroke-dasharray={`${Math.max(CIRC * (1 - progress) - gapPx * 2, 0)} ${CIRC}`}
+                stroke-dashoffset={`${-(CIRC * progress + gapPx)}`}
+            ></circle>
+            <circle
+                class="m3-progress__active"
+                cx="20"
+                cy="20"
+                r="18"
+                fill="none"
+                stroke-width="4"
+                stroke-linecap="round"
+                stroke-dasharray={`${CIRC * progress} ${CIRC}`}
+                stroke-dashoffset="0"
+            ></circle>
+        {:else}
+            <circle class="m3-progress__track" cx="20" cy="20" r="18" fill="none" stroke-width="4"></circle>
+            <circle
+                class="m3-progress__active"
+                cx="20"
+                cy="20"
+                r="18"
+                fill="none"
+                stroke-width="4"
+                stroke-linecap="round"
+            ></circle>
+        {/if}
     </svg>
 {/if}
 
@@ -114,14 +161,28 @@ const CIRC = 2 * Math.PI * 18;
             width: 100%
             height: 100%
             border-radius: var(--shape-corner-full)
-            background: var(--surface-container-highest)
             /* 无 overflow 裁剪：head/tail 线始终在 [0,100%] 内无需横向裁剪，
                wave 波浪可上下溢出轨道（官方视觉） */
 
-        .m3-progress__active
-            height: 100%
+        /* determinate track：从 progress + gap 开始（左侧 active + gap 空白区域，
+           官方 gapSize 参数：active 与 track 之间的间隙） */
+        .m3-progress__track-fill
+            position: absolute
+            top: 0
+            bottom: 0
+            right: 0
+            left: calc(var(--pi-progress) * 1% + var(--pi-gap))
             border-radius: var(--shape-corner-full)
-            background: var(--primary)
+            background: var(--pi-track)
+
+        .m3-progress__active
+            position: absolute
+            top: 0
+            bottom: 0
+            left: 0
+            width: calc(var(--pi-progress) * 1%)
+            border-radius: var(--shape-corner-full)
+            background: var(--pi-color)
             transition: width var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
 
         /* stop 圆点：active 填充末端 4dp（官方 StopSize），随进度移动 */
@@ -132,8 +193,20 @@ const CIRC = 2 * Math.PI * 18;
             width: 4px
             height: 4px
             border-radius: var(--shape-corner-full)
-            background: var(--primary)
+            background: var(--pi-color)
+            left: calc(var(--pi-progress) * 1% + var(--pi-gap) / 2)
             transition: left var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+
+        /* butt 平头（官方 StrokeCap.Butt） */
+        &.m3-progress--butt
+            .m3-progress__track,
+            .m3-progress__track-fill,
+            .m3-progress__active
+                border-radius: 0
+
+        /* indeterminate：track 全宽背景（颜色走 trackColor 参数） */
+        &.m3-progress--indeterminate .m3-progress__track
+            background: var(--pi-track)
 
         /* === indeterminate：官方 head/tail 精确动画（线生长/消失，无跳变） === */
         &.m3-progress--indeterminate .m3-progress__line
@@ -141,7 +214,7 @@ const CIRC = 2 * Math.PI * 18;
             top: 0
             height: 100%
             border-radius: var(--shape-corner-full)
-            background: var(--primary)
+            background: var(--pi-color)
 
         /* Line 1（single 也用它）：线区间 [tail, head]（官方 head 为终点、tail 为起点，
            条件 head - tail > 0 才画）；左右各留 2px gap（官方 TrackActiveSpace 4dp，
@@ -163,7 +236,7 @@ const CIRC = 2 * Math.PI * 18;
            波浪图案 mask-position 横向流动（官方动态效果） */
         &.m3-progress--indeterminate .m3-progress__line--wave
             background: none
-            background-color: var(--primary)
+            background-color: var(--pi-color)
             left: calc(var(--pi-t1) * 100% + 2px)
             width: calc((var(--pi-h1) - var(--pi-t1)) * 100% - 4px)
             animation:
@@ -186,14 +259,26 @@ const CIRC = 2 * Math.PI * 18;
     &--circular
         width: 40px
         height: 40px
+        /* circle dash 从 3 点起，rotate -90 到 12 点（determinate 弧起点同） */
         transform: rotate(-90deg)
 
         .m3-progress__track
-            stroke: var(--surface-container-highest)
+            stroke: var(--pi-track)
 
         .m3-progress__active
-            stroke: var(--primary)
+            stroke: var(--pi-color)
             transition: stroke-dasharray var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+
+        /* determinate：剩余 track 环（active 末端 + gap 开始，官方无 stop 圆点） */
+        .m3-progress__track-rest
+            stroke: var(--pi-track)
+            transition: stroke-dasharray var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate), stroke-dashoffset var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+
+        /* butt 平头（官方 StrokeCap.Butt） */
+        &.m3-progress--butt
+            .m3-progress__active,
+            .m3-progress__track-rest
+                stroke-linecap: butt
 
         /* === indeterminate 变体（官方三层动画：弧长伸缩 + 全局旋转 + 步进） === */
         &.m3-progress--indeterminate.m3-progress--circular-dual
