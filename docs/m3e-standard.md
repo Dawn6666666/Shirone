@@ -116,7 +116,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | Chip | `Chip.astro` | variant: `assist`（描边）/`filter`（选中 → secondary-container）/`tonal`（站内药丸）；`selected`、`href` | surface-container-low / outline-variant / secondary-container / btn-regular 系 |
 | IconButton | `IconButton.astro` | variant: `standard/tonal/filled`；`label`、`id`、`href/target/rel`（渲染 `<a>`） | on-surface-variant / secondary-container / primary |
 | FAB | `FAB.astro` | size: `small(40)/regular(56)`；`label`、`disabled` | primary-container ＋ `--m3e-elevation-3` |
-| FABMenu | `FABMenu.svelte` | M3E 悬浮菜单：`expanded`（$bindable）、`icon`/`iconExpanded`（默认 add/close，Crossfade 切换）、`label`；FAB 触发器全圆 primary-container；菜单项 `.m3-fab-menu-item`（56px 全圆、图标 18px + body-medium）+ stagger 展开 | primary-container、`--m3e-elevation-3` |
+| FABMenu | `FABMenu.svelte` | M3E 悬浮菜单：`expanded`（$bindable）、`icon`/`iconExpanded`（Crossfade 切换）、`label`、`size`（small 56 / medium 80 / large 96，展开收缩到 56 全圆 + close 20px）、`align`（end/start/center）、`containerColor`/`containerContentColor`（默认 primary-container/on-primary-container，展开变 primary）；菜单项 `.m3-fab-menu-item`（56px 全圆、18px 图标 + body-medium）+ stagger 展开 | primary-container / primary、`--m3e-elevation-3` |
 | Slider | `Slider.svelte` | `value`（$bindable）、`min/max/step`、`label` | 彩虹轨道 `--color-selection-bar`、主色圆点 thumb |
 | SegmentedButton | `SegmentedButton.svelte` | `options: {value,label}[]`、`value`（$bindable）、`label` | container 底、选中段 secondary-container |
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`、`onfocus`/`oninput`、`leading` 命名插槽 | surface-container-high、聚焦主色下划线 |
