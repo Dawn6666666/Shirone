@@ -57,7 +57,8 @@ onMount(() => {
     position: fixed
     left: 50%
     bottom: 1.5rem
-    transform: translate(-50%, 1rem)
+    /* 官方 SnackbarHost：fade + scale 0.8↔1（FastEffects/FastSpatial），无 slide */
+    transform: translate(-50%, 0) scale(0.8)
     display: flex
     align-items: center
     min-height: 3rem
@@ -71,12 +72,12 @@ onMount(() => {
     box-shadow: var(--m3e-elevation-3)
     opacity: 0
     pointer-events: none
-    transition: opacity var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate), transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+    transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard), transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
     z-index: 100
 
     &.visible
         opacity: 1
-        transform: translate(-50%, 0)
+        transform: translate(-50%, 0) scale(1)
         pointer-events: auto
 
     &__icon
