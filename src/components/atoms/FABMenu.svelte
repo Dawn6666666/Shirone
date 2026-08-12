@@ -5,9 +5,13 @@
  *
  * 变体：
  * - size：small(56)/medium(80)/large(96)，展开时统一收缩到 56 全圆 + close 图标
- * - align：end（默认，右对齐）/ start（左对齐）
+ * - align：end（默认，右对齐）/ start（左对齐）/ center（居中）
  * - containerColor：收起容器色（默认 primary-container），展开变 primary
- * - 图标 Crossfade 切换（add ↔ close）
+ * - menuItemColor/menuItemContentColor：菜单项颜色（默认 primary-container 系）
+ * - 图标 Crossfade 切换（add ↔ close，50% progress 处交替）
+ * - 动画：rAF 驱动 --fab-progress（0→1，300ms emphasized-decelerate，
+ *   对应官方 FastSpatial），容器颜色/尺寸/圆角/图标颜色/图标大小统一按 progress 插值
+ * - 键盘焦点：展开时 Tab / ArrowDown 进入第一个菜单项
  * 菜单项由调用方通过 .m3-fab-menu-item 类提供（56px 全圆、图标 18px + body-medium）。
  *
  * 用法：
@@ -18,7 +22,7 @@
  *   </FABMenu>
  */
 import Icon from "@iconify/svelte";
-import { onMount } from "svelte";
+import { onMount, untrack } from "svelte";
 import {
 	MENU_EXCLUSIVE_EVENT,
 	announceMenuOpened,
@@ -55,6 +59,32 @@ let {
 
 const instanceId = nextMenuInstanceId();
 
+// 展开进度 0→1，rAF 逐帧驱动（官方 checkedProgress，FastSpatial ~300ms）
+let progress = $state(0);
+let rafId: number | null = null;
+
+$effect(() => {
+    const target = expanded ? 1 : 0;
+    untrack(() => {
+        const from = progress;
+        if (from === target) return;
+        const DURATION = 300;
+        const start = performance.now();
+        // emphasized-decelerate 近似：cubic-bezier(0.05, 0.7, 0.1, 1)
+        const ease = (t: number) => 1 - Math.pow(1 - t, 2.5);
+        const tick = (now: number) => {
+            const t = Math.min((now - start) / DURATION, 1);
+            progress = from + (target - from) * ease(t);
+            rafId = t < 1 ? requestAnimationFrame(tick) : null;
+        };
+        rafId = requestAnimationFrame(tick);
+    });
+    return () => {
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        rafId = null;
+    };
+});
+
 // 键盘焦点：展开时 Tab / ArrowDown 进入第一个菜单项（官方 onKeyEvent）
 function onFabKeydown(e: KeyboardEvent) {
     if (!expanded) return;
@@ -88,7 +118,7 @@ onMount(() => {
 <div
     class="m3-fab-menu m3-fab-menu--{size} m3-fab-menu--{align} {className}"
     class:m3-fab-menu--expanded={expanded}
-    style={`--fab-container-color: ${containerColor}; --fab-on-container-color: ${containerContentColor}; --fab-menu-item-bg: ${menuItemColor}; --fab-menu-item-color: ${menuItemContentColor}`}
+    style={`--fab-container-color: ${containerColor}; --fab-on-container-color: ${containerContentColor}; --fab-menu-item-bg: ${menuItemColor}; --fab-menu-item-color: ${menuItemContentColor}; --fab-progress: ${progress}`}
     bind:this={fabMenuEl}
 >
     <div class="m3-fab-menu__items" aria-hidden={!expanded}>
@@ -103,10 +133,10 @@ onMount(() => {
         onclick={() => (expanded = !expanded)}
         onkeydown={onFabKeydown}
     >
-        <span class="m3-fab-menu__icon" class:m3-fab-menu__icon--hidden={expanded}>
+        <span class="m3-fab-menu__icon">
             <Icon icon={icon}></Icon>
         </span>
-        <span class="m3-fab-menu__icon" class:m3-fab-menu__icon--hidden={!expanded}>
+        <span class="m3-fab-menu__icon m3-fab-menu__icon--alt">
             <Icon icon={iconExpanded}></Icon>
         </span>
     </button>
@@ -128,52 +158,33 @@ onMount(() => {
         gap: 0.25rem
         white-space: nowrap
 
-    /* FAB 触发器：尺寸/圆角/图标随 expanded 变形（展开收缩到 56 全圆） */
+    /* FAB 触发器：全部由 --fab-progress（0→1）统一插值。
+       官方 lerp：颜色 primary-container→primary、尺寸 size→56、圆角 radius→28px 全圆 */
     &__fab
         display: flex
         align-items: center
         justify-content: center
-        width: var(--fab-size)
-        height: var(--fab-size)
         border: none
-        border-radius: var(--fab-radius)
-        background: var(--fab-container-color)
-        color: var(--fab-on-container-color)
-        --m3e-state-color: var(--fab-on-container-color)
-        box-shadow: var(--m3e-elevation-3)
         cursor: pointer
-        transition:
-            width var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
-            height var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
-            border-radius var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
-            background-color var(--m3e-duration-medium) var(--m3e-easing-standard),
-            color var(--m3e-duration-medium) var(--m3e-easing-standard)
+        box-shadow: var(--m3e-elevation-3)
+        width: unquote("calc(var(--fab-size) * (1 - var(--fab-progress)) + 3.5rem * var(--fab-progress))")
+        height: unquote("calc(var(--fab-size) * (1 - var(--fab-progress)) + 3.5rem * var(--fab-progress))")
+        border-radius: unquote("calc(var(--fab-radius) * (1 - var(--fab-progress)) + 1.75rem * var(--fab-progress))")
+        background: unquote("color-mix(in oklab, var(--primary) calc(var(--fab-progress) * 100%), var(--fab-container-color))")
+        color: unquote("color-mix(in oklab, var(--on-primary) calc(var(--fab-progress) * 100%), var(--fab-on-container-color))")
+        --m3e-state-color: unquote("color-mix(in oklab, var(--on-primary) calc(var(--fab-progress) * 100%), var(--fab-on-container-color))")
 
-    &--expanded &__fab
-        width: 3.5rem
-        height: 3.5rem
-        border-radius: var(--shape-corner-full)
-        background: var(--primary)
-        color: var(--on-primary)
-        --m3e-state-color: var(--on-primary)
-
-    /* 图标 Crossfade：两个图标叠放，随 expanded 淡入淡出，尺寸随 --fab-icon */
+    /* 图标：两个叠放，50% progress 处 Crossfade 交替（官方 50% 切换） */
     &__icon
         position: absolute
         display: flex
-        opacity: 1
-        transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+        opacity: unquote("calc(1 - var(--fab-progress) * 2)")
         > :global(svg)
-            width: var(--fab-icon)
-            height: var(--fab-icon)
-            transition: width var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate), height var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+            width: unquote("calc(var(--fab-icon) * (1 - var(--fab-progress)) + 1.25rem * var(--fab-progress))")
+            height: unquote("calc(var(--fab-icon) * (1 - var(--fab-progress)) + 1.25rem * var(--fab-progress))")
 
-    &__icon--hidden
-        opacity: 0
-
-    &--expanded &__icon > :global(svg)
-        width: 1.25rem
-        height: 1.25rem
+    &__icon--alt
+        opacity: unquote("calc(var(--fab-progress) * 2 - 1)")
 
     /* === 尺寸三档（官方 FabBaseline/FabMedium/FabLargeTokens） === */
     &--small
