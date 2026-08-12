@@ -101,22 +101,35 @@ function handleChange() {
         stroke-width: 2
         stroke-linecap: round
         stroke-linejoin: round
+        /* 勾选生长动画（官方 checkDrawFraction 描边生长近似 + 非对称：
+           进入慢 decelerate，取消快 standard） */
+        transform: scale(0)
         opacity: 0
-        transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+        transition:
+            transform var(--m3e-duration-short) var(--m3e-easing-standard),
+            opacity var(--m3e-duration-short) var(--m3e-easing-standard)
 
-    /* 选中：primary 填充 + 勾 */
+    /* 选中：primary 填充 + 勾（生长放大淡入，origin center） */
     &__input:checked ~ &__box
         background: var(--primary)
         border-color: var(--primary)
     &__input:checked ~ &__box &__check
+        transform: scale(1)
         opacity: 1
+        transition:
+            transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+            opacity var(--m3e-duration-short) var(--m3e-easing-standard)
 
     /* 半选（triState）：primary 填充 + 横线 */
     &__input:indeterminate ~ &__box
         background: var(--primary)
         border-color: var(--primary)
     &__input:indeterminate ~ &__box &__dash
+        transform: scale(1)
         opacity: 1
+        transition:
+            transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+            opacity var(--m3e-duration-short) var(--m3e-easing-standard)
 
     /* checkbox 聚焦时给方框描边 */
     &__input:focus-visible ~ &__box
