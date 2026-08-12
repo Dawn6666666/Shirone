@@ -3,7 +3,6 @@ import Dialog from "@components/atoms/Dialog.svelte";
 import SegmentedButton from "@components/atoms/SegmentedButton.svelte";
 import Slider from "@components/atoms/Slider.svelte";
 import Switch from "@components/atoms/Switch.svelte";
-import TextField from "@components/atoms/TextField.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
@@ -36,8 +35,6 @@ let dark = $state(
 		document.documentElement.classList.contains("dark"),
 );
 
-// 色相数字输入框的中间态（TextField 的 value 是 string）
-let hueInput = $state(String(hue));
 let motionReduced = $state(false);
 let resetOpen = $state(false);
 
@@ -62,14 +59,6 @@ function confirmReset() {
 	resetOpen = false;
 }
 
-/** 输入框合法（0–360 整数）时写回 hue，非法输入交给回写 effect 规范化 */
-function onHueInput() {
-	const n = Number(hueInput);
-	if (Number.isInteger(n) && n >= 0 && n <= 360) {
-		hue = n;
-	}
-}
-
 /** 是否有可重置的偏离（控制 Reset 按钮可见性） */
 const isDirty = $derived(
 	hue !== defaultHue || style !== defaultStyle || spec !== defaultSpec,
@@ -86,12 +75,6 @@ $effect(() => {
 });
 $effect(() => {
 	setMotionPreference(motionReduced);
-});
-// 滑块 / 重置改变 hue 时回写输入框（用户直接输入走 onHueInput）
-$effect(() => {
-	if (String(hue) !== hueInput) {
-		hueInput = String(hue);
-	}
 });
 
 function styleKey(s: McStyle): I18nKey {
@@ -153,9 +136,12 @@ const stylePreviews = $derived(
             </button>
         </div>
         <div class="flex gap-1 items-center">
-            <TextField type="number" bind:value={hueInput} oninput={onHueInput}
-                       label={i18n(I18nKey.themeColor)}
-                       class="!w-16 !h-7 !px-1 !text-sm !font-bold" />
+            <!-- 当前色相值展示（非输入框，避免原生输入框的聚焦/触摸样式） -->
+            <div title={i18n(I18nKey.themeColor)}
+                 class="h-7 min-w-16 px-1 rounded-(--shape-corner-m) flex items-center justify-center
+                        bg-(--surface-container-high) text-sm font-bold text-(--on-surface)">
+                {hue}
+            </div>
             <!-- 当前主色实时预览 -->
             <div class="h-7 w-7 rounded-full" title={i18n(I18nKey.themeColor)}
                  style={`background: ${currentColor}; box-shadow: inset 0 0 0 1px var(--outline-variant)`}></div>
