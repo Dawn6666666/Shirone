@@ -11,6 +11,14 @@
 @import "./markdown.css" layer(components);
 @import "./expressive-code.css" layer(components);
 
+@layer base {
+    /* 全局正文色走主题变量：裸内容（未显式设色的文字/按钮）明暗自适应，
+       否则默认黑色在暗色模式下不可见 */
+    body {
+        color: var(--on-surface);
+    }
+}
+
 @layer components {
     .card-base {
         @apply rounded-[var(--radius-large)] overflow-hidden bg-[var(--card-bg)] transition;
