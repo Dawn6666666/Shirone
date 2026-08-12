@@ -1,7 +1,7 @@
 <script lang="ts">
 /**
  * M3E ProgressIndicator — 进度指示原子（官方 ProgressIndicator.kt 移植）。
- * variant: linear（4dp 高轨道）/ circular（40dp 圆环 4dp 厚）。
+ * variant: linear（4dp 高轨道）/ circular（圆环，size 直径 40 / strokeWidth 厚度 4 可调）。
  * progress: 0-1 定值模式；省略/undefined = indeterminate。
  * 颜色：active = primary、track = surface-container-highest（官方默认）。
  *
@@ -26,6 +26,8 @@ let {
 	trackColor = "var(--surface-container-highest)",
 	strokeCap = "round",
 	gapSize = 4,
+	size = 40,
+	strokeWidth = 4,
 	class: className = "",
 }: {
 	variant?: "linear" | "circular";
@@ -46,16 +48,23 @@ let {
 	strokeCap?: "round" | "butt";
 	/** active 与 track 之间的间隙 px（官方 gapSize 参数，默认 4） */
 	gapSize?: number;
+	/** circular 直径 px（官方 CircularProgressIndicatorTokens.Size 默认 40；thick 变体 52） */
+	size?: number;
+	/** circular 描边厚度 px（官方 ActiveThickness/TrackThickness 默认 4；thick 变体 8） */
+	strokeWidth?: number;
 	class?: string;
 } = $props();
 
 // 响应式派生：progress 变化时实时重算（const 只算一次会导致滑块拖动不更新）
 const determinate = $derived(progress !== undefined && progress >= 0);
 const pct = $derived(determinate ? Math.max(0, Math.min(100, progress * 100)) : 0);
-// 圆环：周长 = 2πr（r = (40 - 4)/2 = 18）
-const CIRC = 2 * Math.PI * 18;
+// circular：动态尺寸（size 直径 / strokeWidth 厚度），圆心与半径随 size 变化
+const circCenter = $derived(size / 2);
+const circR = $derived(Math.max((size - strokeWidth) / 2, 0.5));
+// 圆环周长 = 2πr（SVG 坐标系 = 实际像素，viewBox 随 size 动态生成）
+const CIRC = $derived(2 * Math.PI * circR);
 // circular gap 像素：官方 adjustedGapSize = gapSize + strokeWidth（round cap 弧端补偿）
-const gapPx = $derived(gapSize + 4);
+const gapPx = $derived(gapSize + strokeWidth);
 </script>
 
 {#if variant === "linear"}
@@ -91,13 +100,13 @@ const gapPx = $derived(gapSize + 4);
     <svg
         class="m3-progress m3-progress--circular m3-progress--circular-{indeterminate} {className}"
         class:m3-progress--indeterminate={!determinate}
-        style={`--pi-color: ${color}; --pi-track: ${trackColor}`}
+        style={`--pi-color: ${color}; --pi-track: ${trackColor}; --pi-circ: ${CIRC}px; --pi-size: ${size}px`}
         role="progressbar"
         aria-label={label}
         aria-valuenow={determinate ? pct : undefined}
         aria-valuemin={determinate ? 0 : undefined}
         aria-valuemax={determinate ? 100 : undefined}
-        viewBox="0 0 40 40"
+        viewBox={`0 0 ${size} ${size}`}
     >
         {#if determinate}
             <!-- circle + dasharray/dashoffset（可 CSS transition 平滑转动）：
@@ -107,35 +116,35 @@ const gapPx = $derived(gapSize + 4);
                  round cap 盖到 active 颜色弧上形成圆点 -->
             <circle
                 class="m3-progress__track-rest"
-                cx="20"
-                cy="20"
-                r="18"
+                cx={circCenter}
+                cy={circCenter}
+                r={circR}
                 fill="none"
-                stroke-width="4"
+                stroke-width={strokeWidth}
                 stroke-linecap="round"
                 stroke-dasharray={`${Math.max(CIRC * (1 - progress) - gapPx * 2, 0)} ${CIRC}`}
                 stroke-dashoffset={`${-(CIRC * progress + gapPx)}`}
             ></circle>
             <circle
                 class="m3-progress__active"
-                cx="20"
-                cy="20"
-                r="18"
+                cx={circCenter}
+                cy={circCenter}
+                r={circR}
                 fill="none"
-                stroke-width="4"
+                stroke-width={strokeWidth}
                 stroke-linecap="round"
                 stroke-dasharray={`${CIRC * progress} ${CIRC}`}
                 stroke-dashoffset="0"
             ></circle>
         {:else}
-            <circle class="m3-progress__track" cx="20" cy="20" r="18" fill="none" stroke-width="4"></circle>
+            <circle class="m3-progress__track" cx={circCenter} cy={circCenter} r={circR} fill="none" stroke-width={strokeWidth}></circle>
             <circle
                 class="m3-progress__active"
-                cx="20"
-                cy="20"
-                r="18"
+                cx={circCenter}
+                cy={circCenter}
+                r={circR}
                 fill="none"
-                stroke-width="4"
+                stroke-width={strokeWidth}
                 stroke-linecap="round"
             ></circle>
         {/if}
@@ -150,6 +159,8 @@ const gapPx = $derived(gapSize + 4);
 @property --pi-t1 { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --pi-h2 { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --pi-t2 { syntax: "<number>"; inherits: false; initial-value: 0; }
+/* circular 弧长 sweep 比例（0.1↔0.87，相对周长 --pi-circ，随 size 自适应） */
+@property --pi-sweep { syntax: "<number>"; inherits: false; initial-value: 0.1; }
 
 .m3-progress
     /* === linear：4dp 高轨道（官方 LinearProgressIndicatorTokens.Height/ActiveThickness） === */
@@ -256,10 +267,10 @@ const gapPx = $derived(gapSize + 4);
 
         /* dot 变体已移除（不再需要圆点流） */
 
-        /* === circular：40dp 圆环 4dp 厚（官方 CircularProgressIndicatorTokens.Size/TrackThickness） === */
+        /* === circular：直径/厚度可调（size/strokeWidth 参数，viewBox 动态生成） === */
     &--circular
-        width: 40px
-        height: 40px
+        width: var(--pi-size)
+        height: var(--pi-size)
         /* circle dash 从 3 点起，rotate -90 到 12 点（determinate 弧起点同） */
         transform: rotate(-90deg)
 
@@ -269,6 +280,11 @@ const gapPx = $derived(gapSize + 4);
         .m3-progress__active
             stroke: var(--pi-color)
             transition: stroke-dasharray var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+
+        /* indeterminate 弧长 = 周长 × sweep 比例（size 变化自动适配）；
+           仅 indeterminate 生效，避免覆盖 determinate 的内联 dasharray */
+        &.m3-progress--indeterminate .m3-progress__active
+            stroke-dasharray: calc(var(--pi-circ) * var(--pi-sweep)) var(--pi-circ)
 
         /* determinate：剩余 track 环（active 末端 + gap 开始，官方无 stop 圆点） */
         .m3-progress__track-rest
@@ -289,10 +305,10 @@ const gapPx = $derived(gapSize + 4);
                 animation: m3-progress-circular-dual-sweep 6000ms linear infinite
 
         &.m3-progress--indeterminate.m3-progress--circular-single
-            /* 固定弧长 + 快速旋转（经典） */
+            /* 固定弧长（0.25 周长）+ 快速旋转（经典） */
             animation: m3-progress-circular-rotate 1200ms linear infinite
             .m3-progress__active
-                stroke-dasharray: 28.3 113.1
+                stroke-dasharray: calc(var(--pi-circ) * 0.25) var(--pi-circ)
 
         &.m3-progress--indeterminate.m3-progress--circular-wave
             /* 官方带弧度旋转：全局 3 圈匀速 + 每 1.5s 快转 90°（300ms 强调减速）停 1.2s */
@@ -348,23 +364,23 @@ const gapPx = $derived(gapSize + 4);
     to
         transform: rotate(270deg)
 
-/* 官方弧长伸缩：0.1 ↔ 0.87 周长（6000ms） */
+/* 官方弧长伸缩：sweep 0.1 ↔ 0.87（6000ms） */
 @keyframes m3-progress-circular-dual-sweep
     0%, 100%
-        stroke-dasharray: 11.3 113.1
+        --pi-sweep: 0.1
     50%
-        stroke-dasharray: 98.4 113.1
+        --pi-sweep: 0.87
 
-/* 官方弧长伸缩（0.1 ↔ 0.87，6000ms）：上行 standard easing、回落线性 */
+/* 官方弧长伸缩（sweep 0.1 ↔ 0.87，6000ms）：上行 standard easing、回落线性 */
 @keyframes m3-progress-circular-wave-sweep
     0%
-        stroke-dasharray: 11.3 113.1
+        --pi-sweep: 0.1
         animation-timing-function: cubic-bezier(0.2, 0, 0, 1)
     50%
-        stroke-dasharray: 98.4 113.1
+        --pi-sweep: 0.87
         animation-timing-function: linear
     100%
-        stroke-dasharray: 11.3 113.1
+        --pi-sweep: 0.1
 
 /* 官方带弧度旋转（6000ms 周期）：合成角度 = -90°（12 点基准）+ 全局 1080° 匀速
    + 附加步进 360°（每 1.5s：300ms 强调减速转 90°，随后停 1.2s，共 4 步）。
