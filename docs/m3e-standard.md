@@ -30,7 +30,7 @@ theme-utils.ts  写入 :root 的 --mc-* 自定义属性（localStorage 持久化
 variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…），带 oklch 回退
    │
    ▼
-原子组件（Button / SplitButton / Chip / IconButton / FAB / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar）
+原子组件（Button / SplitButton / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar）
    │
    ▼
 分子/有机体（Navbar / SideBar / Search / PostCard…）
@@ -116,6 +116,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | Chip | `Chip.astro` | variant: `assist`（描边）/`filter`（选中 → secondary-container）/`tonal`（站内药丸）；`selected`、`href` | surface-container-low / outline-variant / secondary-container / btn-regular 系 |
 | IconButton | `IconButton.astro` | variant: `standard/tonal/filled`；`label`、`id`、`href/target/rel`（渲染 `<a>`） | on-surface-variant / secondary-container / primary |
 | FAB | `FAB.astro` | size: `small(40)/regular(56)`；`label`、`disabled` | primary-container ＋ `--m3e-elevation-3` |
+| FABMenu | `FABMenu.svelte` | M3E 悬浮菜单：`expanded`（$bindable）、`icon`/`iconExpanded`（默认 add/close）、`label`；FAB 触发器展开时圆角 16→28、图标变 close 缩至 20px、容器色 primary-container→primary；菜单项 `.m3-fab-menu-item`（56px，图标+文字）+ stagger 展开 | primary-container / primary、`--m3e-elevation-3` |
 | Slider | `Slider.svelte` | `value`（$bindable）、`min/max/step`、`label` | 彩虹轨道 `--color-selection-bar`、主色圆点 thumb |
 | SegmentedButton | `SegmentedButton.svelte` | `options: {value,label}[]`、`value`（$bindable）、`label` | container 底、选中段 secondary-container |
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`、`onfocus`/`oninput`、`leading` 命名插槽 | surface-container-high、聚焦主色下划线 |
@@ -197,5 +198,5 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/snackbar.ts` | Snackbar 事件总线 |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 16 个原子组件 |
+| `src/components/atoms/*` | 17 个原子组件 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
