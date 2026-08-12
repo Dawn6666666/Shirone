@@ -34,6 +34,8 @@ let {
     align = "end",
     containerColor = "var(--primary-container)",
     containerContentColor = "var(--on-primary-container)",
+    menuItemColor = "var(--primary-container)",
+    menuItemContentColor = "var(--on-primary-container)",
     exclusive = true,
     class: className = "",
 }: {
@@ -45,11 +47,26 @@ let {
     align?: "end" | "start" | "center";
     containerColor?: string;
     containerContentColor?: string;
+    menuItemColor?: string;
+    menuItemContentColor?: string;
     exclusive?: boolean;
     class?: string;
 } = $props();
 
 const instanceId = nextMenuInstanceId();
+
+// 键盘焦点：展开时 Tab / ArrowDown 进入第一个菜单项（官方 onKeyEvent）
+function onFabKeydown(e: KeyboardEvent) {
+    if (!expanded) return;
+    if ((e.key === "Tab" && !e.shiftKey) || e.key === "ArrowDown") {
+        e.preventDefault();
+        const itemsEl = fabMenuEl?.querySelector(".m3-fab-menu__items");
+        const first = itemsEl?.querySelector<HTMLElement>(".m3-fab-menu-item");
+        first?.focus();
+    }
+}
+
+let fabMenuEl: HTMLDivElement;
 
 // 互斥单开：展开时广播，其他同总线实例自动收起
 $effect(() => {
@@ -71,7 +88,8 @@ onMount(() => {
 <div
     class="m3-fab-menu m3-fab-menu--{size} m3-fab-menu--{align} {className}"
     class:m3-fab-menu--expanded={expanded}
-    style={`--fab-container-color: ${containerColor}; --fab-on-container-color: ${containerContentColor}`}
+    style={`--fab-container-color: ${containerColor}; --fab-on-container-color: ${containerContentColor}; --fab-menu-item-bg: ${menuItemColor}; --fab-menu-item-color: ${menuItemContentColor}`}
+    bind:this={fabMenuEl}
 >
     <div class="m3-fab-menu__items" aria-hidden={!expanded}>
         <slot />
@@ -83,6 +101,7 @@ onMount(() => {
         aria-expanded={expanded}
         aria-label={label}
         onclick={() => (expanded = !expanded)}
+        onkeydown={onFabKeydown}
     >
         <span class="m3-fab-menu__icon" class:m3-fab-menu__icon--hidden={expanded}>
             <Icon icon={icon}></Icon>
@@ -185,7 +204,8 @@ onMount(() => {
             left: 50%
             transform: translateX(-50%)
 
-    /* 菜单项（调用方提供）：56px 全圆、图标 18px + body-medium */
+    /* 菜单项（调用方提供）：56px 全圆、图标 18px + body-medium；颜色可经
+       menuItemColor / menuItemContentColor 配置 */
     :global(.m3-fab-menu-item)
         display: flex
         align-items: center
@@ -195,8 +215,8 @@ onMount(() => {
         padding: 0 1.5rem
         border: none
         border-radius: var(--shape-corner-full)
-        background: var(--primary-container)
-        color: var(--on-primary-container)
+        background: var(--fab-menu-item-bg)
+        color: var(--fab-menu-item-color)
         font: var(--m3e-type-body-medium)
         text-align: left
         white-space: nowrap
