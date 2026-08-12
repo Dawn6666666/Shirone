@@ -131,6 +131,27 @@ $effect(() => {
         background: var(--secondary-container)
         color: var(--on-secondary-container)
 
+    /* 菜单项结构辅助类（调用方组织，Menu 提供样式）：
+       __trailing 右对齐内容（官方 trailingContent）；
+       __content 垂直排列 label + supportingText */
+    :global(.m3-menu-item__trailing)
+        margin-left: auto
+        display: flex
+        align-items: center
+
+    :global(.m3-menu-item__content)
+        display: flex
+        flex-direction: column
+        min-width: 0
+
+    :global(.m3-menu-item__label)
+        white-space: nowrap
+
+    :global(.m3-menu-item__supporting)
+        font: var(--m3e-type-body-small)
+        color: var(--on-surface-variant)
+        white-space: nowrap
+
     /* 分组（官方 SegmentedMenuTokens）：surface-container-low 背景 + 4px padding，
        组间 2px 间距；hover 聚焦时圆角 8→16 变形（FastSpatial 动效感） */
     :global(.m3-menu-group)
