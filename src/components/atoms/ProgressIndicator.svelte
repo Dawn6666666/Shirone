@@ -35,7 +35,8 @@ let {
 	/** determinate linear 填充末端 stop 圆点（官方 StopSize 4dp），默认显示 */
 	showStop?: boolean;
 	/** indeterminate 动画变体（linear：dual 双线官方默认 / wave 波浪 / single 单线；
-	    circular：dual 官方弧伸缩 / single 固定弧 / wave 弧长波浪） */
+	    circular：dual 官方弧伸缩 / single 固定弧 / wave 官方带弧度旋转组合：
+	    全局 3 圈匀速 + 每 1.5s 快转 90° 停 1.2s + 弧长 0.1↔0.87） */
 	indeterminate?: "dual" | "wave" | "single";
 	/** active 指示器颜色（官方 color 参数） */
 	color?: string;
@@ -294,10 +295,11 @@ const gapPx = $derived(gapSize + 4);
                 stroke-dasharray: 28.3 113.1
 
         &.m3-progress--indeterminate.m3-progress--circular-wave
-            /* 弧长快速伸缩（0.15↔0.6 波浪感）+ 旋转 */
-            animation: m3-progress-circular-rotate 1600ms linear infinite
+            /* 官方带弧度旋转：全局 3 圈匀速 + 每 1.5s 快转 90°（300ms 强调减速）停 1.2s */
+            animation: m3-progress-circular-wave-rotate 6000ms linear infinite
             .m3-progress__active
-                animation: m3-progress-circular-wave-sweep 1600ms ease-in-out infinite
+                /* 官方弧长伸缩 0.1↔0.87（6000ms，上行 standard / 回落 linear） */
+                animation: m3-progress-circular-wave-sweep 6000ms linear infinite
 
 /* 官方 Line1/Line2 head/tail 关键帧（1750ms 总循环） */
 @keyframes pi-h1
@@ -353,10 +355,46 @@ const gapPx = $derived(gapSize + 4);
     50%
         stroke-dasharray: 98.4 113.1
 
-/* wave：弧长快速伸缩（0.15 ↔ 0.6，1600ms） */
+/* 官方弧长伸缩（0.1 ↔ 0.87，6000ms）：上行 standard easing、回落线性 */
 @keyframes m3-progress-circular-wave-sweep
-    0%, 100%
-        stroke-dasharray: 17 113.1
+    0%
+        stroke-dasharray: 11.3 113.1
+        animation-timing-function: cubic-bezier(0.2, 0, 0, 1)
     50%
-        stroke-dasharray: 67.9 113.1
+        stroke-dasharray: 98.4 113.1
+        animation-timing-function: linear
+    100%
+        stroke-dasharray: 11.3 113.1
+
+/* 官方带弧度旋转（6000ms 周期）：合成角度 = -90°（12 点基准）+ 全局 1080° 匀速
+   + 附加步进 360°（每 1.5s：300ms 强调减速转 90°，随后停 1.2s，共 4 步）。
+   各段 easing：步进段 cubic-bezier(0.05, 0.7, 0.1, 1)（官方 EasingEmphasizedDecelerate），
+   停顿段 linear（随全局匀速） */
+@keyframes m3-progress-circular-wave-rotate
+    0%
+        transform: rotate(-90deg)
+        animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1)
+    5%
+        transform: rotate(54deg)
+        animation-timing-function: linear
+    25%
+        transform: rotate(270deg)
+        animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1)
+    30%
+        transform: rotate(414deg)
+        animation-timing-function: linear
+    50%
+        transform: rotate(630deg)
+        animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1)
+    55%
+        transform: rotate(774deg)
+        animation-timing-function: linear
+    75%
+        transform: rotate(990deg)
+        animation-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1)
+    80%
+        transform: rotate(1134deg)
+        animation-timing-function: linear
+    100%
+        transform: rotate(1350deg)
 </style>
