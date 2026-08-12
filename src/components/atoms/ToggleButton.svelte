@@ -20,6 +20,7 @@ let {
     controlled = false,
     class: className = "",
     onclick,
+    onpointerdown,
 }: {
     checked?: boolean;
     variant?: "filled" | "tonal" | "outlined" | "elevated";
@@ -29,6 +30,7 @@ let {
     controlled?: boolean;
     class?: string;
     onclick?: () => void;
+    onpointerdown?: (e: PointerEvent) => void;
 } = $props();
 
 function handleClick() {
@@ -45,6 +47,7 @@ function handleClick() {
     aria-pressed={checked}
     disabled={disabled}
     onclick={handleClick}
+    onpointerdown={onpointerdown}
 >
     <slot />
     {#if label}
