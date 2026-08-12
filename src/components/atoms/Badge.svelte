@@ -16,7 +16,7 @@ let {
 </script>
 
 <span class="m3-badge" class:m3-badge--dot={!content} class:disabled={disabled}>
-    {#if content}<span class="m3-badge__label">{content}</span>{/if}
+    <span class="m3-badge__label" class:show={!!content}>{content}</span>
 </span>
 
 <style lang="stylus">
@@ -32,6 +32,12 @@ let {
     padding: 0 0.25rem
     font: var(--m3e-type-label-small)
     box-sizing: border-box
+    /* dot ↔ 数字切换：尺寸/间距过渡 */
+    transition:
+        width var(--m3e-duration-short) var(--m3e-easing-standard),
+        min-width var(--m3e-duration-short) var(--m3e-easing-standard),
+        height var(--m3e-duration-short) var(--m3e-easing-standard),
+        padding var(--m3e-duration-short) var(--m3e-easing-standard)
 
     /* 无内容：6px 红点 */
     &--dot
@@ -42,4 +48,16 @@ let {
 
     &.disabled
         opacity: 0.38
+
+    /* 数字 label：恒渲染 + show 驱动 scale/fade（避免 {#if} 插入无动画） */
+    &__label
+        transform: scale(0)
+        opacity: 0
+        transition:
+            transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+            opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+
+        &.show
+            transform: scale(1)
+            opacity: 1
 </style>

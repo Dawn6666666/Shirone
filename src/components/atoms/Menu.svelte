@@ -96,13 +96,26 @@ $effect(() => {
     box-shadow: var(--m3e-elevation-2)
     max-height: 20rem
     overflow-y: auto
-    transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard), visibility var(--m3e-duration-short) var(--m3e-easing-standard)
+    /* 展开动画（官方 DropdownMenu transition：scale 0.8→1 + fade，
+       FastSpatial/FastEffects spring 近似）。--menu-origin 按锚点缩放，
+       调用方可覆盖（默认 top center 下拉）。展开态 transition 控制进入 */
+    transform-origin: var(--menu-origin, top center)
+    transform: scale(1)
+    transition:
+        opacity var(--m3e-duration-short) var(--m3e-easing-standard),
+        transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+        visibility var(--m3e-duration-medium)
 
-    /* 关闭时自隐藏（父级仅需控制 open 与定位） */
+    /* 关闭时自隐藏（父级仅需控制 open 与定位）；收起更快 + 缩小淡出 */
     &.closed
         visibility: hidden
         opacity: 0
+        transform: scale(0.8)
         pointer-events: none
+        transition:
+            opacity var(--m3e-duration-short) var(--m3e-easing-standard),
+            transform var(--m3e-duration-short) var(--m3e-easing-emphasized-accelerate),
+            visibility var(--m3e-duration-short)
 
     :global(.m3-menu-item)
         display: flex
@@ -119,6 +132,7 @@ $effect(() => {
         text-align: left
         white-space: nowrap
         cursor: pointer
+        transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
         &:hover
             background: unquote("color-mix(in oklab, var(--on-surface) 8%, transparent)")
         &:focus-visible
@@ -130,6 +144,19 @@ $effect(() => {
     :global(.m3-menu-item.checked)
         background: var(--secondary-container)
         color: var(--on-secondary-container)
+
+    /* 勾选图标动画（官方 expandHorizontally + fadeIn）：调用方给 check 图标加该类 */
+    :global(.m3-menu-item__check)
+        transform: scaleX(0)
+        opacity: 0
+        transition:
+            transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+            opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+
+    :global(.m3-menu-item.selected .m3-menu-item__check),
+    :global(.m3-menu-item.checked .m3-menu-item__check)
+        transform: scaleX(1)
+        opacity: 1
 
     /* 菜单项结构辅助类（调用方组织，Menu 提供样式）：
        __trailing 右对齐内容（官方 trailingContent）；

@@ -23,6 +23,8 @@ export interface ButtonGroupItem {
 	value: string;
 	label?: string;
 	icon?: string;
+	/** weight：>0 时按比例分配剩余空间（flex-basis 0），无 weight 项按内容宽 */
+	weight?: number;
 }
 
 let {
@@ -196,7 +198,8 @@ function handleChange(item: ButtonGroupItem) {
             onclick={() => handleChange(item)}
             onpointerdown={() => onItemPointerDown(i)}
             label={item.label}
-            class={"m3-button-group__item m3-button-group__item--" + (i === 0 ? "first" : i === items.length - 1 ? "last" : "middle") + (i >= visibleCount ? " m3-button-group__item--hidden" : "")}
+            style={item.weight ? `flex-grow: ${item.weight}` : undefined}
+            class={"m3-button-group__item m3-button-group__item--" + (i === 0 ? "first" : i === items.length - 1 ? "last" : "middle") + (i >= visibleCount ? " m3-button-group__item--hidden" : "") + (item.weight ? " m3-button-group__item--weight" : "")}
         >
             {#if item.icon}
                 <Icon icon={item.icon}></Icon>
@@ -278,6 +281,12 @@ function handleChange(item: ButtonGroupItem) {
             border-color var(--m3e-duration-medium) var(--m3e-easing-standard),
             box-shadow var(--m3e-duration-medium) var(--m3e-easing-standard),
             width var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+
+    /* weight 项（官方 NonAdaptiveButtonGroupMeasurePolicy）：flex-basis 0 + flex-grow
+       按 weight 比例分配剩余空间；无 weight 项保持内容宽 */
+    :global(.m3-button-group__item--weight)
+        flex-basis: 0
+        flex-shrink: 1
 
     /* 溢出项折叠进「更多」菜单 */
     :global(.m3-button-group__item--hidden)

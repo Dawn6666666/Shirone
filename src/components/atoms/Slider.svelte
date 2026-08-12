@@ -49,7 +49,7 @@ let {
     background: transparent
     cursor: pointer
 
-    /* Thumb：白色矩形条（原视觉） */
+    /* Thumb：白色矩形条（原视觉）+ 主题自适应分离描边（亮色彩虹轨道上防融入） */
     &::-webkit-slider-thumb
         -webkit-appearance: none
         appearance: none
@@ -57,7 +57,7 @@ let {
         width: 0.5rem
         border-radius: 0.125rem
         background: rgba(255, 255, 255, 0.7)
-        box-shadow: none
+        box-shadow: unquote("0 0 0 1px color-mix(in oklab, var(--on-surface) 35%, transparent)")
         &:hover
             background: rgba(255, 255, 255, 0.8)
         &:active
@@ -68,7 +68,7 @@ let {
         width: 0.5rem
         border-radius: 0.125rem
         background: rgba(255, 255, 255, 0.7)
-        box-shadow: none
+        box-shadow: unquote("0 0 0 1px color-mix(in oklab, var(--on-surface) 35%, transparent)")
         &:hover
             background: rgba(255, 255, 255, 0.8)
         &:active
@@ -79,7 +79,7 @@ let {
         width: 0.5rem
         border-radius: 0.125rem
         background: rgba(255, 255, 255, 0.7)
-        box-shadow: none
+        box-shadow: unquote("0 0 0 1px color-mix(in oklab, var(--on-surface) 35%, transparent)")
         &:hover
             background: rgba(255, 255, 255, 0.8)
         &:active
