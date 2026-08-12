@@ -32,3 +32,4 @@ yarn.lock
 
 # local tooling artifacts
 .zcode/
+research/

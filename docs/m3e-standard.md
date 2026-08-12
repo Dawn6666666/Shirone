@@ -30,7 +30,7 @@ theme-utils.ts  写入 :root 的 --mc-* 自定义属性（localStorage 持久化
 variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…），带 oklch 回退
    │
    ▼
-原子组件（Button / Chip / IconButton / FAB / Slider / SegmentedButton / TextField / Switch / Dialog / Menu / Snackbar）
+原子组件（Button / SplitButton / Chip / IconButton / FAB / Slider / SegmentedButton / TextField / Switch / Dialog / Menu / Snackbar）
    │
    ▼
 分子/有机体（Navbar / SideBar / Search / PostCard…）
@@ -112,6 +112,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | 原子 | 文件 | 变体 / props | 关键令牌 |
 |---|---|---|---|
 | Button | `Button.astro` | variant: `filled/tonal/outlined/text`；size: `small(32)/medium(40)/large(48)`；`href/target`（渲染 `<a>`）、`full`、`align: center/start/between`、`disabled` | primary / secondary-container / outline / on-surface；`--m3e-state-color` 按变体 |
+| SplitButton | `SplitButton.svelte` | M3E 分离式按钮：`variant`（filled/tonal/outlined/elevated）、`size`（xs/s/m/l/xl，M3E 五档 32–136）、`menuOpen`（$bindable，trailing 激活旋转 180°）、`onclick`（leading 主操作）；leading/trailing 插槽；**两段相接内角在 hover/pressed 时变形更圆**（4→12px 等，官方 SplitButton*Tokens） | primary / secondary-container / outline；`--m3e-elevation-*` |
 | Chip | `Chip.astro` | variant: `assist`（描边）/`filter`（选中 → secondary-container）/`tonal`（站内药丸）；`selected`、`href` | surface-container-low / outline-variant / secondary-container / btn-regular 系 |
 | IconButton | `IconButton.astro` | variant: `standard/tonal/filled`；`label`、`id`、`href/target/rel`（渲染 `<a>`） | on-surface-variant / secondary-container / primary |
 | FAB | `FAB.astro` | size: `small(40)/regular(56)`；`label`、`disabled` | primary-container ＋ `--m3e-elevation-3` |
@@ -120,7 +121,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`、`onfocus`/`oninput`、`leading` 命名插槽 | surface-container-high、聚焦主色下划线 |
 | Switch | `Switch.svelte` | `checked`（$bindable）、`disabled`、`label`、`icons`（M3E 图标变体：传 `icons` 时 thumb 恒 24px 显示 ✓/✕；缺省为 thumb 16↔24 动态无图标的经典样式）；原生 checkbox 自绘 track/thumb | 选中 secondary-container + 状态层 |
 | Dialog | `Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦 | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` |
-| Menu | `Menu.svelte` | `open`（$bindable）、`label`、class；受控容器，ESC/外部点击关闭，`:global(.m3-menu-item)` 项样式 + `.selected` 选中态 | surface-container、`--m3e-elevation-2` |
+| Menu | `Menu.svelte` | `open`（$bindable）、`label`、`variant`（standard/vibrant，vibrant 为 tertiary 基高强调）、class；受控容器，ESC/外部点击关闭，`:global(.m3-menu-item)` 项样式（44px）＋ `.selected`/`.checked` 状态、`.m3-menu-group` 分组（组间距 2px） | surface-container / tertiary-container、`--m3e-elevation-2` |
 | Snackbar | `Snackbar.svelte` | 由事件总线 `showSnackbar(msg)` 触发 | inverse-surface / inverse-on-surface、`--m3e-elevation-3` |
 
 约定：
@@ -192,5 +193,5 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/snackbar.ts` | Snackbar 事件总线 |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 11 个原子组件 |
+| `src/components/atoms/*` | 12 个原子组件 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
