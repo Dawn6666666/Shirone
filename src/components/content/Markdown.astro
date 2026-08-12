@@ -21,7 +21,7 @@ import { showSnackbar } from "../../utils/snackbar";
 document.addEventListener("click", function (e: MouseEvent) {
     const target = e.target as Element | null;
     if (target && target.classList.contains("copy-btn")) {
-        const preEle = target.closest("pre");
+        const preEle = target.closest(".frame")?.querySelector("pre");
         const codeEle = preEle?.querySelector("code");
         const code = Array.from(codeEle?.querySelectorAll(".code:not(summary *)") ?? [])
             .map(el => el.textContent)
