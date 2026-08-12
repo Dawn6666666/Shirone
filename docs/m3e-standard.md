@@ -30,7 +30,7 @@ theme-utils.ts  写入 :root 的 --mc-* 自定义属性（localStorage 持久化
 variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…），带 oklch 回退
    │
    ▼
-原子组件（Button / Chip / IconButton / FAB / Slider / SegmentedButton / TextField / Switch / Dialog / Menu / Snackbar）
+原子组件（Button / SplitButton / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar）
    │
    ▼
 分子/有机体（Navbar / SideBar / Search / PostCard…）
@@ -112,16 +112,25 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | 原子 | 文件 | 变体 / props | 关键令牌 |
 |---|---|---|---|
 | Button | `Button.astro` | variant: `filled/tonal/outlined/text`；size: `small(32)/medium(40)/large(48)`；`href/target`（渲染 `<a>`）、`full`、`align: center/start/between`、`disabled` | primary / secondary-container / outline / on-surface；`--m3e-state-color` 按变体 |
+| SplitButton | `SplitButton.svelte` | M3E 分离式按钮：`variant`（filled/tonal/outlined/elevated）、`size`（xs/s/m/l/xl，M3E 五档 32–136）、`menuOpen`（$bindable，trailing 激活旋转 180°）、`onclick`（leading 主操作）；leading/trailing 插槽；**两段相接内角在 hover/pressed 时变形更圆**（4→12px 等，官方 SplitButton*Tokens） | primary / secondary-container / outline；`--m3e-elevation-*` |
+| ToggleButton | `ToggleButton.svelte` | M3E 切换按钮：`checked`（$bindable）、`variant`（filled：选中 primary/未选中 surface-container；tonal：选中 secondary/未选中 secondary-container；outlined：选中 inverse-surface + 描边；elevated：选中 primary/未选中 surface-container-low + elevation-1）、`disabled`、`label`、`controlled`（受控模式：点击不自动切换，仅触发 `onclick`，供 ButtonGroup 复用）、插槽；原生 button + `aria-pressed`，40dp 高、图标 20dp、label-large；**形状变形**（官方 ToggleButtonShapes）：未选中 pill → 按压 6dp → 选中 12dp | primary / secondary / inverse-surface / surface-container、`--m3e-state-color` |
+| ButtonGroup | `ButtonGroup.svelte` | M3E 按钮组（官方 ButtonGroup.kt 数据驱动版）：`items: {value,label,icon?}[]`、`value`（$bindable 单选）/ `checkedValues`（$bindable 多选，`multiple` 时）、`variant`（standard 12px 间距 / connected 2px 间距）、`disabled`、`onchange`；connected：**首/尾项外侧全圆 + 内侧 8px、中间项 4dp，按压内角 8→4px，选中项变全圆 pill**（官方 ConnectedButtonGroupTokens）；**溢出指示器**：ResizeObserver 测量容器，宽度不足时溢出项折叠进「更多」按钮下拉菜单（官方 OverflowIndicator + DropdownMenu，菜单项带 checked 状态）；**animateWidth 宽度交换**：按压时 active 项宽度 ×1.15、其余项等比例压缩（官方 expandedRatio 0.15 + expand/compress）；官方 weight 布局未实现（TODO） | secondary-container / secondary、`--m3e-elevation-1` |
 | Chip | `Chip.astro` | variant: `assist`（描边）/`filter`（选中 → secondary-container）/`tonal`（站内药丸）；`selected`、`href` | surface-container-low / outline-variant / secondary-container / btn-regular 系 |
 | IconButton | `IconButton.astro` | variant: `standard/tonal/filled`；`label`、`id`、`href/target/rel`（渲染 `<a>`） | on-surface-variant / secondary-container / primary |
 | FAB | `FAB.astro` | size: `small(40)/regular(56)`；`label`、`disabled` | primary-container ＋ `--m3e-elevation-3` |
+| FABMenu | `FABMenu.svelte` | M3E 悬浮菜单：`expanded`（$bindable）、`icon`/`iconExpanded`（Crossfade 切换，50% progress 处交替）、`label`、`size`（small 56 / medium 80 / large 96，展开收缩到 56 全圆 + close 20px）、`align`（end/start/center）、`containerColor`/`containerContentColor`（默认 primary-container/on-primary-container，展开变 primary）、`menuItemColor`/`menuItemContentColor`（默认 primary-container/on-primary-container，→ `--fab-menu-item-bg/-color`）、`exclusive`（默认 true：单开互斥，展开时经 `menu-bus` 通知其他菜单/FABMenu 收起；false 则不参与）；**动画**：rAF 驱动 `--fab-progress`（0→1，300ms emphasized-decelerate，官方 FastSpatial），容器颜色/尺寸/圆角/图标颜色/图标大小统一按 progress 插值（官方 ToggleFAB lerp）；菜单项 `.m3-fab-menu-item`（56px 全圆、18px 图标 + body-medium）+ stagger 展开；**键盘焦点**：展开时 FAB 上 `Tab`/`ArrowDown` 聚焦首个菜单项（菜单项为原生 button，Tab 在项间自然移动） | primary-container / primary、`--m3e-elevation-3` |
 | Slider | `Slider.svelte` | `value`（$bindable）、`min/max/step`、`label` | 彩虹轨道 `--color-selection-bar`、主色圆点 thumb |
 | SegmentedButton | `SegmentedButton.svelte` | `options: {value,label}[]`、`value`（$bindable）、`label` | container 底、选中段 secondary-container |
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`、`onfocus`/`oninput`、`leading` 命名插槽 | surface-container-high、聚焦主色下划线 |
 | Switch | `Switch.svelte` | `checked`（$bindable）、`disabled`、`label`、`icons`（M3E 图标变体：传 `icons` 时 thumb 恒 24px 显示 ✓/✕；缺省为 thumb 16↔24 动态无图标的经典样式）；原生 checkbox 自绘 track/thumb | 选中 secondary-container + 状态层 |
+| Checkbox | `Checkbox.svelte` | `checked`（$bindable，`boolean \| null`）、`disabled`、`label`、`triState`（半选横线）；原生 checkbox 自绘 18px 方框 | primary / on-surface-variant、禁用 0.38 |
+| RadioButton | `RadioButton.svelte` | `checked`（$bindable）、`disabled`、`label`、`onchange`；原生 radio 自绘 20px 环 + 12px 内点 | primary / on-surface-variant、禁用 0.38 |
+| Badge | `Badge.svelte` | `content`（有内容显示 label-small 文字，否则 6px 圆点）、`disabled`；配 `BadgedBox.svelte` 锚定到右上角 | error / on-error |
+| Divider | `Divider.svelte` | `vertical`、`thickness`、`color`；默认 1px | outline-variant |
 | Dialog | `Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦 | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` |
-| Menu | `Menu.svelte` | `open`（$bindable）、`label`、class；受控容器，ESC/外部点击关闭，`:global(.m3-menu-item)` 项样式 + `.selected` 选中态 | surface-container、`--m3e-elevation-2` |
-| Snackbar | `Snackbar.svelte` | 由事件总线 `showSnackbar(msg)` 触发 | inverse-surface / inverse-on-surface、`--m3e-elevation-3` |
+| Menu | `Menu.svelte` | `open`（$bindable）、`label`、`variant`（standard/vibrant，vibrant 为 tertiary 基高强调）、`exclusive`（默认 true：单开互斥，打开时经 `menu-bus` 通知其他菜单/FABMenu 关闭；false 则不参与）、class；受控容器，ESC/外部点击关闭（点击其他菜单内不关闭），`:global(.m3-menu-item)` 项样式（44px）＋ `.selected`/`.checked` 状态、`.m3-menu-group` 分组（surface-container-low 背景 + hover 8→16px 形状变形、组间距 2px）、`width: max-content` 宽度稳定；**项结构辅助类**：`.m3-menu-item__trailing`（margin-left:auto 右对齐 trailing 内容）、`.m3-menu-item__content`（flex 列，标签 + 辅助文字垂直排列）、`.m3-menu-item__label`（label-large）、`.m3-menu-item__supporting`（body-small + on-surface-variant，官方 supportingText） | surface-container / tertiary-container、`--m3e-elevation-2` |
+| Snackbar | `Snackbar.svelte` | 由事件总线 `showSnackbar(msg, opts?)` 触发；`opts`：`action?: {label, onClick}`（操作按钮，label-large + inverse-primary，点击执行并关闭）、`icon?: string`（24dp，inverse-on-surface）；两行文字自适应（官方单行 48dp / 两行 68dp）、corner-xs(4dp) | inverse-surface / inverse-on-surface / inverse-primary、`--m3e-elevation-3` |
+| Tooltip | `Tooltip.svelte` | 包裹式（锚点插槽 + 提示内容）；`variant`：`plain`（默认，inverse-surface + corner-xs + body-small）/ `rich`（surface-container + corner-medium + `--m3e-elevation-2`，`title` title-small + `supporting` body-medium + 可选 `action` {label,onClick} primary）；hover 延迟 400ms 显示、focus 立即（键盘可达，注入 `aria-describedby`） | inverse-surface / surface-container / on-surface-variant、`--m3e-elevation-2` |
 
 约定：
 - 静态原子用 Astro，交互原子用 Svelte 5（runes 或 legacy `$:` 均可，同文件内不混用）。
@@ -190,7 +199,8 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/theme-utils.ts` | 角色 → `--mc-*` 映射、localStorage（`mc-style`/`mc-spec`）、`applyCurrentScheme` |
 | `src/utils/setting-utils.ts` | 色相 / 明暗 / Expressive Code 主题联动 |
 | `src/utils/snackbar.ts` | Snackbar 事件总线 |
+| `src/utils/menu-bus.ts` | 菜单互斥事件总线（Menu/FABMenu 单开联动，`exclusive` 参数） |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 11 个原子组件 |
+| `src/components/atoms/*` | 17 个原子组件 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |

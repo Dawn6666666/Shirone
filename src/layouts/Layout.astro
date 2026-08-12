@@ -294,7 +294,8 @@ function setClickOutsideToClose(panel: string, ignores: string[]) {
 				return;
 			}
 		}
-		panelDom!.classList.add("float-panel-closed");
+		// 面板元素不存在（如无顶栏/面板的独立页面）时跳过，避免 null.classList
+		if (panelDom) panelDom.classList.add("float-panel-closed");
 	});
 }
 setClickOutsideToClose("display-setting", ["display-setting", "display-settings-switch"])
