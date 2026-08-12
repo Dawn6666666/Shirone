@@ -5,6 +5,7 @@
  *          outlined（surface + outline-variant 1px 边框 + focus primary 2px）。
  * error：错误态（下划线/边框变 error 色 + 可选错误提示）。
  * label 浮动（focus/有值时上浮顶部），leading 图标用命名插槽。
+ * hideLabel：label 只作为 aria-label（无障碍名），不渲染可见浮动标签。
  */
 let {
 	type = "text",
@@ -13,6 +14,8 @@ let {
 	name = "",
 	id = "",
 	label = "",
+	/** 为 true 时 label 仅作 aria-label，不渲染可见浮动标签 */
+	hideLabel = false,
 	variant = "filled",
 	error = "",
 	onfocus = () => {},
@@ -26,6 +29,7 @@ let {
 	name?: string;
 	id?: string;
 	label?: string;
+	hideLabel?: boolean;
 	/** filled（默认）/ outlined */
 	variant?: "filled" | "outlined";
 	/** 错误提示（非空时错误态：error 色下划线/边框 + 提示文字） */
@@ -63,7 +67,7 @@ let focused = $state(false);
             }}
             {oninput}
         />
-        {#if label}
+        {#if label && !hideLabel}
             <span
                 class="m3-text-field__label"
                 class:m3-text-field__label--float={value || focused}
