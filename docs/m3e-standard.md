@@ -126,7 +126,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | Badge | `Badge.svelte` | `content`（有内容显示 label-small 文字，否则 6px 圆点）、`disabled`；配 `BadgedBox.svelte` 锚定到右上角 | error / on-error |
 | Divider | `Divider.svelte` | `vertical`、`thickness`、`color`；默认 1px | outline-variant |
 | Dialog | `Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦 | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` |
-| Menu | `Menu.svelte` | `open`（$bindable）、`label`、`variant`（standard/vibrant，vibrant 为 tertiary 基高强调）、class；受控容器，ESC/外部点击关闭，`:global(.m3-menu-item)` 项样式（44px）＋ `.selected`/`.checked` 状态、`.m3-menu-group` 分组（组间距 2px） | surface-container / tertiary-container、`--m3e-elevation-2` |
+| Menu | `Menu.svelte` | `open`（$bindable）、`label`、`variant`（standard/vibrant，vibrant 为 tertiary 基高强调）、class；受控容器，ESC/外部点击关闭（点击其他菜单内不关闭，支持多菜单共存），`:global(.m3-menu-item)` 项样式（44px）＋ `.selected`/`.checked` 状态、`.m3-menu-group` 分组（surface-container-low 背景 + hover 8→16px 形状变形、组间距 2px）、`width: max-content` 宽度稳定 | surface-container / tertiary-container、`--m3e-elevation-2` |
 | Snackbar | `Snackbar.svelte` | 由事件总线 `showSnackbar(msg)` 触发 | inverse-surface / inverse-on-surface、`--m3e-elevation-3` |
 
 约定：

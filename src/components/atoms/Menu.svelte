@@ -30,7 +30,11 @@ $effect(() => {
 		if (e.key === "Escape") open = false;
 	};
 	const onClick = (e: MouseEvent) => {
-		if (menuEl && !menuEl.contains(e.target as Node)) open = false;
+		if (menuEl && !menuEl.contains(e.target as Node)) {
+			// 点击落在其他菜单（role="menu"）内时不关闭，支持多菜单共存
+			if ((e.target as Node).closest?.('[role="menu"]')) return;
+			open = false;
+		}
 	};
 	const timer = setTimeout(() => {
 		document.addEventListener("keydown", onKeydown);
@@ -57,6 +61,7 @@ $effect(() => {
 <style lang="stylus">
 .m3-menu
     min-width: 7rem
+    width: max-content
     padding: 0.25rem
     border-radius: var(--shape-corner-l)
     background: var(--surface-container)
@@ -98,7 +103,17 @@ $effect(() => {
         background: var(--secondary-container)
         color: var(--on-secondary-container)
 
-    /* 分组：组间 2px 间距（官方 SegmentedGap），替代/并列 divider */
+    /* 分组（官方 SegmentedMenuTokens）：surface-container-low 背景 + 4px padding，
+       组间 2px 间距；hover 聚焦时圆角 8→16 变形（FastSpatial 动效感） */
+    :global(.m3-menu-group)
+        padding: 0.25rem
+        border-radius: var(--shape-corner-s)
+        background: var(--surface-container-low)
+        transition: border-radius var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+
+        &:hover
+            border-radius: var(--shape-corner-l)
+
     :global(.m3-menu-group + .m3-menu-group)
         margin-top: 2px
 
