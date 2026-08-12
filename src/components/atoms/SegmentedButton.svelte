@@ -2,8 +2,11 @@
 /**
  * M3E SegmentedButton — M3 分段按钮原子（单选语义）。
  * 容器 --surface-container，选中段 --secondary-container。
+ * 选中段显示 check 图标（官方 fadeIn + scaleIn，origin 底部左角）。
  * 用法：<SegmentedButton options={[{value, label}]} bind:value={spec} />
  */
+import Icon from "@iconify/svelte";
+
 let {
 	options = [],
 	value = $bindable(""),
@@ -31,6 +34,9 @@ let {
                 {disabled}
                 hidden
             />
+            <span class="m3-segmented__check" aria-hidden="true">
+                <Icon icon="material-symbols:check"></Icon>
+            </span>
             <span>{opt.label}</span>
         </label>
     {/each}
@@ -49,6 +55,7 @@ let {
         display: flex
         align-items: center
         justify-content: center
+        gap: 0.25rem
         height: 2rem
         padding: 0 0.75rem
         border-radius: var(--shape-corner-s)
@@ -71,4 +78,22 @@ let {
         &:has(input:focus-visible)
             outline: 2px solid var(--primary)
             outline-offset: 1px
+
+    /* 选中 check 图标：scaleIn + fade（官方 TransformOrigin(0,1) 底部左角 + FastSpatial） */
+    &__check
+        display: flex
+        flex-shrink: 0
+        transform: scale(0)
+        opacity: 0
+        transform-origin: left bottom
+        transition:
+            transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+            opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+        > :global(svg)
+            width: 1rem
+            height: 1rem
+
+    &__segment.selected &__check
+        transform: scale(1)
+        opacity: 1
 </style>
