@@ -35,6 +35,10 @@ test.describe("blog/PostCard", () => {
 		const img = card.locator("img");
 		await expect(img).toBeVisible();
 		await expect(img).toHaveAttribute("alt", "示例封面");
+		// 封面加载占位（Skeleton）渲染在 img 之下
+		await expect(
+			card.locator(".m3-blog-postcard__cover-skeleton"),
+		).toHaveCount(1);
 	});
 
 	test("标题左侧 AccentBar 竖线（primary 强调）", async ({ page }) => {

@@ -1,12 +1,14 @@
 ---
 import Button from "@components/atoms/action/Button.astro";
 import IconButton from "@components/atoms/action/IconButton.astro";
-import ImageWrapper from "@components/molecules/ImageWrapper.astro";
+import Avatar from "@components/atoms/display/Avatar.svelte";
 import { Icon } from "astro-icon/components";
+import { resolveAsset } from "@utils/asset-utils";
 import { profileConfig } from "../../config";
 import { url } from "../../utils/url-utils";
 
 const config = profileConfig;
+const avatarUrl = await resolveAsset(config.avatar ?? "");
 ---
 <div class="card-base p-3">
     <a aria-label="Go to About Page" href={url('/about/')}
@@ -18,7 +20,13 @@ const config = profileConfig;
                   class="transition opacity-0 scale-90 group-hover:scale-100 group-hover:opacity-100 text-white text-5xl">
             </Icon>
         </div>
-        <ImageWrapper src={config.avatar || ""} alt="Profile Image of the Author" class="mx-auto lg:w-full h-full lg:mt-0 "></ImageWrapper>
+        <Avatar
+            src={avatarUrl}
+            alt="Profile Image of the Author"
+            size={176}
+            shape="rounded"
+            class="mx-auto lg:!w-full"
+        />
     </a>
     <div class="px-2">
         <div class="font-bold text-xl text-center mb-1 dark:text-neutral-50 transition">{config.name}</div>
