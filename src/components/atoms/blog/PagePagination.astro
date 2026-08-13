@@ -14,6 +14,7 @@ interface Props {
 	/** 当前页左右展开的页码数（窗口宽 = adjacent*2+1） */
 	adjacent?: number;
 	class?: string;
+	style?: string;
 }
 
 const {
@@ -22,6 +23,7 @@ const {
 	buildUrl,
 	adjacent = 2,
 	class: className,
+	style,
 } = Astro.props;
 
 const HIDDEN = -1;
@@ -57,7 +59,7 @@ const prevUrl = currentPage > 1 ? buildUrl(currentPage - 1) : undefined;
 const nextUrl = currentPage < totalPages ? buildUrl(currentPage + 1) : undefined;
 ---
 
-<div class:list={["m3-blog-pagination", className]}>
+<div class:list={["m3-blog-pagination", className]} style={style}>
 	{prevUrl ? (
 		<a
 			href={prevUrl}

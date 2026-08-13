@@ -1,62 +1,58 @@
----
-/**
- * M3E 博客原子 — ArchiveList 归档列表（按年份分组）。
- * 数据驱动：groups 为 { year, items: { title, href, date, tags? } }[]；
- * 年份头 + 时间轴节点行，hover 标题变 primary 并右移。
- */
-interface ArchiveItem {
-	title: string;
-	href: string;
-	/** 展示日期（如 "08-13"） */
-	date: string;
-	tags?: string[];
-}
+<script lang="ts">
+	/**
+	 * M3E 博客原子 — ArchiveList 归档列表（按年份分组）。
+	 * 数据驱动：groups 为 { year, items: { title, href, date, tags? } }[]；
+	 * 年份头 + 时间轴节点行，hover 标题变 primary 并右移。
+	 * Svelte 实现：ArchivePanel（Svelte）与 Astro 演示页均可复用。
+	 */
+	export interface ArchiveItem {
+		title: string;
+		href: string;
+		/** 展示日期（如 "08-13"） */
+		date: string;
+		tags?: string[];
+	}
+	export interface ArchiveGroup {
+		year: number;
+		items: ArchiveItem[];
+	}
 
-interface ArchiveGroup {
-	year: number;
-	items: ArchiveItem[];
-}
+	let {
+		groups = [],
+		/** 单复数文案回调，如 (n) => `${n} 篇` */
+		countLabel = (count: number) => `${count} 篇`,
+		class: className = "",
+	}: {
+		groups?: ArchiveGroup[];
+		countLabel?: (count: number) => string;
+		class?: string;
+	} = $props();
+</script>
 
-interface Props {
-	groups: ArchiveGroup[];
-	/** 单复数文案回调，如 (n) => `${n} 篇` */
-	countLabel?: (count: number) => string;
-	class?: string;
-}
-
-const {
-	groups = [],
-	countLabel = (count: number) => `${count} 篇`,
-	class: className,
-} = Astro.props;
----
-
-<div class:list={["m3-blog-archive", className]}>
-	{groups.map((g) => (
+<div class="m3-blog-archive {className}">
+	{#each groups as g (g.year)}
 		<section class="m3-blog-archive__group">
 			<header class="m3-blog-archive__header">
 				<span class="m3-blog-archive__year">{g.year}</span>
-				<span class="m3-blog-archive__dot" aria-hidden="true" />
+				<span class="m3-blog-archive__dot" aria-hidden="true"></span>
 				<span class="m3-blog-archive__count">{countLabel(g.items.length)}</span>
 			</header>
 			<ul class="m3-blog-archive__list">
-				{g.items.map((it) => (
+				{#each g.items as it (it.href)}
 					<li>
 						<a class="m3-blog-archive__item" href={it.href} aria-label={it.title}>
 							<span class="m3-blog-archive__date">{it.date}</span>
-							<span class="m3-blog-archive__node" aria-hidden="true" />
+							<span class="m3-blog-archive__node" aria-hidden="true"></span>
 							<span class="m3-blog-archive__title">{it.title}</span>
-							{it.tags && it.tags.length > 0 && (
-								<span class="m3-blog-archive__tags">
-									{it.tags.map((t) => `#${t}`).join(" ")}
-								</span>
-							)}
+							{#if it.tags && it.tags.length > 0}
+								<span class="m3-blog-archive__tags">{it.tags.map((t) => `#${t}`).join(" ")}</span>
+							{/if}
 						</a>
 					</li>
-				))}
+				{/each}
 			</ul>
 		</section>
-	))}
+	{/each}
 </div>
 
 <style lang="stylus">

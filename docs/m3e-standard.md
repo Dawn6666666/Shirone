@@ -171,7 +171,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | CategoryList | `blog/CategoryList.astro` | 分类列表：`categories`（`{name,href,count?}[]`）渲染为 text Button 行（align between）+ 数量徽标（surface-container-high 圆角，label-medium 加粗） | on-surface / surface-container-high |
 | TocList | `blog/TocList.astro` | 目录列表（静态 SSR 版）：`headings`（`{depth,text,slug}[]`）、`maxDepth`（默认 3）；顶级编号徽标（secondary-container）+ 子级小圆点按层级缩进，hover 状态层，锚点链接；激活态由调用方叠加 | secondary-container / on-secondary-container / on-surface-variant |
 | PagePagination | `blog/PagePagination.astro` | 分页器（数据驱动）：`currentPage`/`totalPages`/`buildUrl(page)`/`adjacent`（默认 2）；页码窗口 + 首尾省略号折叠，激活页 primary 实底 + `aria-current`，前后箭头（首/尾页渲染为 `aria-hidden` span 禁用，避免无 href 的 a） | primary / on-primary / surface-container-low |
-| ArchiveList | `blog/ArchiveList.astro` | 归档列表：`groups`（`{year, items:{title,href,date,tags?}}[]`）按年份分组；年份头 + primary 节点环 + 时间轴小圆点，条目 hover 标题变 primary 并右移；tags 桌面端显示 | primary / on-surface / on-surface-variant |
+| ArchiveList | `blog/ArchiveList.svelte` | 归档列表：`groups`（`{year, items:{title,href,date,tags?}}[]`）按年份分组；年份头 + primary 节点环 + 时间轴小圆点，条目 hover 标题变 primary 并右移；tags 桌面端显示 | primary / on-surface / on-surface-variant |
 | FooterBar | `blog/FooterBar.astro` | 页脚栏：`name`/`year`/`links`/`poweredBy`；顶部虚线分隔 + 居中文本（on-surface-variant），链接 primary；`external` 链接自动补 `target=_blank` + rel | on-surface-variant / primary |
 
 约定：
