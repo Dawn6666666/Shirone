@@ -1,0 +1,173 @@
+---
+/**
+ * M3E 博客原子 — PagePagination 分页器（数据驱动）。
+ * currentPage / totalPages / buildUrl(page) 生成页码窗口（省略号折叠），
+ * 上一页 / 下一页箭头 + 页码按钮，激活页 primary 实底。
+ */
+import { Icon } from "astro-icon/components";
+
+interface Props {
+	currentPage: number;
+	totalPages: number;
+	/** 页码 → 链接地址（SSR 时由调用方注入，避免依赖路由工具） */
+	buildUrl: (page: number) => string;
+	/** 当前页左右展开的页码数（窗口宽 = adjacent*2+1） */
+	adjacent?: number;
+	class?: string;
+}
+
+const {
+	currentPage,
+	totalPages,
+	buildUrl,
+	adjacent = 2,
+	class: className,
+} = Astro.props;
+
+const HIDDEN = -1;
+const VISIBLE = adjacent * 2 + 1;
+
+let count = 1;
+let l = currentPage;
+let r = currentPage;
+while (0 < l - 1 && r + 1 <= totalPages && count + 2 <= VISIBLE) {
+	count += 2;
+	l--;
+	r++;
+}
+while (0 < l - 1 && count < VISIBLE) {
+	count++;
+	l--;
+}
+while (r + 1 <= totalPages && count < VISIBLE) {
+	count++;
+	r++;
+}
+
+const pages: (number | typeof HIDDEN)[] = [];
+if (l > 1) pages.push(1);
+if (l === 3) pages.push(2);
+if (l > 3) pages.push(HIDDEN);
+for (let i = l; i <= r; i++) pages.push(i);
+if (r < totalPages - 2) pages.push(HIDDEN);
+if (r === totalPages - 2) pages.push(totalPages - 1);
+if (r < totalPages) pages.push(totalPages);
+
+const prevUrl = currentPage > 1 ? buildUrl(currentPage - 1) : undefined;
+const nextUrl = currentPage < totalPages ? buildUrl(currentPage + 1) : undefined;
+---
+
+<div class:list={["m3-blog-pagination", className]}>
+	{prevUrl ? (
+		<a
+			href={prevUrl}
+			aria-label="上一页"
+			class="m3-blog-pagination__arrow"
+		>
+			<Icon name="material-symbols:chevron-left-rounded" />
+		</a>
+	) : (
+		<span class="m3-blog-pagination__arrow m3-blog-pagination__arrow--disabled" aria-hidden="true">
+			<Icon name="material-symbols:chevron-left-rounded" />
+		</span>
+	)}
+	<div class="m3-blog-pagination__nums">
+		{pages.map((p) =>
+			p === HIDDEN ? (
+				<span class="m3-blog-pagination__ellipsis" aria-hidden="true">
+					<Icon name="material-symbols:more-horiz" />
+				</span>
+			) : p === currentPage ? (
+				<span class="m3-blog-pagination__num m3-blog-pagination__num--active" aria-current="page">
+					{p}
+				</span>
+			) : (
+				<a class="m3-blog-pagination__num" href={buildUrl(p)} aria-label={`第 ${p} 页`}>
+					{p}
+				</a>
+			),
+		)}
+	</div>
+	{nextUrl ? (
+		<a
+			href={nextUrl}
+			aria-label="下一页"
+			class="m3-blog-pagination__arrow"
+		>
+			<Icon name="material-symbols:chevron-right-rounded" />
+		</a>
+	) : (
+		<span class="m3-blog-pagination__arrow m3-blog-pagination__arrow--disabled" aria-hidden="true">
+			<Icon name="material-symbols:chevron-right-rounded" />
+		</span>
+	)}
+</div>
+
+<style lang="stylus">
+.m3-blog-pagination
+	display: flex
+	align-items: center
+	justify-content: center
+	gap: 0.75rem
+
+	&__arrow
+		display: inline-flex
+		align-items: center
+		justify-content: center
+		width: 2.75rem
+		height: 2.75rem
+		border-radius: var(--shape-corner-s)
+		background: var(--surface-container-low)
+		color: var(--primary)
+		text-decoration: none
+		transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
+		> :global(svg)
+			width: 1.75rem
+			height: 1.75rem
+		&:hover:not(.m3-blog-pagination__arrow--disabled)
+			background: var(--surface-container-high)
+
+		&--disabled
+			opacity: 0.38
+			pointer-events: none
+
+	&__nums
+		display: flex
+		align-items: center
+		border-radius: var(--shape-corner-s)
+		background: var(--surface-container-low)
+
+	&__num
+		display: inline-flex
+		align-items: center
+		justify-content: center
+		width: 2.75rem
+		height: 2.75rem
+		border-radius: var(--shape-corner-s)
+		font: var(--m3e-type-label-large)
+		font-weight: 700
+		text-decoration: none
+		color: var(--on-surface-variant)
+		transition:
+			background-color var(--m3e-duration-short) var(--m3e-easing-standard),
+			color var(--m3e-duration-short) var(--m3e-easing-standard)
+		&:hover
+			background: unquote("color-mix(in oklab, var(--on-surface) 8%, transparent)")
+
+		&--active
+			background: var(--primary)
+			color: var(--on-primary)
+			&:hover
+				background: var(--primary)
+
+	&__ellipsis
+		display: inline-flex
+		align-items: center
+		justify-content: center
+		width: 1.75rem
+		height: 2.75rem
+		color: var(--on-surface-variant)
+		> :global(svg)
+			width: 1.25rem
+			height: 1.25rem
+</style>
