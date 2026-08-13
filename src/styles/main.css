@@ -58,10 +58,6 @@
     .float-menu-item.current-theme-btn {
         @apply text-[var(--on-secondary-container)] bg-[var(--secondary-container)];
     }
-    .search-panel mark {
-        @apply bg-transparent text-[var(--primary)]
-    }
-
     .btn-card {
         @apply transition flex items-center justify-center bg-[var(--card-bg)] hover:bg-[var(--btn-card-bg-hover)]
         active:bg-[var(--btn-card-bg-active)]

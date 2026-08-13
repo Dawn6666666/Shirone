@@ -30,7 +30,7 @@ theme-utils.ts  写入 :root 的 --mc-* 自定义属性（localStorage 持久化
 variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…），带 oklch 回退
    │
    ▼
-原子组件（56 个：Button / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar / Tabs / Select / DataTable / SearchView / Autocomplete / SheetSide / Carousel / PullToRefresh / DatePicker / TimePicker / Chips / Banner / Tooltip / …，完整清单见 §4）
+原子组件（57 个：Button / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar / Tabs / Select / DataTable / SearchView / Autocomplete / SheetSide / Carousel / PullToRefresh / DatePicker / TimePicker / Chips / Banner / Tooltip / …，完整清单见 §4）
    │
    ▼
 分子/有机体（Navbar / SideBar / Search / PostCard…）
@@ -172,6 +172,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | TocList | `blog/TocList.astro` | 目录列表（静态 SSR 版）：`headings`（`{depth,text,slug}[]`）、`maxDepth`（默认 3）；顶级编号徽标（secondary-container）+ 子级小圆点按层级缩进，hover 状态层，锚点链接；激活态由调用方叠加 | secondary-container / on-secondary-container / on-surface-variant |
 | PagePagination | `blog/PagePagination.astro` | 分页器（数据驱动）：`currentPage`/`totalPages`/`buildUrl(page)`/`adjacent`（默认 2）；页码窗口 + 首尾省略号折叠，激活页 primary 实底 + `aria-current`，前后箭头（首/尾页渲染为 `aria-hidden` span 禁用，避免无 href 的 a） | primary / on-primary / surface-container-low |
 | ArchiveList | `blog/ArchiveList.svelte` | 归档列表：`groups`（`{year, items:{title,href,date,tags?}}[]`）按年份分组；年份头 + primary 节点环 + 时间轴小圆点，条目 hover 标题变 primary 并右移；tags 桌面端显示 | primary / on-surface / on-surface-variant |
+| SearchPanel | `blog/SearchPanel.svelte` | 搜索结果面板（Svelte，数据驱动）：`results`（{url,title,excerpt}[]，excerpt 可含 `<mark>` 高亮）、`query`（$bindable）、`placeholder`（传则渲染面板内胶囊搜索输入，`hideInputOnDesktop` 时 lg+ 隐藏）、`id`/`class` 透传；面板 float-panel 视觉（bg/圆角/阴影/滚动），开合由调用方 classList 控制（`float-panel-closed`，与 DisplaySettings 同款，Layout 点击外部关闭可复用）；结果项标题 hover primary + 箭头、摘要 on-surface-variant | `--float-panel-bg` / primary |
 | FooterBar | `blog/FooterBar.astro` | 页脚栏：`name`/`year`/`links`/`poweredBy`；顶部虚线分隔 + 居中文本（on-surface-variant），链接 primary；`external` 链接自动补 `target=_blank` + rel | on-surface-variant / primary |
 
 约定：
@@ -244,7 +245,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/menu-bus.ts` | 菜单互斥事件总线（Menu/FABMenu 单开联动，`exclusive` 参数） |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 56 个原子组件 |
+| `src/components/atoms/*` | 57 个原子组件 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
 
 ---

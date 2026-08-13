@@ -195,6 +195,38 @@ test.describe("blog/ArchiveList", () => {
 	});
 });
 
+test.describe("blog/SearchPanel", () => {
+	test.beforeEach(async ({ page }) => {
+		await openTestPage(page, "atoms-blog-test");
+	});
+
+	test("渲染结果项、mark 高亮与移动端输入", async ({ page }) => {
+		const panel = page.locator(".m3-blog-searchpanel").first();
+		await expect(panel).toBeVisible();
+		await expect(panel.locator(".m3-blog-searchpanel__item")).toHaveCount(2);
+		await expect(panel.locator(".m3-blog-searchpanel__title").first()).toContainText(
+			"M3E 波浪进度条实现笔记",
+		);
+		await expect(panel.locator(".m3-blog-searchpanel__excerpt mark").first()).toContainText(
+			"波浪进度条",
+		);
+		await expect(panel.locator(".m3-blog-searchpanel__input")).toBeVisible();
+		await expectMatchesToken(
+			page,
+			".m3-blog-searchpanel",
+			"background-color",
+			"--float-panel-bg",
+		);
+	});
+
+	test("hideInputOnDesktop：桌面隐藏、移动端显示面板内输入", async ({ page }) => {
+		const panel = page.locator(".m3-blog-searchpanel").nth(1);
+		await expect(panel.locator(".m3-blog-searchpanel__input")).toBeHidden();
+		await page.setViewportSize({ width: 390, height: 844 });
+		await expect(panel.locator(".m3-blog-searchpanel__input")).toBeVisible();
+	});
+});
+
 test.describe("blog/FooterBar", () => {
 	test.beforeEach(async ({ page }) => {
 		await openTestPage(page, "atoms-blog-test");

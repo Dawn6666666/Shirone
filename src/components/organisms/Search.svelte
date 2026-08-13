@@ -1,5 +1,6 @@
 <script lang="ts">
 import SearchBar from "@components/molecules/SearchBar.svelte";
+import SearchPanel from "@components/atoms/blog/SearchPanel.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
@@ -13,6 +14,12 @@ let result: SearchResult[] = [];
 let isSearching = false;
 let pagefindLoaded = false;
 let initialized = false;
+
+$: panelResults = result.map((r) => ({
+	url: r.url,
+	title: r.meta.title,
+	excerpt: r.excerpt,
+}));
 
 const fakeResult: SearchResult[] = [
 	{
@@ -155,35 +162,12 @@ $: if (initialized && keywordMobile) {
     <Icon icon="material-symbols:search" class="text-[1.25rem]"></Icon>
 </button>
 
-<!-- search panel -->
-<div id="search-panel" class="float-panel float-panel-closed search-panel absolute md:w-[30rem]
-top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2">
-
-    <!-- 面板内搜索条（移动端）：M3 胶囊填充式 -->
-    <div class="m3-state-layer flex relative lg:hidden items-center h-11 rounded-full overflow-hidden bg-(--surface-container-high)">
-        <Icon icon="material-symbols:search" class="ml-3 text-[1.25rem] text-[var(--on-surface-variant)]"></Icon>
-        <input name="search-mobile" placeholder={i18n(I18nKey.search)} bind:value={keywordMobile}
-               class="pl-2 pr-4 h-full min-w-0 flex-1 bg-transparent outline-0 text-sm text-(--on-surface) caret-(--primary)" />
-    </div>
-
-    <!-- search results -->
-    {#each result as item}
-        <a href={item.url}
-           class="transition first-of-type:mt-2 lg:first-of-type:mt-0 group block
-       rounded-xl text-lg px-3 py-2 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]">
-            <div class="transition text-[var(--on-surface)] inline-flex font-bold group-hover:text-[var(--primary)]">
-                {item.meta.title}<Icon icon="fa6-solid:chevron-right" class="transition text-[0.75rem] translate-x-1 my-auto text-[var(--primary)]"></Icon>
-            </div>
-            <div class="transition text-sm text-[var(--on-surface-variant)]">
-                {@html item.excerpt}
-            </div>
-        </a>
-    {/each}
-</div>
-
-<style>
-  .search-panel {
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-  }
-</style>
+<!-- search panel（blog/SearchPanel 原子；开合由调用方 classList 控制，与 DisplaySettings 同款） -->
+<SearchPanel
+    id="search-panel"
+    class="float-panel float-panel-closed absolute md:w-[30rem] top-20 left-4 md:left-[unset] right-4"
+    bind:query={keywordMobile}
+    results={panelResults}
+    placeholder={i18n(I18nKey.search)}
+    hideInputOnDesktop
+/>
