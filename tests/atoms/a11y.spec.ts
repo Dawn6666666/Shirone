@@ -13,6 +13,7 @@ const pages = [
 	"atoms-autocomplete-test",
 	"atoms-badgedbox-test",
 	"atoms-banner-test",
+	"atoms-blog-test",
 	"atoms-buttongroup-test",
 	"atoms-button-test",
 	"atoms-card-test",
