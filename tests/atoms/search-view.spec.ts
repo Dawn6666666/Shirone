@@ -61,4 +61,28 @@ test.describe("SearchView", () => {
 		await docked.locator('button[aria-label="清除"]').click();
 		await expect(docked.locator(".m3-search-view__input")).toHaveValue("");
 	});
+
+	test("全屏模式 Esc 关闭并触发 onclose", async ({ page }) => {
+		await page.getByRole("button", { name: /打开搜索/ }).click();
+		const full = page.locator(".m3-search-view--full");
+		await expect(full).toBeVisible();
+		await page.keyboard.press("Escape");
+		await expect(full).toHaveCount(0);
+	});
+
+	test("全屏打开后自动聚焦输入框", async ({ page }) => {
+		await page.getByRole("button", { name: /打开搜索/ }).click();
+		await expect(page.locator(".m3-search-view--full .m3-search-view__input")).toBeFocused();
+	});
+
+	test("建议键盘导航 ArrowDown/Enter 选择", async ({ page }) => {
+		await page.getByRole("button", { name: /打开搜索/ }).click();
+		const input = page.locator(".m3-search-view--full .m3-search-view__input");
+		await input.fill("svel");
+		await page.keyboard.press("ArrowDown");
+		await expect(page.locator(".m3-search-view__item--active")).toHaveCount(1);
+		await page.keyboard.press("Enter");
+		await expect(input).toHaveValue("Svelte");
+		await expect(page.locator("body")).toContainText("选择：Svelte");
+	});
 });

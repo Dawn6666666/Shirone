@@ -32,4 +32,17 @@ test.describe("Tabs", () => {
 		await page.keyboard.press("ArrowRight");
 		await expect(page.locator(".m3-tabs__tab").nth(1)).toBeFocused();
 	});
+
+	test("键盘 Home/End 跳到首尾 tab", async ({ page }) => {
+		const tabs = page.locator(".m3-tabs").first().locator(".m3-tabs__tab");
+		const first = tabs.first();
+		const last = tabs.last();
+		await tabs.nth(1).focus();
+		await page.keyboard.press("Home");
+		await expect(first).toBeFocused();
+		await expect(first).toHaveClass(/--active/);
+		await page.keyboard.press("End");
+		await expect(last).toBeFocused();
+		await expect(last).toHaveClass(/--active/);
+	});
 });

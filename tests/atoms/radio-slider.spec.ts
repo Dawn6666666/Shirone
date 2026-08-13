@@ -57,4 +57,17 @@ test.describe("Slider", () => {
 		await slider.press("ArrowRight");
 		await expect(slider).toHaveValue("31");
 	});
+
+	test("键盘 PageUp/PageDown/Home/End 大跨度步进", async ({ page }) => {
+		const slider = page.getByRole("slider", { name: "色相" });
+		await slider.focus();
+		await slider.press("PageUp");
+		await expect(slider).toHaveValue("40");
+		await slider.press("PageDown");
+		await expect(slider).toHaveValue("30");
+		await slider.press("Home");
+		await expect(slider).toHaveValue("0");
+		await slider.press("End");
+		await expect(slider).toHaveValue("100");
+	});
 });

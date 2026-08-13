@@ -48,4 +48,31 @@ test.describe("SheetSide", () => {
 		const radius = await readStyle(page, ".m3-sheet-side--start", "border-radius");
 		expect(radius).toBe("0px 16px 16px 0px");
 	});
+
+	test("点击遮罩关闭面板并触发 onclose", async ({ page }) => {
+		await page.getByRole("button", { name: /打开右侧面板/ }).click();
+		await expect(page.locator(".m3-sheet-side-root").first()).toHaveClass(/--open/);
+		await page.locator(".m3-sheet-side__scrim").first().click({ position: { x: 10, y: 400 } });
+		await expect(page.locator(".m3-sheet-side-root").first()).not.toHaveClass(/--open/);
+	});
+
+	test("打开后焦点移入面板，Tab 循环", async ({ page }) => {
+		await page.getByRole("button", { name: /打开右侧面板/ }).click();
+		const sheet = page.locator(".m3-sheet-side").first();
+		await expect(sheet).toBeFocused();
+		await page.keyboard.press("Tab");
+		const buttons = sheet.locator("button");
+		await expect(buttons.first()).toBeFocused();
+		await buttons.last().focus();
+		await page.keyboard.press("Tab");
+		await expect(buttons.first()).toBeFocused();
+	});
+
+	test("关闭后焦点返还触发按钮", async ({ page }) => {
+		const trigger = page.getByRole("button", { name: /打开右侧面板/ });
+		await trigger.click();
+		await expect(page.locator(".m3-sheet-side-root").first()).toHaveClass(/--open/);
+		await page.keyboard.press("Escape");
+		await expect(trigger).toBeFocused();
+	});
 });

@@ -66,4 +66,20 @@ test.describe("Autocomplete", () => {
 	test("error 态：支持文本 error 色", async ({ page }) => {
 		await expectMatchesToken(page, ".m3-autocomplete__error", "color", "--error");
 	});
+
+	test("键盘导航时 aria-activedescendant 指向活动项", async ({ page }) => {
+		const input = page.locator(".m3-autocomplete input").first();
+		await input.fill("香");
+		await page.keyboard.press("ArrowDown");
+		await expect(input).toHaveAttribute("aria-activedescendant", /^m3-autocomplete-item-\d+$/);
+		await expect(page.locator(".m3-autocomplete__item--active")).toHaveCount(1);
+	});
+
+	test("点击外部关闭菜单", async ({ page }) => {
+		const input = page.locator(".m3-autocomplete input").first();
+		await input.fill("香");
+		await expect(page.locator(".m3-autocomplete__menu").first()).toBeVisible();
+		await page.locator("h2").first().click();
+		await expect(page.locator(".m3-autocomplete__menu")).toHaveCount(0);
+	});
 });

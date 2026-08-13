@@ -41,4 +41,20 @@ test.describe("Select", () => {
 		const disabled = page.locator(".m3-select--disabled").first();
 		await expect(disabled).toHaveCSS("pointer-events", "none");
 	});
+
+	test("键盘 Home/End 定位首尾项并选择", async ({ page }) => {
+		const field = page.locator(".m3-select--outlined .m3-select__field").first();
+		await field.click();
+		await page.keyboard.press("End");
+		await page.keyboard.press("Enter");
+		await expect(page.locator(".m3-select--outlined .m3-select__value").first()).toHaveText("深色");
+	});
+
+	test("键盘输入字符快速定位（typeahead）", async ({ page }) => {
+		const field = page.locator(".m3-select--filled .m3-select__field").first();
+		await field.click();
+		await page.keyboard.press("E");
+		await page.keyboard.press("Enter");
+		await expect(page.locator(".m3-select--filled .m3-select__value").first()).toHaveText("English");
+	});
 });
