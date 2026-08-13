@@ -262,21 +262,25 @@ const hasCover = !!image;
 		&:not(.m3-blog-postcard--cover) &__body
 			padding-right: 4.75rem
 
-	/* === 移动端对齐原始设计（桌面端保持不动） === */
+	/* === 移动端：封面置顶布局优化（桌面端保持不动） === */
 	@media (max-width: 767px)
 		/* 原始设计：标题竖线仅桌面显示 */
 		.m3-blog-postcard__title :global(.m3-accent-bar)
 			display: none
 
-		/* 原始设计：封面内嵌圆角 + 最大 20vh，非通栏 */
+		/* 封面内缩置顶：四周留 1rem、2:1 宽比、0.75rem 圆角 */
 		&__cover
-			height: auto
-			max-height: 20vh
-			margin: 1rem 1rem -0.5rem
+			width: auto
+			aspect-ratio: 2 / 1
+			margin: 1rem 1rem 0
 			border-radius: var(--shape-corner-m)
 			> img
-				height: auto
-				max-height: 20vh
+				width: 100%
+				height: 100%
+
+		/* 正文统一 1rem 内边距 */
+		&__body
+			padding: 1rem
 
 		/* 原始设计：标题尾部箭头 2rem */
 		&__arrow

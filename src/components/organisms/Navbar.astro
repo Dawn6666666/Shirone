@@ -33,7 +33,7 @@ let links: NavBarLink[] = navBarConfig.links.map(
                 {siteConfig.title}
             </div>
         </Button>
-        <div class="hidden md:flex">
+        <nav class="hidden md:flex" aria-label="Main navigation">
             {links.map((l) => {
                 return (
                     <Button href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
@@ -45,7 +45,7 @@ let links: NavBarLink[] = navBarConfig.links.map(
                     </Button>
                 );
             })}
-        </div>
+        </nav>
         <div class="flex">
             <!--<SearchPanel client:load>-->
             <Search client:only="svelte"></Search>
