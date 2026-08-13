@@ -1,19 +1,21 @@
 ---
-
+/**
+ * 页脚（消费 blog/FooterBar 原子）。
+ * 只负责配置数据：版权名称/年份、RSS/Sitemap 链接、Powered by。
+ */
 import { url } from "@utils/url-utils";
 import { profileConfig } from "@/config";
+import FooterBar from "@components/atoms/blog/FooterBar.astro";
 
 const currentYear = new Date().getFullYear();
+const links = [
+	{ label: "RSS", href: url("rss.xml"), external: true },
+	{ label: "Sitemap", href: url("sitemap-index.xml"), external: true },
+];
+const poweredBy = [
+	{ label: "Astro", href: "https://astro.build", external: true },
+	{ label: "Shirone", href: "https://github.com/LyraVoid/Shirone", external: true },
+];
 ---
 
-<div class="transition border-t border-[var(--outline-variant)] my-10 border-dashed mx-32"></div>
-<div class="transition border-dashed border-[var(--outline-variant)] rounded-2xl mb-12 flex flex-col items-center justify-center px-6">
-    <div class="transition text-50 text-sm text-center">
-        &copy; <span id="copyright-year">{currentYear}</span> {profileConfig.name}. All Rights Reserved. /
-        <a class="transition link text-[var(--primary)] font-medium" target="_blank" href={url('rss.xml')}>RSS</a> /
-        <a class="transition link text-[var(--primary)] font-medium" target="_blank" href={url('sitemap-index.xml')}>Sitemap</a><br>
-        Powered by
-        <a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://astro.build">Astro</a> &
-        <a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://github.com/LyraVoid/Shirone">Shirone</a>
-    </div>
-</div>
+<FooterBar name={profileConfig.name} year={currentYear} links={links} poweredBy={poweredBy} />

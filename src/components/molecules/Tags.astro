@@ -1,10 +1,13 @@
 ---
-
+/**
+ * 标签侧栏组件（消费 blog/TagList 原子）。
+ * 只负责取数转 props：标签名 + 标签 URL。
+ */
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
+import TagList from "@components/atoms/blog/TagList.astro";
 import { getTagList } from "../../utils/content-utils";
 import { getTagUrl } from "../../utils/url-utils";
-import ButtonTag from "./ButtonTag.astro";
 import WidgetLayout from "./WidgetLayout.astro";
 
 const tags = await getTagList();
@@ -19,13 +22,12 @@ interface Props {
 }
 const className = Astro.props.class;
 const style = Astro.props.style;
+
+const tagItems = tags.map((t) => ({
+	name: t.name.trim(),
+	href: getTagUrl(t.name),
+}));
 ---
 <WidgetLayout name={i18n(I18nKey.tags)} id="tags" isCollapsed={isCollapsed} collapsedHeight={COLLAPSED_HEIGHT} class={className} style={style}>
-    <div class="flex gap-2 flex-wrap">
-        {tags.map(t => (
-            <ButtonTag href={getTagUrl(t.name)} label={`View all posts with the ${t.name.trim()} tag`}>
-                {t.name.trim()}
-            </ButtonTag>
-        ))}
-    </div>
+	<TagList tags={tagItems} />
 </WidgetLayout>
