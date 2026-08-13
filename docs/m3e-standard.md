@@ -130,7 +130,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | PullToRefresh | `PullToRefresh.svelte` | 下拉刷新（官方 PullToRefresh 移植）：包裹可滚动内容，`label`（可滚动区域标题）、顶部下拉超过 `threshold`（默认 80px，阻尼 0.4）松开触发 `onrefresh`（async 可等待）；指示器拉动时缩放、刷新中旋转、完成后淡出；`refreshing` $bindable；仅拦截 scrollTop=0 的下拉手势，overscroll-behavior 阻止浏览器原生刷新；可滚动区域 role=region + tabindex 键盘可达 | `--primary` / surface |
 | FABMenu | `FABMenu.svelte` | M3E 悬浮菜单：`expanded`（$bindable）、`icon`/`iconExpanded`（Crossfade 切换，50% progress 处交替）、`label`、`size`（small 56 / medium 80 / large 96，展开收缩到 56 全圆 + close 20px）、`align`（end/start/center）、`containerColor`/`containerContentColor`（默认 primary-container/on-primary-container，展开变 primary）、`menuItemColor`/`menuItemContentColor`（默认 primary-container/on-primary-container，→ `--fab-menu-item-bg/-color`）、`exclusive`（默认 true：单开互斥，展开时经 `menu-bus` 通知其他菜单/FABMenu 收起；false 则不参与）；**动画**：rAF 驱动 `--fab-progress`（0→1，300ms emphasized-decelerate，官方 FastSpatial），容器颜色/尺寸/圆角/图标颜色/图标大小统一按 progress 插值（官方 ToggleFAB lerp）；菜单项 `.m3-fab-menu-item`（56px 全圆、18px 图标 + body-medium）+ stagger 展开；**键盘焦点**：展开时 FAB 上 `Tab`/`ArrowDown` 聚焦首个菜单项（菜单项为原生 button，Tab 在项间自然移动）；收起时菜单项 inert（不可聚焦、无障碍树隐藏） | primary-container / primary、`--m3e-elevation-3` |
 | Slider | `Slider.svelte` | 滑块（色相选择专用，经典视觉）：`value`（$bindable）、`min/max/step`、`label`；原生 range input（方向键 / PageUp / PageDown / Home / End 步进），focus-visible primary 描边 | 彩虹轨道 `--color-selection-bar`、白色矩形 thumb、`--primary` |
-| SegmentedButton | `SegmentedButton.svelte` | M3 分段按钮（官方 SegmentedButton / MultiChoiceSegmentedButton）：`options: {value,label}[]`、单选 `value`（$bindable）/ 多选 `multiple` + `checkedValues`（$bindable 数组，checkbox 语义）、`label`、`disabled`；选中段显示 **check 图标 scaleIn + fade**（官方 TransformOrigin(0,1) 底部左角 + FastSpatial，恒渲染由 `.selected` 驱动） | container 底、选中段 secondary-container |
+| SegmentedButton | `SegmentedButton.svelte` | M3 分段按钮（官方 SegmentedButton / MultiChoiceSegmentedButton）：`options: {value,label}[]`、单选 `value`（$bindable）/ 多选 `multiple` + `checkedValues`（$bindable 数组，checkbox 语义）、`label`、`disabled`；选中段显示 **check 图标 scaleIn + fade**（官方 TransformOrigin(0,1) 底部左角 + FastSpatial，恒渲染由 `.selected` 驱动）；input 用 sr-only 隐藏（保留可聚焦与键盘支持）：单选段方向键移动（radio 语义）、多选 Space 切换勾选 | container 底、选中段 secondary-container |
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`（浮动：focus/有值上浮顶部，M3 标准）、`variant`（**filled** 默认 surface-container-high + 底部下划线 focus 亮起 / **outlined** surface + outline-variant 1px 边框 + focus primary 2px）、`error`（错误提示：下划线/边框变 error + 提示文字）、`onfocus`/`oninput`/`onblur`、`leading` 命名插槽 | surface-container-high / surface / outline-variant、primary、error |
 | Switch | `Switch.svelte` | `checked`（$bindable）、`disabled`、`label`、`icons`（M3E 图标变体：传 `icons` 时 thumb 恒 24px 显示 ✓/✕；缺省为 thumb 16↔24 动态无图标的经典样式）；原生 checkbox 自绘 track/thumb | 选中 secondary-container + 状态层 |
 | Checkbox | `Checkbox.svelte` | `checked`（$bindable，`boolean \| null`）、`disabled`、`label`、`triState`（半选横线）；原生 checkbox 自绘 18px 方框；**勾选生长动画**（官方 checkDrawFraction 描边生长近似：check/dash scale 0→1 + fade，进入慢 decelerate / 取消快 standard 的非对称） | primary / on-surface-variant、禁用 0.38 |
@@ -145,8 +145,8 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | Badge | `Badge.svelte` | `content`（有内容显示 label-small 文字，否则 6px 圆点）、`disabled`；配 `BadgedBox.svelte` 锚定到右上角；**dot↔数字切换尺寸过渡 + label scale/fade 动画**（恒渲染由 show class 驱动） | error / on-error |
 | BadgedBox | `BadgedBox.svelte` | 徽标锚定容器（Compose BadgedBox 移植）：默认插槽为锚定内容、`badge` 命名插槽放徽标（配合 `Badge.svelte`），自动定位右上角（translate 50%/-50%） | — |
 | Divider | `Divider.svelte` | `vertical`、`thickness`、`color`；默认 1px | outline-variant |
-| Dialog | `Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦；**进场 scrim fade + 内容 scale 展开，退场对称动画后卸载**（closing 状态 + animationend） | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` |
-| AlertDialog | `AlertDialog.svelte` | 警示对话框（官方 AlertDialog.kt）：`open`（$bindable）、`title`（headline-small）、`text`（body-medium on-surface-variant）、`icon` 插槽（primary）、`confirmButton`/`dismissButton` 插槽（右对齐，官方 TextButton）；容器 corner-extra-large 28dp（官方 DialogTokens.ContainerShape）+ surface-container-high + elevation-3、min 280 max 560dp；打开自动聚焦（ESC 可接收）、scrim/ESC 关闭、进场 scrim fade + scale 展开、退场对称动画后卸载（同 Dialog） | surface-container-high、`--m3e-elevation-3`、primary |
+| Dialog | `Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦容器、Tab 焦点陷阱循环、关闭后焦点返还触发元素；**进场 scrim fade + 内容 scale 展开，退场对称动画后卸载**（closing 状态 + animationend） | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` |
+| AlertDialog | `AlertDialog.svelte` | 警示对话框（官方 AlertDialog.kt）：`open`（$bindable）、`title`（headline-small）、`text`（body-medium on-surface-variant）、`icon` 插槽（primary）、`confirmButton`/`dismissButton` 插槽（右对齐，官方 TextButton）；容器 corner-extra-large 28dp（官方 DialogTokens.ContainerShape）+ surface-container-high + elevation-3、min 280 max 560dp；打开自动聚焦（ESC 可接收）、Tab 焦点陷阱循环、关闭后焦点返还触发元素、scrim/ESC 关闭、进场 scrim fade + scale 展开、退场对称动画后卸载（同 Dialog） | surface-container-high、`--m3e-elevation-3`、primary |
 | DatePicker | `DatePicker.svelte` | 日期选择器（官方 DatePicker 简化日历版）：`value`（ISO "YYYY-MM-DD" $bindable）、`label`、`locale`（周起始/星期名/月份标题按 Intl）、`onchange`；头部月份导航（‹ 年 月 ›）+ 周标题 + 7×6 日期网格；今天 inset primary 1px、选中 primary-container 全圆、hover state layer；简化：未做输入模式/年视图 | surface-container-high / primary-container |
 | DateRangePicker | `DateRangePicker.svelte` | 日期范围选择器（官方 DateRangePicker 简化版）：`start`/`end`（$bindable ISO）、`locale`、`onchange({start,end})`；选择逻辑第一次点 = start、第二次 = end（end < start 自动交换）；范围中间日期 secondary-container 40% 淡背景（圆角仅两端）、两端 primary-container 全圆；复用 DatePicker 网格结构 | surface-container-high / primary-container、secondary-container |
 | TimePicker | `TimePicker.svelte` | 时间选择器（官方 TimePicker 表盘 + 输入双模式）：`value`（24h "HH:MM" $bindable）、`format`（h24 双环：外 1-12 + 内 13-24，0 显示为 24 / h12 单环 + 上午/下午）、`label`、`onchange`；表盘 256dp、选中手柄 48dp primary-container 全圆（非整 5 分钟时手柄内显示数字）、轨道 2dp primary（指向选中时刻，h24 内环小时用短轨道）+ 中心点 8dp、点击按角度吸附最近的小时/分钟（官方 ClockFace）；**输入模式（官方 TimeInput）**：表头右上角键盘/时钟图标切换，HH:MM 两个填充输入框（56×64dp），自动过滤非数字、小时满两位自动跳分钟、实时校验（h24 0-23 / h12 1-12、分钟 0-59），非法显示 error 下划线、合法即提交；头部分段点击可切回对应阶段；表头左对齐时间、h12 右侧 AM/PM（tertiary-container） | surface-container-high / primary-container、tertiary-container、error |
@@ -301,3 +301,29 @@ npx playwright test -g "Menu"                 # 按标题过滤
 在深色模式下再次执行 axe-core 扫描：通过 `localStorage.theme=dark` 强制 `dark` 类，主题引擎写入深色方案的 `--mc-*` 令牌。结果：30 个测试页在深色下无任何组件级违规，说明组件均依赖 token（非硬编码浅色），跟随主题切换。
 
 锁定：`tests/atoms/a11y.spec.ts` 现按 **light / dark 双模式** 逐页执行（60 个用例），并断言页面确实处于目标模式（防止主题未应用导致“假通过”）。
+
+### 9.6 交互深度测试补全（剩余原子）
+在 9.3 基础上，为剩余原子补齐键盘 / 焦点 / 状态联动断言（`tests/atoms/interaction-depth.spec.ts`，42 个用例）：
+
+- Dialog / AlertDialog：打开聚焦容器、Tab 焦点陷阱在操作按钮间循环、Esc / 遮罩关闭、关闭后焦点返还触发元素；
+- Checkbox：Space 切换、triState 三态循环（false→true→null，indeterminate 同步）；
+- SegmentedButton：单选段方向键移动（radio 语义）、多选 Space 切换勾选；
+- Switch：Space 切换、disabled 不可交互；
+- Card：Enter / Space 触发可点击卡片、禁用卡片不可交互；
+- ToggleButton / ButtonGroup：Enter 切换、溢出项经「更多」菜单键盘可访问；
+- NavigationBar / ListItem：Enter / Space 切换选中并同步 aria；
+- FloatingToolbar：收起态键盘展开、展开态图标按钮可聚焦；
+- BottomSheet：遮罩点击关闭；
+- Menu：Esc / 点击外部关闭、互斥单开（打开 B 自动关闭 A）；
+- ExposedDropdownMenu：aria-expanded 切换、Esc / 外部点击关闭、键盘 Enter 选择；
+- DatePicker / DateRangePicker：键盘 Enter 选择日期、月份导航、范围中间高亮、反向选择自动交换；
+- TextField：聚焦后 label 浮动；
+- TimePicker：键盘切换输入模式、输入小时自动跳分钟、非法值错误态；
+- SearchBar：Esc 收起并失焦、ArrowDown 焦点移入建议列表；
+- Snackbar：无操作自动消失；Tooltip：键盘聚焦显示 + aria-describedby。
+
+本轮组件修复：
+
+- SegmentedButton：隐藏 input 由 `hidden` 改为 sr-only（clip 隐藏但保留可聚焦与键盘支持），单选 / 多选均可键盘操作；
+- Dialog / AlertDialog：新增 Tab 焦点陷阱与关闭后焦点返还（对齐 SheetSide 与官方 Modal Dialog 行为）。
+
