@@ -59,6 +59,30 @@ function updateActive() {
 		onchange?.(best);
 	}
 }
+
+/** 键盘：方向键 / Home / End 滚动轮播（官方 Carousel 键盘行为） */
+function onScrollerKeydown(e: KeyboardEvent) {
+	const el = containerEl;
+	if (!el) return;
+	if (e.key === "ArrowRight" || e.key === "ArrowLeft" || e.key === "Home" || e.key === "End") {
+		e.preventDefault();
+		if (e.key === "Home") {
+			el.scrollTo({ left: 0, behavior: "smooth" });
+			return;
+		}
+		if (e.key === "End") {
+			el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
+			return;
+		}
+		const items = [...el.querySelectorAll<HTMLElement>("[data-carousel-item]")];
+		if (!items.length) return;
+		const gap = parseFloat(getComputedStyle(el).columnGap || "0");
+		const step = items[0].offsetWidth + gap;
+		const current = Math.round(el.scrollLeft / step);
+		const target = Math.max(0, Math.min(items.length - 1, current + (e.key === "ArrowRight" ? 1 : -1)));
+		el.scrollTo({ left: target * step, behavior: "smooth" });
+	}
+}
 </script>
 
 <div
@@ -71,7 +95,11 @@ function updateActive() {
 		bind:this={containerEl}
 		class="m3-carousel__scroller"
 		style="--m3-carousel-padding: {contentPadding}; --m3-carousel-gap: {itemSpacing};"
+		role="region"
+		aria-label="轮播"
+		tabindex="0"
 		onscroll={updateActive}
+		onkeydown={onScrollerKeydown}
 	>
 		{#each items as item, i (i)}
 			<div
