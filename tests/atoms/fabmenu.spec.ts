@@ -48,4 +48,13 @@ test.describe("FABMenu", () => {
 			"false",
 		);
 	});
+
+	test("展开后 FAB 上 ArrowDown 聚焦首个菜单项", async ({ page }) => {
+		const fab = page.getByRole("button", { name: "Small" });
+		await fab.click();
+		await page.waitForTimeout(400);
+		await fab.focus();
+		await page.keyboard.press("ArrowDown");
+		await expect(page.getByRole("button", { name: "编辑" })).toBeFocused();
+	});
 });

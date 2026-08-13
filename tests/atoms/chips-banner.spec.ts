@@ -38,6 +38,26 @@ test.describe("Chips", () => {
 		const disabled = page.locator(".m3-chip--disabled").first();
 		await expect(disabled).toHaveCSS("pointer-events", "none");
 	});
+
+	test("filter chip：键盘 Enter 切换选中", async ({ page }) => {
+		const first = page.locator(".m3-chip--filter").first();
+		await first.focus();
+		await expect(first).toHaveClass(/--selected/);
+		await page.keyboard.press("Enter");
+		await expect(first).not.toHaveClass(/--selected/);
+		await expect(first).toHaveAttribute("aria-pressed", "false");
+		await page.keyboard.press("Enter");
+		await expect(first).toHaveClass(/--selected/);
+	});
+
+	test("input chip：删除按钮键盘触发 onremove", async ({ page }) => {
+		const remove = page.locator(".m3-chip--input .m3-chip__remove").first();
+		await expect(remove).toBeVisible();
+		await remove.focus();
+		await page.keyboard.press("Enter");
+		await expect(page.locator("body")).toContainText("移除：React");
+		await expect(page.getByRole("button", { name: "移除 React" })).toHaveCount(0);
+	});
 });
 
 /**

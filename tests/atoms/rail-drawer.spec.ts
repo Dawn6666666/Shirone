@@ -57,4 +57,30 @@ test.describe("NavigationDrawer", () => {
 		await page.keyboard.press("Escape");
 		await expect(page.locator(".m3-drawer")).toBeHidden();
 	});
+
+	test("键盘 Enter 触发选中", async ({ page }) => {
+		const rail = page.locator(".m3-nav-rail").first();
+		const search = rail.getByRole("button", { name: /搜索/ });
+		await search.focus();
+		await page.keyboard.press("Enter");
+		await expect(rail.locator(".m3-nav-rail__item--active")).toContainText("搜索");
+		await expect(page.locator("body")).toContainText("当前：搜索");
+	});
+
+	test("打开抽屉自动聚焦首个导航项，Enter 选中", async ({ page }) => {
+		await page.getByRole("button", { name: "打开抽屉" }).click();
+		const drawer = page.locator(".m3-drawer");
+		await expect(drawer).toBeVisible();
+		const firstItem = drawer.locator(".m3-drawer__item").first();
+		await expect(firstItem).toBeFocused();
+		await page.keyboard.press("Enter");
+		await expect(drawer.locator(".m3-drawer__item--active")).toHaveCount(1);
+	});
+
+	test("点击遮罩关闭抽屉", async ({ page }) => {
+		await page.getByRole("button", { name: "打开抽屉" }).click();
+		await expect(page.locator(".m3-drawer")).toBeVisible();
+		await page.locator(".m3-drawer__scrim").click({ position: { x: 1000, y: 300 } });
+		await expect(page.locator(".m3-drawer")).toBeHidden();
+	});
 });

@@ -42,4 +42,12 @@ test.describe("Carousel", () => {
 		await scroller.evaluate((el, w) => el.scrollTo({ left: w * 0.9, behavior: "instant" }), width);
 		await expect(page.locator("body")).toContainText(/焦点项 [2-6]/);
 	});
+
+	test("键盘方向键滚动轮播并触发 onchange", async ({ page }) => {
+		const scroller = page.locator(".m3-carousel .m3-carousel__scroller").first();
+		await scroller.focus();
+		await page.keyboard.press("ArrowRight");
+		await expect.poll(async () => scroller.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+		await expect(page.locator("body")).toContainText(/焦点项\s*[2-6]/);
+	});
 });
