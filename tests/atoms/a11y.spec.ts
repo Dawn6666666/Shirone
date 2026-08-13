@@ -20,6 +20,7 @@ const pages = [
 	"atoms-carousel-pull-test",
 	"atoms-chips-test",
 	"atoms-datatable-test",
+	"atoms-display-test",
 	"atoms-fabmenu-test",
 	"atoms-fab-test",
 	"atoms-iconbutton-test",
