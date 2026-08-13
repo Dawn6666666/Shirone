@@ -198,6 +198,7 @@ function handleChange(item: ButtonGroupItem) {
             onclick={() => handleChange(item)}
             onpointerdown={() => onItemPointerDown(i)}
             label={item.label}
+            ariaLabel={item.label ?? item.value}
             style={item.weight ? `flex-grow: ${item.weight}` : undefined}
             class={"m3-button-group__item m3-button-group__item--" + (i === 0 ? "first" : i === items.length - 1 ? "last" : "middle") + (i >= visibleCount ? " m3-button-group__item--hidden" : "") + (item.weight ? " m3-button-group__item--weight" : "")}
         >

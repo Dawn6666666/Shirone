@@ -157,6 +157,7 @@ onMount(() => {
         flex-direction: column
         gap: 0.25rem
         white-space: nowrap
+        pointer-events: none /* 收起时容器不拦截指针 */
 
     /* FAB 触发器：全部由 --fab-progress（0→1）统一插值。
        官方 lerp：颜色 primary-container→primary、尺寸 size→56、圆角 radius→28px 全圆 */
@@ -235,6 +236,7 @@ onMount(() => {
         box-shadow: var(--m3e-elevation-1)
         transition: opacity var(--m3e-duration-medium) var(--m3e-easing-standard), transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
         opacity: 0
+        pointer-events: none /* 收起时不可命中，避免遮挡下方内容 */
         transform: translateY(0.5rem)
         > :global(svg)
             width: 1.125rem
@@ -242,9 +244,13 @@ onMount(() => {
             flex-shrink: 0
 
     /* stagger：逐项延迟淡入上移 */
+    &--expanded .m3-fab-menu__items
+        pointer-events: auto
+
     &--expanded :global(.m3-fab-menu-item)
         opacity: 1
         transform: none
+        pointer-events: auto
     &--expanded :global(.m3-fab-menu-item:nth-child(1))
         transition-delay: 30ms
     &--expanded :global(.m3-fab-menu-item:nth-child(2))

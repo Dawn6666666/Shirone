@@ -17,6 +17,7 @@ let {
     variant = "filled",
     disabled = false,
     label = "",
+    ariaLabel = "",
     controlled = false,
     class: className = "",
     style = "",
@@ -27,6 +28,8 @@ let {
     variant?: "filled" | "tonal" | "outlined" | "elevated";
     disabled?: boolean;
     label?: string;
+    /** 无障碍名称（图标按钮无可见文本时使用） */
+    ariaLabel?: string;
     /** 受控模式：点击不自动切换 checked，仅触发 onclick 回调（由父级管理状态） */
     controlled?: boolean;
     class?: string;
@@ -47,6 +50,7 @@ function handleClick() {
     class:m3-toggle-button--checked={checked}
     class:m3-toggle-button--disabled={disabled}
     {style}
+    aria-label={ariaLabel || undefined}
     aria-pressed={checked}
     disabled={disabled}
     onclick={handleClick}
