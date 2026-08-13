@@ -1,7 +1,7 @@
 <script lang="ts">
-import SegmentedButton from "@components/atoms/SegmentedButton.svelte";
-import Slider from "@components/atoms/Slider.svelte";
-import Switch from "@components/atoms/Switch.svelte";
+import SegmentedButton from "@components/atoms/selection/SegmentedButton.svelte";
+import Slider from "@components/atoms/selection/Slider.svelte";
+import Switch from "@components/atoms/selection/Switch.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";

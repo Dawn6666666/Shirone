@@ -15,7 +15,7 @@
  * 官方 weight 布局未实现（TODO）。
  */
 import Icon from "@iconify/svelte";
-import Menu from "./Menu.svelte";
+import Menu from "../navigation/Menu.svelte";
 import ToggleButton from "./ToggleButton.svelte";
 import { onMount, tick, untrack } from "svelte";
 
