@@ -59,16 +59,29 @@ let {
 
 const instanceId = nextMenuInstanceId();
 
+// 动效降级：系统偏好或站点手动开关（html.motion-reduced）→ 展开/收起直接到位
+function isMotionReduced(): boolean {
+	if (typeof window === "undefined") return false;
+	return (
+		window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ||
+		document.documentElement.classList.contains("motion-reduced")
+	);
+}
+
 // 展开进度 0→1，rAF 逐帧驱动（官方 checkedProgress，FastSpatial ~300ms）
 let progress = $state(0);
 let rafId: number | null = null;
 
 $effect(() => {
     const target = expanded ? 1 : 0;
-    untrack(() => {
-        const from = progress;
-        if (from === target) return;
-        const DURATION = 300;
+	untrack(() => {
+		const from = progress;
+		if (from === target) return;
+		if (isMotionReduced()) {
+			progress = target;
+			return;
+		}
+		const DURATION = 300;
         const start = performance.now();
         // emphasized-decelerate 近似：cubic-bezier(0.05, 0.7, 0.1, 1)
         const ease = (t: number) => 1 - Math.pow(1 - t, 2.5);
