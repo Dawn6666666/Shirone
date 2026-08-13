@@ -54,4 +54,8 @@ const { categories = [], class: className } = Astro.props;
 		color: var(--on-surface-variant)
 		font: var(--m3e-type-label-medium)
 		font-weight: 700
+		/* 暗色下表面容器与卡片背景同色，徽标会消失；改回原版 primary 实底 */
+		:global(.dark) &
+			background: var(--primary)
+			color: var(--on-primary)
 </style>

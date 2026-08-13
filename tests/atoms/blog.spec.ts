@@ -85,6 +85,17 @@ test.describe("blog/TagList + CategoryList", () => {
 			"--surface-container-high",
 		);
 	});
+
+	test("CategoryList 暗色模式下徽标用 primary 实底（可读性）", async ({ page }) => {
+		await page.addInitScript(() => localStorage.setItem("theme", "dark"));
+		await openTestPage(page, "atoms-blog-test");
+		await expectMatchesToken(
+			page,
+			".m3-blog-categorylist__badge",
+			"background-color",
+			"--primary",
+		);
+	});
 });
 
 test.describe("blog/TocList", () => {
