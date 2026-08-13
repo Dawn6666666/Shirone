@@ -18,6 +18,7 @@ import type { TransitionConfig } from "svelte/transition";
 let {
 	open = $bindable(false),
 	query = $bindable(""),
+	label = "搜索",
 	placeholder = "搜索",
 	history = [],
 	suggestions = [],
@@ -33,6 +34,8 @@ let {
 	/** 查询词（$bindable） */
 	query?: string;
 	placeholder?: string;
+	/** 搜索区域标题（screen reader，多个实例需唯一） */
+	label?: string;
 	/** 历史搜索（空查询时展示） */
 	history?: string[];
 	/** 建议项：{ label, icon? } */
@@ -174,6 +177,7 @@ function searchViewOutro(node: HTMLElement, { fullScreen }: { fullScreen: boolea
 		class="m3-search-view m3-search-view--{fullScreen ? "full" : "docked"} {className}"
 		{style}
 		role="search"
+		aria-label={label}
 		onkeydown={handleKeydown}
 		in:searchViewIntro={{ fullScreen }}
 		out:searchViewOutro={{ fullScreen }}
@@ -187,6 +191,7 @@ function searchViewOutro(node: HTMLElement, { fullScreen }: { fullScreen: boolea
 				bind:value={query}
 				class="m3-search-view__input"
 				placeholder={placeholder}
+				aria-label={label}
 				type="text"
 			/>
 			{#if query}

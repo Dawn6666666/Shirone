@@ -13,6 +13,7 @@ let {
 	itemSpacing = "1rem",
 	contentPadding = "1rem",
 	snap = "mandatory",
+	label = "轮播",
 	onchange,
 	class: className = "",
 	style = "",
@@ -28,6 +29,7 @@ let {
 	contentPadding?: string;
 	/** 吸附方式：mandatory（默认）/ proximity / none */
 	snap?: "mandatory" | "proximity" | "none";
+	label?: string;
 	/** 焦点项变化回调 */
 	onchange?: (index: number) => void;
 	class?: string;
@@ -96,7 +98,7 @@ function onScrollerKeydown(e: KeyboardEvent) {
 		class="m3-carousel__scroller"
 		style="--m3-carousel-padding: {contentPadding}; --m3-carousel-gap: {itemSpacing};"
 		role="region"
-		aria-label="轮播"
+		aria-label={label}
 		tabindex="0"
 		onscroll={updateActive}
 		onkeydown={onScrollerKeydown}

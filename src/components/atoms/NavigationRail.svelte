@@ -44,6 +44,7 @@ let {
                 class="m3-nav-rail__item"
                 class:m3-nav-rail__item--active={value === item.value}
                 class:m3-nav-rail__item--collapsed={!alwaysShowLabel}
+                aria-label={item.label}
                 aria-current={value === item.value ? "page" : undefined}
                 onclick={() => (value = item.value)}
             >

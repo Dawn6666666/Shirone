@@ -9,6 +9,7 @@
 let {
 	refreshing = $bindable(false),
 	onrefresh,
+	label = "可滚动区域",
 	threshold = 80,
 	class: className = "",
 	style = "",
@@ -20,6 +21,8 @@ let {
 	onrefresh?: () => void | Promise<void>;
 	/** 触发阈值 px（默认 80） */
 	threshold?: number;
+	/** 可滚动区域标题（screen reader） */
+	label?: string;
 	class?: string;
 	style?: string;
 	children?: import("svelte").Snippet;
@@ -73,6 +76,9 @@ async function onPointerUp() {
 	bind:this={containerEl}
 	class="m3-pull-refresh {className}"
 	class:m3-pull-refresh--refreshing={refreshing}
+	role="region"
+	aria-label={label}
+	tabindex="0"
 	{style}
 	onpointerdown={onPointerDown}
 	onpointermove={onPointerMove}

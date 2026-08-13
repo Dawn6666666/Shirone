@@ -123,7 +123,7 @@ onMount(() => {
     {#if children}
         <div class="m3-search-bar__expand">
             <div class="m3-search-bar__divider" aria-hidden="true"></div>
-            <div class="m3-search-bar__content" aria-hidden={!expanded}>
+            <div class="m3-search-bar__content" aria-hidden={!expanded} inert={!expanded}>
                 {@render children()}
             </div>
         </div>

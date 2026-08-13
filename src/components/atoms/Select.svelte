@@ -207,6 +207,8 @@ $effect(() => {
 		aria-expanded={open}
 		aria-haspopup="listbox"
 		aria-controls={menuId}
+		aria-labelledby={label ? `${menuId}-label` : undefined}
+		aria-label={label ? undefined : placeholder}
 		aria-activedescendant={open && activeIndex >= 0 ? `${menuId}-opt-${activeIndex}` : undefined}
 		aria-invalid={!!error}
 		aria-disabled={disabled}
@@ -217,7 +219,7 @@ $effect(() => {
 		<span class="m3-select__leading"><slot name="leading" /></span>
 		<span class="m3-select__text">
 			{#if label}
-				<span class="m3-select__label">
+				<span id={`${menuId}-label`} class="m3-select__label">
 					{label}{#if required}<span class="m3-select__required" aria-hidden="true">*</span>{/if}
 				</span>
 			{/if}

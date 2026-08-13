@@ -21,6 +21,7 @@ let {
     menuOpen = $bindable(false),
     disabled = false,
     onclick = () => {},
+    trailingLabel = "更多操作",
     class: className = "",
 }: {
     variant?: "filled" | "tonal" | "outlined" | "elevated";
@@ -28,6 +29,7 @@ let {
     menuOpen?: boolean;
     disabled?: boolean;
     onclick?: () => void;
+    trailingLabel?: string;
     class?: string;
 } = $props();
 </script>
@@ -49,6 +51,7 @@ let {
         class="m3-split-button__trailing m3-state-layer"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
+        aria-label={trailingLabel}
         {disabled}
         onclick={() => (menuOpen = !menuOpen)}
     >

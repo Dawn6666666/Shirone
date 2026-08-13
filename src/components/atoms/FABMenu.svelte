@@ -121,7 +121,7 @@ onMount(() => {
     style={`--fab-container-color: ${containerColor}; --fab-on-container-color: ${containerContentColor}; --fab-menu-item-bg: ${menuItemColor}; --fab-menu-item-color: ${menuItemContentColor}; --fab-progress: ${progress}`}
     bind:this={fabMenuEl}
 >
-    <div class="m3-fab-menu__items" aria-hidden={!expanded}>
+    <div class="m3-fab-menu__items" aria-hidden={!expanded} inert={!expanded}>
         <slot />
     </div>
     <button

@@ -171,7 +171,8 @@ const minuteTicks = $derived.by(() => {
 	return ticks;
 });
 
-const trackAngle = $derived(stage === "hour" ? ((hour % 12) / 12) * 360 : (minute / 60) * 360);
+const trackAngle = $derived((stage === "hour" ? ((hour % 12) / 12) * 360 : (minute / 60) * 360) - 180);
+const trackLength = $derived(stage === "hour" && !h12 && (hour === 0 || hour >= 13) ? INNER_R : OUTER_R);
 
 const showMinuteHandle = $derived(stage === "minute" && minute % 5 !== 0);
 
@@ -274,7 +275,7 @@ function onDialClick(e: MouseEvent) {
 	</div>
 	{#if mode === "clock"}
 		<div class="m3-time-picker__dial" role="group" aria-label={stage === "hour" ? "选择小时" : "选择分钟"}>
-			<span class="m3-time-picker__track" style={`transform: rotate(${trackAngle}deg)`} aria-hidden="true"></span>
+			<span class="m3-time-picker__track" style={`transform: rotate(${trackAngle}deg); --m3e-track-len: ${trackLength}px`} aria-hidden="true"></span>
 			<span class="m3-time-picker__center" aria-hidden="true"></span>
 			<button
 				type="button"
@@ -469,7 +470,7 @@ function onDialClick(e: MouseEvent) {
 		left: calc(50% - 1px)
 		top: 50%
 		width: 2px
-		height: 100px
+		height: var(--m3e-track-len, 100px)
 		border-radius: var(--shape-corner-full)
 		background: var(--primary)
 		transform-origin: top center
