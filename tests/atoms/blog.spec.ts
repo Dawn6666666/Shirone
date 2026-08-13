@@ -41,6 +41,14 @@ test.describe("blog/PostCard", () => {
 		).toHaveCount(1);
 	});
 
+	test("封面触摸箭头默认隐藏，hover 时显示", async ({ page }) => {
+		const card = page.locator(".m3-blog-postcard").nth(1);
+		const arrow = card.locator(".m3-blog-postcard__cover-arrow");
+		await expect(arrow).toHaveCSS("opacity", "0");
+		await card.hover();
+		await expect(arrow).toHaveCSS("opacity", "1");
+	});
+
 	test("标题左侧 AccentBar 竖线（primary 强调）", async ({ page }) => {
 		const bar = page.locator(".m3-blog-postcard__title .m3-accent-bar").first();
 		await expect(bar).toBeVisible();

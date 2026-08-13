@@ -42,12 +42,14 @@
 
 <style lang="stylus">
 .m3-avatar
-	display: inline-flex
+	display: flex
 	align-items: center
 	justify-content: center
 	flex-shrink: 0
 	width: var(--m3e-avatar-size)
-	height: var(--m3e-avatar-size)
+	/* 保持 1:1 正方形：宽度可被调用方覆盖（如 !w-full），高度随宽自适应 */
+	aspect-ratio: 1
+	height: auto
 	overflow: hidden
 	background: var(--surface-container-high)
 	color: var(--on-surface-variant)

@@ -85,6 +85,10 @@ const hasCover = !!image;
 				class="m3-blog-postcard__cover-skeleton"
 			/>
 			<img src={image} alt={imageAlt} loading="lazy" />
+			<span class="m3-blog-postcard__cover-mask" aria-hidden="true"></span>
+			<span class="m3-blog-postcard__cover-arrow" aria-hidden="true">
+				<Icon name="material-symbols:chevron-right-rounded" />
+			</span>
 		</a>
 	) : (
 		<a class="m3-blog-postcard__enter" href={href} aria-label={title}>
@@ -182,6 +186,7 @@ const hasCover = !!image;
 			height: 100%
 			object-fit: cover
 			position: relative
+
 		@media (min-width: 768px)
 			position: absolute
 			top: 0.75rem
@@ -191,6 +196,40 @@ const hasCover = !!image;
 			height: auto
 			border-radius: var(--shape-corner-s)
 			overflow: hidden
+
+	/* 封面触摸箭头：卡片 hover 时深色遮罩 + 白色大箭头（与原版封面一致） */
+	&__cover-mask
+		position: absolute
+		inset: 0
+		/* 触摸箭头（原版）：默认隐藏，hover/触摸时深色遮罩 + 白色大箭头 */
+		background: transparent
+		transition: background-color var(--m3e-duration-medium) var(--m3e-easing-standard)
+		/* 移动端不显示（触摸触发的瞬时 hover 也不出现，对齐原版） */
+		@media (max-width: 767px)
+			display: none
+		.m3-blog-postcard:hover &
+			background: unquote("color-mix(in srgb, #000 30%, transparent)")
+
+	&__cover-arrow
+		position: absolute
+		inset: 0
+		display: flex
+		align-items: center
+		justify-content: center
+		opacity: 0
+		transform: scale(0.5)
+		@media (max-width: 767px)
+			display: none
+		transition:
+			opacity var(--m3e-duration-medium) var(--m3e-easing-standard),
+			transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+		> :global(svg)
+			width: 3rem
+			height: 3rem
+			color: #fff
+		.m3-blog-postcard:hover &
+			opacity: 1
+			transform: scale(1)
 
 	&__enter
 		position: absolute
