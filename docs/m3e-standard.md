@@ -295,3 +295,9 @@ npx playwright test -g "Menu"                 # 按标题过滤
 - SearchView / Carousel / PullToRefresh：新增 `label` 区域标题；PullToRefresh 滚动区 `role=region + tabindex=0` 键盘可达；
 - TimePicker：修复表盘轨道指向（原偏差 180°，现指向选中时刻），h24 内环小时用短轨道（消除与数字的重叠误判）；
 - 演示页：工具栏图标按钮、进度滑杆、空圆形按钮补齐无障碍标签；轮播演示卡加深色渐变衬底保证对比度。
+
+
+### 9.5 深色模式对比度（F 专项）
+在深色模式下再次执行 axe-core 扫描：通过 `localStorage.theme=dark` 强制 `dark` 类，主题引擎写入深色方案的 `--mc-*` 令牌。结果：30 个测试页在深色下无任何组件级违规，说明组件均依赖 token（非硬编码浅色），跟随主题切换。
+
+锁定：`tests/atoms/a11y.spec.ts` 现按 **light / dark 双模式** 逐页执行（60 个用例），并断言页面确实处于目标模式（防止主题未应用导致“假通过”）。

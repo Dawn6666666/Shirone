@@ -4,7 +4,7 @@ import { openTestPage } from "../helpers/atoms";
 
 /**
  * A11y lock spec (axe-core / WCAG 2.1 AA)
- * Scans every atoms test page; no violations allowed.
+ * Scans every atoms test page in light and dark mode; no violations allowed.
  * page-has-heading-one is excluded: it is a page-level rule of the demo harness,
  * not part of the component library contract.
  */
@@ -43,19 +43,38 @@ const pages = [
 
 const DISABLED_RULES = ["page-has-heading-one"];
 
-test.describe("A11y scan lock", () => {
-	for (const slug of pages) {
-		test(slug, async ({ page }) => {
-			await openTestPage(page, slug);
-			const results = await new AxeBuilder({ page })
-				.disableRules(DISABLED_RULES)
-				.analyze();
-			const summary = results.violations.map((v) => ({
-				id: v.id,
-				impact: v.impact,
-				nodes: v.nodes.map((n) => n.target.join(" ")),
-			}));
-			expect(summary, `${slug} has accessibility violations`).toEqual([]);
-		});
-	}
-});
+const modes = [
+	{ name: "light", theme: "light", dark: false },
+	{ name: "dark", theme: "dark", dark: true },
+];
+
+for (const mode of modes) {
+	test.describe(`A11y scan lock (${mode.name})`, () => {
+		for (const slug of pages) {
+			test(slug, async ({ page }) => {
+				await page.addInitScript(
+					(t) => localStorage.setItem("theme", t),
+					mode.theme,
+				);
+				await openTestPage(page, slug);
+				// 防止主题未应用导致“假通过”：确认页面确实处于目标模式
+				const isDark = await page.evaluate(() =>
+					document.documentElement.classList.contains("dark"),
+				);
+				expect(isDark, `${slug} theme should be ${mode.name}`).toBe(mode.dark);
+				const results = await new AxeBuilder({ page })
+					.disableRules(DISABLED_RULES)
+					.analyze();
+				const summary = results.violations.map((v) => ({
+					id: v.id,
+					impact: v.impact,
+					nodes: v.nodes.map((n) => n.target.join(" ")),
+				}));
+				expect(
+					summary,
+					`${slug} has accessibility violations (${mode.name})`,
+				).toEqual([]);
+			});
+		}
+	});
+}
