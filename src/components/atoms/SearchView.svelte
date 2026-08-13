@@ -50,11 +50,30 @@ let {
 } = $props();
 
 let inputEl: HTMLInputElement;
-let firstFocus = true;
+let activeIndex = $state(-1);
 
 function handleKeydown(e: KeyboardEvent) {
 	if (e.key === "Escape") {
+		activeIndex = -1;
 		onclose?.();
+		return;
+	}
+	if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+		const list = query ? filteredSuggestions : history;
+		if (!list.length) return;
+		e.preventDefault();
+		activeIndex = e.key === "ArrowDown"
+			? (activeIndex + 1) % list.length
+			: (activeIndex - 1 + list.length) % list.length;
+		return;
+	}
+	if (e.key === "Enter" && activeIndex >= 0) {
+		const list = query ? filteredSuggestions : history;
+		const item = list[activeIndex];
+		if (!item) return;
+		e.preventDefault();
+		activeIndex = -1;
+		pick(typeof item === "string" ? item : item.label);
 	}
 }
 
@@ -71,6 +90,11 @@ function clear() {
 const filteredSuggestions = $derived(
 	query ? suggestions.filter((s) => s.label.toLowerCase().includes(query.toLowerCase())) : [],
 );
+
+/** 打开时自动聚焦输入框（官方 SearchBar 行为） */
+$effect(() => {
+	if (open && fullScreen) inputEl?.focus();
+});
 
 /** 是否有内容可展示：历史（空查询）/ 过滤后的建议 / 自定义插槽；无内容时不渲染横线与内容区（对齐 SearchBar 优化） */
 const hasContent = $derived(
@@ -164,7 +188,6 @@ function searchViewOutro(node: HTMLElement, { fullScreen }: { fullScreen: boolea
 				class="m3-search-view__input"
 				placeholder={placeholder}
 				type="text"
-				onfocus={() => firstFocus && (firstFocus = false)}
 			/>
 			{#if query}
 				<button class="m3-search-view__icon m3-search-view__clear" aria-label="清除" onclick={clear}>
@@ -185,8 +208,8 @@ function searchViewOutro(node: HTMLElement, { fullScreen }: { fullScreen: boolea
 					out:fade={{ duration: 100, easing: standardDecelerate }}
 				>
 					<div class="m3-search-view__section-label">最近搜索</div>
-					{#each history as item (item)}
-						<button class="m3-search-view__item" onclick={() => pick(item)}>
+					{#each history as item, i (item)}
+						<button class="m3-search-view__item" class:m3-search-view__item--active={!query && activeIndex === i} onclick={() => pick(item)} onmouseenter={() => (activeIndex = i)}>
 							<Icon icon="material-symbols:history" class="m3-search-view__item-icon" />
 							<span>{item}</span>
 						</button>
@@ -199,8 +222,8 @@ function searchViewOutro(node: HTMLElement, { fullScreen }: { fullScreen: boolea
 					in:fade={{ duration: 100, delay: 50, easing: standardAccelerate }}
 					out:fade={{ duration: 100, easing: standardDecelerate }}
 				>
-					{#each filteredSuggestions as item (item.label)}
-						<button class="m3-search-view__item" onclick={() => pick(item.label)}>
+					{#each filteredSuggestions as item, i (item.label)}
+						<button class="m3-search-view__item" class:m3-search-view__item--active={query && activeIndex === i} onclick={() => pick(item.label)} onmouseenter={() => (activeIndex = i)}>
 							{#if item.icon}
 								<Icon icon={item.icon} class="m3-search-view__item-icon" />
 							{/if}
@@ -312,6 +335,9 @@ function searchViewOutro(node: HTMLElement, { fullScreen }: { fullScreen: boolea
 
 		&:hover
 			background: unquote("color-mix(in oklab, var(--on-surface) 8%, transparent)")
+
+		&--active
+			background: unquote("color-mix(in oklab, var(--on-surface) 12%, transparent)")
 
 		.m3-search-view__item-icon
 			width: 1.5rem

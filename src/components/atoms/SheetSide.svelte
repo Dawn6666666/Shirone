@@ -6,8 +6,6 @@
  * - 标题 title-large on-surface-variant（官方 headline），内容区 overflow 滚动；
  * - 遮罩淡入 + Esc / 遮罩点击关闭（onclose 或 open $bindable 置 false）。
  */
-import { onMount } from "svelte";
-
 let {
 	open = $bindable(false),
 	title,
@@ -36,15 +34,48 @@ let {
 	children?: import("svelte").Snippet;
 } = $props();
 
-onMount(() => {
+let panelEl = $state<HTMLElement>();
+let lastFocused: HTMLElement | null = null;
+
+function getFocusables(): HTMLElement[] {
+	const panel = panelEl;
+	if (!panel) return [];
+	return [...panel.querySelectorAll<HTMLElement>(
+		'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+	)].filter((el) => el.offsetParent !== null);
+}
+
+/** 打开时：聚焦面板 + 焦点陷阱（Tab 循环）；关闭后焦点返还触发元素（官方 Modal Sheet） */
+$effect(() => {
+	if (!open) return;
+	lastFocused = document.activeElement as HTMLElement | null;
+	const t = setTimeout(() => panelEl?.focus(), 0);
 	function onKey(e: KeyboardEvent) {
-		if (e.key === "Escape" && open) {
+		if (e.key === "Escape") {
 			open = false;
 			onclose?.();
+			return;
+		}
+		if (e.key !== "Tab") return;
+		const items = getFocusables();
+		if (!items.length) return;
+		const first = items[0];
+		const last = items[items.length - 1];
+		const active = document.activeElement;
+		if (e.shiftKey && (active === first || !panelEl?.contains(active))) {
+			e.preventDefault();
+			last.focus();
+		} else if (!e.shiftKey && (active === last || !panelEl?.contains(active))) {
+			e.preventDefault();
+			first.focus();
 		}
 	}
 	window.addEventListener("keydown", onKey);
-	return () => window.removeEventListener("keydown", onKey);
+	return () => {
+		clearTimeout(t);
+		window.removeEventListener("keydown", onKey);
+		lastFocused?.focus();
+	};
 });
 
 function handleScrim() {
@@ -62,7 +93,7 @@ function handleScrim() {
 	{#if scrim}
 		<div class="m3-sheet-side__scrim" aria-hidden="true" onclick={handleScrim}></div>
 	{/if}
-	<div class="m3-sheet-side m3-sheet-side--{side}" role="dialog" aria-modal="true" aria-label={title ?? "侧边弹层"}>
+	<div bind:this={panelEl} tabindex="-1" class="m3-sheet-side m3-sheet-side--{side}" role="dialog" aria-modal="true" aria-label={title ?? "侧边弹层"}>
 		{#if title}
 			<div class="m3-sheet-side__title">{title}</div>
 		{/if}
