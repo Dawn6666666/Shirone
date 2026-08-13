@@ -2,6 +2,7 @@
 import SegmentedButton from "@components/atoms/selection/SegmentedButton.svelte";
 import Slider from "@components/atoms/selection/Slider.svelte";
 import Switch from "@components/atoms/selection/Switch.svelte";
+import AccentBar from "@components/atoms/display/AccentBar.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
@@ -122,10 +123,8 @@ const stylePreviews = $derived(
 
 <div id="display-setting" class="float-panel float-panel-closed absolute transition-all w-80 right-4 px-4 py-4">
     <div class="flex flex-row gap-2 mb-3 items-center justify-between">
-        <div class="flex gap-2 font-bold text-lg text-[var(--on-surface)] transition relative ml-3
-            before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
-            before:absolute before:-left-3 before:top-[0.33rem]"
-        >
+        <div class="flex gap-2 font-bold text-lg text-[var(--on-surface)] transition relative ml-3">
+            <AccentBar size="small" class="absolute -left-3 top-[0.33rem]" />
             {i18n(I18nKey.themeColor)}
             <button aria-label="Reset to Default" class="float-control w-7 h-7 rounded-md active:scale-90 will-change-transform flex items-center justify-center"
                     class:opacity-0={!isDirty} class:pointer-events-none={!isDirty} onclick={confirmReset}>

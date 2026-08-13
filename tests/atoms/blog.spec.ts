@@ -16,13 +16,13 @@ test.describe("blog/PostCard", () => {
 		await openTestPage(page, "atoms-blog-test");
 	});
 
-	test("卡片 token：surface-container-high + corner-large + 链接语义", async ({ page }) => {
+	test("卡片 token：card-bg（站点卡片色）+ corner-large + 链接语义", async ({ page }) => {
 		const card = page.locator(".m3-blog-postcard").first();
 		await expectMatchesToken(
 			page,
 			".m3-blog-postcard",
 			"background-color",
-			"--surface-container-high",
+			"--card-bg",
 		);
 		expect(await readStyle(page, ".m3-blog-postcard", "border-radius")).toBe("16px");
 		await expect(card).toContainText("M3E 波浪进度条实现笔记");
@@ -35,6 +35,18 @@ test.describe("blog/PostCard", () => {
 		const img = card.locator("img");
 		await expect(img).toBeVisible();
 		await expect(img).toHaveAttribute("alt", "示例封面");
+	});
+
+	test("标题左侧 AccentBar 竖线（primary 强调）", async ({ page }) => {
+		const bar = page.locator(".m3-blog-postcard__title .m3-accent-bar").first();
+		await expect(bar).toBeVisible();
+		await expectMatchesToken(
+			page,
+			".m3-blog-postcard__title .m3-accent-bar",
+			"background-color",
+			"--primary",
+		);
+		expect(Math.round((await bar.boundingBox())?.width ?? 0)).toBe(4);
 	});
 });
 

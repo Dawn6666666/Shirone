@@ -6,6 +6,7 @@
  * hover 抬升阴影 + 标题 primary + 箭头滑出；有封面时桌面端右侧 28% 图。
  */
 import { Icon } from "astro-icon/components";
+import AccentBar from "@components/atoms/display/AccentBar.svelte";
 import PostMeta from "./PostMeta.astro";
 import type { BlogMetaLink } from "./PostMeta.astro";
 
@@ -23,6 +24,7 @@ interface Props {
 	/** 阅读时长展示文本（如 "5 分钟"） */
 	readingTime?: string;
 	class?: string;
+	style?: string;
 }
 
 const {
@@ -37,6 +39,7 @@ const {
 	tags = [],
 	readingTime,
 	class: className,
+	style,
 } = Astro.props;
 
 const hasCover = !!image;
@@ -44,9 +47,11 @@ const hasCover = !!image;
 
 <article
 	class:list={["m3-blog-postcard", { "m3-blog-postcard--cover": hasCover }, className]}
+	style={style}
 >
 	<div class="m3-blog-postcard__body">
 		<a class="m3-blog-postcard__title" href={href} aria-label={title}>
+			<AccentBar size="medium" />
 			{title}
 			<Icon class="m3-blog-postcard__arrow" name="material-symbols:chevron-right-rounded" />
 		</a>
@@ -58,6 +63,7 @@ const hasCover = !!image;
 				category={category}
 				tags={tags}
 				hideUpdate
+				hideTagsOnMobile
 			/>
 		)}
 		{description && <p class="m3-blog-postcard__desc">{description}</p>}
@@ -83,19 +89,21 @@ const hasCover = !!image;
 .m3-blog-postcard
 	position: relative
 	display: flex
-	flex-direction: column
+	/* 移动端封面置顶（DOM：body → cover，column-reverse 反转为 cover 在前） */
+	flex-direction: column-reverse
 	box-sizing: border-box
 	width: 100%
 	overflow: hidden
 	border-radius: var(--shape-corner-l)
-	background: var(--surface-container-high)
+	/* 站点卡片色（浅色 = surface-container-lowest 近白），与侧栏等其它卡片一致 */
+	background: var(--card-bg)
 	color: var(--on-surface)
 	transition:
 		box-shadow var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
 		background-color var(--m3e-duration-medium) var(--m3e-easing-standard)
 	&:hover
 		box-shadow: var(--m3e-elevation-2)
-		background: unquote("color-mix(in oklab, var(--on-surface) 3%, var(--surface-container-high))")
+		background: unquote("color-mix(in oklab, var(--on-surface) 3%, var(--card-bg))")
 
 	&__body
 		flex: 1
@@ -131,7 +139,8 @@ const hasCover = !!image;
 	&__desc
 		margin: 0 0 0.75rem
 		font: var(--m3e-type-body-medium)
-		color: var(--on-surface-variant)
+		/* 对应站点 .text-75 */
+		color: unquote("color-mix(in oklab, var(--on-surface) 78%, transparent)")
 		line-height: 1.6
 		display: -webkit-box
 		-webkit-line-clamp: 2
@@ -144,6 +153,7 @@ const hasCover = !!image;
 		gap: 0.375rem
 		margin: 0
 		font: var(--m3e-type-body-small)
+		/* 弱化次要文字（旧 text-black/30 对比度不足，用 on-surface-variant 满足 AA） */
 		color: var(--on-surface-variant)
 		> :global(svg)
 			width: 1.125rem
@@ -152,6 +162,7 @@ const hasCover = !!image;
 	&__cover
 		flex-shrink: 0
 		display: block
+		overflow: hidden
 		text-decoration: none
 		> img
 			display: block
@@ -164,6 +175,7 @@ const hasCover = !!image;
 			right: 0.75rem
 			bottom: 0.75rem
 			width: 28%
+			height: auto
 			border-radius: var(--shape-corner-s)
 			overflow: hidden
 
@@ -177,7 +189,7 @@ const hasCover = !!image;
 		justify-content: center
 		width: 3.25rem
 		border-radius: var(--shape-corner-s)
-		background: var(--surface-container-lowest)
+		background: var(--enter-btn-bg)
 		color: var(--primary)
 		text-decoration: none
 		transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
@@ -185,10 +197,37 @@ const hasCover = !!image;
 			width: 2.25rem
 			height: 2.25rem
 		.m3-blog-postcard:hover &
-			background: var(--primary)
-			color: var(--on-primary)
+			background: var(--enter-btn-bg-hover)
+			color: var(--primary)
+		@media (max-width: 767px)
+			display: none
 
 	@media (min-width: 768px)
+		flex-direction: column
 		&--cover &__body
 			padding-right: calc(28% + 1.5rem)
+		/* 无封面时给右侧进入按钮（3.25rem + 0.75rem 边距）预留空间，描述提前换行 */
+		&:not(.m3-blog-postcard--cover) &__body
+			padding-right: 4.75rem
+
+	/* === 移动端对齐原始设计（桌面端保持不动） === */
+	@media (max-width: 767px)
+		/* 原始设计：标题竖线仅桌面显示 */
+		.m3-blog-postcard__title :global(.m3-accent-bar)
+			display: none
+
+		/* 原始设计：封面内嵌圆角 + 最大 20vh，非通栏 */
+		&__cover
+			height: auto
+			max-height: 20vh
+			margin: 1rem 1rem -0.5rem
+			border-radius: var(--shape-corner-m)
+			> img
+				height: auto
+				max-height: 20vh
+
+		/* 原始设计：标题尾部箭头 2rem */
+		&__arrow
+			width: 2rem
+			height: 2rem
 </style>
