@@ -30,7 +30,7 @@ theme-utils.ts  写入 :root 的 --mc-* 自定义属性（localStorage 持久化
 variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…），带 oklch 回退
    │
    ▼
-原子组件（Button / SplitButton / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar）
+原子组件（47 个：Button / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar / Tabs / Select / DataTable / SearchView / Autocomplete / SheetSide / Carousel / PullToRefresh / DatePicker / TimePicker / Chips / Banner / Tooltip / …，完整清单见 §4）
    │
    ▼
 分子/有机体（Navbar / SideBar / Search / PostCard…）
@@ -123,13 +123,13 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | FAB | `FAB.astro` | 站点遗留旧版（BackToTop 使用）：size `small(40)/regular(56)`；`label`、`disabled`；组件库正式版见下方 `FAB.svelte` | primary-container ＋ `--m3e-elevation-3` |
 | FAB | `FAB.svelte` | 悬浮操作按钮（官方 FloatingActionButton / ExtendedFloatingActionButton 移植，token 对齐 v0.192 md-comp-{fab,extended-fab}-{primary,secondary,tertiary,surface} + Compose latest 尺寸）：四种变体 primary（primary-container 实底 + on-primary-container）/ secondary / tertiary / surface（surface-container-high + primary 图标）；尺寸（图标形态）small 40/图标24、regular 56/24（默认）、large 96/36；Extended 形态（传入 `label`）small 与 regular 同为 56 高、large 96 高，label-large、leading 16 + icon-label 8 + trailing 20；高度默认 level3、hover level4、pressed/focus level3，`lowered` 用 level1（hover level2）；`radius` 可覆盖圆角（token 名 `m`/`l`/`xl`/`full` 或任意 CSS 长度如 `24px`）；图标模式可用 `ariaLabel` 设无障碍标签；原生 button + m3-state-layer | primary-container / on-primary-container、secondary-container、tertiary-container、surface-container-high；`--m3e-elevation-1/3/4` |
 | DataTable | `DataTable.svelte` | 数据表格（官方 DataTable 移植，token 对齐 v0.192 md-comp-data-table）：容器 corner-extra-small 4px + outline-variant 描边；表头 56px title-small on-surface-variant、可排序列点击触发 `onsort({key,direction})` 并维护排序图标；行高 52px body-medium on-surface、行间 1px outline-variant；`selectable` 复选列（Checkbox 联动 `selected` $bindable），选中行 surface-container-highest；`footer` 支持文本（52px）；行点击 `onclick(row)` | surface / surface-container-highest / on-surface / on-surface-variant / outline-variant |
-| SearchView | `SearchView.svelte` | 搜索视图（官方 SearchViewTokens 移植，token 对齐 v0.192 md-comp-search-view）：`fullScreen`（默认，全屏覆盖 corner-none + 72px 头）/ `docked`（内嵌卡片 corner-extra-large 28px + elevation level3 + 56px 头）；头部返回箭头 + 输入框（body-large）+ 清除按钮；空查询显示 `history`，输入时按 label 过滤 `suggestions`（可带 leading 图标），默认插槽放自定义结果；Esc / 返回关闭（`onclose`）；容器 surface-container-high、分隔线 outline；无内容时不渲染分隔线与内容区；动画对齐官方 SearchBar.kt：open 切换 docked 用 fade + expandVertically/shrinkVertically（进入 600ms + 100ms 延迟 emphasized-decelerate 0.05,0.7,0.1,1 / 退出 350ms + 100ms 延迟 cubic-bezier(0,1,0,1)），fullScreen 仅 fade；内容区/区块淡入 100ms + 50ms 延迟 standard-accelerate 0.3,0,1,1、淡出 100ms standard-decelerate 0,0,0,1 |
+| SearchView | `SearchView.svelte` | 搜索视图（官方 SearchViewTokens 移植，token 对齐 v0.192 md-comp-search-view）：`fullScreen`（默认，全屏覆盖 corner-none + 72px 头）/ `docked`（内嵌卡片 corner-extra-large 28px + elevation level3 + 56px 头）；头部返回箭头 + 输入框（body-large）+ 清除按钮；空查询显示 `history`，输入时按 label 过滤 `suggestions`（可带 leading 图标），默认插槽放自定义结果；Esc / 返回关闭（`onclose`）；全屏打开自动聚焦输入框；建议/历史项键盘 ↑↓ 高亮（`--active` 状态层）+ Enter 选中；容器 surface-container-high、分隔线 outline；无内容时不渲染分隔线与内容区；动画对齐官方 SearchBar.kt：open 切换 docked 用 fade + expandVertically/shrinkVertically（进入 600ms + 100ms 延迟 emphasized-decelerate 0.05,0.7,0.1,1 / 退出 350ms + 100ms 延迟 cubic-bezier(0,1,0,1)），fullScreen 仅 fade；内容区/区块淡入 100ms + 50ms 延迟 standard-accelerate 0.3,0,1,1、淡出 100ms standard-decelerate 0,0,0,1 |
 | Autocomplete | `Autocomplete.svelte` | 自动补全输入（官方 Autocomplete 移植，token 对齐 v0.192 md-comp-{filled,outlined}-autocomplete）：输入框视觉与 TextField 一致（filled / outlined + error/helper）；输入时按 label 过滤 `options`，菜单 surface-container + elevation-2 + corner-extra-small；键盘 ↑↓ 导航、Enter 选中、Esc 关闭；允许自由输入，`onselect` 选项回调、`onchange` 文本变化；`disabled` 支持 | surface-container-high / surface / outline-variant / surface-container / on-surface / on-surface-variant |
-| SheetSide | `SheetSide.svelte` | 侧边弹层（官方 SheetSide / ModalSideSheet 移植，token 对齐 v0.192 md-comp-sheet-side）：面板从 `side`（end 默认右侧 / start 左侧）滑入，全高，`width` 默认 360px；容器 surface-container-low + elevation level1 + corner-large-start（仅起始侧大圆角）；标题 title-large on-surface-variant；`scrim` 可关（false = persistent 无遮罩）；Esc / 遮罩点击关闭（`onclose`） | surface-container-low / on-surface / on-surface-variant / `--m3e-elevation-1` |
+| SheetSide | `SheetSide.svelte` | 侧边弹层（官方 SheetSide / ModalSideSheet 移植，token 对齐 v0.192 md-comp-sheet-side）：面板从 `side`（end 默认右侧 / start 左侧）滑入，全高，`width` 默认 360px；容器 surface-container-low + elevation level1 + corner-large-start（仅起始侧大圆角）；标题 title-large on-surface-variant；`scrim` 可关（false = persistent 无遮罩）；打开自动聚焦面板 + Tab 焦点陷阱（Shift+Tab 反向循环）、关闭后焦点返还触发元素（官方 Modal Sheet）；Esc / 遮罩点击关闭（`onclose`） | surface-container-low / on-surface / on-surface-variant / `--m3e-elevation-1` |
 | Carousel | `Carousel.svelte` | 轮播（官方 Carousel / HorizontalUncontainedCarousel 移植，scroll-snap 实现）：横向滚动 + `snap`（mandatory 默认 / proximity / none）；`itemWidth`（<100% 露出相邻卡片，即 uncontained 视觉）、`itemSpacing`、`contentPadding`；滚动中计算焦点项触发 `onchange(index)`；children snippet 渲染每一项 | 滚动容器 + 卡片自定义 |
 | PullToRefresh | `PullToRefresh.svelte` | 下拉刷新（官方 PullToRefresh 移植）：包裹可滚动内容，顶部下拉超过 `threshold`（默认 80px，阻尼 0.4）松开触发 `onrefresh`（async 可等待）；指示器拉动时缩放、刷新中旋转、完成后淡出；`refreshing` $bindable；仅拦截 scrollTop=0 的下拉手势，overscroll-behavior 阻止浏览器原生刷新 | `--primary` / surface |
 | FABMenu | `FABMenu.svelte` | M3E 悬浮菜单：`expanded`（$bindable）、`icon`/`iconExpanded`（Crossfade 切换，50% progress 处交替）、`label`、`size`（small 56 / medium 80 / large 96，展开收缩到 56 全圆 + close 20px）、`align`（end/start/center）、`containerColor`/`containerContentColor`（默认 primary-container/on-primary-container，展开变 primary）、`menuItemColor`/`menuItemContentColor`（默认 primary-container/on-primary-container，→ `--fab-menu-item-bg/-color`）、`exclusive`（默认 true：单开互斥，展开时经 `menu-bus` 通知其他菜单/FABMenu 收起；false 则不参与）；**动画**：rAF 驱动 `--fab-progress`（0→1，300ms emphasized-decelerate，官方 FastSpatial），容器颜色/尺寸/圆角/图标颜色/图标大小统一按 progress 插值（官方 ToggleFAB lerp）；菜单项 `.m3-fab-menu-item`（56px 全圆、18px 图标 + body-medium）+ stagger 展开；**键盘焦点**：展开时 FAB 上 `Tab`/`ArrowDown` 聚焦首个菜单项（菜单项为原生 button，Tab 在项间自然移动） | primary-container / primary、`--m3e-elevation-3` |
-| Slider | `Slider.svelte` | `value`（$bindable）、`min/max/step`、`label` | 彩虹轨道 `--color-selection-bar`、主色圆点 thumb |
+| Slider | `Slider.svelte` | 滑块（色相选择专用，经典视觉）：`value`（$bindable）、`min/max/step`、`label`；原生 range input（方向键 / PageUp / PageDown / Home / End 步进），focus-visible primary 描边 | 彩虹轨道 `--color-selection-bar`、白色矩形 thumb、`--primary` |
 | SegmentedButton | `SegmentedButton.svelte` | M3 分段按钮（官方 SegmentedButton / MultiChoiceSegmentedButton）：`options: {value,label}[]`、单选 `value`（$bindable）/ 多选 `multiple` + `checkedValues`（$bindable 数组，checkbox 语义）、`label`、`disabled`；选中段显示 **check 图标 scaleIn + fade**（官方 TransformOrigin(0,1) 底部左角 + FastSpatial，恒渲染由 `.selected` 驱动） | container 底、选中段 secondary-container |
 | TextField | `TextField.svelte` | `value`（$bindable）、`placeholder`、`name/id`、`label`（浮动：focus/有值上浮顶部，M3 标准）、`variant`（**filled** 默认 surface-container-high + 底部下划线 focus 亮起 / **outlined** surface + outline-variant 1px 边框 + focus primary 2px）、`error`（错误提示：下划线/边框变 error + 提示文字）、`onfocus`/`oninput`/`onblur`、`leading` 命名插槽 | surface-container-high / surface / outline-variant、primary、error |
 | Switch | `Switch.svelte` | `checked`（$bindable）、`disabled`、`label`、`icons`（M3E 图标变体：传 `icons` 时 thumb 恒 24px 显示 ✓/✕；缺省为 thumb 16↔24 动态无图标的经典样式）；原生 checkbox 自绘 track/thumb | 选中 secondary-container + 状态层 |
@@ -268,3 +268,18 @@ npx playwright test -g "Menu"                 # 按标题过滤
 - 主题引擎写入 `--mc-*` 后组件颜色带 transition，断言前必须等过渡收敛（`--m3e-duration-short` 150ms），否则会拿到中间帧的 `rgba` 混合值。
 - 交互类断言（点击切换、菜单开关）同样要等动画结束；菜单项选中后容器加 `.closed` 隐藏（项保留在 DOM，应断言容器而非计数）。
 - 颜色一律按 token 对齐（`--secondary-container` 等），不写死具体色值。
+
+### 9.3 键盘/焦点深度测试（B 专项）
+
+对核心可交互组件补充了键盘与焦点断言（`tests/atoms/*.spec.ts`）：
+
+- DataTable：表头点击 / Enter 触发排序，排序后行顺序真实重排；
+- TimePicker：拨盘选小时自动切分钟并回填、h12 下午切换（07:05 → 19:05）、输入模式键入回填；
+- DatePicker：月份导航往返切换；
+- Select：Home/End 定位首尾项、首字母 typeahead；
+- Tabs：方向键 + Home/End 移动（焦点与激活跟随）；
+- Autocomplete：`aria-activedescendant` 指向活动项、点击外部关闭；
+- Slider：PageUp/PageDown/Home/End 大跨度步进；
+- SheetSide：打开聚焦面板、Tab 焦点陷阱循环、关闭后焦点返还触发元素；
+- SearchView：全屏 Esc 关闭、打开自动聚焦输入框、建议/历史项 ↑↓ + Enter 键盘选择。
+
