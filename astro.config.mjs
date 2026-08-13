@@ -100,7 +100,14 @@ export default defineConfig({
 				showCopyToClipboardButton: false,
 			}
 		}),
-        svelte(),
+        svelte({
+            compilerOptions: {
+                // Svelte 默认 cssHash = hash(filename)，组件移动目录后 SSR/客户端
+                // 拿到的 filename 会不一致（scope hash 分裂导致样式丢失）。
+                // 改为基于 CSS 源码哈希，与路径无关，SSR 与客户端恒一致。
+                cssHash: ({ css, hash }) => `svelte-${hash(css)}`,
+            },
+        }),
 		sitemap(),
 	],
 	markdown: {
