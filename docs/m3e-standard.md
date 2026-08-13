@@ -235,3 +235,36 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
 | `src/components/atoms/*` | 47 个原子组件 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
+
+---
+
+## 9. 组件质量与测试（Playwright）
+
+组件质量专项以官方 Material Web（`md-comp-*`，`research/material-web/tokens/versions/v0_192`）为基准，
+用 Playwright 对原子组件做渲染 / 交互断言，防止令牌漂移与行为回退。
+
+### 9.1 运行
+
+```bash
+pnpm test                                     # 全量（等价 npx playwright test）
+npx playwright test tests/atoms/button.spec.ts # 单个文件
+npx playwright test -g "Menu"                 # 按标题过滤
+```
+
+- 配置：`playwright.config.ts`，testDir `./tests`，单 worker，`webServer` 自动拉起 Astro dev（http://localhost:4321）。
+- 测试页：`src/pages/atoms-*-test.astro` 仅作本地验证用、不入库；运行时真实加载组件，并等待主题引擎把 `--mc-*` 写入 `:root`。
+
+### 9.2 断言辅助（tests/helpers/atoms.ts）
+
+| 函数 | 用途 |
+|---|---|
+| `openTestPage(page, slug)` | 打开测试页，等待主题初始化（`--mc-primary` 写入 `:root`）+ 350ms 过渡收敛 |
+| `expectMatchesToken(page, sel, prop, token)` | 断言元素 computed 样式 === token 解析值（`var(--xxx)` 计算） |
+| `expectStyle` / `readStyle` / `readBox` | 断言 / 读取 computed 样式与盒尺寸 |
+| `resolveVar(page, prop, token)` | 把 token 变量解析为最终计算值 |
+
+要点：
+
+- 主题引擎写入 `--mc-*` 后组件颜色带 transition，断言前必须等过渡收敛（`--m3e-duration-short` 150ms），否则会拿到中间帧的 `rgba` 混合值。
+- 交互类断言（点击切换、菜单开关）同样要等动画结束；菜单项选中后容器加 `.closed` 隐藏（项保留在 DOM，应断言容器而非计数）。
+- 颜色一律按 token 对齐（`--secondary-container` 等），不写死具体色值。

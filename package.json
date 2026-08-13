@@ -13,7 +13,8 @@
     "new-post": "node scripts/new-post.js",
     "format": "biome format --write ./src",
     "lint": "biome check --write ./src",
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "test": "playwright test"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -66,6 +67,7 @@
   "devDependencies": {
     "@astrojs/ts-plugin": "^1.10.10",
     "@biomejs/biome": "2.2.5",
+    "@playwright/test": "^1.62.1",
     "@rollup/plugin-yaml": "^4.1.2",
     "@types/hast": "^3.0.5",
     "@types/markdown-it": "^14.1.2",

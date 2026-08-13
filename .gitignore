@@ -33,3 +33,7 @@ yarn.lock
 # local tooling artifacts
 .zcode/
 research/
+
+# playwright
+test-results/
+playwright-report/
