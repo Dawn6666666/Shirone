@@ -41,7 +41,7 @@ let {
                     value={opt.value}
                     bind:group={checkedValues}
                     {disabled}
-                    hidden
+                    class="m3-segmented__input"
                 />
             {:else}
                 <input
@@ -50,7 +50,7 @@ let {
                     value={opt.value}
                     bind:group={value}
                     {disabled}
-                    hidden
+                    class="m3-segmented__input"
                 />
             {/if}
             <span class="m3-segmented__check" aria-hidden="true">
@@ -68,6 +68,17 @@ let {
     padding: 2px
     border-radius: var(--shape-corner-m)
     background: var(--surface-container)
+
+    /* 隐藏原生 input（保留可聚焦与键盘支持，display:none 会移出焦点序） */
+    &__input
+        position: absolute
+        width: 1px
+        height: 1px
+        opacity: 0
+        overflow: hidden
+        clip: rect(0 0 0 0)
+        white-space: nowrap
+        clip-path: inset(50%)
 
     &__segment
         flex: 1

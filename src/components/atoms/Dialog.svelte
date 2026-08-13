@@ -41,6 +41,42 @@ $effect(() => {
 		closing = true;
 	}
 });
+// 焦点陷阱 + 关闭后焦点返还触发元素（官方 Modal Dialog）
+let lastFocused: HTMLElement | null = null;
+
+function getFocusables(): HTMLElement[] {
+	const dialog = dialogEl;
+	if (!dialog) return [];
+	return [...dialog.querySelectorAll<HTMLElement>(
+		'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+	)].filter((el) => el.offsetParent !== null);
+}
+
+$effect(() => {
+	if (!open) return;
+	lastFocused = document.activeElement as HTMLElement | null;
+	function onKey(e: KeyboardEvent) {
+		if (e.key !== "Tab") return;
+		const items = getFocusables();
+		if (!items.length) return;
+		const first = items[0];
+		const last = items[items.length - 1];
+		const activeIdx = items.indexOf(document.activeElement as HTMLElement);
+		if (e.shiftKey && (activeIdx === 0 || activeIdx === -1)) {
+			e.preventDefault();
+			last.focus();
+		} else if (!e.shiftKey && (activeIdx === items.length - 1 || activeIdx === -1)) {
+			e.preventDefault();
+			first.focus();
+		}
+	}
+	window.addEventListener("keydown", onKey);
+	return () => {
+		window.removeEventListener("keydown", onKey);
+		lastFocused?.focus();
+	};
+});
+
 
 // 退场动画结束（content scale down + scrim fade）后真正卸载
 function onAnimationEnd() {
