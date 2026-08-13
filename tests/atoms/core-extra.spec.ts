@@ -139,4 +139,26 @@ test.describe("TimePicker", () => {
 		await seg.click();
 		await expect(seg).toHaveClass(/--active/);
 	});
+	test("拨盘：选小时自动切分钟，选分钟后回填", async ({ page }) => {
+		const picker = page.locator(".m3-time-picker").first();
+		await picker.getByRole("button", { name: "15 点" }).click();
+		await expect(picker.getByRole("button", { name: "45 分" })).toBeVisible();
+		await picker.getByRole("button", { name: "45 分" }).click();
+		await expect(page.locator("body")).toContainText("15:45");
+	});
+
+	test("h12 拨盘：下午切换 07:05 → 19:05", async ({ page }) => {
+		const picker = page.locator(".m3-time-picker").nth(1);
+		await picker.getByRole("button", { name: "下午" }).click();
+		await expect(page.locator("body")).toContainText("19:05");
+	});
+
+	test("切换输入模式并键入时间回填", async ({ page }) => {
+		const picker = page.locator(".m3-time-picker").first();
+		await picker.getByRole("button", { name: "切换为键盘输入" }).click();
+		await picker.getByRole("textbox", { name: "小时" }).fill("09");
+		await picker.getByRole("textbox", { name: "分钟" }).fill("15");
+		await expect(page.locator("body")).toContainText("09:15");
+	});
+
 });

@@ -94,6 +94,17 @@ test.describe("DatePicker", () => {
 		await expect(day).toHaveAttribute("aria-pressed", "true");
 		await expect(page.locator("body")).toContainText("选中：2026-08-20");
 	});
+
+	test("月份导航切换", async ({ page }) => {
+		await openTestPage(page, "atoms-rest-test");
+		const picker = page.locator(".m3-date-picker").first();
+		await expect(picker.locator(".m3-date-picker__month")).toHaveText("2026年8月");
+		await picker.getByRole("button", { name: "下个月" }).click();
+		await expect(picker.locator(".m3-date-picker__month")).toHaveText("2026年9月");
+		await picker.getByRole("button", { name: "上个月" }).click();
+		await expect(picker.locator(".m3-date-picker__month")).toHaveText("2026年8月");
+	});
+
 });
 
 test.describe("DateRangePicker", () => {

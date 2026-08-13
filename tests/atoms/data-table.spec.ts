@@ -60,6 +60,22 @@ test.describe("DataTable", () => {
 		await expect(page.locator(".m3-data-table__sort-icon .desc")).toHaveCount(1);
 	});
 
+	test("排序后行顺序重排（降序姓名首行 Dave）", async ({ page }) => {
+		const th = page.locator(".m3-data-table th").filter({ hasText: "姓名" }).first();
+		await th.click();
+		await th.click();
+		await expect(page.locator("body")).toContainText("排序：name 降序");
+		const firstRow = page.locator(".m3-data-table tbody tr").first();
+		await expect(firstRow).toContainText("Dave");
+	});
+
+	test("表头键盘 Enter 触发排序", async ({ page }) => {
+		const th = page.locator(".m3-data-table th").filter({ hasText: "姓名" }).first();
+		await th.focus();
+		await page.keyboard.press("Enter");
+		await expect(page.locator("body")).toContainText("排序：name 升序");
+	});
+
 	test("行点击回调", async ({ page }) => {
 		await page.locator(".m3-data-table tbody tr").first().click();
 		await expect(page.locator("body")).toContainText("点击行：Alice");
