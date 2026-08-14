@@ -62,9 +62,6 @@
         @apply transition flex items-center justify-center bg-[var(--card-bg)] hover:bg-[var(--btn-card-bg-hover)]
         active:bg-[var(--btn-card-bg-active)]
     }
-    .btn-card.disabled {
-        @apply pointer-events-none text-black/10 dark:text-white/10
-    }
     .btn-plain {
         @apply transition relative flex items-center justify-center bg-none
         text-[var(--on-surface)] hover:text-[var(--primary)];
@@ -118,24 +115,6 @@
     }
     .text-25 {
         color: color-mix(in oklab, var(--on-surface-variant) 58%, transparent);
-    }
-
-    .meta-icon {
-        @apply w-8 h-8 transition rounded-md flex items-center justify-center bg-[var(--btn-regular-bg)]
-        text-[var(--btn-content)] mr-2
-    }
-    .with-divider {
-        @apply before:content-['/'] before:ml-1.5 before:mr-1.5 before:text-[var(--meta-divider)] before:text-sm
-        before:font-medium before:first-of-type:hidden before:transition
-    }
-
-    .btn-regular-dark {
-        @apply flex items-center justify-center
-        bg-[var(--mc-inverse-surface,oklch(0.45_0.01_var(--hue)))] hover:bg-[var(--mc-inverse-surface,oklch(0.50_0.01_var(--hue)))] active:bg-[var(--mc-inverse-surface,oklch(0.55_0.01_var(--hue)))]
-        dark:bg-[var(--mc-surface-container-high,oklch(0.30_0.02_var(--hue)))] dark:hover:bg-[var(--mc-surface-container-high,oklch(0.35_0.03_var(--hue)))] dark:active:bg-[var(--mc-surface-container-high,oklch(0.40_0.03_var(--hue)))]
-    }
-    .btn-regular-dark.success {
-        @apply bg-[var(--primary)] dark:bg-[var(--primary)]
     }
 
     /* ============================================================
