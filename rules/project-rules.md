@@ -1,0 +1,116 @@
+# 项目规则
+
+> Shirone 项目的硬性约定与工作流。新增代码前必读。
+> 配套文档：`rules/pitfalls.md`（踩坑）、`rules/component-api.md`（组件 API 规范）、`rules/a11y.md`（无障碍与键盘交互）、`rules/visual-regression.md`（视觉回归）、`docs/m3e-standard.md`（组件标准）、`docs/atomic-structure.md`（分层规范）。
+
+---
+
+## 1. 项目定位
+
+Shirone = 「偏二次元风的 M3E（Material 3 Expressive）主题」博客。
+
+- **M3E 是工程骨架与交互语言**：HCT 动态配色、状态层、动效 token、无障碍。
+- **二次元是皮肤与气质**：圆润形状、萌系字体、主题壁纸（后期接入）。
+- 参考项目：Fuwari（继承基底），二次元视觉与配置化结构参照见 `research/blog-design-plan.md`。
+
+长期设计方向见 `research/blog-design-plan.md`（本地调查文档，不入库）。
+
+---
+
+## 2. 目标
+
+持续把博客 UI 收敛到自研 M3E 原子组件库：
+
+- 组件按 M3 分类（action / selection / input / navigation / overlay / feedback / display / blog）；
+- token 驱动、深浅色自适应；
+- 无障碍（axe）+ 键盘交互达标；
+- Playwright 锁定行为；
+- 最终让博客全部页面由原子层驱动。
+
+---
+
+## 3. 分层结构
+
+```
+atoms/ → molecules/ → organisms/ → layouts/ → pages/
+   ▲ 依赖方向：只允许向上引用
+system/（全局基础设施，仅 layouts 引用）
+content/（Markdown 正文，仅 pages 引用）
+```
+
+- 跨目录引用一律 `@components/<层>/<文件>`，禁止 `../../` 相对链。
+- 禁止恢复 `control/`、`misc/`、`widget/` 历史遗留目录。
+- 组件命名 PascalCase。
+- 详见 `docs/atomic-structure.md`。
+
+---
+
+## 4. 原子组件约定
+
+新原子必须满足：
+
+1. **数据驱动**：对外最小 props 集，展示数据由调用方传入；
+2. **token 对齐**：颜色用 `--primary` / `--surface-container-*` / `--shape-corner-*`，字体用 `--m3e-type-*`，动效用 `--m3e-duration-*` + `--m3e-easing-*`；
+3. **交互反馈**：hover/focus/pressed 叠色统一用 `.m3-state-layer`，不自造 `:hover { background: ... }`；
+4. **演示页 + 测试**：补 `*Demo.svelte`（演示页不入库）+ `tests/atoms/*.spec.ts`，并加入 a11y 扫描清单；
+5. **文档标注**：在 `docs/m3e-standard.md` §4 清单标注「移植 / 原创」来源；
+6. **官方对齐**：移植官方 M3/Compose/Material Web 时，行为/视觉对齐官方 token（参考 `research/material-web/tokens/versions/v0_192`）。
+
+静态原子用 Astro，交互原子用 Svelte 5（runes 或 legacy `$:` 均可，同文件内不混用）。
+
+---
+
+## 5. 提交约定
+
+- **提交信息风格**：`fix(scope):` / `feat(scope):` / `test(scope):` / `docs(scope):` / `refactor(scope):`，中文详细 body，不带专项字母（如 E/F）。
+- **绝不提交演示页**：`src/components/atoms/*Demo.svelte`、`src/pages/atoms-*-test.astro`、`BlogDemo/DisplayDemo` 仅本地验证用。
+- **提交命令**：`git add -u`（只暂存已跟踪文件）+ 显式 `git add <新原子文件>`，绝不 `git add -A`（会把演示页/临时文件带进去）。
+- **提交前确认**：提交前先向用户确认，不擅自提交。
+- 提交信息含中文/引号时，写临时文件 `git commit -F`（见 `rules/pitfalls.md` §6.1）。
+
+---
+
+## 6. 代码风格
+
+- **Svelte 组件手写 diff 保持原缩进**（tab/CRLF 或 LF 按文件现状），不对组件跑 biome 全文件格式化（避免无关 churn）；`tests/` 可跑 biome。
+- **禁止硬编码**：色值、圆角、阴影、动效时长一律走 token（唯一例外：图片上的覆盖层用固定黑/白）。
+- **禁止散落的非令牌动效**：如 `transition: all 0.3s`、`animation: xxx 1s linear`。
+- **禁止原子/分子引入业务副作用**：数据获取、localStorage、路由跳转属于有机体。
+
+---
+
+## 7. 质量闸门
+
+提交前必须全绿：
+
+```bash
+npx.cmd astro check          # 0 errors / 0 warnings
+npx.cmd playwright test      # 全量（约 5 分钟）
+```
+
+测试覆盖（`tests/`）：
+- `tests/atoms/*.spec.ts`：渲染 token 断言 + 交互深度 + 键盘焦点；
+- `tests/atoms/a11y.spec.ts`：axe light/dark 双模式（原子测试页）；
+- `tests/site/a11y.spec.ts`：axe 双模式（真实页面：首页/归档/关于/文章页）；
+- `tests/site/visual.spec.ts`：视觉回归黄金截图（4 页面 × light/dark）；
+- `tests/atoms/motion.spec.ts`：prefers-reduced-motion 动效降级。
+
+---
+
+## 8. 环境与命令
+
+- 系统 PowerShell，禁脚本执行：一律用 `npx.cmd` / `npm.cmd` / `pnpm.cmd`。
+- `pnpm.cmd dev` 起 Astro dev（端口 4321）。
+- 测试用 `npx.cmd playwright test`（单 worker，`reuseExistingServer`）。
+- 运行测试 / astro check 需要写 node_modules 缓存。
+
+---
+
+## 9. 视觉样式原则（后续接入时）
+
+1. 装饰层与组件层物理隔离（`features/` 层，默认关闭、零开销）；
+2. 装饰必须尊重 `prefers-reduced-motion`；
+3. 装饰色值 token 化，跟随主题色相，不写死粉色；
+4. 最小补丁 + 高性能，不引入重依赖。
+
+详见 `research/blog-design-plan.md` §4 / §11。
