@@ -24,6 +24,8 @@ import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
 import { onMount } from "svelte";
 import { getDefaultSpec, getDefaultStyle } from "@/config";
 
+let { class: className = "" }: { class?: string } = $props();
+
 const defaultHue = getDefaultHue();
 const defaultStyle = getDefaultStyle() as McStyle;
 const defaultSpec = getDefaultSpec() as McSpec;
@@ -121,7 +123,7 @@ const stylePreviews = $derived(
 );
 </script>
 
-<div id="display-setting" class="float-panel float-panel-closed absolute transition-all w-80 right-4 px-4 py-4">
+<div id="display-setting" class="float-panel float-panel-closed absolute transition-all w-80 right-4 px-4 py-4 {className}">
     <div class="flex flex-row gap-2 mb-3 items-center justify-between">
         <div class="flex gap-2 font-bold text-lg text-[var(--on-surface)] transition relative ml-3">
             <AccentBar size="small" class="absolute -left-3 top-[0.33rem]" />

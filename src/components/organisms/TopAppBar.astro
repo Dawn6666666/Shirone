@@ -1,0 +1,180 @@
+---
+/**
+ * M3 Top App Bar — 全站顶栏（替代 Fuwari 卡片式 Navbar）。
+ * fixed 全宽、surface 底色 + 底部细分隔线；左侧菜单按钮（开全端导航抽屉）、
+ * 站点标题（回首页）、右侧搜索/显示设置/主题切换。
+ * 菜单按钮点击派发 site-drawer:toggle 事件，由 SiteNavigationDrawer 监听开合。
+ */
+import IconButton from "@components/atoms/action/IconButton.astro";
+import { LinkPresets } from "@constants/link-presets";
+import { LinkPreset, type NavBarLink } from "@/types/config";
+import { pathsEqual, url } from "@utils/url-utils";
+import { Icon } from "astro-icon/components";
+import { navBarConfig, siteConfig } from "@/config";
+import DisplaySettings from "./DisplaySettings.svelte";
+import LightDarkSwitch from "./LightDarkSwitch.svelte";
+import Search from "./Search.svelte";
+
+const className = Astro.props.class;
+const links = navBarConfig.links.map(
+	(item: NavBarLink | LinkPreset): NavBarLink =>
+		typeof item === "number" ? LinkPresets[item] : item,
+);
+const currentPath = Astro.url.pathname;
+---
+
+<div
+	id="navbar"
+	class:list={[
+		"fixed top-0 left-0 right-0 z-50 onload-animation bg-[color-mix(in_oklab,var(--surface-container-low)_94%,transparent)] shadow-[var(--m3e-elevation-1)] backdrop-blur-md transition",
+		className,
+	]}
+>
+	<div class="relative max-w-[var(--page-width)] mx-auto h-16 px-3 md:px-5 flex items-center gap-1">
+		<IconButton id="nav-drawer-switch" label="Menu" class="shrink-0 lg:!hidden">
+			<Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
+		</IconButton>
+		<a
+			href={url("/")}
+			class="group flex h-10 items-center gap-2 px-2 text-[var(--on-surface)] transition whitespace-nowrap"
+		>
+			<span class="h-5 w-1 rounded-full bg-[var(--primary)] transition-all group-hover:h-7"></span>
+			<span class="text-lg font-bold group-hover:text-[var(--primary)]">{siteConfig.title}</span>
+		</a>
+		<nav class="ml-4 hidden h-full items-center gap-1 lg:flex" aria-label="Main navigation">
+			{links.map((link) => {
+				const href = link.external ? link.url : url(link.url);
+				const active = !link.external && pathsEqual(currentPath, href);
+				return (
+					<a
+						href={href}
+						target={link.external ? "_blank" : undefined}
+						rel={link.external ? "noopener noreferrer" : undefined}
+						aria-current={active ? "page" : undefined}
+						data-nav-path={!link.external ? new URL(href, Astro.url).pathname : undefined}
+						class:list={[
+							"top-app-bar__nav-link m3-state-layer relative flex h-10 items-center px-3 text-sm font-bold text-[var(--on-surface-variant)] transition-colors hover:text-[var(--on-surface)]",
+							active && "top-app-bar__nav-link--active",
+						]}
+					>
+						{link.name}
+						{link.external && <Icon name="material-symbols:arrow-outward-rounded" class="ml-1 text-[0.875rem]"></Icon>}
+					</a>
+				);
+			})}
+		</nav>
+		<div class="flex-1"></div>
+		<Search client:only="svelte"></Search>
+		{!siteConfig.themeColor.fixed && (
+			<div class="hidden md:block">
+				<IconButton id="display-settings-switch" label="Display Settings" class="shrink-0">
+					<Icon name="material-symbols:palette-outline" class="text-[1.25rem]"></Icon>
+				</IconButton>
+			</div>
+		)}
+		<LightDarkSwitch client:only="svelte"></LightDarkSwitch>
+		<DisplaySettings client:only="svelte" class="top-full !right-0"></DisplaySettings>
+	</div>
+</div>
+
+<script>
+	function syncTopAppBarNavigation() {
+		const normalize = (path: string) => path.replace(/\/+$/, "") || "/";
+		const currentPath = normalize(window.location.pathname);
+		setTopAppBarNavigation(currentPath);
+	}
+
+	function setTopAppBarNavigation(path: string) {
+		const normalize = (value: string) => value.replace(/\/+$/, "") || "/";
+		document.querySelectorAll<HTMLElement>("[data-nav-path]").forEach((link) => {
+			const active = normalize(link.dataset.navPath || "") === normalize(path);
+			link.classList.toggle("top-app-bar__nav-link--active", active);
+			if (active) link.setAttribute("aria-current", "page");
+			else link.removeAttribute("aria-current");
+		});
+	}
+
+	function loadTopAppBar() {
+		const drawerBtn = document.getElementById("nav-drawer-switch");
+		if (drawerBtn) {
+			drawerBtn.onclick = () => {
+				document.dispatchEvent(new CustomEvent("site-drawer:toggle"));
+			};
+		}
+
+		const settingBtn = document.getElementById("display-settings-switch");
+		if (settingBtn) {
+			settingBtn.onclick = () => {
+				const settingPanel = document.getElementById("display-setting");
+				if (settingPanel) {
+					settingPanel.classList.toggle("float-panel-closed");
+				}
+			};
+		}
+
+		syncTopAppBarNavigation();
+		document.querySelectorAll<HTMLElement>("[data-nav-path]").forEach((link) => {
+			link.onclick = () => setTopAppBarNavigation(link.dataset.navPath || "");
+		});
+		if (!document.documentElement.dataset.topAppBarNavBound) {
+			document.documentElement.dataset.topAppBarNavBound = "true";
+			document.addEventListener("swup:content:replace", syncTopAppBarNavigation);
+			document.addEventListener("swup:page:view", syncTopAppBarNavigation);
+			window.addEventListener("popstate", syncTopAppBarNavigation);
+		}
+	}
+
+	loadTopAppBar();
+</script>
+
+{import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>
+async function loadPagefind() {
+	try {
+		const response = await fetch(scriptUrl, { method: 'HEAD' });
+		if (!response.ok) {
+			throw new Error(`Pagefind script not found: ${response.status}`);
+		}
+
+		const pagefind = await import(scriptUrl);
+
+		await pagefind.options({
+			excerptLength: 20
+		});
+
+		window.pagefind = pagefind;
+
+		document.dispatchEvent(new CustomEvent('pagefindready'));
+		console.log('Pagefind loaded and initialized successfully, event dispatched.');
+	} catch (error) {
+		console.error('Failed to load Pagefind:', error);
+		window.pagefind = {
+			search: () => Promise.resolve({ results: [] }),
+			options: () => Promise.resolve(),
+		};
+		document.dispatchEvent(new CustomEvent('pagefindloaderror'));
+		console.log('Pagefind load error, event dispatched.');
+	}
+}
+
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', loadPagefind);
+} else {
+	loadPagefind();
+}
+</script>}
+
+<style>
+	.top-app-bar__nav-link--active {
+		color: var(--primary);
+	}
+
+	.top-app-bar__nav-link--active::after {
+		content: "";
+		position: absolute;
+		inset-inline: 0.75rem;
+		bottom: 0;
+		height: 3px;
+		border-radius: var(--shape-corner-full);
+		background: var(--primary);
+	}
+</style>

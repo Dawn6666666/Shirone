@@ -4,8 +4,10 @@ import TOC from "@components/molecules/TOC.astro";
 import BackToTop from "@components/organisms/BackToTop.astro";
 import CategoryBar from "@components/organisms/CategoryBar.astro";
 import Footer from "@components/organisms/Footer.astro";
-import Navbar from "@components/organisms/Navbar.astro";
 import SideBar from "@components/organisms/SideBar.astro";
+import SiteNavigationDrawer from "@components/organisms/SiteNavigationDrawer.svelte";
+import TopAppBar from "@components/organisms/TopAppBar.astro";
+import { getCategoryList } from "@utils/content-utils";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import { siteConfig } from "../config";
@@ -50,6 +52,9 @@ const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
 
+// 抽屉多级导航数据：分类
+const drawerCategories = await getCategoryList();
+
 // 响应式侧栏配置（数据驱动布局）
 const sidebarConfig = getResponsiveSidebarConfig();
 const gridClasses = generateGridClasses(sidebarConfig);
@@ -63,7 +68,7 @@ const mainContentClasses = generateMainContentClasses(sidebarConfig);
 <slot slot="head" name="head"></slot>
 <header id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
     <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all">
-        <Navbar></Navbar>
+        <TopAppBar></TopAppBar>
     </div>
 </header>
 
@@ -124,6 +129,11 @@ const mainContentClasses = generateMainContentClasses(sidebarConfig);
         <BackToTop></BackToTop>
     </div>
 </div>
+
+<SiteNavigationDrawer
+    client:load
+    categories={drawerCategories}
+/>
 
 <!-- The things that should be under the banner, only the TOC for now -->
 <div class="absolute w-full z-0 hidden 2xl:block">

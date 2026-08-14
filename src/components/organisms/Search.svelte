@@ -163,9 +163,9 @@ $: if (initialized && keywordMobile) {
     label="Search Panel"
     id="search-switch"
     size="small"
-    shape="square"
+    shape="round"
     onclick={togglePanel}
-    class="lg:!hidden !w-11 !h-11 !rounded-lg active:scale-90 !text-[1.25rem]"
+    class="lg:!hidden !w-10 !h-10 active:scale-90 !text-[1.25rem]"
 />
 
 <!-- search panel（blog/SearchPanel 原子；开合由调用方 classList 控制，与 DisplaySettings 同款） -->
