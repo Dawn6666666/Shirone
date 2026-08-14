@@ -6,7 +6,8 @@
 	 * 链接由 Swup 自动接管，点击后收起抽屉；高亮与当前路由/分类筛选同步。
 	 */
 	import Icon from "@iconify/svelte";
-	import { navBarConfig, siteConfig } from "@/config";
+	import { navBarConfig } from "@/config/navBarConfig";
+	import { siteConfig } from "@/config";
 	import { onMount, tick } from "svelte";
 	import { resolveNavBarLinks } from "@utils/nav-utils";
 	import { url } from "@utils/url-utils";
