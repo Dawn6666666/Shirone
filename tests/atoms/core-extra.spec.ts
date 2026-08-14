@@ -91,6 +91,12 @@ test.describe("Card", () => {
 		await clickable.click();
 		await expect(page.locator("body")).toContainText(/点击/);
 	});
+
+	test("href 渲染为卡片链接（<a> + text-decoration none）", async ({ page }) => {
+		const link = page.locator("a.m3-card--interactive").first();
+		await expect(link).toHaveAttribute("href", /./);
+		await expect(link).toHaveCSS("text-decoration-line", "none");
+	});
 });
 
 /**

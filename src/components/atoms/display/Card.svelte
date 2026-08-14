@@ -5,17 +5,21 @@
  *          elevated（ElevatedCardTokens：surface-container-low、阴影 Level1，hover Level2）/
  *          outlined（OutlinedCardTokens：surface、outline-variant 1px 边框，hover outline）。
  * 形状：corner-medium（12px，官方 ContainerShape）。
- * onClick 传入时渲染为原生 button（clickable card，enabled 控制禁用），
- * 不传则渲染为普通容器 div。
+ * href 传入时渲染为原生 <a>（卡片链接，可点击）；onClick 传入时渲染为原生
+ * button（clickable card，enabled 控制禁用）；两者都不传则渲染为普通容器 div。
+ * href 优先于 onClick。
  *
  * 用法：<Card>内容</Card>
  *      <Card variant="elevated">内容</Card>
  *      <Card variant="outlined" onClick={...}>内容</Card>
+ *      <Card href="/post/foo/">卡片链接</Card>
  *      <Card onClick={...} enabled={false}>禁用的卡片</Card>
  */
 let {
 	variant = "filled",
 	onClick,
+	href,
+	target,
 	enabled = true,
 	color,
 	radius = "",
@@ -27,6 +31,10 @@ let {
 	variant?: "filled" | "elevated" | "outlined";
 	/** 传入则渲染为可点击卡片（button）；省略 = 普通容器 */
 	onClick?: (e: MouseEvent) => void;
+	/** 传入则渲染为卡片链接（<a>）；优先于 onClick */
+	href?: string;
+	/** 卡片链接的打开方式（target） */
+	target?: string | null;
 	/** 可点击卡片的可用状态（false 时禁用、视觉降级） */
 	enabled?: boolean;
 	/** 覆盖容器背景色（默认按变体） */
@@ -55,7 +63,18 @@ const styleVars = [
 	.join("; ");
 </script>
 
-{#if onClick}
+{#if href}
+    <a
+        id={id}
+        href={href}
+        target={target ?? undefined}
+        class="m3-card m3-card--{variant} m3-card--interactive {className}"
+        class:m3-card--disabled={!enabled}
+        style={styleVars || undefined}
+    >
+        {@render children?.()}
+    </a>
+{:else if onClick}
     <button
         id={id}
         class="m3-card m3-card--{variant} m3-card--interactive {className}"
@@ -91,7 +110,7 @@ const styleVars = [
         border-color var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
         background-color var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
 
-    /* 可点击卡片（button 语义）：hover/pressed 加 on-surface overlay + focus ring；
+    /* 可点击卡片（button/a 语义）：hover/pressed 加 on-surface overlay + focus ring；
        button 默认 padding 由 Tailwind preflight 归零，外部 p-* 类可正常生效 */
     &--interactive
         appearance: none
@@ -100,6 +119,8 @@ const styleVars = [
         text-align: inherit
         font: inherit
         cursor: pointer
+        text-decoration: none
+        color: inherit
         &:hover
             background: unquote("color-mix(in oklab, var(--on-surface) 4%, var(--m3-card-bg))")
         &:active
