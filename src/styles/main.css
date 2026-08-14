@@ -40,18 +40,6 @@
         @apply text-[var(--on-surface)] bg-[var(--float-control-bg)]
         hover:bg-[var(--float-control-bg-hover)] active:bg-[var(--float-control-bg-active)];
     }
-    .float-menu-item {
-        @apply text-[var(--on-surface)] hover:bg-[var(--float-item-bg-hover)] active:bg-[var(--float-item-bg-active)];
-    }
-    .btn-regular {
-        @apply transition flex items-center justify-center bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)]
-        text-[var(--btn-content)]
-    }
-
-    .link-underline {
-        @apply transition underline decoration-2 decoration-dashed decoration-[var(--link-underline)]
-        hover:decoration-[var(--link-hover)] active:decoration-[var(--link-active)] underline-offset-[0.25rem]
-    }
 
     .toc-hide,
     .toc-not-ready {
@@ -141,22 +129,6 @@
 
 ::selection {
     background-color: var(--selection-bg)
-}
-
-.dash-line {
-    position: relative;
-}
-
-.dash-line::before {
-    content: "";
-    position: absolute;
-    width: 10%;
-    height: 100%;
-    left: calc(50% - 1px);
-    border-left: 2px dashed var(--line-color);
-    pointer-events: none;
-    transition: all 0.3s;
-    transform: translateY(-50%);
 }
 
 .collapsed {
