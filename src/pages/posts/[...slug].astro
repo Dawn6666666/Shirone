@@ -130,10 +130,10 @@ const jsonLd = {
                 href={getPostUrlBySlug(entry.data.nextSlug)}
                 color="var(--card-bg)"
                 radius="l"
-                class="w-full font-bold active:scale-95 h-[3.75rem] max-w-full px-4 !flex items-center !justify-start gap-4"
+                class="post-nav post-nav--prev w-full font-bold active:scale-95 h-[3.75rem] max-w-full px-4 !flex items-center !justify-start gap-4"
             >
-                <Icon name="material-symbols:chevron-left-rounded" class="text-[2rem] text-[var(--primary)]" />
-                <div class="overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-75">
+                <Icon name="material-symbols:chevron-left-rounded" class="post-nav__arrow text-[2rem] text-[var(--primary)]" />
+                <div class="post-nav__title overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-75">
                     {entry.data.nextTitle}
                 </div>
             </Card>
@@ -146,12 +146,12 @@ const jsonLd = {
                 href={getPostUrlBySlug(entry.data.prevSlug)}
                 color="var(--card-bg)"
                 radius="l"
-                class="w-full font-bold active:scale-95 h-[3.75rem] max-w-full px-4 !flex items-center !justify-end gap-4"
+                class="post-nav post-nav--next w-full font-bold active:scale-95 h-[3.75rem] max-w-full px-4 !flex items-center !justify-end gap-4"
             >
-                <div class="overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-75">
+                <div class="post-nav__title overflow-hidden transition overflow-ellipsis whitespace-nowrap max-w-[calc(100%_-_3rem)] text-75">
                     {entry.data.prevTitle}
                 </div>
-                <Icon name="material-symbols:chevron-right-rounded" class="text-[2rem] text-[var(--primary)]" />
+                <Icon name="material-symbols:chevron-right-rounded" class="post-nav__arrow text-[2rem] text-[var(--primary)]" />
             </Card>
         ) : (
             <div class="w-full"></div>
@@ -159,6 +159,26 @@ const jsonLd = {
     </div>
 
 </MainGridLayout>
+
+<style is:global lang="stylus">
+	/* 上一篇/下一篇卡片 hover 动效：箭头向阅读方向位移、标题转主题色。
+	   reduced-motion 由全局 motion-reduced 规则自动降级（过渡禁用） */
+	.post-nav
+		.post-nav__arrow
+			transition: transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+
+		.post-nav__title
+			transition: color var(--m3e-duration-short) var(--m3e-easing-standard)
+
+		&:hover .post-nav__title
+			color: var(--primary)
+
+		&--prev:hover .post-nav__arrow
+			transform: translateX(-0.25rem)
+
+		&--next:hover .post-nav__arrow
+			transform: translateX(0.25rem)
+</style>
 
 <script>
     import { showSnackbar } from "@utils/snackbar";
