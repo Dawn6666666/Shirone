@@ -6,61 +6,50 @@
 	 * 链接由 Swup 自动接管，点击后收起抽屉；高亮与当前路由/分类筛选同步。
 	 */
 	import Icon from "@iconify/svelte";
-	import { LinkPresets } from "@/constants/link-presets";
 	import { navBarConfig, siteConfig } from "@/config";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
 	import { onMount, tick } from "svelte";
+	import { resolveNavBarLinks } from "@utils/nav-utils";
 	import { url } from "@utils/url-utils";
-
-	let {
-		categories = [] as { name: string; count: number; url: string }[],
-	}: {
-		categories?: { name: string; count: number; url: string }[];
-	} = $props();
 
 	let open = $state(false);
 	let activePrimary = $state("");
-	let activeCategory = $state("");
-	const openGroups = $state({ categories: true });
+	const openGroups = $state<Record<string, boolean>>({});
 
-	const links = navBarConfig.links.map((item) =>
-		typeof item === "number" ? LinkPresets[item] : item,
-	);
-
-	const ICONS: Record<string, string> = {
-		home: "material-symbols:home",
-		archive: "material-symbols:archive",
-		about: "material-symbols:info",
-		github: "fa6-brands:github",
-	};
+	const links = resolveNavBarLinks(navBarConfig.links);
 
 	const primaryItems = links.map((link) => {
 		const key = link.name.toLowerCase();
 		return {
 			value: key,
 			label: link.name,
-			icon: ICONS[key] ?? "material-symbols:circle",
-			href: link.external ? link.url : url(link.url),
+			icon: link.icon,
+			href: link.url ? (link.external ? link.url : url(link.url)) : undefined,
 			external: !!link.external,
+			children: link.children?.map((child) => ({
+				value: child.name.toLowerCase(),
+				label: child.name,
+				icon: child.icon,
+				href: child.url ? (child.external ? child.url : url(child.url)) : undefined,
+				external: !!child.external,
+			})),
 		};
 	});
 
 	function syncFromRoute() {
 		const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
-		const categoryParam = new URLSearchParams(window.location.search).get("category");
-		// 与桌面分类栏（CategoryBar）优先级一致：分类筛选 query 优先于归档页。
-		// 位于 /archive/?category=... 时只高亮分类项，不再同时高亮一级「归档」，避免双重高亮。
-		if (categoryParam) {
-			activePrimary = "";
-			activeCategory = categoryParam;
-			return;
+		activePrimary = "";
+		for (const item of primaryItems) {
+			if (item.href && new URL(item.href, window.location.origin).pathname.replace(/\/+$/, "") === pathname) {
+				activePrimary = item.value;
+				break;
+			}
+			const activeChild = item.children?.find((child) => child.href && new URL(child.href, window.location.origin).pathname.replace(/\/+$/, "") === pathname);
+			if (activeChild) {
+				activePrimary = activeChild.value;
+				openGroups[item.value] = true;
+				break;
+			}
 		}
-		if (pathname === "/") activePrimary = "home";
-		else if (pathname === "/archive") activePrimary = "archive";
-		else if (pathname === "/about") activePrimary = "about";
-		else activePrimary = "";
-		activeCategory = "";
 	}
 
 	// 点击链接后收起抽屉；外部链接不改变路由，高亮已由路由同步维护
@@ -68,7 +57,7 @@
 		open = false;
 	}
 
-	function toggleGroup(group: "categories") {
+	function toggleGroup(group: string) {
 		openGroups[group] = !openGroups[group];
 	}
 
@@ -117,58 +106,31 @@
 
 		<nav class="site-drawer__nav" aria-label="Navigation drawer">
 			{#each primaryItems as item (item.value)}
-				<a
-					href={item.href}
-					class="site-drawer__item"
-					class:site-drawer__item--active={activePrimary === item.value}
-					aria-current={activePrimary === item.value ? "page" : undefined}
-					target={item.external ? "_blank" : undefined}
-					rel={item.external ? "me" : undefined}
-					onclick={handleNavClick}
-				>
-					<span class="site-drawer__item-icon" aria-hidden="true">
-						<Icon icon={item.icon} />
-					</span>
-					<span class="site-drawer__item-label">{item.label}</span>
-				</a>
-			{/each}
-
-			<!-- 分类分组 -->
-			<div class="site-drawer__group">
-				<button
-					type="button"
-					class="site-drawer__group-head"
-					onclick={() => toggleGroup("categories")}
-					aria-expanded={openGroups.categories}
-				>
-					<span class="site-drawer__group-icon" aria-hidden="true">
-						<Icon icon="material-symbols:folder" />
-					</span>
-					<span class="site-drawer__group-label">{i18n(I18nKey.categories)}</span>
-					<Icon
-						class={openGroups.categories
-							? "site-drawer__group-arrow site-drawer__group-arrow--open"
-							: "site-drawer__group-arrow"}
-						icon="material-symbols:keyboard-arrow-down"
-					/>
-				</button>
-				{#if openGroups.categories}
-					<div class="site-drawer__group-body">
-						{#each categories as cat (cat.name)}
-							<a
-								href={cat.url}
-								class="site-drawer__item site-drawer__item--child"
-								class:site-drawer__item--active={activeCategory === cat.name}
-								aria-current={activeCategory === cat.name ? "page" : undefined}
-								onclick={handleNavClick}
-							>
-								<span class="site-drawer__item-label">{cat.name}</span>
-								<span class="site-drawer__count" aria-hidden="true">{cat.count}</span>
-							</a>
-						{/each}
+				{#if item.children}
+					<div class="site-drawer__group">
+						<button type="button" class="site-drawer__group-head" class:site-drawer__item--active={item.children.some((child) => activePrimary === child.value)} onclick={() => toggleGroup(item.value)} aria-expanded={openGroups[item.value] ?? false}>
+							{#if item.icon}<span class="site-drawer__group-icon" aria-hidden="true"><Icon icon={item.icon} /></span>{/if}
+							<span class="site-drawer__group-label">{item.label}</span>
+							<Icon class={openGroups[item.value] ? "site-drawer__group-arrow site-drawer__group-arrow--open" : "site-drawer__group-arrow"} icon="material-symbols:keyboard-arrow-down" />
+						</button>
+						{#if openGroups[item.value]}
+							<div class="site-drawer__group-body">
+								{#each item.children as child (child.value)}
+									<a href={child.href} class="site-drawer__item site-drawer__item--child" class:site-drawer__item--active={activePrimary === child.value} aria-current={activePrimary === child.value ? "page" : undefined} target={child.external ? "_blank" : undefined} rel={child.external ? "noopener noreferrer" : undefined} onclick={handleNavClick}>
+										{#if child.icon}<span class="site-drawer__item-icon" aria-hidden="true"><Icon icon={child.icon} /></span>{/if}
+										<span class="site-drawer__item-label">{child.label}</span>
+									</a>
+								{/each}
+							</div>
+						{/if}
 					</div>
+				{:else if item.href}
+					<a href={item.href} class="site-drawer__item" class:site-drawer__item--active={activePrimary === item.value} aria-current={activePrimary === item.value ? "page" : undefined} target={item.external ? "_blank" : undefined} rel={item.external ? "noopener noreferrer" : undefined} onclick={handleNavClick}>
+						{#if item.icon}<span class="site-drawer__item-icon" aria-hidden="true"><Icon icon={item.icon} /></span>{/if}
+						<span class="site-drawer__item-label">{item.label}</span>
+					</a>
 				{/if}
-			</div>
+			{/each}
 
 		</nav>
 	</aside>
@@ -289,17 +251,6 @@
 
 	&__item--child &__item-label
 		font: var(--m3e-type-body-medium)
-
-	&__count
-		flex: none
-		min-width: 20px
-		text-align: center
-		font-size: 0.75rem
-		font-weight: 600
-		padding: 2px 8px
-		border-radius: var(--shape-corner-full)
-		background: var(--surface-container-high)
-		color: var(--on-surface-variant)
 
 	/* 分组头部 */
 	&__group

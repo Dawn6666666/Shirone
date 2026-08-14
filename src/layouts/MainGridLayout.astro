@@ -7,7 +7,6 @@ import Footer from "@components/organisms/Footer.astro";
 import SideBar from "@components/organisms/SideBar.astro";
 import SiteNavigationDrawer from "@components/organisms/SiteNavigationDrawer.svelte";
 import TopAppBar from "@components/organisms/TopAppBar.astro";
-import { getCategoryList } from "@utils/content-utils";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import { siteConfig } from "../config";
@@ -51,9 +50,6 @@ const hasBannerLink = !!siteConfig.banner.credit.url;
 const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
-
-// 抽屉多级导航数据：分类
-const drawerCategories = await getCategoryList();
 
 // 响应式侧栏配置（数据驱动布局）
 const sidebarConfig = getResponsiveSidebarConfig();
@@ -130,10 +126,7 @@ const mainContentClasses = generateMainContentClasses(sidebarConfig);
     </div>
 </div>
 
-<SiteNavigationDrawer
-    client:load
-    categories={drawerCategories}
-/>
+<SiteNavigationDrawer client:load />
 
 <!-- The things that should be under the banner, only the TOC for now -->
 <div class="absolute w-full z-0 hidden 2xl:block">

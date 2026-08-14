@@ -54,12 +54,16 @@ export enum LinkPreset {
 
 export type NavBarLink = {
 	name: string;
-	url: string;
+	url?: string;
+	icon?: string;
 	external?: boolean;
+	children?: NavBarEntry[];
 };
 
+export type NavBarEntry = NavBarLink | LinkPreset;
+
 export type NavBarConfig = {
-	links: (NavBarLink | LinkPreset)[];
+	links: NavBarEntry[];
 };
 
 export type ProfileConfig = {

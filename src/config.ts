@@ -48,11 +48,18 @@ export const navBarConfig: NavBarConfig = {
 	links: [
 		LinkPreset.Home,
 		LinkPreset.Archive,
-		LinkPreset.About,
 		{
-			name: "GitHub",
-			url: "https://github.com/saicaca/fuwari", // Internal links should not include the base path, as it is automatically added
-			external: true, // Show an external link icon and will open in a new tab
+			name: "More",
+			icon: "material-symbols:apps-rounded",
+			children: [
+				LinkPreset.About,
+				{
+					name: "GitHub",
+					url: "https://github.com/saicaca/fuwari",
+					icon: "fa6-brands:github",
+					external: true,
+				},
+			],
 		},
 	],
 };
