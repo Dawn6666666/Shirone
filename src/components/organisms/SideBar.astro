@@ -1,7 +1,13 @@
 ---
+/**
+ * 侧边栏（数据驱动）：遍历 sidebarConfig.components 渲染侧栏组件。
+ * 组件类型映射到现有分子（Profile/Categories/Tag），position 决定
+ * top（固定顶部）还是 sticky（跟随滚动）。职责仅是编排，不取数。
+ */
 import Categories from "@components/molecules/Categories.astro";
 import Tag from "@components/molecules/Tags.astro";
 import type { MarkdownHeading } from "astro";
+import { sidebarConfig } from "@/config/sidebarConfig";
 import Profile from "./Profile.astro";
 
 interface Props {
@@ -10,13 +16,44 @@ interface Props {
 }
 
 const className = Astro.props.class;
+
+// 组件类型 → 分子（仅可被配置引用的侧栏组件）
+const componentMap = {
+	profile: Profile,
+	categories: Categories,
+	tags: Tag,
+} as const;
+
+const components = sidebarConfig.enable
+	? sidebarConfig.components.filter((c) => c.enable)
+	: [];
+const topComponents = components.filter((c) => c.position === "top");
+const stickyComponents = components.filter((c) => c.position === "sticky");
+
+// 动画延迟：top 组件之后从 150ms 起，sticky 组件依次递增
+const animationDelay = (index: number) => `${150 + index * 50}ms`;
 ---
+
 <aside id="sidebar" class:list={[className, "w-full"]}>
-    <div class="flex flex-col w-full gap-4 mb-4">
-        <Profile></Profile>
-    </div>
-    <div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
-        <Categories class="onload-animation" style="animation-delay: 150ms"></Categories>
-        <Tag class="onload-animation" style="animation-delay: 200ms"></Tag>
-    </div>
+	{topComponents.length > 0 && (
+		<div class="flex flex-col w-full gap-4 mb-4">
+			{topComponents.map((comp) => {
+				const Component = componentMap[comp.type];
+				return <Component />;
+			})}
+		</div>
+	)}
+	{stickyComponents.length > 0 && (
+		<div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
+			{stickyComponents.map((comp, index) => {
+				const Component = componentMap[comp.type];
+				return (
+					<Component
+						class="onload-animation"
+						style={`animation-delay: ${animationDelay(index)}`}
+					/>
+				);
+			})}
+		</div>
+	)}
 </aside>
