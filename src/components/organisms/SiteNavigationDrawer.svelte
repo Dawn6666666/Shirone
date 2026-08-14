@@ -49,11 +49,18 @@
 	function syncFromRoute() {
 		const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
 		const categoryParam = new URLSearchParams(window.location.search).get("category");
+		// 与桌面分类栏（CategoryBar）优先级一致：分类筛选 query 优先于归档页。
+		// 位于 /archive/?category=... 时只高亮分类项，不再同时高亮一级「归档」，避免双重高亮。
+		if (categoryParam) {
+			activePrimary = "";
+			activeCategory = categoryParam;
+			return;
+		}
 		if (pathname === "/") activePrimary = "home";
 		else if (pathname === "/archive") activePrimary = "archive";
 		else if (pathname === "/about") activePrimary = "about";
 		else activePrimary = "";
-		activeCategory = categoryParam || "";
+		activeCategory = "";
 	}
 
 	// 点击链接后收起抽屉；外部链接不改变路由，高亮已由路由同步维护
