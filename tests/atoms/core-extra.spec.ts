@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { openTestPage, expectMatchesToken, readBox, readStyle } from "../helpers/atoms";
+import { openTestPage, expectMatchesToken, expectStyle, readBox, readStyle } from "../helpers/atoms";
 
 /**
  * Menu 官方对照（md-comp-menu）
@@ -76,6 +76,14 @@ test.describe("Card", () => {
 		await expectMatchesToken(page, ".m3-card--elevated", "background-color", "--surface-container-low");
 		await expectMatchesToken(page, ".m3-card--outlined", "background-color", "--surface");
 		await expectMatchesToken(page, ".m3-card--outlined", "border-top-color", "--outline-variant");
+	});
+
+	test("radius 覆盖圆角（默认 12px / l 16px / 任意长度）", async ({ page }) => {
+		// 默认 corner-medium 12px
+		await expectStyle(page, ".m3-card", "border-radius", "12px");
+		// radius="l" → corner-large 16px
+		const l = page.locator(".m3-card[style*='m3-card-radius']").first();
+		await expect(l).toHaveCSS("border-radius", "16px");
 	});
 
 	test("可点击卡片触发回调", async ({ page }) => {

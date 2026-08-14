@@ -1,6 +1,7 @@
 ---
 import Button from "@components/atoms/action/Button.astro";
 import IconButton from "@components/atoms/action/IconButton.astro";
+import Card from "@components/atoms/display/Card.svelte";
 import { url } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import { navBarConfig, siteConfig } from "@/config";
@@ -24,9 +25,9 @@ let links: NavBarLink[] = navBarConfig.links.map(
 ---
 <div id="navbar" class="z-50 onload-animation">
     <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation -->
-    <div class:list={[
+    <Card color="var(--card-bg)" radius="l" class:list={[
         className,
-        "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
+        "!overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
         <Button href={url('/')} label={siteConfig.title} variant="text" size="large" class="!px-4 !font-bold">
             <div class="flex flex-row text-[var(--primary)] items-center text-md">
                 <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
@@ -61,7 +62,7 @@ let links: NavBarLink[] = navBarConfig.links.map(
         </div>
         <NavMenuPanel links={links}></NavMenuPanel>
         <DisplaySettings client:only="svelte"></DisplaySettings>
-    </div>
+    </Card>
 </div>
 
 <script>

@@ -18,6 +18,8 @@ let {
 	onClick,
 	enabled = true,
 	color,
+	radius = "",
+	id = undefined,
 	class: className = "",
 	children,
 }: {
@@ -29,25 +31,46 @@ let {
 	enabled?: boolean;
 	/** 覆盖容器背景色（默认按变体） */
 	color?: string;
+	/** 圆角覆盖：不传跟随官方 corner-medium 12px；token 名 m/l/xl/full 或任意 CSS 长度 */
+	radius?: string;
+	/** 根元素 id 透传（供 CSS 选择器 / 锚点引用） */
+	id?: string;
 	class?: string;
 	children?: import("svelte").Snippet;
 } = $props();
+
+/** 圆角 token 名 → 设计令牌；其他值按 CSS 原样传入 */
+const RADIUS_TOKENS: Record<string, string> = {
+	m: "var(--shape-corner-m)",
+	l: "var(--shape-corner-l)",
+	xl: "var(--shape-corner-xl)",
+	full: "var(--shape-corner-full)",
+};
+const radiusVar = (r: string) => RADIUS_TOKENS[r] ?? r;
+const styleVars = [
+	color ? `--m3-card-bg: ${color}` : "",
+	radius ? `--m3-card-radius: ${radiusVar(radius)}` : "",
+]
+	.filter(Boolean)
+	.join("; ");
 </script>
 
 {#if onClick}
     <button
+        id={id}
         class="m3-card m3-card--{variant} m3-card--interactive {className}"
         class:m3-card--disabled={!enabled}
         onclick={onClick}
         disabled={!enabled}
-        style={color ? `--m3-card-bg: ${color}` : undefined}
+        style={styleVars || undefined}
     >
         {@render children?.()}
     </button>
 {:else}
     <div
+        id={id}
         class="m3-card m3-card--{variant} {className}"
-        style={color ? `--m3-card-bg: ${color}` : undefined}
+        style={styleVars || undefined}
     >
         {@render children?.()}
     </div>
@@ -58,7 +81,7 @@ let {
     --m3-card-bg: var(--surface-container-highest)
     display: block
     box-sizing: border-box
-    border-radius: var(--shape-corner-m)
+    border-radius: var(--m3-card-radius, var(--shape-corner-m))
     background: var(--m3-card-bg)
     color: var(--on-surface)
     /* 形状圆角跟随变体一致，内容溢出圆角裁剪 */

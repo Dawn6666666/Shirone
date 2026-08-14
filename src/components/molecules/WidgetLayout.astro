@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import AccentBar from "@components/atoms/display/AccentBar.svelte";
+import Card from "@components/atoms/display/Card.svelte";
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
 
@@ -15,7 +16,8 @@ interface Props {
 const { id, name, isCollapsed, collapsedHeight, style } = Astro.props;
 const className = Astro.props.class;
 ---
-<widget-layout data-id={id} data-is-collapsed={String(isCollapsed)} class={"pb-4 card-base " + className} style={style}>
+<widget-layout data-id={id} data-is-collapsed={String(isCollapsed)} class={className} style={style}>
+    <Card color="var(--card-bg)" radius="l" class="pb-4">
     <div class="font-bold transition text-lg text-90 relative ml-8 mt-4 mb-2">
         <AccentBar size="small" class="absolute -left-4 top-[5.5px]" />
         {name}
@@ -30,6 +32,7 @@ const className = Astro.props.class;
             </div>
         </button>
     </div>}
+    </Card>
 </widget-layout>
 
 <style define:vars={{ collapsedHeight }}>
