@@ -7,6 +7,7 @@
 	 * Svelte 实现：ArchivePanel（Svelte）与 Astro 演示页均可复用。
 	 */
 	import Icon from "@iconify/svelte";
+	import { collapse } from "@utils/motion";
 
 	export interface ArchiveItem {
 		title: string;
@@ -69,7 +70,10 @@
 					<Icon icon="material-symbols:keyboard-arrow-down" />
 				</span>
 			</button>
-			{#if !collapsed[g.year]}
+			<div
+				class="m3-blog-archive__body"
+				use:collapse={{ open: !collapsed[g.year] }}
+			>
 				<ul class="m3-blog-archive__list">
 					{#each g.items as it (it.href)}
 						<li>
@@ -89,7 +93,7 @@
 						</li>
 					{/each}
 				</ul>
-			{/if}
+			</div>
 		</section>
 	{/each}
 </div>
