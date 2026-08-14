@@ -1,6 +1,7 @@
 <script lang="ts">
 import SearchBar from "@components/molecules/SearchBar.svelte";
 import SearchPanel from "@components/atoms/blog/SearchPanel.svelte";
+import IconButton from "@components/atoms/action/IconButton.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
@@ -157,10 +158,15 @@ $: if (initialized && keywordMobile) {
 />
 
 <!-- toggle btn for phone/tablet view -->
-<button onclick={togglePanel} aria-label="Search Panel" id="search-switch"
-        class="btn-plain scale-animation lg:!hidden rounded-lg w-11 h-11 active:scale-90">
-    <Icon icon="material-symbols:search" class="text-[1.25rem]"></Icon>
-</button>
+<IconButton
+    icon="material-symbols:search"
+    label="Search Panel"
+    id="search-switch"
+    size="small"
+    shape="square"
+    onclick={togglePanel}
+    class="lg:!hidden !w-11 !h-11 !rounded-lg active:scale-90 !text-[1.25rem]"
+/>
 
 <!-- search panel（blog/SearchPanel 原子；开合由调用方 classList 控制，与 DisplaySettings 同款） -->
 <SearchPanel

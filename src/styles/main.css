@@ -23,18 +23,12 @@
     h1, h2, h3, h4, h5, h6, p, a, span, li, ul, ol, blockquote, code, pre, table, th, td, strong {
         @apply transition;
     }
-    .expand-animation,
-    .link,
-    .link-lg,
-    .btn-plain.scale-animation {
+    .link {
         @apply relative before:ease-out before:transition active:bg-none hover:before:bg-[var(--btn-plain-bg-hover)] active:before:bg-[var(--btn-plain-bg-active)] z-0
         before:absolute before:rounded-[inherit] before:inset-0 before:scale-[0.85] hover:before:scale-100 before:-z-10
     }
     .link {
         @apply transition rounded-md p-1 -m-1;
-    }
-    .link-lg {
-        @apply transition rounded-md p-1.5 -m-1.5;
     }
     .float-panel {
         @apply top-[5.25rem] rounded-[var(--radius-large)] overflow-hidden bg-[var(--float-panel-bg)] transition shadow-xl dark:shadow-none
@@ -48,21 +42,6 @@
     }
     .float-menu-item {
         @apply text-[var(--on-surface)] hover:bg-[var(--float-item-bg-hover)] active:bg-[var(--float-item-bg-active)];
-    }
-    .float-menu-item.current-theme-btn {
-        @apply text-[var(--on-secondary-container)] bg-[var(--secondary-container)];
-    }
-    .btn-plain {
-        @apply transition relative flex items-center justify-center bg-none
-        text-[var(--on-surface)] hover:text-[var(--primary)];
-        &:not(.scale-animation) {
-            @apply hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]
-        }
-        &.scale-animation {
-            &.current-theme-btn {
-                @apply before:scale-100 before:opacity-100 before:bg-[var(--btn-plain-bg-hover)] text-[var(--primary)]
-            }
-        }
     }
     .btn-regular {
         @apply transition flex items-center justify-center bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)]

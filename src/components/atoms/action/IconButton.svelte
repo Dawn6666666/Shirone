@@ -21,6 +21,7 @@ let {
 	checked = $bindable(false),
 	disabled = false,
 	label = "",
+	id = undefined,
 	onclick,
 	onchange,
 	class: className = "",
@@ -43,6 +44,8 @@ let {
 	disabled?: boolean;
 	/** 无障碍标签（aria-label） */
 	label?: string;
+	/** 根元素 id 透传（供 CSS 选择器 / 锚点引用） */
+	id?: string;
 	onclick?: () => void;
 	/** toggle 模式选中变化回调 */
 	onchange?: (checked: boolean) => void;
@@ -61,6 +64,7 @@ function handleClick() {
 
 <button
 	type="button"
+	id={id}
 	class="m3-icon-button m3-icon-button--{variant} m3-icon-button--{size} m3-icon-button--{shape} m3-state-layer {className}"
 	class:m3-icon-button--checked={checked}
 	class:m3-icon-button--disabled={disabled}
