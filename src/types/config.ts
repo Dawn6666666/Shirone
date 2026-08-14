@@ -37,6 +37,12 @@ export type SiteConfig = {
 		depth: 1 | 2 | 3;
 	};
 
+	/** 进度条预设样式（页面切换进度条等，仅线性扫描模式） */
+	progressIndicator: {
+		/** dual 双向扫描（官方默认双线）/ single 单向扫描（单线） */
+		style: "dual" | "single";
+	};
+
 	favicon: Favicon[];
 };
 

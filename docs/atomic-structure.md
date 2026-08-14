@@ -39,7 +39,7 @@
 |---|---|---|---|
 | **原子** | `atoms/` | 单一职责的 UI 元素（47 个，清单见 §6） | 仅设计令牌（`--mc-*`、`--m3e-*`、语义别名）与 `.m3-state-layer`；**不得 import 任何组件** |
 | **分子** | `molecules/` | 原子的固定组合：ButtonLink、ButtonTag、Tags、Categories、PostMeta、SearchBar、TOC、WidgetLayout、ImageWrapper、License、Pagination | atoms + 同层分子（须同层方向合理） |
-| **有机体** | `organisms/` | 独立业务区块：Navbar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、NavMenuPanel、BackToTop | atoms + molecules + 被组合的**更小** organism |
+| **有机体** | `organisms/` | 独立业务区块：TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop | atoms + molecules + 被组合的**更小** organism |
 | **模板** | `layouts/` | 页面骨架与网格布局：Layout、MainGridLayout | organisms + molecules + system |
 | **页面** | `pages/` | 路由级编排：`[...page].astro`、`about.astro`、`archive.astro`、`posts/[...slug].astro` | layouts + organisms + molecules + content |
 | **系统** | `system/` | 全局基础设施 | 仅令牌与 utils |
@@ -51,7 +51,7 @@
 
 1. **单向向上**：`atoms ← molecules ← organisms ← templates ← pages`。任何层只能依赖自己与更底层。
 2. **同层分子互依赖**允许，但禁止形成环（A→B 且 B→A）。
-3. **organism 组合 organism**：仅允许"主从"组合（如 Navbar 组合 Search / DisplaySettings / LightDarkSwitch，PostPage 组合 PostCard）；禁止 organism 间平铺式的互相引用——需要共享时，把共享部分下沉为 molecule。
+3. **organism 组合 organism**：仅允许"主从"组合（如 TopAppBar 组合 Search / DisplaySettings / LightDarkSwitch，PostPage 组合 PostCard）；禁止 organism 间平铺式的互相引用——需要共享时，把共享部分下沉为 molecule。
 4. **组件禁止反向依赖模板与页面**：任何 `src/components/` 下的文件不得 import `layouts/` 或 `pages/`。
 5. **跨目录引用一律用 `@components/<层>/<文件>` 别名**，禁止 `../../` 相对链。
 
@@ -116,7 +116,7 @@
 |---|---|
 | atoms/ | 47 个原子组件（Button、Chip、IconButton、FAB、FABMenu、Slider、SegmentedButton、TextField、Switch、Checkbox、RadioButton、Dialog、Menu、Badge、Divider、Snackbar、Tabs、Select、DataTable、SearchView、Autocomplete、SheetSide、Carousel、PullToRefresh、DatePicker、TimePicker、Chips、Banner、Tooltip、Card、AppBar、NavigationBar/Rail/Drawer、ExposedDropdownMenu、ListItem、LoadingIndicator、ProgressIndicator、AlertDialog、BadgedBox、SplitButton、ToggleButton、ButtonGroup、SearchBar、DateInput、FloatingToolbar、BottomSheet 等；完整清单见 m3e-standard.md §4） |
 | molecules/ | ButtonLink、ButtonTag、Tags、Categories、PostMeta、SearchBar、TOC、WidgetLayout、ImageWrapper、License、Pagination（11） |
-| organisms/ | Navbar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、NavMenuPanel、BackToTop（12） |
+| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop（14） |
 | system/ | ConfigCarrier、GlobalStyles（2） |
 | content/ | Markdown（1） |
 | layouts/ | Layout、MainGridLayout（2） |

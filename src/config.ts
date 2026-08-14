@@ -33,6 +33,10 @@ export const siteConfig: SiteConfig = {
 		enable: true, // Display the table of contents on the right side of the post
 		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
 	},
+	progressIndicator: {
+		// 进度条预设样式：dual 双向扫描（官方默认双线）/ single 单向扫描（单线）
+		style: "dual",
+	},
 	favicon: [
 		// Leave this array empty to use the default favicon
 		// {
