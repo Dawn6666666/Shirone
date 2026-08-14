@@ -9,7 +9,7 @@
 	import { navBarConfig } from "@/config/navBarConfig";
 	import { siteConfig } from "@/config";
 	import { onMount, tick } from "svelte";
-	import { resolveNavBarLinks } from "@utils/nav-utils";
+	import { resolveNavBarLinks, resolvePageKey } from "@utils/nav-utils";
 	import { url } from "@utils/url-utils";
 
 	let open = $state(false);
@@ -26,25 +26,29 @@
 			icon: link.icon,
 			href: link.url ? (link.external ? link.url : url(link.url)) : undefined,
 			external: !!link.external,
+			pageKey: link.pageKey ?? "",
 			children: link.children?.map((child) => ({
 				value: child.name.toLowerCase(),
 				label: child.name,
 				icon: child.icon,
 				href: child.url ? (child.external ? child.url : url(child.url)) : undefined,
 				external: !!child.external,
+				pageKey: child.pageKey ?? "",
 			})),
 		};
 	});
 
 	function syncFromRoute() {
-		const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+		const pageKey = resolvePageKey(new URL(window.location.href));
 		activePrimary = "";
 		for (const item of primaryItems) {
-			if (item.href && new URL(item.href, window.location.origin).pathname.replace(/\/+$/, "") === pathname) {
+			if (item.pageKey && item.pageKey === pageKey) {
 				activePrimary = item.value;
 				break;
 			}
-			const activeChild = item.children?.find((child) => child.href && new URL(child.href, window.location.origin).pathname.replace(/\/+$/, "") === pathname);
+			const activeChild = item.children?.find(
+				(child) => child.pageKey && child.pageKey === pageKey,
+			);
 			if (activeChild) {
 				activePrimary = activeChild.value;
 				openGroups[item.value] = true;

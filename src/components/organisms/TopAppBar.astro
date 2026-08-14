@@ -6,8 +6,8 @@
  * 菜单按钮点击派发 site-drawer:toggle 事件，由 SiteNavigationDrawer 监听开合。
  */
 import IconButton from "@components/atoms/action/IconButton.astro";
-import { resolveNavBarLinks } from "@utils/nav-utils";
-import { pathsEqual, url } from "@utils/url-utils";
+import { resolveNavBarLinks, resolvePageKey } from "@utils/nav-utils";
+import { url } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import { navBarConfig } from "@/config/navBarConfig";
 import { siteConfig } from "@/config";
@@ -17,7 +17,7 @@ import Search from "./Search.svelte";
 
 const className = Astro.props.class;
 const links = resolveNavBarLinks(navBarConfig.links);
-const currentPath = Astro.url.pathname;
+const currentPageKey = resolvePageKey(Astro.url);
 
 function hrefFor(path?: string) {
 	return path ? url(path) : undefined;
@@ -25,7 +25,7 @@ function hrefFor(path?: string) {
 
 function isActive(link: (typeof links)[number]): boolean {
 	return Boolean(
-		link.url && pathsEqual(currentPath, hrefFor(link.url) || "") ||
+		(link.pageKey && link.pageKey === currentPageKey) ||
 			link.children?.some(isActive),
 	);
 }
@@ -66,7 +66,7 @@ function isActive(link: (typeof links)[number]): boolean {
 							</button>
 						) : (
 							<a href={href} target={link.external ? "_blank" : undefined} rel={link.external ? "noopener noreferrer" : undefined}
-								aria-current={active ? "page" : undefined} data-nav-path={!link.external && href ? new URL(href, Astro.url).pathname : undefined}
+								aria-current={active ? "page" : undefined} data-nav-key={link.pageKey ?? ""}
 								class:list={["top-app-bar__nav-link m3-state-layer relative flex h-10 items-center gap-1 px-3 text-sm font-bold text-[var(--on-surface-variant)] transition-colors hover:text-[var(--on-surface)]", active && "top-app-bar__nav-link--active"]}>
 								{link.icon && <Icon name={link.icon} class="text-[1.1rem]"></Icon>}{link.name}
 								{link.external && <Icon name="material-symbols:arrow-outward-rounded" class="ml-1 text-[0.875rem]"></Icon>}
@@ -75,7 +75,7 @@ function isActive(link: (typeof links)[number]): boolean {
 						{link.children && <div class="top-app-bar__submenu" role="menu">
 							{link.children.map((child) => {
 								const childHref = child.external ? child.url : hrefFor(child.url);
-								return <a href={childHref} target={child.external ? "_blank" : undefined} rel={child.external ? "noopener noreferrer" : undefined} role="menuitem" data-nav-path={!child.external && childHref ? new URL(childHref, Astro.url).pathname : undefined} class="top-app-bar__submenu-item">
+							return <a href={childHref} target={child.external ? "_blank" : undefined} rel={child.external ? "noopener noreferrer" : undefined} role="menuitem" data-nav-key={child.pageKey ?? ""} class="top-app-bar__submenu-item">
 									{child.icon && <Icon name={child.icon} class="text-[1.2rem]"></Icon>}{child.name}{child.external && <Icon name="material-symbols:arrow-outward-rounded" class="ml-auto text-[0.875rem]"></Icon>}
 								</a>;
 							})}
@@ -99,23 +99,25 @@ function isActive(link: (typeof links)[number]): boolean {
 </div>
 
 <script>
+	import { resolvePageKey } from "@utils/nav-utils";
+
 	function syncTopAppBarNavigation() {
-		const normalize = (path: string) => path.replace(/\/+$/, "") || "/";
-		const currentPath = normalize(window.location.pathname);
-		setTopAppBarNavigation(currentPath);
+		setTopAppBarNavigation(resolvePageKey(new URL(window.location.href)));
 	}
 
-	function setTopAppBarNavigation(path: string) {
-		const normalize = (value: string) => value.replace(/\/+$/, "") || "/";
-			document.querySelectorAll<HTMLElement>("[data-nav-path]").forEach((link) => {
-			const active = normalize(link.dataset.navPath || "") === normalize(path);
+	function setTopAppBarNavigation(pageKey: string) {
+		document.querySelectorAll<HTMLElement>("[data-nav-key]").forEach((link) => {
+			const active = (link.dataset.navKey || "") === pageKey;
 			link.classList.toggle("top-app-bar__nav-link--active", active);
 			if (active) link.setAttribute("aria-current", "page");
 			else link.removeAttribute("aria-current");
 		});
 		document.querySelectorAll<HTMLElement>("[data-nav-group]").forEach((group) => {
+			// 仅处理有下拉子菜单的组（组触发器是 button）；普通链接组已由上面设置
+			const trigger = group.querySelector(":scope > button.top-app-bar__nav-link");
+			if (!trigger) return;
 			const active = Boolean(group.querySelector(".top-app-bar__submenu-item.top-app-bar__nav-link--active"));
-			group.querySelector(":scope > .top-app-bar__nav-link")?.classList.toggle("top-app-bar__nav-link--active", active);
+			trigger.classList.toggle("top-app-bar__nav-link--active", active);
 		});
 	}
 
@@ -145,9 +147,9 @@ function isActive(link: (typeof links)[number]): boolean {
 		}
 
 		syncTopAppBarNavigation();
-		document.querySelectorAll<HTMLElement>("[data-nav-path]").forEach((link) => {
+		document.querySelectorAll<HTMLElement>("[data-nav-key]").forEach((link) => {
 			link.onclick = () => {
-				setTopAppBarNavigation(link.dataset.navPath || "");
+				setTopAppBarNavigation(link.dataset.navKey || "");
 				closeTopAppBarMenus();
 			};
 		});

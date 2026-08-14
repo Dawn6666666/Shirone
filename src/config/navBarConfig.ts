@@ -1,6 +1,6 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import type { NavBarConfig, NavBarLink } from "@/types/config";
+import type { NavBarConfig, NavBarLink } from "@/types/navBarConfig";
 
 /**
  * 导航栏配置（统一单一来源）。
@@ -14,22 +14,38 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		name: i18n(I18nKey.home),
 		url: "/",
 		icon: "material-symbols:home-outline-rounded",
+		pageKey: "home",
 	},
 	Archive: {
 		name: i18n(I18nKey.archive),
 		url: "/archive/",
 		icon: "material-symbols:archive-outline-rounded",
+		pageKey: "archive",
+	},
+	Categories: {
+		name: i18n(I18nKey.categories),
+		url: "/archive/",
+		icon: "material-symbols:folder-outline-rounded",
+		pageKey: "categories",
+	},
+	Tags: {
+		name: i18n(I18nKey.tags),
+		url: "/archive/",
+		icon: "material-symbols:tag-rounded",
+		pageKey: "tags",
 	},
 	About: {
 		name: i18n(I18nKey.about),
 		url: "/about/",
 		icon: "material-symbols:info-outline-rounded",
+		pageKey: "about",
 	},
 	GitHub: {
 		name: "GitHub",
 		url: "https://github.com/saicaca/fuwari",
 		icon: "fa6-brands:github",
 		external: true,
+		pageKey: "github",
 	},
 };
 
@@ -40,7 +56,13 @@ export const navBarConfig: NavBarConfig = {
 		{
 			name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",
-			children: [LinkPresets.About, LinkPresets.GitHub],
+			children: [
+				// 分类/标签入口暂不启用（无独立页面），预设已登记，启用时取消注释即可
+				// LinkPresets.Categories,
+				// LinkPresets.Tags,
+				LinkPresets.About,
+				LinkPresets.GitHub,
+			],
 		},
 	],
 };

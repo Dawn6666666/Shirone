@@ -46,18 +46,6 @@ export type Favicon = {
 	sizes?: string;
 };
 
-export type NavBarLink = {
-	name: string;
-	url?: string;
-	icon?: string;
-	external?: boolean;
-	children?: NavBarLink[];
-};
-
-export type NavBarConfig = {
-	links: NavBarLink[];
-};
-
 export type ProfileConfig = {
 	avatar?: string;
 	name: string;
