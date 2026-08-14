@@ -66,10 +66,12 @@ onMount(() => {
     gap: 0.5rem
     max-width: min(calc(100vw - 2rem), 40rem)
     border-radius: var(--shape-corner-xs)
-    background: var(--inverse-surface)
-    color: var(--inverse-on-surface)
+    /* 明暗自适应表面：白天浅色、暗色深色，避免纯白主题下深黑弹条突兀 */
+    background: var(--surface-container-high)
+    color: var(--on-surface)
     font: var(--m3e-type-body-medium)
     box-shadow: var(--m3e-elevation-3)
+    border: 1px solid var(--outline-variant)
     opacity: 0
     pointer-events: none
     transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard), transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
@@ -93,14 +95,14 @@ onMount(() => {
         margin-right: -0.25rem
         border: none
         background: none
-        color: var(--inverse-primary)
+        color: var(--primary)
         font: var(--m3e-type-label-large)
         cursor: pointer
         border-radius: var(--shape-corner-xs)
         white-space: nowrap
         &:hover
-            background: unquote("color-mix(in srgb, var(--inverse-primary) 8%, transparent)")
+            background: unquote("color-mix(in srgb, var(--primary) 8%, transparent)")
         &:focus-visible
-            outline: 2px solid var(--inverse-primary)
+            outline: 2px solid var(--primary)
             outline-offset: 2px
 </style>

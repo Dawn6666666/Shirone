@@ -51,6 +51,7 @@ export const zh_TW: Translation = {
 	[Key.publishedAt]: "發佈於",
 	[Key.license]: "許可協議",
 	[Key.copySuccess]: "已複製到剪貼簿",
+	[Key.copyLink]: "複製連結",
 
 	[Key.reduceMotion]: "減少動態效果",
 	[Key.resetConfirmTitle]: "重置主題設定？",

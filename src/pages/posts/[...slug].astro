@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import path from "node:path";
 import Markdown from "@components/content/Markdown.astro";
+import IconButton from "@components/atoms/action/IconButton.astro";
 import ImageWrapper from "@components/molecules/ImageWrapper.astro";
 import License from "@components/molecules/License.astro";
 import PostMetadata from "@components/molecules/PostMeta.astro";
@@ -81,10 +82,17 @@ const jsonLd = {
                     data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title"
                     class="transition w-full block font-bold mb-3
                     text-3xl md:text-[2.25rem]/[2.75rem]
-                    text-90
+                    text-90 flex items-center gap-3
                 ">
-                                        <AccentBar size="medium" class="!hidden md:!inline-block absolute -left-[1.125rem] top-[0.75rem]" />
-                    {entry.data.title}
+                    <AccentBar size="medium" class="!hidden md:!inline-block absolute -left-[1.125rem] top-[0.75rem]" />
+                    <span class="min-w-0">{entry.data.title}</span>
+                    <IconButton
+                        id="copy-post-link"
+                        label={i18n(I18nKey.copyLink)}
+                        class="ml-auto shrink-0"
+                    >
+                        <Icon name="material-symbols:link-rounded" class="text-[1.25rem]"></Icon>
+                    </IconButton>
                 </div>
             </div>
 
@@ -151,3 +159,19 @@ const jsonLd = {
     </div>
 
 </MainGridLayout>
+
+<script>
+    import { showSnackbar } from "@utils/snackbar";
+    import I18nKey from "@i18n/i18nKey";
+    import { i18n } from "@i18n/translation";
+
+    const copyBtn = document.getElementById("copy-post-link");
+    copyBtn?.addEventListener("click", async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            showSnackbar(i18n(I18nKey.copySuccess), { icon: "material-symbols:link" });
+        } catch {
+            showSnackbar(i18n(I18nKey.copyLink));
+        }
+    });
+</script>

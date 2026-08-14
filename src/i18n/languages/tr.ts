@@ -51,6 +51,7 @@ export const tr: Translation = {
 	[Key.publishedAt]: "Yayınlanma:",
 	[Key.license]: "Lisans",
 	[Key.copySuccess]: "Panoya kopyalandı",
+	[Key.copyLink]: "Bağlantıyı kopyala",
 
 	[Key.reduceMotion]: "Hareketi azalt",
 	[Key.resetConfirmTitle]: "Tema sıfırlansın mı?",

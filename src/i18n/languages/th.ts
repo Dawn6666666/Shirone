@@ -51,6 +51,7 @@ export const th: Translation = {
 	[Key.publishedAt]: "เผยแพร่เมื่อ",
 	[Key.license]: "สัญญาอนุญาต",
 	[Key.copySuccess]: "คัดลอกไปยังคลิปบอร์ดแล้ว",
+	[Key.copyLink]: "คัดลอกลิงก์",
 
 	[Key.reduceMotion]: "ลดการเคลื่อนไหว",
 	[Key.resetConfirmTitle]: "รีเซ็ตธีมหรือไม่",

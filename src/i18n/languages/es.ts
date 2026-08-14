@@ -51,6 +51,7 @@ export const es: Translation = {
 	[Key.publishedAt]: "Publicado el",
 	[Key.license]: "Licencia",
 	[Key.copySuccess]: "Copiado al portapapeles",
+	[Key.copyLink]: "Copiar enlace",
 
 	[Key.reduceMotion]: "Reducir movimiento",
 	[Key.resetConfirmTitle]: "¿Restablecer tema?",

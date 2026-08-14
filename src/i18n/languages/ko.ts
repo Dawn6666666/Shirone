@@ -51,6 +51,7 @@ export const ko: Translation = {
 	[Key.publishedAt]: "게시일",
 	[Key.license]: "라이선스",
 	[Key.copySuccess]: "클립보드에 복사되었습니다",
+	[Key.copyLink]: "링크 복사",
 
 	[Key.reduceMotion]: "동작 줄이기",
 	[Key.resetConfirmTitle]: "테마를 재설정할까요?",

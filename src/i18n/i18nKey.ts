@@ -56,6 +56,7 @@ enum I18nKey {
 	license = "license",
 
 	copySuccess = "copySuccess",
+	copyLink = "copyLink",
 }
 
 export default I18nKey;

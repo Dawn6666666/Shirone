@@ -51,6 +51,7 @@ export const ja: Translation = {
 	[Key.publishedAt]: "公開日",
 	[Key.license]: "ライセンス",
 	[Key.copySuccess]: "クリップボードにコピーしました",
+	[Key.copyLink]: "リンクをコピー",
 
 	[Key.reduceMotion]: "動きを減らす",
 	[Key.resetConfirmTitle]: "テーマをリセットしますか？",
