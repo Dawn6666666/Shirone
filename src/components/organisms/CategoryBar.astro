@@ -37,43 +37,47 @@ const postCategory = (currentPostCategory || "").trim();
 const softCategory = !isHome && !isArchive && postCategory ? postCategory : "";
 ---
 
-<Card color="var(--card-bg)" radius="l" class="category-bar onload-animation mb-4 p-2" id="category-bar">
-	<div class="category-bar-inner flex gap-2 items-center">
-		<Chip
-			variant="tonal"
-			href={homeUrl}
-			selected={isHome}
-			label={i18n(I18nKey.home)}
-			class="shrink-0"
-		>
-			<Icon name="material-symbols:home" class="text-lg" aria-hidden="true" />
-		</Chip>
-		<Chip
-			variant="tonal"
-			href={archiveUrl}
-			selected={isArchive}
-			class="shrink-0"
-		>
-			{i18n(I18nKey.archive)}
-		</Chip>
+<!-- nav landmark：分类栏静态渲染在 Swup 容器外，需要独立 landmark 才能通过
+     axe region 规则（内容必须处于某个 landmark 区域内） -->
+<nav aria-label={i18n(I18nKey.categories)}>
+	<Card color="var(--card-bg)" radius="l" class="category-bar onload-animation mb-4 p-2" id="category-bar">
+		<div class="category-bar-inner flex gap-2 items-center">
+			<Chip
+				variant="tonal"
+				href={homeUrl}
+				selected={isHome}
+				label={i18n(I18nKey.home)}
+				class="shrink-0"
+			>
+				<Icon name="material-symbols:home" class="text-lg" aria-hidden="true" />
+			</Chip>
+			<Chip
+				variant="tonal"
+				href={archiveUrl}
+				selected={isArchive}
+				class="shrink-0"
+			>
+				{i18n(I18nKey.archive)}
+			</Chip>
 
-		<!-- 分类区：横向滚动 -->
-		<div class="category-bar-list flex gap-2 overflow-x-auto hide-scrollbar flex-1 min-w-0">
-			{categories.map((cat) => (
-				<Chip
-					variant="tonal"
-					href={cat.url}
-					selected={false}
-					soft={cat.name === softCategory}
-					class="shrink-0"
-				>
-					{cat.name}
-					<span class="category-bar__count" aria-hidden="true">{cat.count}</span>
-				</Chip>
-			))}
+			<!-- 分类区：横向滚动 -->
+			<div class="category-bar-list flex gap-2 overflow-x-auto hide-scrollbar flex-1 min-w-0">
+				{categories.map((cat) => (
+					<Chip
+						variant="tonal"
+						href={cat.url}
+						selected={false}
+						soft={cat.name === softCategory}
+						class="shrink-0"
+					>
+						{cat.name}
+						<span class="category-bar__count" aria-hidden="true">{cat.count}</span>
+					</Chip>
+				))}
+			</div>
 		</div>
-	</div>
-</Card>
+	</Card>
+</nav>
 
 <style lang="stylus">
 	.category-bar__count
@@ -95,19 +99,21 @@ const softCategory = !isHome && !isArchive && postCategory ? postCategory : "";
 </style>
 
 <script>
-	// 高亮同步：读取当前 URL 的分类筛选参数，更新 pill 的 selected 态。
-	// 静态站点 SSR 拿不到运行时 query，因此 query 分类高亮只能客户端处理。
+	// 高亮同步：分类栏静态渲染在 Swup 容器外，导航后不重渲染，
+	// 因此强高亮（首页/归档/分类筛选）与弱高亮（文章页所属分类）都要在这里维护。
+	// 文章页所属分类从 #swup-container 的 data-current-post-category 读取。
 	// 用 pill 的 href 与当前 URL 比对（Chip 原子不透传 data-* 属性）。
 	function syncCategoryBar() {
 		const bar = document.getElementById("category-bar");
 		if (!bar) return;
 
+		const swupContainer = document.getElementById("swup-container");
+		const postCategory = (swupContainer?.dataset.currentPostCategory || "").trim();
+
 		const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
 		const params = new URLSearchParams(window.location.search);
 		const categoryParam = params.get("category");
 
-		// 强高亮只在首页 / 归档 / 分类筛选页出现；文章页、关于页等无强高亮
-		// （文章页所属分类的弱高亮由 SSR 的 soft 类提供，Swup 换入时会带上正确状态）。
 		let active: string;
 		if (pathname === "/") {
 			active = "__home__";
@@ -119,6 +125,12 @@ const softCategory = !isHome && !isArchive && postCategory ? postCategory : "";
 			active = "";
 		}
 
+		// 弱高亮只在无强高亮的页面出现（文章页所属分类，与 SSR soft 逻辑一致）
+		const softCategory =
+			active === "" && postCategory && pathname !== "/" && pathname !== "/archive"
+				? postCategory
+				: "";
+
 		const pills = bar.querySelectorAll<HTMLAnchorElement>("a.m3-chip");
 		pills.forEach((pill) => {
 			const href = pill.getAttribute("href") || "";
@@ -127,11 +139,18 @@ const softCategory = !isHome && !isArchive && postCategory ? postCategory : "";
 				active === ""
 					? false
 					: active === "__home__"
-						? normalizedHref === "/"
-						: active === "__archive__"
-							? href.includes("/archive/") && !href.includes("category=") && !href.includes("tag=")
-							: href.includes(active);
+					? normalizedHref === "/"
+					: active === "__archive__"
+						? href.includes("/archive/") && !href.includes("category=") && !href.includes("tag=")
+						: href.includes(`category=${encodeURIComponent(categoryParam!)}`);
 			pill.classList.toggle("m3-chip--selected", isActive);
+
+			// 文章页所属分类弱高亮（primary-container 次级语义）
+			const isSoft =
+				!isActive &&
+				softCategory !== "" &&
+				href.includes(`category=${encodeURIComponent(softCategory)}`);
+			pill.classList.toggle("m3-chip--soft", isSoft);
 		});
 	}
 

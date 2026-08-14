@@ -96,17 +96,25 @@ const mainContentClasses = generateMainContentClasses(sidebarConfig);
 
             <SideBar class={sidebarClasses} headings={headings}></SideBar>
 
-            <main id="swup-container" class={mainContentClasses}>
+            <!-- 主内容列：分类导航栏静态渲染（位于 Swup 容器外），
+                 页面切换时保持固定不重渲染；仅内容区随导航替换 -->
+            <div class={mainContentClasses.replace("transition-swup-fade", "").trim()}>
                 <CategoryBar currentPostCategory={postCategory}></CategoryBar>
-                <div id="content-wrapper" class="onload-animation">
-                    <!-- the overflow-hidden here prevent long text break the layout-->
-                    <!-- make id different from windows.swup global property -->
-                    <slot></slot>
-                    <div class="footer col-span-2 onload-animation hidden lg:block">
-                        <Footer></Footer>
+                <main
+                    id="swup-container"
+                    data-current-post-category={postCategory || ""}
+                    class="transition-swup-fade"
+                >
+                    <div id="content-wrapper" class="onload-animation">
+                        <!-- the overflow-hidden here prevent long text break the layout-->
+                        <!-- make id different from windows.swup global property -->
+                        <slot></slot>
+                        <div class="footer col-span-2 onload-animation hidden lg:block">
+                            <Footer></Footer>
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </div>
 
             <div class="footer col-span-2 onload-animation block lg:hidden">
                 <Footer></Footer>
