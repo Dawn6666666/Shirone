@@ -70,8 +70,20 @@
 | `Pagination` | 分页控件 |
 | `SearchBar` | 搜索输入（分子层，docked 视觉） |
 | `WidgetLayout` | 侧栏卡片容器（折叠标题 + 内容） |
+| `Announcement` | 公告侧栏 widget（Banner 原子 round 形态，无标题外壳；内容源 `announcementConfig`） |
 
 原子层通用件（`Button` / `Card` / `IconButton` / `Avatar` / `AccentBar` 等）见 `m3e-standard.md` §4。
+
+### 3.1 侧栏 widget 编排
+
+侧栏 widget 由 `src/config/sidebarConfig.ts` 数据驱动，`SideBar.astro` 的 `componentMap` 是唯一注册表。新增一个侧栏 widget 的 checklist：
+
+1. 在 `src/types/sidebarConfig.ts` 的 `SidebarWidget` 判别联合扩展分支（widget 自己的配置项放分支内，不搞扁平大对象）；
+2. 实现 widget 组件（molecules 或 organisms），接收可选 `widget` prop 读取自己的配置；
+3. 在 `SideBar.astro` 的 `componentMap` 注册（`satisfies Record<SidebarWidget["type"], unknown>` 保证不漏键）；
+4. 在 `sidebarConfig.components` 追加默认条目（新 widget 默认 `enable: false`，保证存量站点 DOM 零变化）；
+5. 若有独立内容源（如 `announcementConfig`），类型放 `src/types/`、值放 `src/config/` 并在 barrel 注册；
+6. 本文件 §3 登记 + `atomic-structure.md` §6 分层清单同步。
 
 ## 4. 新增通用组件约定
 

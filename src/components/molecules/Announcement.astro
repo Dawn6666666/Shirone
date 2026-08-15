@@ -1,0 +1,25 @@
+---
+/**
+ * 公告侧栏 widget：消费 overlay/Banner 原子（round 形态，贴合 M3E 浮层圆角语言），
+ * 无 WidgetLayout 标题外壳——公告是短消息，不是分组卡片。
+ * 内容来自 announcementConfig；text 为空时不渲染任何内容。
+ */
+import Banner from "@components/atoms/overlay/Banner.svelte";
+import { announcementConfig } from "@/config/announcementConfig";
+import type { AnnouncementWidget } from "@/types/sidebarConfig";
+
+interface Props {
+	class?: string;
+	style?: string;
+	widget?: AnnouncementWidget;
+}
+
+const className = Astro.props.class;
+const style = Astro.props.style;
+const { icon, text } = announcementConfig;
+---
+{text && (
+	<div class={className} style={style}>
+		<Banner text={text} icon={icon} shape="round" />
+	</div>
+)}

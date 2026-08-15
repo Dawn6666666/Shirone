@@ -288,6 +288,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/components/molecules/SectionTitle.svelte` | 区块级标题（可选图标 + 标题 + 副标题），见 `docs/common-components.md` |
 | `src/components/molecules/MomentCard.svelte` | 动态卡片（正文 + 画廊挂载点），见 `docs/common-components.md` |
 | `src/components/molecules/MomentGallery.svelte` | 动态图片画廊（网格 + 内联查看器两段式，编程式 Fancybox 灯箱） |
+| `src/components/molecules/Announcement.astro` | 公告侧栏 widget（Banner round，内容源 `announcementConfig`），见 `docs/common-components.md` §3.1 |
 | `src/components/organisms/MomentSection.svelte` | 动态页主体（搜索/标签筛选/加载更多 + Fancybox 接线） |
 | `src/utils/markdown-processor.mjs` | 站点统一 markdown 插件链（astro.config 与构建期离线渲染共用） |
 

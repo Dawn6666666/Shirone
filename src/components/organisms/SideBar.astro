@@ -1,54 +1,65 @@
 ---
 /**
- * 侧边栏（数据驱动）：遍历 sidebarConfig.components 渲染侧栏组件。
- * 组件类型映射到现有分子（Profile/Categories/Tag），position 决定
- * top（固定顶部）还是 sticky（跟随滚动）。职责仅是编排，不取数。
+ * 侧边栏（数据驱动）：遍历 sidebarConfig.components 渲染 widget。
+ * componentMap 是唯一的 widget 注册表——新增 widget 时在
+ * src/types/sidebarConfig.ts 扩展联合分支，并在此注册组件。
+ * 职责仅是编排，不取数；widget 自己的配置经 `widget` prop 透传。
  */
+import Announcement from "@components/molecules/Announcement.astro";
 import Categories from "@components/molecules/Categories.astro";
-import Tag from "@components/molecules/Tags.astro";
-import type { MarkdownHeading } from "astro";
+import Tags from "@components/molecules/Tags.astro";
 import { sidebarConfig } from "@/config/sidebarConfig";
+import type { SidebarWidget } from "@/types/sidebarConfig";
 import Profile from "./Profile.astro";
 
 interface Props {
 	class?: string;
-	headings?: MarkdownHeading[];
 }
 
 const className = Astro.props.class;
 
-// 组件类型 → 分子（仅可被配置引用的侧栏组件）
+// widget 类型 → 组件（键必须覆盖 SidebarWidget 的全部 type）
 const componentMap = {
 	profile: Profile,
 	categories: Categories,
-	tags: Tag,
-} as const;
+	tags: Tags,
+	announcement: Announcement,
+} satisfies Record<SidebarWidget["type"], unknown>;
 
-const components = sidebarConfig.enable
-	? sidebarConfig.components.filter((c) => c.enable)
+type WidgetRenderer = (props: Record<string, unknown>) => unknown;
+
+const widgets = sidebarConfig.enable
+	? sidebarConfig.components.filter((widget) => widget.enable)
 	: [];
-const topComponents = components.filter((c) => c.position === "top");
-const stickyComponents = components.filter((c) => c.position === "sticky");
+const topWidgets = widgets.filter((widget) => widget.slot === "top");
+const stickyWidgets = widgets.filter((widget) => widget.slot === "sticky");
 
-// 动画延迟：top 组件之后从 150ms 起，sticky 组件依次递增
-const animationDelay = (index: number) => `${150 + index * 50}ms`;
+// stagger 揭幕：基础延迟 = --m3e-duration-short（150ms），每张卡片递增一档
+const STAGGER_BASE_MS = 150;
+const STAGGER_STEP_MS = 50;
+const animationDelay = (index: number) =>
+	`${STAGGER_BASE_MS + index * STAGGER_STEP_MS}ms`;
 ---
 
 <aside id="sidebar" class:list={[className, "w-full"]}>
-	{topComponents.length > 0 && (
+	{topWidgets.length > 0 && (
 		<div class="flex flex-col w-full gap-4 mb-4">
-			{topComponents.map((comp) => {
-				const Component = componentMap[comp.type];
-				return <Component />;
+			{topWidgets.map((widget) => {
+				const Component = componentMap[widget.type] as WidgetRenderer;
+				return <Component widget={widget} />;
 			})}
 		</div>
 	)}
-	{stickyComponents.length > 0 && (
-		<div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
-			{stickyComponents.map((comp, index) => {
-				const Component = componentMap[comp.type];
+	{stickyWidgets.length > 0 && (
+		<div
+			id="sidebar-sticky"
+			class="transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4 sticky top-4"
+		>
+			{stickyWidgets.map((widget, index) => {
+				const Component = componentMap[widget.type] as WidgetRenderer;
 				return (
 					<Component
+						widget={widget}
 						class="onload-animation"
 						style={`animation-delay: ${animationDelay(index)}`}
 					/>

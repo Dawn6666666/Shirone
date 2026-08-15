@@ -39,4 +39,5 @@
 | `licenseConfig.ts` | 文章版权声明 |
 | `expressiveCodeConfig.ts` | 代码块明暗主题 |
 | `navBarConfig.ts` | 导航栏链接（`LinkPresets` 预设表 + 组装） |
-| `sidebarConfig.ts` | 侧栏位置与 widget 编排（类型见 `types/sidebarConfig.ts`） |
+| `sidebarConfig.ts` | 侧栏位置与 widget 编排（判别联合类型见 `types/sidebarConfig.ts`，新增 widget 的 checklist 见 `docs/common-components.md` §3.1） |
+| `announcementConfig.ts` | 公告内容（侧栏 announcement widget 消费，text 为空不渲染） |
