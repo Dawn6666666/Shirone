@@ -50,18 +50,21 @@ const { mode, cover, cardWidth } = postListConfig.layout;
 	flex-direction: column
 	gap: var(--m3e-space-4)
 
-	/* 网格（瀑布流）模式：列数由 --post-card-min（postListConfig 档位）决定；
+	/* 网格（瀑布流）模式：仅 ≥md 生效——手机端永久锁定 list（容器回退到
+	   上方基础 flex 单列，卡片沿用移动端 list 形态）。窄屏下最短列打包的
+	   colCount ≤ 1，自动清空 span，无需 JS 分支。
 	   卡片高度天然混合（有/无封面），由 utils/masonry.ts 做最短列打包：
 	   JS 给每张卡片设置 grid-column-start + grid-row-end: span N。
 	   行轨道 8px、row-gap 0（行距烘焙进 span）——与 masonry.ts 的
 	   ROW_UNIT / ROW_GAP 常量约定，两处需同步改。 */
 	&--grid
-		display: grid
-		grid-template-columns: repeat(auto-fill, minmax(var(--post-card-min, 20rem), 1fr))
-		align-items: start
-		grid-auto-rows: 8px
-		row-gap: 0
-		column-gap: var(--m3e-space-4)
+		@media (min-width: bp-md)
+			display: grid
+			grid-template-columns: repeat(auto-fill, minmax(var(--post-card-min, 20rem), 1fr))
+			align-items: start
+			grid-auto-rows: 8px
+			row-gap: 0
+			column-gap: var(--m3e-space-4)
 </style>
 
 <!-- 首屏防闪：SSR 输出的是站点默认模式，访客偏好（localStorage）在容器

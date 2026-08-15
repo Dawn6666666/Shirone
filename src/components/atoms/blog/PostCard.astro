@@ -309,25 +309,27 @@ const hasCover = !!image;
    ============================================================ */
 .m3-blog-postcard
 	/* —— 网格（瀑布流）模式：全断点封面置顶、通栏贴边 ——
+	   仅 ≥md 生效（手机端永久锁定 list，窄屏沿用移动端 list 形态）；
 	   卡片高度天然混合（有/无封面），由 PostPage 的 JS 最短列打包消除空洞 */
-	:global(.m3e-post-list--grid) &
-		flex-direction: column-reverse
+	@media (min-width: bp-md)
+		:global(.m3e-post-list--grid) &
+			flex-direction: column-reverse
 
-	:global(.m3e-post-list--grid) &__cover
-		position: relative
-		inset: auto
-		width: auto
-		height: auto
-		aspect-ratio: 16 / 9
-		margin: 0
-		border-radius: 0
+		:global(.m3e-post-list--grid) &__cover
+			position: relative
+			inset: auto
+			width: auto
+			height: auto
+			aspect-ratio: 16 / 9
+			margin: 0
+			border-radius: 0
 
-	:global(.m3e-post-list--grid) &__enter
-		/* 网格无封面时进入按钮会压在标题区上方，隐藏（标题自带箭头可点） */
-		display: none
+		:global(.m3e-post-list--grid) &__enter
+			/* 网格无封面时进入按钮会压在标题区上方，隐藏（标题自带箭头可点） */
+			display: none
 
-	:global(.m3e-post-list--grid) &__body
-		padding: 1rem 1.25rem 1.25rem
+		:global(.m3e-post-list--grid) &__body
+			padding: 1rem 1.25rem 1.25rem
 
 	/* —— 列表封面居左：仅桌面 ≥md，镜像右侧布局 —— */
 	@media (min-width: bp-md)

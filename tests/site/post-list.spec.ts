@@ -71,6 +71,22 @@ test.describe("文章列表布局模式", () => {
 			.toBeGreaterThan(0);
 	});
 
+	test("手机竖屏锁定 list：grid 偏好实际渲染为单列", async ({ page }) => {
+		await page.addInitScript(() =>
+			localStorage.setItem("post-list-mode", "grid"),
+		);
+		await page.setViewportSize({ width: 375, height: 667 });
+		await page.goto("/");
+		const container = page.locator("#post-list");
+		// 偏好类保留（回到宽屏时生效），窄屏下容器按 flex 单列渲染
+		await expect(container).toHaveClass(/m3e-post-list--grid/);
+		await expect
+			.poll(() =>
+				container.evaluate((el) => getComputedStyle(el).display),
+			)
+			.toBe("flex");
+	});
+
 	test("reduced-motion：切换无 WAAPI 动画（FLIP 折叠为直接跳变）", async ({
 		page,
 	}) => {
