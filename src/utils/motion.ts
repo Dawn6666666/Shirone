@@ -2,7 +2,9 @@
  * 最小动效补丁插件（M3E）。
  * - prefersReducedMotion()：统一「系统偏好 / 站点手动开关」的动效降级检测；
  * - collapse：Svelte action，高度 0↔auto 的展开/折叠动画，
- *   WAAPI 驱动（可取消、无逐帧 rAF 开销），reduced-motion 时直接到位。
+ *   WAAPI 驱动（可取消、无逐帧 rAF 开销），reduced-motion 时直接到位；
+ * - reveal：Svelte action，淡入上移的入场动画（列表 stagger 用），
+ *   WAAPI 驱动，delay 逐项递增形成阶梯入场，reduced-motion 时直接到位。
  */
 
 /** 是否应降级动效：系统 prefers-reduced-motion 或站点手动开关（html.motion-reduced） */
@@ -74,6 +76,58 @@ export function collapse(node: HTMLElement, params: CollapseParams) {
 			anim?.cancel();
 			node.style.height = "";
 			node.style.overflow = "";
+		},
+	};
+}
+
+export interface RevealParams {
+	/** 起始延迟 ms（stagger：第 i 项传 i × step） */
+	delay?: number;
+	/** 动画时长 ms（默认 250，M3 medium） */
+	duration?: number;
+}
+
+const REVEAL_EASING = "cubic-bezier(0.05, 0.7, 0.1, 1)"; // M3 emphasized-decelerate
+
+/**
+ * 入场动画插件（列表 stagger / 区块淡入）：
+ *   <div use:reveal={{ delay: i * 45 }}>...</div>
+ * 从 opacity 0 + translateY(0.25rem) 淡入到位；
+ * WAAPI 驱动（可取消、无逐帧 rAF 开销），reduced-motion 时直接到位。
+ */
+export function reveal(node: HTMLElement, params: RevealParams = {}) {
+	let anim: Animation | null = null;
+
+	function play() {
+		anim?.cancel();
+		if (prefersReducedMotion()) {
+			node.style.opacity = "";
+			node.style.transform = "";
+			return;
+		}
+		anim = node.animate(
+			[
+				{ opacity: 0, transform: "translateY(0.25rem)" },
+				{ opacity: 1, transform: "translateY(0)" },
+			],
+			{
+				duration: params.duration ?? 250,
+				delay: params.delay ?? 0,
+				easing: REVEAL_EASING,
+				fill: "both",
+			},
+		);
+	}
+
+	play();
+
+	return {
+		update(next: RevealParams) {
+			params = next;
+			play();
+		},
+		destroy() {
+			anim?.cancel();
 		},
 	};
 }

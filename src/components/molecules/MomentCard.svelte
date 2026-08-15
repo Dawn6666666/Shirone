@@ -11,6 +11,7 @@
 	import I18nKey from "@i18n/i18nKey";
 	import { i18n } from "@i18n/translation";
 	import { formatDateToYYYYMMDDHHmm } from "@utils/date-utils";
+	import { reveal } from "@utils/motion";
 	import type { MomentItem } from "@utils/content-utils";
 
 	export type MomentAuthor = {
@@ -22,20 +23,21 @@
 	let {
 		moment,
 		author,
+		/** stagger 入场延迟 ms（由列表传入：第 i 项 i × step） */
+		delay = 0,
 		class: className = "",
-		style,
 	}: {
 		moment: MomentItem;
 		author: MomentAuthor;
+		delay?: number;
 		class?: string;
-		style?: string;
 	} = $props();
 
 	const publishedAt = $derived(new Date(moment.published));
 	const timeText = $derived(formatDateToYYYYMMDDHHmm(publishedAt));
 </script>
 
-<article class="moment-card {className}" style={style} id="moment-{moment.id}">
+<article class="moment-card {className}" id="moment-{moment.id}" use:reveal={{ delay }}>
 	<header class="moment-card__header">
 		<a class="moment-card__author" href={author.url}>
 			<!-- 作者名紧邻头像可读，头像按装饰图处理（避免与 aria-label 冗余） -->

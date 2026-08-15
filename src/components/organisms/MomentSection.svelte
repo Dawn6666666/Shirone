@@ -165,11 +165,7 @@
 		{#key `${query}|${selectedTag}`}
 			<div class="moment-section__list">
 				{#each visibleMoments as moment, i (moment.id)}
-					<MomentCard
-						{moment}
-						{author}
-						style={`--moment-index: ${Math.min(i, 7)}`}
-					/>
+					<MomentCard {moment} {author} delay={Math.min(i, 7) * 45} />
 				{/each}
 			</div>
 		{/key}
@@ -249,11 +245,6 @@
 		gap: 1rem
 		padding-top: 1.5rem
 
-		/* 逐卡 stagger 入场（reduced-motion 由全局 motion-reduced 规则禁用动画） */
-		:global(.moment-card)
-			animation: moment-fade-in var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate) both
-			animation-delay: calc(var(--moment-index, 0) * 45ms)
-
 	/* 分类筛选过渡：区块位置的大号 contained LoadingIndicator */
 	&__loading
 		display: flex
@@ -286,13 +277,4 @@
 
 		&__list
 			padding-top: 1.25rem
-
-/* 筛选结果淡入（reduced-motion 由全局 motion-reduced 规则禁用动画） */
-@keyframes moment-fade-in
-	from
-		opacity: 0
-		transform: translateY(0.25rem)
-	to
-		opacity: 1
-		transform: translateY(0)
 </style>
