@@ -21,7 +21,7 @@ test.describe("Select", () => {
 		await field.click();
 		const menu = page.locator(".m3-select__menu").first();
 		await expect(menu).toBeVisible();
-		await expect(menu).toHaveCSS("background-color", "rgb(237, 237, 244)"); // surface-container
+		await expectMatchesToken(page, ".m3-select__menu", "background-color", "--surface-container");
 		const option = menu.locator(".m3-select__option").nth(1);
 		await option.click();
 		await expect(menu).toBeHidden();

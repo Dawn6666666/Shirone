@@ -1,9 +1,8 @@
 ---
 import Button from "@components/atoms/action/Button.astro";
-import IconButton from "@components/atoms/action/IconButton.astro";
+import IconButton from "@components/atoms/action/IconButton.svelte";
 import Avatar from "@components/atoms/display/Avatar.svelte";
 import Card from "@components/atoms/display/Card.svelte";
-import Tooltip from "@components/atoms/overlay/Tooltip.svelte";
 import { Icon } from "astro-icon/components";
 import { resolveAsset } from "@utils/asset-utils";
 import { profileConfig } from "../../config";
@@ -36,11 +35,9 @@ const avatarUrl = await resolveAsset(config.avatar ?? "");
         <div class="text-center text-50 mb-2.5 transition">{config.bio}</div>
         <div class="flex flex-wrap gap-2 justify-center mb-1">
             {config.links.length > 1 && config.links.map(item =>
-                    <Tooltip label={item.name} client:load>
                         <IconButton href={item.url} target="_blank" rel="me" label={item.name}>
                             <Icon name={item.icon} class="text-[1.5rem]"></Icon>
                         </IconButton>
-                    </Tooltip>
             )}
             {config.links.length == 1 && <Button href={config.links[0].url} target="_blank" label={config.links[0].name}
                                                  variant="text" size="medium" class="!px-3 !font-bold">

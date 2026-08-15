@@ -11,8 +11,7 @@
 		{ "name": "FAB", "file": "action/FAB.svelte", "category": "action", "tier": "B", "source": "移植", "landed": false, "note": "官方移植版，迁移后转 A" },
 		{ "name": "FABMenu", "file": "action/FABMenu.svelte", "category": "action", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
 		{ "name": "FloatingToolbar", "file": "action/FloatingToolbar.svelte", "category": "action", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
-		{ "name": "IconButton", "file": "action/IconButton.astro", "category": "action", "tier": "A", "source": "原创", "landed": true, "note": "站点遗留旧版，迁移后退役" },
-		{ "name": "IconButton", "file": "action/IconButton.svelte", "category": "action", "tier": "B", "source": "移植", "landed": false, "note": "官方移植版，迁移后转 A" },
+		{ "name": "IconButton", "file": "action/IconButton.svelte", "category": "action", "tier": "A", "source": "移植", "landed": true, "note": "官方移植版，已替换 IconButton.astro 生产落地" },
 		{ "name": "SplitButton", "file": "action/SplitButton.svelte", "category": "action", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
 		{ "name": "ToggleButton", "file": "action/ToggleButton.svelte", "category": "action", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
 
@@ -65,7 +64,7 @@
 		{ "name": "Dialog", "file": "overlay/Dialog.svelte", "category": "overlay", "tier": "B", "source": "移植", "landed": false, "note": "留言板/设置/lightbox" },
 		{ "name": "SheetSide", "file": "overlay/SheetSide.svelte", "category": "overlay", "tier": "C", "source": "移植", "landed": false, "note": "移动端抽屉已由 SiteNavigationDrawer 覆盖" },
 		{ "name": "Snackbar", "file": "overlay/Snackbar.svelte", "category": "overlay", "tier": "A", "source": "移植", "landed": true },
-		{ "name": "Tooltip", "file": "overlay/Tooltip.svelte", "category": "overlay", "tier": "A", "source": "移植", "landed": true },
+		{ "name": "Tooltip", "file": "overlay/Tooltip.svelte", "category": "overlay", "tier": "watch", "source": "移植", "landed": false, "note": "Profile 社交链接提示已移除，暂无落地场景（hover 在移动端不友好）" },
 
 		{ "name": "Checkbox", "file": "selection/Checkbox.svelte", "category": "selection", "tier": "B", "source": "移植", "landed": false, "note": "设置面板扩展" },
 		{ "name": "RadioButton", "file": "selection/RadioButton.svelte", "category": "selection", "tier": "B", "source": "移植", "landed": false, "note": "设置面板扩展" },

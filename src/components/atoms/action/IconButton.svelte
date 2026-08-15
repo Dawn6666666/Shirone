@@ -9,9 +9,14 @@ import Icon from "@iconify/svelte";
  * - shape：round（默认，corner-full）/ square（按尺寸 corner-medium~extra-large）；toggle 选中时形状互换（官方行为）；
  * - toggle 模式：checked（$bindable）+ checkedIcon，点击切换并触发 onchange，aria-pressed 同步；
  * - 交互：原生 button + m3-state-layer（hover/focus/pressed）；disabled 对齐官方（图标 38%、filled/tonal 容器 12%）；
+ * - **图标两种方式**：`icon` prop（Iconify 名，仅客户端水合场景可用——@iconify/svelte 靠运行时加载数据，
+ *   SSR 无 hydration 时渲染空白）；`children` snippet（静态 SSR 场景必须用此方式传 astro-icon 等已渲染图标，
+ *   尺寸由调用方 class 控制，如 `text-[1.25rem]`）；
+ * - href 提供时渲染 <a>（原生语义，带 target/rel）；
  * - 通用场景：工具条操作、收藏/开关图标、AppBar 动作等。
  */
 let {
+	children,
 	icon = "",
 	checkedIcon = "",
 	variant = "standard",
@@ -22,12 +27,17 @@ let {
 	disabled = false,
 	label = "",
 	id = undefined,
+	href = undefined,
+	target = undefined,
+	rel = undefined,
 	onclick,
 	onchange,
 	class: className = "",
 	style = "",
 }: {
-	/** 图标（Iconify 名；toggle 模式下为未选中图标） */
+	/** 图标内容插槽（优先于 icon prop；SSR 静态场景请用此方式传入 astro-icon 等已渲染图标） */
+	children?: import("svelte").Snippet;
+	/** 图标（Iconify 名；仅客户端水合场景可用，SSR 无水合时图标不会加载） */
 	icon?: string;
 	/** toggle 模式选中图标（Iconify 名） */
 	checkedIcon?: string;
@@ -46,6 +56,12 @@ let {
 	label?: string;
 	/** 根元素 id 透传（供 CSS 选择器 / 锚点引用） */
 	id?: string;
+	/** 提供时渲染为 <a>（导航/外部链接，遵循「href → <a>」原生语义） */
+	href?: string;
+	/** 链接 target（仅 href 时生效） */
+	target?: string;
+	/** 链接 rel（仅 href 时生效） */
+	rel?: string;
 	onclick?: () => void;
 	/** toggle 模式选中变化回调 */
 	onchange?: (checked: boolean) => void;
@@ -62,20 +78,46 @@ function handleClick() {
 }
 </script>
 
-<button
-	type="button"
-	id={id}
-	class="m3-icon-button m3-icon-button--{variant} m3-icon-button--{size} m3-icon-button--{shape} m3-state-layer {className}"
-	class:m3-icon-button--checked={checked}
-	class:m3-icon-button--disabled={disabled}
-	{style}
-	aria-label={label}
-	aria-pressed={toggle ? checked : undefined}
-	disabled={disabled}
-	onclick={handleClick}
->
-	<Icon icon={checked && checkedIcon ? checkedIcon : icon} />
-</button>
+{#if href}
+	<a
+		id={id}
+		href={href}
+		target={target}
+		rel={rel}
+		class="m3-icon-button m3-icon-button--{variant} m3-icon-button--{size} m3-icon-button--{shape} m3-state-layer {className}"
+		class:m3-icon-button--checked={checked}
+		class:m3-icon-button--disabled={disabled}
+		{style}
+		aria-label={label}
+		aria-pressed={toggle ? checked : undefined}
+		onclick={handleClick}
+	>
+		{#if icon}
+			<span class="m3-icon-button__icon" aria-hidden="true"><Icon icon={checked && checkedIcon ? checkedIcon : icon} /></span>
+		{:else if children}
+			{@render children()}
+		{/if}
+	</a>
+{:else}
+	<button
+		type="button"
+		id={id}
+		class="m3-icon-button m3-icon-button--{variant} m3-icon-button--{size} m3-icon-button--{shape} m3-state-layer {className}"
+		class:m3-icon-button--checked={checked}
+		class:m3-icon-button--disabled={disabled}
+		{style}
+		aria-label={label}
+		aria-pressed={toggle ? checked : undefined}
+		disabled={disabled}
+		onclick={handleClick}
+	>
+		{#if icon}
+			<span class="m3-icon-button__icon" aria-hidden="true"><Icon icon={checked && checkedIcon ? checkedIcon : icon} /></span>
+		{:else if children}
+			{@render children()}
+		{/if}
+	</button>
+{/if}
 
 <style lang="stylus">
 .m3-icon-button
@@ -105,6 +147,18 @@ function handleClick() {
 		height: 1.25rem
 		flex-shrink: 0
 
+	/* icon prop 模式图标容器；children 模式的图标尺寸由调用方控制（SSR 静态场景） */
+	&__icon
+		display: inline-flex
+		align-items: center
+		justify-content: center
+		flex-shrink: 0
+
+		> :global(svg)
+			width: 1.25rem
+			height: 1.25rem
+			flex-shrink: 0
+
 	&--disabled
 		pointer-events: none
 
@@ -114,7 +168,7 @@ function handleClick() {
 		height: 2rem
 		--ib-square: var(--shape-corner-m)
 
-		> :global(svg)
+		.m3-icon-button__icon > :global(svg)
 			width: 1.25rem /* 20px */
 			height: 1.25rem
 
@@ -123,7 +177,7 @@ function handleClick() {
 		height: 2.5rem
 		--ib-square: var(--shape-corner-m)
 
-		> :global(svg)
+		.m3-icon-button__icon > :global(svg)
 			width: 1.5rem /* 24px */
 			height: 1.5rem
 
@@ -132,7 +186,7 @@ function handleClick() {
 		height: 3.5rem
 		--ib-square: var(--shape-corner-l) /* corner-large 16px */
 
-		> :global(svg)
+		.m3-icon-button__icon > :global(svg)
 			width: 1.5rem /* 24px */
 			height: 1.5rem
 
@@ -141,7 +195,7 @@ function handleClick() {
 		height: 6rem
 		--ib-square: var(--shape-corner-xl) /* corner-extra-large 28px */
 
-		> :global(svg)
+		.m3-icon-button__icon > :global(svg)
 			width: 2rem /* 32px */
 			height: 2rem
 
@@ -150,7 +204,7 @@ function handleClick() {
 		height: 8.5rem
 		--ib-square: var(--shape-corner-xl)
 
-		> :global(svg)
+		.m3-icon-button__icon > :global(svg)
 			width: 2.5rem /* 40px */
 			height: 2.5rem
 
@@ -189,7 +243,7 @@ function handleClick() {
 			background: unquote("color-mix(in srgb, var(--on-surface) 12%, transparent)")
 			color: var(--on-surface)
 
-			> :global(svg)
+			.m3-icon-button__icon > :global(svg)
 				opacity: 0.38
 
 	&--tonal
@@ -208,7 +262,7 @@ function handleClick() {
 			background: unquote("color-mix(in srgb, var(--on-surface) 12%, transparent)")
 			color: var(--on-surface)
 
-			> :global(svg)
+			.m3-icon-button__icon > :global(svg)
 				opacity: 0.38
 
 	&--outlined
@@ -227,6 +281,6 @@ function handleClick() {
 			opacity: 1
 			border-color: unquote("color-mix(in srgb, var(--on-surface) 12%, transparent)")
 
-			> :global(svg)
+			.m3-icon-button__icon > :global(svg)
 				opacity: 0.38
 </style>

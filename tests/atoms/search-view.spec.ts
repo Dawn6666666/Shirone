@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { openTestPage, readStyle, readBox } from "../helpers/atoms";
+import { openTestPage, expectMatchesToken, readStyle, readBox } from "../helpers/atoms";
 
 /**
  * SearchView 官方对照（md-comp-search-view / SearchBar.kt）
@@ -14,7 +14,7 @@ test.describe("SearchView", () => {
 	test("docked：28px 圆角 + surface-container-high + 56px 头", async ({ page }) => {
 		const docked = page.locator(".m3-search-view--docked").first();
 		await expect(docked).toHaveCSS("border-radius", "28px");
-		await expect(docked).toHaveCSS("background-color", "rgb(231, 232, 238)");
+		await expectMatchesToken(page, ".m3-search-view--docked", "background-color", "--surface-container-high");
 		const headerBox = await readBox(page, ".m3-search-view--docked .m3-search-view__header");
 		expect(headerBox.height).toBe(56);
 	});

@@ -43,4 +43,18 @@ test.describe("IconButton", () => {
 		const label = await btn.getAttribute("aria-label");
 		expect(label?.length ?? 0).toBeGreaterThan(0);
 	});
+
+	test("href 提供时渲染为 <a>（原生语义，带 target/rel）", async ({ page }) => {
+		const link = page.getByRole("link", { name: "外部链接" });
+		await expect(link).toHaveAttribute("href", "https://example.com");
+		await expect(link).toHaveAttribute("target", "_blank");
+		await expect(link).toHaveAttribute("rel", "me");
+		await expect(link.locator("svg")).toBeVisible();
+	});
+
+	test("无 href 渲染为 <button>（不含链接角色）", async ({ page }) => {
+		const btn = page.getByRole("button", { name: "主页" }).first();
+		await expect(btn).toBeVisible();
+		await expect(page.locator("a.m3-icon-button")).toHaveCount(2);
+	});
 });

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { openTestPage, readStyle } from "../helpers/atoms";
+import { openTestPage, resolveVar, readStyle } from "../helpers/atoms";
 
 /**
  * Tabs 官方对照（md-comp-secondary-navigation-tab / primary）
@@ -17,7 +17,13 @@ test.describe("Tabs", () => {
 		const second = tabs.nth(1);
 		await second.click();
 		await expect(second).toHaveClass(/--active/);
-		await expect(second.locator(".m3-tabs__tab-label")).toHaveCSS("color", "rgb(64, 95, 144)"); // primary
+		// 激活 tab 文字 = primary token（poll 等待颜色过渡收敛，避免中途值）
+		const primaryColor = await resolveVar(page, "color", "--primary");
+		await expect
+			.poll(async () => {
+				return second.locator(".m3-tabs__tab-label").evaluate((el) => getComputedStyle(el).color);
+			}, { timeout: 1000 })
+			.toBe(primaryColor);
 		await expect(tabs.nth(0)).not.toHaveClass(/--active/);
 	});
 

@@ -69,6 +69,19 @@ svelte({
 
 **关联**：Svelte 组件（如 Skeleton）在 Astro 组件里要用 `:global()` 选择器才能命中其内部元素。
 
+### 1.5 @iconify/svelte 图标在 Astro 纯 SSR 下渲染空白
+
+**现象**：Svelte 原子（如 IconButton）在**无 `client:*` 指令**的 Astro 页面（TopAppBar / Profile / 文章页）中，`icon` prop 渲染的图标消失，按钮只剩空圆。
+
+**根因**：`@iconify/svelte` 的 `Icon` 组件靠运行时 `loadIcon`（浏览器 API）加载图标数据；SSR 无 hydration 时数据永远为 null → 渲染空。astro-icon 是构建期收集数据、SSR 直出 svg，无此问题。
+
+**解法**：
+- 静态 SSR 场景：用 `children` snippet 传 astro-icon 的 `<Icon>`（或任何已渲染 svg），**禁止**用 `icon` prop；
+- `icon` prop 只留给 `client:only` / `client:load` 场景；
+- 组件 scoped CSS 里 `> :global(svg)` 会强制覆盖 children 图标的尺寸（如强制 24px 覆盖调用方 `text-[1.25rem]`）——尺寸规则只应作用于 `icon` prop 模式的图标容器（`.m3-icon-button__icon`），children 图标尺寸由调用方 class 控制。
+
+**防回归**：`tests/site/icons.spec.ts` 断言真实页面（首页/侧栏/文章页）SSR 输出 svg 可见；静态场景改回 `icon` prop 会立刻变红。
+
 ---
 
 ## 2. CSS / Stylus
