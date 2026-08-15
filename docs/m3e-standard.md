@@ -30,7 +30,7 @@ theme-utils.ts  写入 :root 的 --mc-* 自定义属性（localStorage 持久化
 variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…），带 oklch 回退
    │
    ▼
-原子组件（59 个：Button / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar / Tabs / Select / DataTable / SearchView / Autocomplete / SheetSide / Carousel / PullToRefresh / DatePicker / TimePicker / Chips / Banner / Tooltip / …，完整清单见 §4）
+原子组件（63 个：Button / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar / Tabs / Select / DataTable / SearchView / Autocomplete / SheetSide / Carousel / PullToRefresh / DatePicker / TimePicker / Chips / Banner / Tooltip / …，完整清单见 §4）
    │
    ▼
 分子/有机体（Navbar / SideBar / Search / PostCard…）
@@ -75,6 +75,19 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 ### 3.2 形状
 
 `--shape-corner-xs: 4px` / `s: 8px` / `m: 12px` / `l: 16px` / `xl: 28px` / `full: 999px`；`--radius-large: var(--shape-corner-l)`（卡片圆角）。
+
+**形状契约（站点形状优先，★ 已拍板）**：
+
+| 控件 | 圆角 | token |
+|---|---|---|
+| 按钮（Button） | 12px | `--shape-corner-m` |
+| 卡片（Card） | 16px | `--shape-corner-l` |
+| 输入框 / 选择器 | 12px | `--shape-corner-m` |
+| chip / 选中态 / 分段按钮 | 胶囊 | `--shape-corner-full` |
+| 浮层 / 对话框 | 28px | `--shape-corner-xl` |
+
+官方移植版（Button / IconButton / FAB.svelte 默认胶囊）落地时用 `radius` prop 收敛到上表，
+胶囊能力保留给 chip 类控件。
 
 ### 3.3 动效（M3 2025 motion spec）
 
@@ -248,7 +261,8 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/menu-bus.ts` | 菜单互斥事件总线（Menu/FABMenu 单开联动，`exclusive` 参数） |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 59 个原子组件 |
+| `src/components/atoms/*` | 63 个原子组件（清单单一真源见 `manifest.json`） |
+| `src/components/atoms/manifest.json` | 原子清单单一真源（tier / source / landed），由 `pnpm check:manifest` 校验 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
 
 ---

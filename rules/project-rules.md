@@ -47,14 +47,15 @@ content/（Markdown 正文，仅 pages 引用）
 
 ## 4. 原子组件约定
 
-新原子必须满足：
+新原子必须满足以下约定。**落地驱动**：先确认有页面需要、现有原子组合不了，才新建（详见 `research/m3e-landing-design.md`）；无落地目标的组件进 wishlist，不写代码。
 
 1. **数据驱动**：对外最小 props 集，展示数据由调用方传入；
 2. **token 对齐**：颜色用 `--primary` / `--surface-container-*` / `--shape-corner-*`，字体用 `--m3e-type-*`，动效用 `--m3e-duration-*` + `--m3e-easing-*`；
 3. **交互反馈**：hover/focus/pressed 叠色统一用 `.m3-state-layer`，不自造 `:hover { background: ... }`；
-4. **演示页 + 测试**：补 `*Demo.svelte`（演示页不入库）+ `tests/atoms/*.spec.ts`，并加入 a11y 扫描清单；
-5. **文档标注**：在 `docs/m3e-standard.md` §4 清单标注「移植 / 原创」来源；
-6. **官方对齐**：移植官方 M3/Compose/Material Web 时，行为/视觉对齐官方 token（参考 `research/material-web/tokens/versions/v0_192`）。
+4. **演示页 + 测试**：补 `*Demo.svelte`（演示页不入库）+ `tests/atoms/*.spec.ts`，并加入 a11y 扫描清单（Tier C 组件不做测试）；
+5. **清单登记 + 文档标注**：在 `src/components/atoms/manifest.json` 登记 `{name,file,category,tier,source,landed,note}`，并在 `docs/m3e-standard.md` §4 清单标注「移植 / 原创」来源；
+6. **官方对齐**：移植官方 M3/Compose/Material Web 时，行为/视觉对齐官方 token（参考 `research/material-web/tokens/versions/v0_192`）；
+7. **形状契约**：按钮/卡片/输入框/浮层圆角遵循 `docs/m3e-standard.md` §3.2 形状契约表。
 
 静态原子用 Astro，交互原子用 Svelte 5（runes 或 legacy `$:` 均可，同文件内不混用）。
 
@@ -85,6 +86,7 @@ content/（Markdown 正文，仅 pages 引用）
 
 ```bash
 npx.cmd astro check          # 0 errors / 0 warnings
+node scripts/check-manifest.mjs  # manifest 与文件系统一致
 npx.cmd playwright test      # 全量（约 5 分钟）
 ```
 
