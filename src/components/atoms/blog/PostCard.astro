@@ -308,28 +308,34 @@ const hasCover = !!image;
    修饰符形式永不匹配）。
    ============================================================ */
 .m3-blog-postcard
-	/* —— 网格（瀑布流）模式：全断点封面置顶、通栏贴边 ——
-	   仅 ≥md 生效（手机端永久锁定 list，窄屏沿用移动端 list 形态）；
+	/* —— 网格（瀑布流）模式：仅 ≥md 生效（手机端永久锁定 list）——
+	   封面内缩（与正文左右边缘对齐 --m3e-space-4，圆角 m、2:1）；
+	   无封面卡片沿用 list 的右上 enter 箭头区块（正文右缘自动让位）；
 	   卡片高度天然混合（有/无封面），由 PostPage 的 JS 最短列打包消除空洞 */
 	@media (min-width: bp-md)
 		:global(.m3e-post-list--grid) &
 			flex-direction: column-reverse
 
+		/* 封面内缩：上/左/右三边统一 --m3e-space-4（16px，克制不松），
+		   底部 0 交回正文区（正文区顶部独立留白） */
 		:global(.m3e-post-list--grid) &__cover
 			position: relative
 			inset: auto
 			width: auto
 			height: auto
-			aspect-ratio: 16 / 9
-			margin: 0
-			border-radius: 0
+			aspect-ratio: 2 / 1
+			margin: var(--m3e-space-4) var(--m3e-space-4) 0
+			border-radius: var(--shape-corner-m)
 
-		:global(.m3e-post-list--grid) &__enter
-			/* 网格无封面时进入按钮会压在标题区上方，隐藏（标题自带箭头可点） */
-			display: none
-
+		/* 覆写 list 桌面端的封面右置内边距（同特异性靠源顺序取胜）；
+		   无封面卡的右缘让位由原 :not(--cover) 规则继续接管。
+		   正文区左右与封面内缩同值（16px），顶部 16px 紧凑不贴 */
 		:global(.m3e-post-list--grid) &__body
-			padding: 1rem 1.25rem 1.25rem
+			padding: var(--m3e-space-4) var(--m3e-space-4) var(--m3e-space-5)
+
+		/* 右侧 enter 大箭头区块已在（无封面卡），标题内联小箭头冗余，隐藏 */
+		:global(.m3e-post-list--grid) &__arrow
+			display: none
 
 	/* —— 列表封面居左：仅桌面 ≥md，镜像右侧布局 —— */
 	@media (min-width: bp-md)
