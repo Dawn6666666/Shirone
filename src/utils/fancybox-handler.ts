@@ -62,6 +62,24 @@ export class FancyboxHandler {
 	}
 
 	/**
+	 * 以编程方式打开灯箱轮播（如内联图片查看器的「查看原图」入口）。
+	 * 与委托绑定互不影响；未加载过模块时先按需加载。
+	 */
+	async showGallery(
+		items: { src: string; caption?: string }[],
+		startIndex = 0,
+	): Promise<void> {
+		if (!this.Fancybox) {
+			await this.loadFancybox();
+		}
+		const config = getDefaultFancyboxConfig();
+		this.Fancybox.show(items, {
+			...config,
+			Carousel: { ...config.Carousel, startIndex },
+		});
+	}
+
+	/**
 	 * 按需加载 Fancybox 模块和样式
 	 */
 	private async loadFancybox(): Promise<void> {
@@ -178,4 +196,14 @@ export function cleanupFancybox(): void {
 	if (globalFancyboxHandler) {
 		globalFancyboxHandler.cleanup();
 	}
+}
+
+/**
+ * 以编程方式打开灯箱轮播（便捷函数）
+ */
+export async function openFancyboxGallery(
+	items: { src: string; caption?: string }[],
+	startIndex = 0,
+): Promise<void> {
+	await getFancyboxHandler().showGallery(items, startIndex);
 }

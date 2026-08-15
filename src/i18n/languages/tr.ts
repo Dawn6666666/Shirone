@@ -22,6 +22,13 @@ export const tr: Translation = {
 	[Key.pinned]: "Sabitlenen",
 	[Key.loadMore]: "Daha fazla yükle",
 
+	[Key.imageViewer]: "Görsel görüntüleyici",
+	[Key.openImage]: "Görseli aç",
+	[Key.previousImage]: "Önceki görsel",
+	[Key.nextImage]: "Sonraki görsel",
+	[Key.backToGrid]: "Izgaraya dön",
+	[Key.viewOriginal]: "Orijinali görüntüle",
+
 	[Key.tags]: "Taglar",
 	[Key.categories]: "Katagoriler",
 	[Key.recentPosts]: "Son Paylaşımlar",

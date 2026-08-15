@@ -22,6 +22,13 @@ export const en: Translation = {
 	[Key.pinned]: "Pinned",
 	[Key.loadMore]: "Load more",
 
+	[Key.imageViewer]: "Image viewer",
+	[Key.openImage]: "Open image",
+	[Key.previousImage]: "Previous image",
+	[Key.nextImage]: "Next image",
+	[Key.backToGrid]: "Back to grid",
+	[Key.viewOriginal]: "View original",
+
 	[Key.tags]: "Tags",
 	[Key.categories]: "Categories",
 	[Key.recentPosts]: "Recent Posts",

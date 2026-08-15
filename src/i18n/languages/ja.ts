@@ -22,6 +22,13 @@ export const ja: Translation = {
 	[Key.pinned]: "ピン留め",
 	[Key.loadMore]: "もっと見る",
 
+	[Key.imageViewer]: "画像ビューアー",
+	[Key.openImage]: "画像を開く",
+	[Key.previousImage]: "前の画像",
+	[Key.nextImage]: "次の画像",
+	[Key.backToGrid]: "グリッドに戻る",
+	[Key.viewOriginal]: "原寸で表示",
+
 	[Key.tags]: "タグ",
 	[Key.categories]: "カテゴリ",
 	[Key.recentPosts]: "最近の投稿",

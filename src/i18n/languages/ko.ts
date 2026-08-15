@@ -22,6 +22,13 @@ export const ko: Translation = {
 	[Key.pinned]: "고정됨",
 	[Key.loadMore]: "더 보기",
 
+	[Key.imageViewer]: "이미지 뷰어",
+	[Key.openImage]: "이미지 열기",
+	[Key.previousImage]: "이전 이미지",
+	[Key.nextImage]: "다음 이미지",
+	[Key.backToGrid]: "그리드로 돌아가기",
+	[Key.viewOriginal]: "원본 보기",
+
 	[Key.tags]: "태그",
 	[Key.categories]: "카테고리",
 	[Key.recentPosts]: "최근 게시물",

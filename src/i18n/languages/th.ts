@@ -22,6 +22,13 @@ export const th: Translation = {
 	[Key.pinned]: "ปักหมุด",
 	[Key.loadMore]: "โหลดเพิ่ม",
 
+	[Key.imageViewer]: "ตัวดูรูปภาพ",
+	[Key.openImage]: "เปิดรูปภาพ",
+	[Key.previousImage]: "รูปก่อนหน้า",
+	[Key.nextImage]: "รูปถัดไป",
+	[Key.backToGrid]: "กลับไปกริด",
+	[Key.viewOriginal]: "ดูต้นฉบับ",
+
 	[Key.tags]: "ป้ายกำกับ",
 	[Key.categories]: "หมวดหมู่",
 	[Key.recentPosts]: "โพสต์ล่าสุด",

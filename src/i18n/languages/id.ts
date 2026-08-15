@@ -22,6 +22,13 @@ export const id: Translation = {
 	[Key.pinned]: "Disematkan",
 	[Key.loadMore]: "Muat lainnya",
 
+	[Key.imageViewer]: "Penampil gambar",
+	[Key.openImage]: "Buka gambar",
+	[Key.previousImage]: "Gambar sebelumnya",
+	[Key.nextImage]: "Gambar berikutnya",
+	[Key.backToGrid]: "Kembali ke kisi",
+	[Key.viewOriginal]: "Lihat asli",
+
 	[Key.tags]: "Tag",
 	[Key.categories]: "Kategori",
 	[Key.recentPosts]: "Postingan Terbaru",

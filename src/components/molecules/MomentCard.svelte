@@ -3,10 +3,10 @@
 	 * 动态卡片（分子）：单条动态的展示单元。
 	 * <article> 语义（非整卡链接）；头像/作者名链到作者页；
 	 * 正文为构建期渲染的 HTML（复用全局 .custom-md 排版）；
-	 * 图片网格按数量自适应（1 单图 / 2-4 双列 / 5+ 三列封顶 6 块 +N 折叠），
-	 * 点击进全站 Fancybox 灯箱（data-fancybox 按条目分组）。
+	 * 图片交给 MomentGallery（网格 + 内联查看器两段式，灯箱走 Fancybox）。
 	 */
 	import Avatar from "@components/atoms/display/Avatar.svelte";
+	import MomentGallery from "@components/molecules/MomentGallery.svelte";
 	import Icon from "@iconify/svelte";
 	import I18nKey from "@i18n/i18nKey";
 	import { i18n } from "@i18n/translation";
@@ -29,24 +29,8 @@
 		class?: string;
 	} = $props();
 
-	const MAX_TILES = 6;
-
 	const publishedAt = $derived(new Date(moment.published));
 	const timeText = $derived(formatDateToYYYYMMDDHHmm(publishedAt));
-	/** 5+ 图封顶 6 块，超出折叠为 +N 遮罩 */
-	const visibleImages = $derived(
-		moment.images.length > MAX_TILES ? moment.images.slice(0, MAX_TILES) : moment.images,
-	);
-	const remainder = $derived(
-		moment.images.length > MAX_TILES ? moment.images.length - MAX_TILES : 0,
-	);
-	const gridVariant = $derived.by(() => {
-		if (moment.images.length === 1) return "single";
-		/* 3 图走「1 大 + 2 小」拼图，避免双列网格的 2+1 孤儿行 */
-		if (moment.images.length === 3) return "mosaic";
-		if (moment.images.length <= 4) return "pair";
-		return "trio";
-	});
 </script>
 
 <article class="moment-card {className}" id="moment-{moment.id}">
@@ -82,27 +66,7 @@
 	{/if}
 
 	{#if moment.images.length > 0}
-		<div class="moment-card__gallery moment-card__gallery--{gridVariant}">
-			{#each visibleImages as image, index (image.src + index)}
-				<figure
-					class="moment-card__tile"
-					class:moment-card__tile--single={gridVariant === "single"}
-					class:moment-card__tile--hero={gridVariant === "mosaic" && index === 0}
-				>
-					<img
-						src={image.src}
-						alt={image.alt}
-						loading="lazy"
-						decoding="async"
-						data-fancybox="moments-{moment.id}"
-						data-caption={image.alt || undefined}
-					/>
-					{#if remainder > 0 && index === MAX_TILES - 1}
-						<span class="moment-card__more">+{remainder}</span>
-					{/if}
-				</figure>
-			{/each}
-		</div>
+		<MomentGallery images={moment.images} />
 	{/if}
 
 	{#if moment.location || moment.tags.length > 0}
@@ -201,67 +165,6 @@
 			margin-top: 0
 		:global(p:last-child)
 			margin-bottom: 0
-
-	&__gallery
-		display: grid
-		gap: 0.5rem
-		margin-top: 0.875rem
-
-		/* 桌面端限宽：多图网格的格子保持精致尺度，窄屏自然全宽 */
-		&--pair
-			grid-template-columns: repeat(2, 1fr)
-			max-width: 30rem
-		/* 3 图拼图：左大图跨两行 + 右侧两方格，整体拼成一个正方形 */
-		&--mosaic
-			grid-template-columns: 2fr 1fr
-			grid-template-rows: 1fr 1fr
-			max-width: 30rem
-		&--trio
-			grid-template-columns: repeat(3, 1fr)
-			max-width: 38rem
-
-	&__tile
-		position: relative
-		display: flex
-		overflow: hidden
-		border-radius: var(--shape-corner-m)
-		aspect-ratio: 1
-		background: var(--surface-container-high)
-		margin: 0
-		> img
-			display: block
-			width: 100%
-			height: 100%
-			object-fit: cover
-			cursor: zoom-in
-
-		/* 单图：固定 4:3 比例盒（限宽 30rem）。
-		   不用自然尺寸：lazy 图片加载前无内在尺寸，fit-content 会塌成 0×0，
-		   Chrome 对零尺寸元素的懒加载可能永不触发 */
-		&--single
-			aspect-ratio: 4 / 3
-			width: 100%
-			max-width: 30rem
-			border-radius: var(--shape-corner-l)
-			> img
-				height: 100%
-				object-fit: cover
-
-		/* 拼图大图：跨两行由行高撑满（与右列两方格等比成正方形） */
-		&--hero
-			grid-row: span 2
-			aspect-ratio: auto
-
-	&__more
-		position: absolute
-		inset: 0
-		display: flex
-		align-items: center
-		justify-content: center
-		/* 图片折叠遮罩：站点规范允许的唯一固定黑/白叠加 */
-		background: rgb(0 0 0 / 60%)
-		color: rgb(255 255 255)
-		font: var(--m3e-type-title-large)
 
 	&__footer
 		display: flex

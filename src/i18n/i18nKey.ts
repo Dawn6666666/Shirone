@@ -19,6 +19,13 @@ enum I18nKey {
 	pinned = "pinned",
 	loadMore = "loadMore",
 
+	imageViewer = "imageViewer",
+	openImage = "openImage",
+	previousImage = "previousImage",
+	nextImage = "nextImage",
+	backToGrid = "backToGrid",
+	viewOriginal = "viewOriginal",
+
 	tags = "tags",
 	categories = "categories",
 	recentPosts = "recentPosts",

@@ -22,6 +22,13 @@ export const vi: Translation = {
 	[Key.pinned]: "Ghim",
 	[Key.loadMore]: "Tải thêm",
 
+	[Key.imageViewer]: "Trình xem ảnh",
+	[Key.openImage]: "Mở ảnh",
+	[Key.previousImage]: "Ảnh trước",
+	[Key.nextImage]: "Ảnh sau",
+	[Key.backToGrid]: "Quay lại lưới",
+	[Key.viewOriginal]: "Xem bản gốc",
+
 	[Key.tags]: "Thẻ",
 	[Key.categories]: "Danh mục",
 	[Key.recentPosts]: "Bài viết mới nhất",

@@ -3,11 +3,11 @@ import { expect, test } from "@playwright/test";
 /**
  * 动态页功能锁定（pages/moments.astro -> organisms/MomentSection.svelte，client:only）。
  * 视觉约束对齐站点设计语言：PageHeader 页内大标题、胶囊搜索条、官方 Chips 筛选、
- * MomentCard（<article> 语义 + 置顶/心情徽标 + 自适应图片网格 +N 折叠 + Fancybox 灯箱）、
+ * MomentCard（<article> 语义 + 置顶/心情徽标 + 构建期渲染正文）+
+ * MomentGallery 两段式看图（网格瓦片 → 内联查看器 → Fancybox 灯箱）、
  * 筛选状态 URL 同步（?q= / ?tag=）。
  * 数据来自 src/content/moments/（getSortedMoments：置顶优先 + 时间倒序），
- * 断言基于默认示例数据集；站点默认语言为 en（siteConfig.lang），UI 文案断言用英文、
- * 内容断言跟随示例 markdown（中文）。
+ * 断言基于默认示例数据集；站点默认语言为 en（siteConfig.lang），文案断言用英文。
  */
 
 const MOMENT_COUNT = 6;
@@ -37,7 +37,7 @@ test.describe("动态页", () => {
 		await expect(first.locator(".moment-card__content")).toContainText("Welcome to Moments");
 	});
 
-	test("自适应图片网格（单图 / 2×2 / 三图拼图 / 三列 +N 折叠，灯箱分组）", async ({ page }) => {
+	test("自适应图片网格（单图 / 2×2 / 三图拼图 / 三列 +N 折叠）", async ({ page }) => {
 		// 3 图 → 「1 大 + 2 小」拼图（大图跨两行，无 2+1 孤儿行）
 		const mosaic = page.locator(".moment-card__gallery--mosaic");
 		await expect(mosaic).toHaveCount(1);
@@ -53,18 +53,53 @@ test.describe("动态页", () => {
 		const trio = page.locator(".moment-card__gallery--trio");
 		await expect(trio.locator(".moment-card__tile")).toHaveCount(6);
 		await expect(trio.locator(".moment-card__more")).toHaveText("+1");
-		// 灯箱按条目分组（data-fancybox）
-		const group = await trio
-			.locator("img[data-fancybox]")
-			.first()
-			.getAttribute("data-fancybox");
-		expect(group).toMatch(/^moments-/);
 	});
 
-	test("点击图片打开 Fancybox 灯箱", async ({ page }) => {
-		await page.locator(".moment-card__tile img").first().click();
+	test("两段式看图：瓦片 → 内联查看器（切换/键盘/收起/焦点返回）", async ({ page }) => {
+		// 点击多图瓦片 → 卡片内展开查看器（非灯箱）
+		await page.locator(".moment-card__tile").first().click();
+		const viewer = page.locator(".moment-viewer");
+		await expect(viewer).toBeVisible();
+		await expect(viewer.locator(".moment-viewer__counter")).toHaveText("1 / 3");
+		// 缩略图条 3 项，首项 active
+		await expect(viewer.locator(".moment-viewer__thumb")).toHaveCount(3);
+		await expect(viewer.locator(".moment-viewer__thumb--active")).toHaveCount(1);
+		// 键盘 →/← 切换，计数同步；首图 prev 禁用
+		await expect(
+			viewer.getByRole("button", { name: "Previous image" }),
+		).toBeDisabled();
+		await page.keyboard.press("ArrowRight");
+		await expect(viewer.locator(".moment-viewer__counter")).toHaveText("2 / 3");
+		await page.keyboard.press("ArrowLeft");
+		await expect(viewer.locator(".moment-viewer__counter")).toHaveText("1 / 3");
+		// Esc 收起回网格，焦点返回被点击的瓦片
+		await page.keyboard.press("Escape");
+		await expect(viewer).toHaveCount(0);
+		await expect(page.locator(".moment-card__gallery--mosaic")).toBeVisible();
+		const focused = await page.evaluate(() =>
+			document.activeElement?.getAttribute("aria-label"),
+		);
+		expect(focused).toBe("Open image 1");
+	});
+
+	test("两段式看图：查看器「查看原图」进 Fancybox 灯箱", async ({ page }) => {
+		await page.locator(".moment-card__tile").first().click();
+		const viewer = page.locator(".moment-viewer");
+		await expect(viewer).toBeVisible();
+		await page.keyboard.press("ArrowRight");
+		// 大图舞台按钮（View original: alt）打开灯箱
+		await viewer.locator(".moment-viewer__stage-btn").click();
 		const lightbox = page.locator(".fancybox__container");
 		await expect(lightbox).toBeVisible();
+		await page.keyboard.press("Escape");
+		await expect(lightbox).toHaveCount(0);
+	});
+
+	test("单图瓦片直达 Fancybox 灯箱", async ({ page }) => {
+		await page.locator(".moment-card__gallery--single .moment-card__tile").click();
+		const lightbox = page.locator(".fancybox__container");
+		await expect(lightbox).toBeVisible();
+		await expect(page.locator(".moment-viewer")).toHaveCount(0);
 		await page.keyboard.press("Escape");
 		await expect(lightbox).toHaveCount(0);
 	});

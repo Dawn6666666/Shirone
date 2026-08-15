@@ -22,6 +22,13 @@ export const zh_CN: Translation = {
 	[Key.pinned]: "置顶",
 	[Key.loadMore]: "加载更多",
 
+	[Key.imageViewer]: "图片查看器",
+	[Key.openImage]: "打开图片",
+	[Key.previousImage]: "上一张",
+	[Key.nextImage]: "下一张",
+	[Key.backToGrid]: "收起",
+	[Key.viewOriginal]: "查看原图",
+
 	[Key.tags]: "标签",
 	[Key.categories]: "分类",
 	[Key.recentPosts]: "最新文章",

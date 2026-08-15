@@ -22,6 +22,13 @@ export const es: Translation = {
 	[Key.pinned]: "Fijado",
 	[Key.loadMore]: "Cargar más",
 
+	[Key.imageViewer]: "Visor de imágenes",
+	[Key.openImage]: "Abrir imagen",
+	[Key.previousImage]: "Imagen anterior",
+	[Key.nextImage]: "Imagen siguiente",
+	[Key.backToGrid]: "Volver a la cuadrícula",
+	[Key.viewOriginal]: "Ver original",
+
 	[Key.tags]: "Etiquetas",
 	[Key.categories]: "Categorías",
 	[Key.recentPosts]: "Publicaciones recientes",
