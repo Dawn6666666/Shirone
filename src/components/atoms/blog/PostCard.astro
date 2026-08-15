@@ -264,7 +264,9 @@ const hasCover = !!image;
 		@media (max-width: bp-md - 1px)
 			display: none
 
-	@media (--m3e-bp-md)
+	/* 桌面端（≥md）正文变纵向：给右侧让位（断点用 stylus 编译期常量 bp-md，
+	   不能写 @media (--m3e-bp-md)：CSS 变量无法作 media 条件，该写法整块失效） */
+	@media (min-width: bp-md)
 		flex-direction: column
 		&--cover &__body
 			padding-right: calc(28% + 1.5rem)
