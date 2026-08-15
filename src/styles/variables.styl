@@ -169,6 +169,36 @@ define({
   --float-panel-bg: var(--surface-container)
 
 /* ============================================================
+   M3E 响应式 / 间距 / 密度令牌
+   断点对齐 Tailwind 默认（sm 640 / md 768 / lg 1024 / xl 1280 / 2xl 1536）。
+   @custom-media 供组件 @media 引用（range 语法，现代浏览器支持）。
+   ============================================================ */
+:root
+  --m3e-bp-sm: 640px
+  --m3e-bp-md: 768px
+  --m3e-bp-lg: 1024px
+  --m3e-bp-xl: 1280px
+  --m3e-bp-2xl: 1536px
+
+  /* 间距（M3 4dp 网格） */
+  --m3e-space-1: 4px
+  --m3e-space-2: 8px
+  --m3e-space-3: 12px
+  --m3e-space-4: 16px
+  --m3e-space-5: 20px
+  --m3e-space-6: 24px
+  --m3e-space-8: 32px
+  --m3e-space-10: 40px
+
+  /* 密度：0 = comfortable（默认）/ -1 = compact。桌面精确指针自动 compact，
+     组件高度用 calc(基础 + var(--m3e-density) * 4px) 参与密度变化；不引用者无感 */
+  --m3e-density: 0
+
+@media (hover: hover) and (pointer: fine)
+  :root
+    --m3e-density: -1
+
+/* ============================================================
    M3E 动效 / 高度 / 字体阶梯令牌
    动效曲线与时长遵循 M3 (2025) motion spec；
    高度层级叠加在动态 --mc-shadow 上（无 JS 时回退到黑色）。

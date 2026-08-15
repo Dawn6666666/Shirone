@@ -102,6 +102,7 @@ const {
 </div>
 
 <style lang="stylus">
+@import "../../../styles/breakpoints.styl"
 .m3-blog-postmeta
 	display: flex
 	flex-wrap: wrap
@@ -146,6 +147,6 @@ const {
 		font-size: 0.875rem
 
 	&__item--hide-mobile
-		@media (max-width: 767px)
+		@media (max-width: bp-md - 1px)
 			display: none
 </style>

@@ -99,7 +99,9 @@
 </Card>
 
 <style lang="stylus">
+@import "../../styles/breakpoints.styl"
+
 :global(.archive-panel)
-	@media (max-width: 640px)
+	@media (max-width: bp-sm - 1px)
 		padding: 1rem 0.75rem
 </style>

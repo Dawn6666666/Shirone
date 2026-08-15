@@ -98,6 +98,7 @@ const hasCover = !!image;
 </article>
 
 <style lang="stylus">
+@import "../../../styles/breakpoints.styl"
 .m3-blog-postcard
 	position: relative
 	display: flex
@@ -187,7 +188,7 @@ const hasCover = !!image;
 			object-fit: cover
 			position: relative
 
-		@media (min-width: 768px)
+		@media (min-width: bp-md)
 			position: absolute
 			top: 0.75rem
 			right: 0.75rem
@@ -205,7 +206,7 @@ const hasCover = !!image;
 		background: transparent
 		transition: background-color var(--m3e-duration-medium) var(--m3e-easing-standard)
 		/* 移动端不显示（触摸触发的瞬时 hover 也不出现，对齐原版） */
-		@media (max-width: 767px)
+		@media (max-width: bp-md - 1px)
 			display: none
 		.m3-blog-postcard:hover &
 			background: unquote("color-mix(in srgb, #000 30%, transparent)")
@@ -218,7 +219,7 @@ const hasCover = !!image;
 		justify-content: center
 		opacity: 0
 		transform: scale(0.5)
-		@media (max-width: 767px)
+		@media (max-width: bp-md - 1px)
 			display: none
 		transition:
 			opacity var(--m3e-duration-medium) var(--m3e-easing-standard),
@@ -251,10 +252,10 @@ const hasCover = !!image;
 		.m3-blog-postcard:hover &
 			background: var(--enter-btn-bg-hover)
 			color: var(--primary)
-		@media (max-width: 767px)
+		@media (max-width: bp-md - 1px)
 			display: none
 
-	@media (min-width: 768px)
+	@media (--m3e-bp-md)
 		flex-direction: column
 		&--cover &__body
 			padding-right: calc(28% + 1.5rem)
@@ -263,7 +264,7 @@ const hasCover = !!image;
 			padding-right: 4.75rem
 
 	/* === 移动端：封面置顶布局优化（桌面端保持不动） === */
-	@media (max-width: 767px)
+	@media (max-width: bp-md - 1px)
 		/* 原始设计：标题竖线仅桌面显示 */
 		.m3-blog-postcard__title :global(.m3-accent-bar)
 			display: none

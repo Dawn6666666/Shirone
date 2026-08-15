@@ -108,7 +108,30 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 `--m3e-type-label-small/medium/large`、`--m3e-type-body-medium/large`、`--m3e-type-title-medium/large`、`--m3e-type-headline-small`。
 均为 font 简写（`weight size/line-height family`），组件用 `font: var(--m3e-type-*)` 引用。
 
-### 3.6 状态层（.m3-state-layer）
+### 3.6 响应式 / 间距 / 密度
+
+断点对齐 Tailwind 默认（`sm 640 / md 768 / lg 1024 / xl 1280 / 2xl 1536`）：
+
+| 令牌 | 值 | 用途 |
+|---|---|---|
+| `--m3e-bp-sm/md/lg/xl/2xl` | 640 / 768 / 1024 / 1280 / 1536px | CSS 变量（JS 判断、内联样式） |
+| `bp-sm/md/lg/xl/2xl`（`src/styles/breakpoints.styl`） | 同上 | stylus 变量（组件 `@media` 编译期替换，`@import "../../../styles/breakpoints.styl"` 引入） |
+
+组件断点写法：`@media (min-width: bp-md)` / `@media (max-width: bp-md - 1px)`（stylus 0.64 会把变量型 min/max-width 规范化为 range 语法 `width >= 768px`，语义等价）。禁止在组件里散落硬编码断点值。
+
+间距（M3 4dp 网格）：
+
+| 令牌 | 值 |
+|---|---|
+| `--m3e-space-1..6 / 8 / 10` | 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40px |
+
+密度：
+
+| 令牌 | 值 | 说明 |
+|---|---|---|
+| `--m3e-density` | `0`（comfortable）/ `-1`（compact） | 桌面精确指针（`(hover:hover) and (pointer:fine)`）自动 -1；组件高度用 `calc(基础 + var(--m3e-density) * 4px)` 参与密度，不引用者无感 |
+
+### 3.7 状态层（.m3-state-layer）
 
 交互组件统一挂 `m3-state-layer` 类，获得 M3 状态层：
 

@@ -53,6 +53,7 @@
 </div>
 
 <style lang="stylus">
+@import "../../../styles/breakpoints.styl"
 .m3-blog-searchpanel
 	display: flex
 	flex-direction: column
@@ -96,7 +97,7 @@
 				color: var(--on-surface-variant)
 
 		&--hide-desktop
-			@media (min-width: 1024px)
+			@media (min-width: bp-lg)
 				display: none
 
 	/* 结果项：标题（hover primary + 箭头）+ 摘要（<mark> 高亮） */

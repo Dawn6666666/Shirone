@@ -99,6 +99,8 @@
 </div>
 
 <style lang="stylus">
+@import "../../../styles/breakpoints.styl"
+
 .m3-blog-archive
 	&__group + &__group
 		margin-top: 1.5rem
@@ -274,10 +276,10 @@
 		max-width: 20%
 		font: var(--m3e-type-body-small)
 		color: var(--on-surface-variant)
-		@media (max-width: 768px)
+		@media (max-width: bp-md - 1px)
 			display: none
 
-	@media (max-width: 640px)
+	@media (max-width: bp-sm - 1px)
 		&__group + &__group
 			margin-top: 1rem
 		&__header
