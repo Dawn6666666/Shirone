@@ -7,7 +7,7 @@
  */
 import { Icon } from "astro-icon/components";
 import AccentBar from "@components/atoms/display/AccentBar.svelte";
-import Skeleton from "@components/atoms/display/Skeleton.svelte";
+import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
 import PostMeta from "./PostMeta.astro";
 import type { BlogMetaLink } from "./PostMeta.astro";
 
@@ -77,14 +77,15 @@ const hasCover = !!image;
 	</div>
 	{hasCover ? (
 		<a class="m3-blog-postcard__cover" href={href} aria-label={title}>
-			<Skeleton
-				variant="rect"
-				radius="0"
-				width="100%"
-				height="100%"
-				class="m3-blog-postcard__cover-skeleton"
+			<span class="m3-blog-postcard__cover-loading" aria-hidden="true">
+				<LoadingIndicator contained size={40} client:visible />
+			</span>
+			<img
+				src={image}
+				alt={imageAlt}
+				loading="lazy"
+				onload="this.previousElementSibling?.classList.add('m3-blog-postcard__cover-loading--done')"
 			/>
-			<img src={image} alt={imageAlt} loading="lazy" />
 			<span class="m3-blog-postcard__cover-mask" aria-hidden="true"></span>
 			<span class="m3-blog-postcard__cover-arrow" aria-hidden="true">
 				<Icon name="material-symbols:chevron-right-rounded" />
@@ -178,9 +179,17 @@ const hasCover = !!image;
 		display: block
 		overflow: hidden
 		text-decoration: none
-		> :global(.m3-blog-postcard__cover-skeleton)
+		> :global(.m3-blog-postcard__cover-loading)
 			position: absolute
 			inset: 0
+			display: flex
+			align-items: center
+			justify-content: center
+			background: var(--surface-container-low)
+			transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+		> :global(.m3-blog-postcard__cover-loading--done)
+			opacity: 0
+			pointer-events: none
 		> img
 			display: block
 			width: 100%
