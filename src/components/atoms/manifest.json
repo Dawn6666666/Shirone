@@ -34,7 +34,7 @@
 		{ "name": "ListItem", "file": "display/ListItem.svelte", "category": "display", "tier": "B", "source": "移植", "landed": false, "note": "友链/动态，P1" },
 		{ "name": "Skeleton", "file": "display/Skeleton.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true },
 
-		{ "name": "LoadingIndicator", "file": "feedback/LoadingIndicator.svelte", "category": "feedback", "tier": "watch", "source": "移植", "landed": false, "note": "占位已被 Skeleton 覆盖" },
+		{ "name": "LoadingIndicator", "file": "feedback/LoadingIndicator.svelte", "category": "feedback", "tier": "A", "source": "移植", "landed": true, "note": "文章封面懒加载 + 动态筛选过渡 + 画廊瓦片加载 overlay" },
 		{ "name": "ProgressIndicator", "file": "feedback/ProgressIndicator.svelte", "category": "feedback", "tier": "A", "source": "移植", "landed": true },
 		{ "name": "PullToRefresh", "file": "feedback/PullToRefresh.svelte", "category": "feedback", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
 
