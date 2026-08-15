@@ -289,90 +289,23 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 
 ## 9. 组件质量与测试（Playwright）
 
-组件质量专项以官方 Material Web（`md-comp-*`，`research/material-web/tokens/versions/v0_192`）为基准，
-用 Playwright 对原子组件做渲染 / 交互断言，防止令牌漂移与行为回退。
+### 9.1 当前状态（2026-08）
 
-### 9.1 运行
+- **site 级测试保留**（`tests/site/`，真实页面）：视觉回归（4 页面 × light/dark）、axe 双模式、TOC、文章页（copy-link）、SSR 图标渲染、reduced-motion。
+- **atoms 级测试已移除**：原子测试页（`src/pages/atoms-*-test.astro`）、演示页（`src/components/atoms/*Demo.svelte`）、`tests/atoms/`（spec + helpers）已删除；**组件文件全部保留**（含 Tier B/C 库存原子）。历史测试记录在 git 中可追溯，未来组件落地/复用时按本节约定重建。
+- 组件质量仍以官方 Material Web（`research/material-web/tokens/versions/v0_192`）为基准。
+
+### 9.2 运行
 
 ```bash
-pnpm test                                     # 全量（等价 npx playwright test）
-npx playwright test tests/atoms/button.spec.ts # 单个文件
-npx playwright test -g "Menu"                 # 按标题过滤
+pnpm test                                     # 全量（等价 npx playwright test，site 级）
+npx playwright test tests/site/visual.spec.ts  # 单个文件
+npx playwright test -g "TOC"                   # 按标题过滤
 ```
 
 - 配置：`playwright.config.ts`，testDir `./tests`，单 worker，`webServer` 自动拉起 Astro dev（http://localhost:4321）。
-- 测试页：`src/pages/atoms-*-test.astro` 仅作本地验证用、不入库；运行时真实加载组件，并等待主题引擎把 `--mc-*` 写入 `:root`。
-
-### 9.2 断言辅助（tests/helpers/atoms.ts）
-
-| 函数 | 用途 |
-|---|---|
-| `openTestPage(page, slug)` | 打开测试页，等待主题初始化（`--mc-primary` 写入 `:root`）+ 350ms 过渡收敛 |
-| `expectMatchesToken(page, sel, prop, token)` | 断言元素 computed 样式 === token 解析值（`var(--xxx)` 计算） |
-| `expectStyle` / `readStyle` / `readBox` | 断言 / 读取 computed 样式与盒尺寸 |
-| `resolveVar(page, prop, token)` | 把 token 变量解析为最终计算值 |
-
-要点：
-
-- 主题引擎写入 `--mc-*` 后组件颜色带 transition，断言前必须等过渡收敛（`--m3e-duration-short` 150ms），否则会拿到中间帧的 `rgba` 混合值。
-- 交互类断言（点击切换、菜单开关）同样要等动画结束；菜单项选中后容器加 `.closed` 隐藏（项保留在 DOM，应断言容器而非计数）。
-- 颜色一律按 token 对齐（`--secondary-container` 等），不写死具体色值。
-
-### 9.3 键盘/焦点深度测试（B 专项）
-
-对核心可交互组件补充了键盘与焦点断言（`tests/atoms/*.spec.ts`）：
-
-- DataTable：表头点击 / Enter 触发排序，排序后行顺序真实重排；
-- TimePicker：拨盘选小时自动切分钟并回填、h12 下午切换（07:05 → 19:05）、输入模式键入回填；
-- DatePicker：月份导航往返切换；
-- Select：Home/End 定位首尾项、首字母 typeahead；
-- Tabs：方向键 + Home/End 移动（焦点与激活跟随）；
-- Autocomplete：`aria-activedescendant` 指向活动项、点击外部关闭；
-- Slider：PageUp/PageDown/Home/End 大跨度步进；
-- SheetSide：打开聚焦面板、Tab 焦点陷阱循环、关闭后焦点返还触发元素；
-- SearchView：全屏 Esc 关闭、打开自动聚焦输入框、建议/历史项 ↑↓ + Enter 键盘选择。
-
-
-
-### 9.4 无障碍审计（E 专项，axe-core）
-以 axe-core（WCAG 2.1 AA）对全部 30 个 atoms 测试页做逐页扫描锁定（`tests/atoms/a11y.spec.ts`），除测试脚手架页面级规则 `page-has-heading-one` 外不允许任何违规。本轮修复：
-
-- FABMenu / SearchBar：收起时内容区加 `inert`，隐藏菜单项/建议结果不再可聚焦（aria-hidden-focus）；
-- Select：combobox 名称来自 label（`aria-labelledby`，无 label 回退 `aria-label=placeholder`）；
-- SplitButton：trailing 菜单按钮新增 `trailingLabel`（默认“更多操作”）；
-- NavigationRail：item 按钮输出 `aria-label`，折叠模式仍可读；
-- SearchView / Carousel / PullToRefresh：新增 `label` 区域标题；PullToRefresh 滚动区 `role=region + tabindex=0` 键盘可达；
-- TimePicker：修复表盘轨道指向（原偏差 180°，现指向选中时刻），h24 内环小时用短轨道（消除与数字的重叠误判）；
-- 演示页：工具栏图标按钮、进度滑杆、空圆形按钮补齐无障碍标签；轮播演示卡加深色渐变衬底保证对比度。
-
-
-### 9.5 深色模式对比度（F 专项）
-在深色模式下再次执行 axe-core 扫描：通过 `localStorage.theme=dark` 强制 `dark` 类，主题引擎写入深色方案的 `--mc-*` 令牌。结果：30 个测试页在深色下无任何组件级违规，说明组件均依赖 token（非硬编码浅色），跟随主题切换。
-
-锁定：`tests/atoms/a11y.spec.ts` 现按 **light / dark 双模式** 逐页执行（60 个用例），并断言页面确实处于目标模式（防止主题未应用导致“假通过”）。
-
-### 9.6 交互深度测试补全（剩余原子）
-在 9.3 基础上，为剩余原子补齐键盘 / 焦点 / 状态联动断言（`tests/atoms/interaction-depth.spec.ts`，42 个用例）：
-
-- Dialog / AlertDialog：打开聚焦容器、Tab 焦点陷阱在操作按钮间循环、Esc / 遮罩关闭、关闭后焦点返还触发元素；
-- Checkbox：Space 切换、triState 三态循环（false→true→null，indeterminate 同步）；
-- SegmentedButton：单选段方向键移动（radio 语义）、多选 Space 切换勾选；
-- Switch：Space 切换、disabled 不可交互；
-- Card：Enter / Space 触发可点击卡片、禁用卡片不可交互；
-- ToggleButton / ButtonGroup：Enter 切换、溢出项经「更多」菜单键盘可访问；
-- NavigationBar / ListItem：Enter / Space 切换选中并同步 aria；
-- FloatingToolbar：收起态键盘展开、展开态图标按钮可聚焦；
-- BottomSheet：遮罩点击关闭；
-- Menu：Esc / 点击外部关闭、互斥单开（打开 B 自动关闭 A）；
-- ExposedDropdownMenu：aria-expanded 切换、Esc / 外部点击关闭、键盘 Enter 选择；
-- DatePicker / DateRangePicker：键盘 Enter 选择日期、月份导航、范围中间高亮、反向选择自动交换；
-- TextField：聚焦后 label 浮动；
-- TimePicker：键盘切换输入模式、输入小时自动跳分钟、非法值错误态；
-- SearchBar：Esc 收起并失焦、ArrowDown 焦点移入建议列表；
-- Snackbar：无操作自动消失；Tooltip：键盘聚焦显示 + aria-describedby。
-
-本轮组件修复：
-
-- SegmentedButton：隐藏 input 由 `hidden` 改为 sr-only（clip 隐藏但保留可聚焦与键盘支持），单选 / 多选均可键盘操作；
-- Dialog / AlertDialog：新增 Tab 焦点陷阱与关闭后焦点返还（对齐 SheetSide 与官方 Modal Dialog 行为）。
+- 断言要点（重建 atoms 级测试时沿用）：
+  - 主题引擎写入 `--mc-*` 后组件颜色带 transition，断言前必须等过渡收敛（`--m3e-duration-short` 150ms），否则会拿到中间帧的 `rgba` 混合值。
+  - 交互类断言同样要等动画结束；菜单项选中后容器加 `.closed` 隐藏（项保留在 DOM，应断言容器而非计数）。
+  - 颜色一律按 token 对齐（`--secondary-container` 等），不写死具体色值（默认色相已定为 315）。
 

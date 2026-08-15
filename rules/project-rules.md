@@ -52,7 +52,7 @@ content/（Markdown 正文，仅 pages 引用）
 1. **数据驱动**：对外最小 props 集，展示数据由调用方传入；
 2. **token 对齐**：颜色用 `--primary` / `--surface-container-*` / `--shape-corner-*`，字体用 `--m3e-type-*`，动效用 `--m3e-duration-*` + `--m3e-easing-*`；
 3. **交互反馈**：hover/focus/pressed 叠色统一用 `.m3-state-layer`，不自造 `:hover { background: ... }`；
-4. **演示页 + 测试**：补 `*Demo.svelte`（演示页不入库）+ `tests/atoms/*.spec.ts`，并加入 a11y 扫描清单（Tier C 组件不做测试）；
+4. **演示页 + 测试**：补 `*Demo.svelte`（演示页不入库）+ `tests/atoms/*.spec.ts`，并加入 a11y 扫描清单（Tier C 组件不做测试）；※ 当前 atoms 级测试体系已移除（2026-08，测试页/spec 删除、组件保留），落地组件时按 `docs/m3e-standard.md` §9 约定重建；
 5. **清单登记 + 文档标注**：在 `src/components/atoms/manifest.json` 登记 `{name,file,category,tier,source,landed,note}`，并在 `docs/m3e-standard.md` §4 清单标注「移植 / 原创」来源；
 6. **官方对齐**：移植官方 M3/Compose/Material Web 时，行为/视觉对齐官方 token（参考 `research/material-web/tokens/versions/v0_192`）；
 7. **形状契约**：按钮/卡片/输入框/浮层圆角遵循 `docs/m3e-standard.md` §3.2 形状契约表。
@@ -87,15 +87,11 @@ content/（Markdown 正文，仅 pages 引用）
 ```bash
 npx.cmd astro check          # 0 errors / 0 warnings
 node scripts/check-manifest.mjs  # manifest 与文件系统一致
-npx.cmd playwright test      # 全量（约 5 分钟）
+npx.cmd playwright test      # site 级全量（约 1 分钟，atoms 级测试已移除）
 ```
 
 测试覆盖（`tests/`）：
-- `tests/atoms/*.spec.ts`：渲染 token 断言 + 交互深度 + 键盘焦点；
-- `tests/atoms/a11y.spec.ts`：axe light/dark 双模式（原子测试页）；
-- `tests/site/a11y.spec.ts`：axe 双模式（真实页面：首页/归档/关于/文章页）；
-- `tests/site/visual.spec.ts`：视觉回归黄金截图（4 页面 × light/dark）；
-- `tests/atoms/motion.spec.ts`：prefers-reduced-motion 动效降级。
+- `tests/site/`：视觉回归（4 页面 × light/dark）、axe 双模式（真实页面）、TOC、文章页、SSR 图标渲染、reduced-motion；
 
 ---
 
