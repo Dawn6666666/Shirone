@@ -20,6 +20,7 @@ import { defaultFavicons } from "../constants/icon";
 import type { Favicon } from "../types/config";
 import { pathsEqual, url } from "../utils/url-utils";
 import "katex/dist/katex.css";
+import "overlayscrollbars/overlayscrollbars.css";
 import "../styles/main.css";
 
 interface Props {
@@ -219,7 +220,6 @@ const bannerOffset =
 </style>
 
 <script>
-import 'overlayscrollbars/overlayscrollbars.css';
 import "../utils/code-collapse";
 import {
 	OverlayScrollbars,
