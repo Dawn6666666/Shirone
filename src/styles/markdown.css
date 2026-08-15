@@ -96,7 +96,7 @@
     font-weight: inherit;
 
     &:before {
-      @apply content-[''] absolute -left-1 block transition bg-[var(--btn-regular-bg)] h-full w-1 rounded-full;
+      @apply content-[''] absolute -left-1 block transition bg-[var(--primary)] h-full w-1 rounded-full;
     }
 
     /* Remove the double quotes from default styles */
@@ -110,6 +110,28 @@
     max-width: 100%;
     overflow-x: auto;
     margin: 1em 0;
+  }
+
+  /* --- M3 表格：容器圆角 + 表头表面分层 + outline-variant 分隔线 --- */
+  table {
+    @apply w-full my-4 border-collapse overflow-hidden rounded-lg border border-[var(--outline-variant)];
+
+    th {
+      @apply text-left px-4 py-2.5 bg-[var(--surface-container-high)] text-[var(--on-surface)] font-semibold;
+    }
+
+    td {
+      @apply px-4 py-2 text-[var(--on-surface-variant)];
+    }
+
+    th,
+    td {
+      @apply border-b border-[var(--outline-variant)];
+    }
+
+    tr:last-child td {
+      @apply border-b-0;
+    }
   }
 
   /* --- 标题间距 --- */
