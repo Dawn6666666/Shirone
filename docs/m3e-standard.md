@@ -286,6 +286,9 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
 | `src/components/molecules/PageHeader.svelte` | 页面级标题（图标 + 标题 + 副标题），见 `docs/common-components.md` |
 | `src/components/molecules/SectionTitle.svelte` | 区块级标题（可选图标 + 标题 + 副标题），见 `docs/common-components.md` |
+| `src/components/molecules/MomentCard.svelte` | 动态卡片（正文 + 自适应图片网格 + 灯箱分组），见 `docs/common-components.md` |
+| `src/components/organisms/MomentSection.svelte` | 动态页主体（搜索/标签筛选/加载更多 + Fancybox 接线） |
+| `src/utils/markdown-processor.mjs` | 站点统一 markdown 插件链（astro.config 与构建期离线渲染共用） |
 
 ---
 

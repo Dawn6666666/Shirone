@@ -21,16 +21,23 @@ export class FancyboxHandler {
 	private Fancybox: FancyboxModule | null = null;
 	private boundSelectors: string[] = [];
 	private initialized = false;
+	private initPromise: Promise<void> | null = null;
 
 	/**
 	 * 初始化 Fancybox
-	 * 按需加载 Fancybox 模块和样式
+	 * 按需加载 Fancybox 模块和样式；
+	 * 并发调用（如 client:only 岛挂载晚于全局 init）合并为一次，防止双绑
 	 */
 	async init(): Promise<void> {
 		if (!this.checkForImages()) {
 			return;
 		}
 
+		this.initPromise ??= this.doInit();
+		await this.initPromise;
+	}
+
+	private async doInit(): Promise<void> {
 		if (!this.Fancybox) {
 			await this.loadFancybox();
 		}
@@ -48,7 +55,10 @@ export class FancyboxHandler {
 	 * 检查页面是否有需要灯箱的图片
 	 */
 	private checkForImages(): boolean {
-		return document.querySelector(FANCYBOX_SELECTORS.articleImages) !== null;
+		return (
+			document.querySelector(FANCYBOX_SELECTORS.articleImages) !== null ||
+			document.querySelector(FANCYBOX_SELECTORS.singleFancybox) !== null
+		);
 	}
 
 	/**
@@ -118,6 +128,8 @@ export class FancyboxHandler {
 			this.Fancybox.unbind(selector);
 		}
 		this.boundSelectors = [];
+		// 解绑后允许下次 init 重新绑定
+		this.initPromise = null;
 	}
 
 	/**
@@ -127,6 +139,7 @@ export class FancyboxHandler {
 		this.cleanup();
 		this.Fancybox = null;
 		this.initialized = false;
+		this.initPromise = null;
 	}
 
 	/**

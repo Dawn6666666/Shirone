@@ -13,6 +13,7 @@ import { expect, test } from "@playwright/test";
 const pages = [
 	{ name: "首页", path: "/" },
 	{ name: "归档", path: "/archive/" },
+	{ name: "动态", path: "/moments/" },
 	{ name: "关于", path: "/about/" },
 	{ name: "文章页", path: "/posts/guide/" },
 ];

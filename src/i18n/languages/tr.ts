@@ -14,6 +14,14 @@ export const tr: Translation = {
 	[Key.friendsCount]: "arkadaş",
 	[Key.friendsCounts]: "arkadaş",
 
+	[Key.moments]: "Anlar",
+	[Key.momentsNoResults]: "Filtrelerle eşleşen an yok",
+	[Key.momentsBanner]: "Kısa notlar — hayat, iş ve küçük mutluluklar.",
+	[Key.momentsCount]: "an",
+	[Key.momentsCounts]: "an",
+	[Key.pinned]: "Sabitlenen",
+	[Key.loadMore]: "Daha fazla yükle",
+
 	[Key.tags]: "Taglar",
 	[Key.categories]: "Katagoriler",
 	[Key.recentPosts]: "Son Paylaşımlar",

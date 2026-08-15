@@ -14,6 +14,14 @@ export const ja: Translation = {
 	[Key.friendsCount]: "件の友達リンク",
 	[Key.friendsCounts]: "件の友達リンク",
 
+	[Key.moments]: "モーメンツ",
+	[Key.momentsNoResults]: "条件に一致するモーメンツはありません",
+	[Key.momentsBanner]: "ふとした瞬間を気軽に記録 —— 日々、制作、そして小さな幸せ。",
+	[Key.momentsCount]: "件",
+	[Key.momentsCounts]: "件",
+	[Key.pinned]: "ピン留め",
+	[Key.loadMore]: "もっと見る",
+
 	[Key.tags]: "タグ",
 	[Key.categories]: "カテゴリ",
 	[Key.recentPosts]: "最近の投稿",

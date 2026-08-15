@@ -14,6 +14,14 @@ export const th: Translation = {
 	[Key.friendsCount]: "ลิงก์",
 	[Key.friendsCounts]: "ลิงก์",
 
+	[Key.moments]: "โมเมนต์",
+	[Key.momentsNoResults]: "ไม่มีโมเมนต์ที่ตรงกับตัวกรอง",
+	[Key.momentsBanner]: "บันทึกสั้น ๆ — ชีวิต งาน และความสุขเล็ก ๆ",
+	[Key.momentsCount]: "ชิ้น",
+	[Key.momentsCounts]: "ชิ้น",
+	[Key.pinned]: "ปักหมุด",
+	[Key.loadMore]: "โหลดเพิ่ม",
+
 	[Key.tags]: "ป้ายกำกับ",
 	[Key.categories]: "หมวดหมู่",
 	[Key.recentPosts]: "โพสต์ล่าสุด",

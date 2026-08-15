@@ -11,6 +11,14 @@ enum I18nKey {
 	friendsCount = "friendsCount",
 	friendsCounts = "friendsCounts",
 
+	moments = "moments",
+	momentsNoResults = "momentsNoResults",
+	momentsBanner = "momentsBanner",
+	momentsCount = "momentsCount",
+	momentsCounts = "momentsCounts",
+	pinned = "pinned",
+	loadMore = "loadMore",
+
 	tags = "tags",
 	categories = "categories",
 	recentPosts = "recentPosts",

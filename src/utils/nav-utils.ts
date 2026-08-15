@@ -25,6 +25,7 @@ export function resolvePageKey(
 	if (url.searchParams.has("tag")) return "tags";
 	if (pathname === "/archive") return "archive";
 	if (pathname === "/friends") return "friends";
+	if (pathname === "/moments") return "moments";
 	if (pathname === "/about") return "about";
 	return "";
 }

@@ -1,6 +1,7 @@
 import { type CollectionEntry, getCollection } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { siteMarkdownProcessor } from "@utils/markdown-processor";
 import { getCategoryUrl } from "@utils/url-utils.ts";
 
 // // Retrieve posts and sort them by publication date
@@ -111,4 +112,63 @@ export async function getCategoryList(): Promise<Category[]> {
 		});
 	}
 	return ret;
+}
+
+// // Moments (动态)：构建期渲染为序列化条目，供页面以 props 传给 Svelte 岛
+export type MomentImage = {
+	src: string;
+	alt: string;
+};
+
+export type MomentItem = {
+	id: string;
+	/** ISO 字符串（Date 无法跨岛序列化） */
+	published: string;
+	/** 正文 HTML（站点统一 markdown 插件链渲染） */
+	html: string;
+	pinned: boolean;
+	location: string;
+	/** 心情 Iconify 图标名 */
+	mood: string;
+	tags: string[];
+	images: MomentImage[];
+};
+
+/** 渲染器按需创建并缓存（插件加载较重，全构建期只跑一次） */
+let momentsRendererPromise: ReturnType<
+	typeof siteMarkdownProcessor.createRenderer
+> | null = null;
+
+export async function getSortedMoments(): Promise<MomentItem[]> {
+	const entries = await getCollection("moments", ({ data }) => {
+		return import.meta.env.PROD ? data.draft !== true : true;
+	});
+
+	const sorted = entries.sort((a, b) => {
+		if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+		const dateA = new Date(a.data.published);
+		const dateB = new Date(b.data.published);
+		return dateA > dateB ? -1 : 1;
+	});
+
+	momentsRendererPromise ??= siteMarkdownProcessor.createRenderer({});
+	const renderer = await momentsRendererPromise;
+
+	return Promise.all(
+		sorted.map(async (entry) => {
+			const { code } = await renderer.render(entry.body ?? "", {
+				frontmatter: entry.data as unknown as Record<string, unknown>,
+			});
+			return {
+				id: entry.id,
+				published: new Date(entry.data.published).toISOString(),
+				html: code,
+				pinned: entry.data.pinned,
+				location: entry.data.location,
+				mood: entry.data.mood,
+				tags: entry.data.tags,
+				images: entry.data.images,
+			} satisfies MomentItem;
+		}),
+	);
 }

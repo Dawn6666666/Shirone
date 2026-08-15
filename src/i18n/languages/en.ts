@@ -14,6 +14,14 @@ export const en: Translation = {
 	[Key.friendsCount]: "friend",
 	[Key.friendsCounts]: "friends",
 
+	[Key.moments]: "Moments",
+	[Key.momentsNoResults]: "No moments matched your filters",
+	[Key.momentsBanner]: "Short notes — bits of life, work and everything in between.",
+	[Key.momentsCount]: "moment",
+	[Key.momentsCounts]: "moments",
+	[Key.pinned]: "Pinned",
+	[Key.loadMore]: "Load more",
+
 	[Key.tags]: "Tags",
 	[Key.categories]: "Categories",
 	[Key.recentPosts]: "Recent Posts",

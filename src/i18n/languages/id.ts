@@ -14,6 +14,14 @@ export const id: Translation = {
 	[Key.friendsCount]: "teman",
 	[Key.friendsCounts]: "teman",
 
+	[Key.moments]: "Momen",
+	[Key.momentsNoResults]: "Tidak ada momen yang cocok dengan filter",
+	[Key.momentsBanner]: "Catatan singkat — kehidupan, karya, dan kebahagiaan kecil.",
+	[Key.momentsCount]: "momen",
+	[Key.momentsCounts]: "momen",
+	[Key.pinned]: "Disematkan",
+	[Key.loadMore]: "Muat lainnya",
+
 	[Key.tags]: "Tag",
 	[Key.categories]: "Kategori",
 	[Key.recentPosts]: "Postingan Terbaru",

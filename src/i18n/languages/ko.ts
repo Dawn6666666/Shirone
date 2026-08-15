@@ -14,6 +14,14 @@ export const ko: Translation = {
 	[Key.friendsCount]: "개의 친구 링크",
 	[Key.friendsCounts]: "개의 친구 링크",
 
+	[Key.moments]: "모먼트",
+	[Key.momentsNoResults]: "조건에 맞는 모먼트가 없습니다",
+	[Key.momentsBanner]: "일상과 작업, 그리고 사소한 행복을 짧게 기록합니다.",
+	[Key.momentsCount]: "개",
+	[Key.momentsCounts]: "개",
+	[Key.pinned]: "고정됨",
+	[Key.loadMore]: "더 보기",
+
 	[Key.tags]: "태그",
 	[Key.categories]: "카테고리",
 	[Key.recentPosts]: "최근 게시물",

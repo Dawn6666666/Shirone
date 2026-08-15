@@ -28,6 +28,12 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		icon: "material-symbols:handshake-outline-rounded",
 		pageKey: "friends",
 	},
+	Moments: {
+		name: i18n(I18nKey.moments),
+		url: "/moments/",
+		icon: "material-symbols:auto-awesome-outline-rounded",
+		pageKey: "moments",
+	},
 	Categories: {
 		name: i18n(I18nKey.categories),
 		url: "/archive/",
@@ -60,6 +66,7 @@ export const navBarConfig: NavBarConfig = {
 		LinkPresets.Home,
 		LinkPresets.Archive,
 		LinkPresets.Friends,
+		LinkPresets.Moments,
 		{
 			name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",

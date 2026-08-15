@@ -28,7 +28,30 @@ const specCollection = defineCollection({
 	schema: z.object({}),
 });
 
+const momentsCollection = defineCollection({
+	loader: glob({ base: "./src/content/moments", pattern: "**/*.md" }),
+	schema: z.object({
+		published: z.date(),
+		pinned: z.boolean().optional().default(false),
+		location: z.string().optional().default(""),
+		/** 心情（Iconify 图标名，如 material-symbols:sentiment-excited-outline-rounded） */
+		mood: z.string().optional().default(""),
+		tags: z.array(z.string()).optional().default([]),
+		images: z
+			.array(
+				z.object({
+					src: z.string(),
+					alt: z.string().optional().default(""),
+				}),
+			)
+			.optional()
+			.default([]),
+		draft: z.boolean().optional().default(false),
+	}),
+});
+
 export const collections = {
 	posts: postsCollection,
 	spec: specCollection,
+	moments: momentsCollection,
 } as const;

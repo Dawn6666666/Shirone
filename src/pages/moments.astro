@@ -1,0 +1,20 @@
+---
+import MomentSection from "@components/organisms/MomentSection.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { profileConfig } from "@/config";
+import { resolveAsset } from "@utils/asset-utils";
+import { getSortedMoments } from "@utils/content-utils";
+
+const moments = await getSortedMoments();
+const author = {
+	name: profileConfig.name,
+	avatar: await resolveAsset(profileConfig.avatar ?? ""),
+	url: "/about/",
+};
+---
+
+<MainGridLayout title={i18n(I18nKey.moments)}>
+    <MomentSection {moments} {author} client:only="svelte"></MomentSection>
+</MainGridLayout>

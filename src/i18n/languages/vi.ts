@@ -14,6 +14,14 @@ export const vi: Translation = {
 	[Key.friendsCount]: "liên kết bạn bè",
 	[Key.friendsCounts]: "liên kết bạn bè",
 
+	[Key.moments]: "Khoảnh khắc",
+	[Key.momentsNoResults]: "Không có khoảnh khắc nào khớp bộ lọc",
+	[Key.momentsBanner]: "Ghi chú ngắn — cuộc sống, công việc và những niềm vui nhỏ.",
+	[Key.momentsCount]: "khoảnh khắc",
+	[Key.momentsCounts]: "khoảnh khắc",
+	[Key.pinned]: "Ghim",
+	[Key.loadMore]: "Tải thêm",
+
 	[Key.tags]: "Thẻ",
 	[Key.categories]: "Danh mục",
 	[Key.recentPosts]: "Bài viết mới nhất",
