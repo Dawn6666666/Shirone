@@ -13,3 +13,4 @@ export { expressiveCodeConfig } from "./expressiveCodeConfig";
 export { LinkPresets, navBarConfig } from "./navBarConfig";
 export { sidebarConfig } from "./sidebarConfig";
 export { announcementConfig } from "./announcementConfig";
+export { postListConfig, POST_CARD_MIN_WIDTH } from "./postListConfig";

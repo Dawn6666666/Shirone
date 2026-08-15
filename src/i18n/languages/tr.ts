@@ -76,6 +76,9 @@ export const tr: Translation = {
 	[Key.copyLink]: "Bağlantıyı kopyala",
 
 	[Key.reduceMotion]: "Hareketi azalt",
+	[Key.layoutMode]: "Düzen",
+	[Key.layoutList]: "Liste",
+	[Key.layoutGrid]: "Izgara",
 	[Key.resetConfirmTitle]: "Tema sıfırlansın mı?",
 	[Key.resetConfirmMessage]:
 		"Varsayılan renk tonu, renk stili ve renk spesifikasyonu geri yüklenecek.",

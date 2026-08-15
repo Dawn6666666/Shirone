@@ -23,7 +23,10 @@ export interface CollapseParams {
 	duration?: number;
 }
 
-const COLLAPSE_EASING = "cubic-bezier(0.2, 0, 0, 1)"; // M3 emphasized-decelerate
+/** M3 emphasized 缓动曲线（collapse / reveal / 布局 FLIP 重排共用） */
+export const EASING_EMPHASIZED = "cubic-bezier(0.2, 0, 0, 1)";
+
+const COLLAPSE_EASING = EASING_EMPHASIZED; // M3 emphasized-decelerate
 
 /**
  * 声明式展开/折叠插件：

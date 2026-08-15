@@ -76,6 +76,9 @@ export const en: Translation = {
 	[Key.copyLink]: "Copy link",
 
 	[Key.reduceMotion]: "Reduce motion",
+	[Key.layoutMode]: "Layout",
+	[Key.layoutList]: "List",
+	[Key.layoutGrid]: "Grid",
 	[Key.resetConfirmTitle]: "Reset theme settings?",
 	[Key.resetConfirmMessage]:
 		"This will restore the default hue, color style and color spec.",

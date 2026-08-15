@@ -291,6 +291,8 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/components/molecules/Announcement.astro` | 公告侧栏 widget（Banner round，内容源 `announcementConfig`），见 `docs/common-components.md` §3.1 |
 | `src/components/organisms/MomentSection.svelte` | 动态页主体（搜索/标签筛选/加载更多 + Fancybox 接线） |
 | `src/utils/markdown-processor.mjs` | 站点统一 markdown 插件链（astro.config 与构建期离线渲染共用） |
+| `src/utils/layout-mode.ts` | 文章列表布局模式（list/grid）：访客偏好存取、FLIP 切换动效 |
+| `src/utils/masonry.ts` | 瀑布流打包（grid row-span + 最短列分配，无绝对定位） |
 
 ---
 

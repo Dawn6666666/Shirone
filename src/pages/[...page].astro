@@ -2,13 +2,13 @@
 import Pagination from "@components/molecules/Pagination.astro";
 import PostPage from "@components/organisms/PostPage.astro";
 import type { GetStaticPaths } from "astro";
-import { PAGE_SIZE } from "../constants/constants";
+import { postListConfig } from "@/config/postListConfig";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 import { getSortedPosts } from "../utils/content-utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
 	const allBlogPosts = await getSortedPosts();
-	return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
+    return paginate(allBlogPosts, { pageSize: postListConfig.pageSize });
 }) satisfies GetStaticPaths;
 // https://github.com/withastro/astro/issues/6507#issuecomment-1489916992
 

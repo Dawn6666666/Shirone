@@ -531,6 +531,7 @@ window.onresize = () => {
 
 <script>
 import { cleanupFancybox, initFancybox } from "../utils/fancybox-handler";
+import { applyStoredLayoutMode } from "../utils/layout-mode";
 
 const setup = () => {
 	initFancybox();
@@ -541,6 +542,8 @@ const setup = () => {
 
 	window.swup.hooks.on("content:replace", () => {
 		initFancybox();
+		// swup 替换内容后，SSR 输出的是站点默认布局模式，重新应用访客偏好
+		applyStoredLayoutMode(document.getElementById("post-list"));
 	});
 };
 

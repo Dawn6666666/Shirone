@@ -76,6 +76,9 @@ export const id: Translation = {
 	[Key.copyLink]: "Salin tautan",
 
 	[Key.reduceMotion]: "Kurangi animasi",
+	[Key.layoutMode]: "Tata letak",
+	[Key.layoutList]: "Daftar",
+	[Key.layoutGrid]: "Kisi",
 	[Key.resetConfirmTitle]: "Atur ulang tema?",
 	[Key.resetConfirmMessage]:
 		"Hue, gaya warna, dan spesifikasi warna akan dikembalikan ke bawaan.",

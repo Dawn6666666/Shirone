@@ -14,6 +14,7 @@ import { expect, test } from "@playwright/test";
  */
 const pages = [
 	{ name: "首页", path: "/" },
+	{ name: "首页-网格", path: "/", layout: "grid" },
 	{ name: "归档", path: "/archive/" },
 	{ name: "友链", path: "/friends/" },
 	{ name: "动态", path: "/moments/" },
@@ -41,8 +42,14 @@ const GITHUB_MOCK = {
 	license: { spdx_id: "MIT" },
 };
 
-async function openSitePage(page: import("@playwright/test").Page, path: string, theme: string) {
-	await page.addInitScript((t) => localStorage.setItem("theme", t), theme);
+async function openSitePage(page: import("@playwright/test").Page, path: string, theme: string, layout?: string) {
+	await page.addInitScript(
+		(entries) => {
+			for (const [key, value] of Object.entries(entries))
+				localStorage.setItem(key, value);
+		},
+		{ theme, ...(layout ? { "post-list-mode": layout } : {}) },
+	);
 	await page.route("https://api.github.com/**", (route) =>
 		route.fulfill({
 			status: 200,
@@ -76,7 +83,7 @@ for (const mode of modes) {
 	test.describe(`Site a11y scan lock (${mode.name})`, () => {
 		for (const p of pages) {
 			test(p.name, async ({ page }) => {
-				await openSitePage(page, p.path, mode.theme);
+				await openSitePage(page, p.path, mode.theme, p.layout);
 				// 防止主题未应用导致“假通过”：确认页面确实处于目标模式
 				const isDark = await page.evaluate(() =>
 					document.documentElement.classList.contains("dark"),

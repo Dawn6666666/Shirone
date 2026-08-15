@@ -76,6 +76,9 @@ export const th: Translation = {
 	[Key.copyLink]: "คัดลอกลิงก์",
 
 	[Key.reduceMotion]: "ลดการเคลื่อนไหว",
+	[Key.layoutMode]: "เลย์เอาต์",
+	[Key.layoutList]: "รายการ",
+	[Key.layoutGrid]: "กริด",
 	[Key.resetConfirmTitle]: "รีเซ็ตธีมหรือไม่",
 	[Key.resetConfirmMessage]: "จะคืนค่าสีหลัก สไตล์สี และสเปกสีกลับเป็นค่าเริ่มต้น",
 	[Key.cancel]: "ยกเลิก",

@@ -298,4 +298,44 @@ const hasCover = !!image;
 		&__arrow
 			width: 2rem
 			height: 2rem
+
+/* ============================================================
+   容器模式联动（PostPage 的 #post-list 容器类钩子，:global 祖先选择器）
+   同一卡片按所在容器切换 token 形态，而非两套皮肤：
+   - m3e-post-list--grid     封面 16:9 通栏贴边（复用移动端封面置顶语言）
+   - m3e-post-list--cover-left  list 模式封面居左（桌面 ≥md 镜像布局）
+   注意：钩子选择器用单个 &（自身复合），禁止 `& &`（会编译成嵌套后代，
+   修饰符形式永不匹配）。
+   ============================================================ */
+.m3-blog-postcard
+	/* —— 网格（瀑布流）模式：全断点封面置顶、通栏贴边 ——
+	   卡片高度天然混合（有/无封面），由 PostPage 的 JS 最短列打包消除空洞 */
+	:global(.m3e-post-list--grid) &
+		flex-direction: column-reverse
+
+	:global(.m3e-post-list--grid) &__cover
+		position: relative
+		inset: auto
+		width: auto
+		height: auto
+		aspect-ratio: 16 / 9
+		margin: 0
+		border-radius: 0
+
+	:global(.m3e-post-list--grid) &__enter
+		/* 网格无封面时进入按钮会压在标题区上方，隐藏（标题自带箭头可点） */
+		display: none
+
+	:global(.m3e-post-list--grid) &__body
+		padding: 1rem 1.25rem 1.25rem
+
+	/* —— 列表封面居左：仅桌面 ≥md，镜像右侧布局 —— */
+	@media (min-width: bp-md)
+		:global(.m3e-post-list--cover-left) &__cover
+			right: auto
+			left: 0.75rem
+
+		:global(.m3e-post-list--cover-left) &--cover &__body
+			padding-right: 1.5rem
+			padding-left: calc(28% + 1.5rem)
 </style>

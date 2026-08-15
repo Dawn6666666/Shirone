@@ -22,6 +22,13 @@ import {
 	setMotionPreference,
 } from "@utils/setting-utils";
 import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
+import {
+	defaultMode,
+	flipToMode,
+	getStoredMode,
+	storeMode,
+} from "@utils/layout-mode";
+import type { PostListMode } from "@/types/postListConfig";
 import { onMount } from "svelte";
 import { getDefaultSpec, getDefaultStyle } from "@/config";
 
@@ -40,6 +47,11 @@ let dark = $state(
 
 let motionReduced = $state(false);
 
+// 文章列表布局（list/grid）：初始值取访客偏好，变化时存储 + FLIP 重排
+const defaultLayoutMode = defaultMode();
+let postListMode = $state<PostListMode>(getStoredMode());
+let lastAppliedMode = postListMode;
+
 // 明暗切换时重算色卡（LightDarkSwitch 改 <html> 的 class）
 onMount(() => {
 	const observer = new MutationObserver(() => {
@@ -53,16 +65,20 @@ onMount(() => {
 	return () => observer.disconnect();
 });
 
-/** 完整重置：色相 / 配色风格 / Color Spec 全部还原为站点默认（点击即生效，无确认弹窗） */
+/** 完整重置：色相 / 配色风格 / Color Spec / 列表布局 全部还原为站点默认（点击即生效，无确认弹窗） */
 function confirmReset() {
 	hue = defaultHue;
 	style = defaultStyle;
 	spec = defaultSpec;
+	postListMode = defaultLayoutMode;
 }
 
 /** 是否有可重置的偏离（控制 Reset 按钮可见性） */
 const isDirty = $derived(
-	hue !== defaultHue || style !== defaultStyle || spec !== defaultSpec,
+	hue !== defaultHue ||
+		style !== defaultStyle ||
+		spec !== defaultSpec ||
+		postListMode !== defaultLayoutMode,
 );
 
 $effect(() => {
@@ -76,6 +92,14 @@ $effect(() => {
 });
 $effect(() => {
 	setMotionPreference(motionReduced);
+});
+$effect(() => {
+	if (postListMode === lastAppliedMode) return;
+	lastAppliedMode = postListMode;
+	storeMode(postListMode);
+	// 首页才有 #post-list；其它页面仅存储偏好，下次进首页生效
+	const container = document.getElementById("post-list");
+	if (container) flipToMode(container, postListMode);
 });
 
 function styleKey(s: McStyle): I18nKey {
@@ -195,6 +219,18 @@ const stylePreviews = $derived(
             <div class="flex items-center gap-3">
                 <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.reduceMotion)}</span>
                 <Switch bind:checked={motionReduced} label={i18n(I18nKey.reduceMotion)} icons />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.layoutMode)}</span>
+                <SegmentedButton
+                    options={[
+                        { value: "list", label: i18n(I18nKey.layoutList) },
+                        { value: "grid", label: i18n(I18nKey.layoutGrid) },
+                    ]}
+                    bind:value={postListMode}
+                    label={i18n(I18nKey.layoutMode)}
+                />
             </div>
         </div>
     </PanelStack>

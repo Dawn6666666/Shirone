@@ -76,6 +76,9 @@ export const es: Translation = {
 	[Key.copyLink]: "Copiar enlace",
 
 	[Key.reduceMotion]: "Reducir movimiento",
+	[Key.layoutMode]: "Diseño",
+	[Key.layoutList]: "Lista",
+	[Key.layoutGrid]: "Cuadrícula",
 	[Key.resetConfirmTitle]: "¿Restablecer tema?",
 	[Key.resetConfirmMessage]:
 		"Se restaurarán el tono, estilo de color y especificación predeterminados.",

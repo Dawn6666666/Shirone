@@ -76,6 +76,9 @@ export const vi: Translation = {
 	[Key.copyLink]: "Sao chép liên kết",
 
 	[Key.reduceMotion]: "Giảm chuyển động",
+	[Key.layoutMode]: "Bố cục",
+	[Key.layoutList]: "Danh sách",
+	[Key.layoutGrid]: "Lưới",
 	[Key.resetConfirmTitle]: "Đặt lại chủ đề?",
 	[Key.resetConfirmMessage]:
 		"Sẽ khôi phục hue, phong cách màu và đặc tả màu mặc định.",

@@ -66,6 +66,10 @@ enum I18nKey {
 
 	reduceMotion = "reduceMotion",
 
+	layoutMode = "layoutMode",
+	layoutList = "layoutList",
+	layoutGrid = "layoutGrid",
+
 	resetConfirmTitle = "resetConfirmTitle",
 	resetConfirmMessage = "resetConfirmMessage",
 	cancel = "cancel",

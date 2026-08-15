@@ -76,6 +76,9 @@ export const zh_TW: Translation = {
 	[Key.copyLink]: "複製連結",
 
 	[Key.reduceMotion]: "減少動態效果",
+	[Key.layoutMode]: "佈局",
+	[Key.layoutList]: "列表",
+	[Key.layoutGrid]: "網格",
 	[Key.resetConfirmTitle]: "重置主題設定？",
 	[Key.resetConfirmMessage]: "將恢復為站點預設的色相、配色風格與 Color Spec。",
 	[Key.cancel]: "取消",

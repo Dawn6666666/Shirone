@@ -76,6 +76,9 @@ export const ko: Translation = {
 	[Key.copyLink]: "링크 복사",
 
 	[Key.reduceMotion]: "동작 줄이기",
+	[Key.layoutMode]: "레이아웃",
+	[Key.layoutList]: "목록",
+	[Key.layoutGrid]: "그리드",
 	[Key.resetConfirmTitle]: "테마를 재설정할까요?",
 	[Key.resetConfirmMessage]:
 		"기본 색상, 색상 스타일, 색상 규격으로 되돌아갑니다.",
