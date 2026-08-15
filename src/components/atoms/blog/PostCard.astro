@@ -333,6 +333,14 @@ const hasCover = !!image;
 		:global(.m3e-post-list--grid) &__body
 			padding: var(--m3e-space-4) var(--m3e-space-4) var(--m3e-space-5)
 
+		/* 块间韵律放宽一档（12px → 16px）：标题/元信息/描述不再贴在一起 */
+		:global(.m3e-post-list--grid) &__title
+			margin-bottom: 1rem
+		:global(.m3e-post-list--grid) &__meta
+			margin-bottom: 1rem
+		:global(.m3e-post-list--grid) &__desc
+			margin-bottom: 1rem
+
 		/* 右侧 enter 大箭头区块已在（无封面卡），标题内联小箭头冗余，隐藏 */
 		:global(.m3e-post-list--grid) &__arrow
 			display: none

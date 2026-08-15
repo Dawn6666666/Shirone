@@ -17,6 +17,6 @@ export const postListConfig: PostListConfig = {
 /** grid 档位 → 卡片最小宽度（--post-card-min 预设，与 shape/type 分档哲学同构） */
 export const POST_CARD_MIN_WIDTH: Record<PostCardWidth, string> = {
 	compact: "17rem",
-	regular: "20rem",
+	regular: "21rem",
 	relaxed: "24rem",
 };
