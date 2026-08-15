@@ -23,17 +23,19 @@
 		moment,
 		author,
 		class: className = "",
+		style,
 	}: {
 		moment: MomentItem;
 		author: MomentAuthor;
 		class?: string;
+		style?: string;
 	} = $props();
 
 	const publishedAt = $derived(new Date(moment.published));
 	const timeText = $derived(formatDateToYYYYMMDDHHmm(publishedAt));
 </script>
 
-<article class="moment-card {className}" id="moment-{moment.id}">
+<article class="moment-card {className}" style={style} id="moment-{moment.id}">
 	<header class="moment-card__header">
 		<a class="moment-card__author" href={author.url}>
 			<!-- 作者名紧邻头像可读，头像按装饰图处理（避免与 aria-label 冗余） -->

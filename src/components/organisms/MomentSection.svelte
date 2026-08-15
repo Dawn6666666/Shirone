@@ -7,6 +7,7 @@
 	import Button from "@components/atoms/action/Button.svelte";
 	import Chips from "@components/atoms/action/Chips.svelte";
 	import Card from "@components/atoms/display/Card.svelte";
+	import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
 	import TextField from "@components/atoms/input/TextField.svelte";
 	import MomentCard, { type MomentAuthor } from "@components/molecules/MomentCard.svelte";
 	import PageHeader from "@components/molecules/PageHeader.svelte";
@@ -28,6 +29,9 @@
 	let selectedTag = $state("");
 	let shownCount = $state(MOMENTS_PAGE_SIZE);
 	let initialized = false;
+	/** 分类（标签）筛选过渡态：短暂展示 LoadingIndicator，配合列表 stagger 入场 */
+	let filtering = $state(false);
+	let filterTimer: ReturnType<typeof setTimeout> | undefined;
 
 	const tagItems = $derived(
 		Array.from(new Set(moments.flatMap((moment) => moment.tags)))
@@ -65,6 +69,13 @@
 		return `${count} ${i18n(count === 1 ? I18nKey.momentsCount : I18nKey.momentsCounts)}`;
 	}
 
+	/** 分类（标签）筛选：短暂显示 LoadingIndicator 后淡入新列表 */
+	function onTagChange() {
+		filtering = true;
+		clearTimeout(filterTimer);
+		filterTimer = setTimeout(() => (filtering = false), 300);
+	}
+
 	// 筛选变化时重置已加载数（读依赖注册在前，避免首次 return 后失联）
 	$effect(() => {
 		const q = query;
@@ -94,6 +105,7 @@
 		initialized = true;
 		// 图片灯箱：client:only 岛挂载晚于全局 init，此处确保 [data-fancybox] 已绑定
 		initFancybox();
+		return () => clearTimeout(filterTimer);
 	});
 </script>
 
@@ -132,18 +144,32 @@
 
 			{#if tagItems.length > 0}
 				<div class="moment-section__chips">
-					<Chips items={tagItems} variant="filter" bind:value={selectedTag} />
+					<Chips
+						items={tagItems}
+						variant="filter"
+						bind:value={selectedTag}
+						onchange={onTagChange}
+					/>
 				</div>
 			{/if}
 			<p class="moment-section__count">{countLabel(filtered.length)}</p>
 		</div>
 	{/if}
 
-	{#if visibleMoments.length > 0}
+	{#if filtering}
+		<!-- 分类（标签）筛选过渡：区块位置显示大号 contained LoadingIndicator -->
+		<div class="moment-section__loading">
+			<LoadingIndicator contained size={64} />
+		</div>
+	{:else if visibleMoments.length > 0}
 		{#key `${query}|${selectedTag}`}
 			<div class="moment-section__list">
-				{#each visibleMoments as moment (moment.id)}
-					<MomentCard {moment} {author} />
+				{#each visibleMoments as moment, i (moment.id)}
+					<MomentCard
+						{moment}
+						{author}
+						style={`--moment-index: ${Math.min(i, 7)}`}
+					/>
 				{/each}
 			</div>
 		{/key}
@@ -222,7 +248,19 @@
 		grid-template-columns: 1fr
 		gap: 1rem
 		padding-top: 1.5rem
-		animation: moment-fade-in var(--m3e-duration-medium) var(--m3e-easing-standard)
+
+		/* 逐卡 stagger 入场（reduced-motion 由全局 motion-reduced 规则禁用动画） */
+		:global(.moment-card)
+			animation: moment-fade-in var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate) both
+			animation-delay: calc(var(--moment-index, 0) * 45ms)
+
+	/* 分类筛选过渡：区块位置的大号 contained LoadingIndicator */
+	&__loading
+		display: flex
+		align-items: center
+		justify-content: center
+		min-height: 11rem
+		padding-top: 1.5rem
 
 	&__more
 		display: flex

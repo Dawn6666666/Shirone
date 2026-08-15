@@ -8,6 +8,7 @@
 	 * 键盘：←/→ 切换、Home/End 首尾、Esc 收起；开合带焦点管理与 emphasized 入场动效。
 	 */
 	import IconButton from "@components/atoms/action/IconButton.svelte";
+	import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
 	import I18nKey from "@i18n/i18nKey";
 	import { i18n } from "@i18n/translation";
 	import { openFancyboxGallery } from "@utils/fancybox-handler";
@@ -26,6 +27,10 @@
 	let thumbEls: HTMLElement[] = [];
 	/** 收起后焦点返回被点击的瓦片（记索引：开查看器时网格已卸载） */
 	let lastIndex = 0;
+
+	/** 瓦片图片加载进度：lazy 触发 loadstart 后才挂载指示器（离屏瓦片不空转 rAF） */
+	let startedTiles = $state(new Set<string>());
+	let loadedTiles = $state(new Set<string>());
 
 	const current = $derived(images[index] ?? images[0]);
 	const visibleImages = $derived(
@@ -205,7 +210,20 @@
 				aria-label={tileLabel(i)}
 				onclick={() => (images.length === 1 ? openLightbox(0) : openViewer(i))}
 			>
-				<img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+				{#if startedTiles.has(image.src) && !loadedTiles.has(image.src)}
+					<span class="moment-card__tile-loading" aria-hidden="true">
+						<LoadingIndicator contained size={28} />
+					</span>
+				{/if}
+				<img
+					src={image.src}
+					alt={image.alt}
+					loading="lazy"
+					decoding="async"
+					class:moment-card__tile-img--loaded={loadedTiles.has(image.src)}
+					onloadstart={() => (startedTiles = new Set(startedTiles).add(image.src))}
+					onload={() => (loadedTiles = new Set(loadedTiles).add(image.src))}
+				/>
 				{#if remainder > 0 && i === MAX_TILES - 1}
 					<span class="moment-card__more">+{remainder}</span>
 				{/if}
@@ -254,6 +272,12 @@
 		width: 100%
 		height: 100%
 		object-fit: cover
+		/* 加载前隐藏（指示器占位），加载完成后淡入 */
+		opacity: 0
+		transition: opacity var(--m3e-duration-medium) var(--m3e-easing-standard)
+
+		&.moment-card__tile-img--loaded
+			opacity: 1
 
 	/* 单图：固定 4:3 比例盒（限宽 30rem）。
 	   不用自然尺寸：lazy 图片加载前无内在尺寸，fit-content 会塌成 0×0，
@@ -271,6 +295,16 @@
 	&--hero
 		grid-row: span 2
 		aspect-ratio: auto
+
+/* 瓦片加载指示器：lazy 图开始加载后出现，加载完成即卸载（避免离屏空转） */
+.moment-card__tile-loading
+	position: absolute
+	inset: 0
+	display: flex
+	align-items: center
+	justify-content: center
+	background: var(--surface-container-high)
+	pointer-events: none
 
 .moment-card__more
 	position: absolute
