@@ -4,7 +4,8 @@ import { openTestPage, expectMatchesToken, readBox, readStyle } from "../helpers
 /**
  * Button 官方对照（md-comp-{filled,elevated,filled-tonal,outlined,text}-button + latest 尺寸）
  * 关键 token：filled primary 实底；elevated surface-container-low + level1；tonal secondary-container；
- * outlined 透明 + outline 描边；text 透明无描边；尺寸 xsmall32/small40/medium56/large96/xlarge136；corner-full。
+ * outlined 透明 + outline 描边；text 透明无描边；尺寸 xsmall32/small40/medium56/large96/xlarge136；
+ * 默认圆角 12px（站点形状契约 --shape-corner-m），radius='full' 恢复官方胶囊。
  */
 test.describe("Button", () => {
 	test.beforeEach(async ({ page }) => {
@@ -39,8 +40,9 @@ test.describe("Button", () => {
 		}
 	});
 
-	test("全圆角 corner-full", async ({ page }) => {
-		expect(await readStyle(page, ".m3-button--filled", "border-radius")).toBe("999px");
+	test("默认圆角 corner-m 12px（站点契约），radius='full' 可覆盖为胶囊", async ({ page }) => {
+		expect(await readStyle(page, ".m3-button--filled:not(.m3-button--disabled)", "border-radius")).toBe("12px");
+		expect(await readStyle(page, ".m3-button--radius-demo-full", "border-radius")).toBe("999px");
 	});
 
 	test("disabled：filled 容器 12% 透明度", async ({ page }) => {

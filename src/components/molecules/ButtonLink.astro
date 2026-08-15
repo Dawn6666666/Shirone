@@ -1,5 +1,5 @@
 ---
-import Button from "@components/atoms/action/Button.astro";
+import Button from "@components/atoms/action/Button.svelte";
 
 interface Props {
 	badge?: string;
@@ -8,7 +8,7 @@ interface Props {
 }
 const { badge, url, label } = Astro.props;
 ---
-<Button href={url} label={label} variant="text" size="medium" full align="between" class="!px-2">
+<Button href={url} ariaLabel={label} variant="text" size="small" full align="between" class="!px-2 !text-[var(--on-surface)]">
     <span class="overflow-hidden text-left whitespace-nowrap overflow-ellipsis min-w-0">
         <slot></slot>
     </span>

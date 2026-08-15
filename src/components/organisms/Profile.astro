@@ -1,5 +1,5 @@
 ---
-import Button from "@components/atoms/action/Button.astro";
+import Button from "@components/atoms/action/Button.svelte";
 import IconButton from "@components/atoms/action/IconButton.svelte";
 import Avatar from "@components/atoms/display/Avatar.svelte";
 import Card from "@components/atoms/display/Card.svelte";
@@ -39,8 +39,8 @@ const avatarUrl = await resolveAsset(config.avatar ?? "");
                             <Icon name={item.icon} class="text-[1.5rem]"></Icon>
                         </IconButton>
             )}
-            {config.links.length == 1 && <Button href={config.links[0].url} target="_blank" label={config.links[0].name}
-                                                 variant="text" size="medium" class="!px-3 !font-bold">
+            {config.links.length == 1 && <Button href={config.links[0].url} target="_blank" ariaLabel={config.links[0].name}
+                                                 variant="text" size="small" class="!px-3 !font-bold !text-[var(--on-surface)]">
                 <Icon name={config.links[0].icon} class="text-[1.5rem]"></Icon>
                 {config.links[0].name}
             </Button>}

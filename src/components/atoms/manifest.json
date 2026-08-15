@@ -2,8 +2,7 @@
 	"schema": 1,
 	"note": "Shirone M3E 原子组件单一真源。tier: A=生产级(被页面引用) B=库存级(有明确落地去向) C=退役候选 watch=观望。source: 移植|原创。landed: 是否被 molecules/organisms/layouts/pages 引用。",
 	"atoms": [
-		{ "name": "Button", "file": "action/Button.astro", "category": "action", "tier": "A", "source": "移植", "landed": true, "note": "站点遗留旧版，双轨迁移后退役" },
-		{ "name": "Button", "file": "action/Button.svelte", "category": "action", "tier": "B", "source": "移植", "landed": false, "note": "官方移植版，迁移后转 A" },
+		{ "name": "Button", "file": "action/Button.svelte", "category": "action", "tier": "A", "source": "移植", "landed": true, "note": "官方移植版，已替换 Button.astro 生产落地" },
 		{ "name": "ButtonGroup", "file": "action/ButtonGroup.svelte", "category": "action", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
 		{ "name": "Chip", "file": "action/Chip.astro", "category": "action", "tier": "A", "source": "移植", "landed": true, "note": "单 chip 静态链接，与 Chips.svelte 职责不同" },
 		{ "name": "Chips", "file": "action/Chips.svelte", "category": "action", "tier": "B", "source": "移植", "landed": false, "note": "数据驱动 chip 组，P1 标签页 filter" },

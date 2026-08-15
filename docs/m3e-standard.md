@@ -30,7 +30,7 @@ theme-utils.ts  写入 :root 的 --mc-* 自定义属性（localStorage 持久化
 variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…），带 oklch 回退
    │
    ▼
-原子组件（61 个：Button / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar / Tabs / Select / DataTable / SearchView / Autocomplete / SheetSide / Carousel / PullToRefresh / DatePicker / TimePicker / Chips / Banner / Tooltip / …，完整清单见 §4）
+原子组件（60 个：Button / Chip / IconButton / FAB / FABMenu / Slider / SegmentedButton / TextField / Switch / Checkbox / RadioButton / Dialog / Menu / Badge / Divider / Snackbar / Tabs / Select / DataTable / SearchView / Autocomplete / SheetSide / Carousel / PullToRefresh / DatePicker / TimePicker / Chips / Banner / Tooltip / …，完整清单见 §4）
    │
    ▼
 分子/有机体（Navbar / SideBar / Search / PostCard…）
@@ -86,8 +86,8 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | chip / 选中态 / 分段按钮 | 胶囊 | `--shape-corner-full` |
 | 浮层 / 对话框 | 28px | `--shape-corner-xl` |
 
-官方移植版（Button / IconButton / FAB.svelte 默认胶囊）落地时用 `radius` prop 收敛到上表，
-胶囊能力保留给 chip 类控件。
+官方移植版（IconButton / FAB.svelte 等默认胶囊的控件）落地时用 `radius` prop 收敛到上表，
+胶囊能力保留给 chip 类控件；Button.svelte 已按上表默认 12px。
 
 ### 3.3 动效（M3 2025 motion spec）
 
@@ -127,8 +127,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 
 | 原子 | 文件 | 变体 / props | 关键令牌 | 来源 |
 |---|---|---|---|
-| Button | `action/Button.astro` | variant: `filled/tonal/outlined/text`；size: `small(32)/medium(40)/large(48)`；`href/target`（渲染 `<a>`）、`full`、`align: center/start/between`、`disabled`；hover 阴影提升过渡（filled/tonal elevation-1→2，150ms） | primary / secondary-container / outline / on-surface；`--m3e-state-color` 按变体 | 移植 |
-| Button | `action/Button.svelte` | 按钮（官方 Button 移植，token 对齐 v0.192 md-comp-{filled,elevated,filled-tonal,outlined,text}-button + latest 尺寸）：五种变体 filled（primary 实底 + on-primary）/ elevated（surface-container-low + primary + elevation-1，hover 升 level2）/ tonal（secondary-container 实底）/ outlined（透明 + outline 描边）/ text（透明无描边）；尺寸 latest：xsmall 32/图标20、small 40/20（默认）、medium 56/24、large 96/32、xlarge 136/40；可选 leading 图标（Iconify）；label-large、corner-full；交互：原生 button + m3-state-layer，filled/elevated/tonal hover 阴影提升（level0→1 / 1→2）；disabled 对齐官方（filled/elevated/tonal 容器 12% + 文字/图标 38%，outlined 边框 12% + 文字 38%，text 文字 38%） | primary / on-primary、secondary-container / on-secondary-container、surface-container-low、outline | 移植 |
+| Button | `action/Button.svelte` | 按钮（官方 Button 移植，token 对齐 v0.192 md-comp-{filled,elevated,filled-tonal,outlined,text}-button + latest 尺寸）：五种变体 filled（primary 实底 + on-primary）/ elevated（surface-container-low + primary + elevation-1，hover 升 level2）/ tonal（secondary-container 实底）/ outlined（透明 + outline 描边）/ text（透明无描边）；尺寸 latest：xsmall 32/图标20、small 40/20（默认）、medium 56/24、large 96/32、xlarge 136/40；可选 leading 图标（Iconify）；label-large；圆角默认 12px（站点形状契约 --shape-corner-m），`radius` 可覆盖（token 名 m/l/xl/full）；`children` 插槽（优先于 label；SSR 静态场景传 astro-icon）、`href/target/rel`（渲染 `<a>`）、`full` 占满宽度、`align`（center/start/between）内容对齐、`ariaLabel` 无障碍标签；交互：原生 button + m3-state-layer，filled/elevated/tonal hover 阴影提升（level0→1 / 1→2）；disabled 对齐官方（filled/elevated/tonal 容器 12% + 文字/图标 38%，outlined 边框 12% + 文字 38%，text 文字 38%）（**已生产落地**，替换旧 Button.astro） | primary / on-primary、secondary-container / on-secondary-container、surface-container-low、outline | 移植 |
 | AppBar | `navigation/AppBar.svelte` | 顶部应用栏（官方 AppBar.kt）：`variant`（**small** 64dp 标题 title-large / **center** 同高标题居中 / **medium** 112dp 标题 headline-small 大字靠下 / **large** 152dp 标题 headline-medium 大字靠下）、`title`（string 或 snippet）、`navigationIcon`/`actions` 插槽（通常 IconButton，渲染在起始/末尾端）；布局 small/center 单行 [nav][title][actions]，medium/large 顶部 64px 工具行 + 底部大字标题（官方 expanded 静态版，scrollBehavior 折叠未做）；背景 surface、标题 on-surface、图标 on-surface-variant（官方 token） | surface / on-surface / on-surface-variant | 移植 |
 | Card | `display/Card.svelte` | 卡片（官方 Card.kt）：`variant`（**filled** 默认 surface-container-highest 无阴影 / **elevated** surface-container-low + 阴影 Level1 hover Level2 / **outlined** surface + outline-variant 1px 边框 hover outline）、形状 corner-medium（12px，官方 ContainerShape）；`onClick` 传入渲染为原生 `<button>`（可点击卡片，`enabled=false` 禁用 opacity 0.38），`href` 传入渲染为原生 `<a>`（卡片链接，无下划线，优先于 onClick）、`target` 透传，两者省略渲染为普通容器 div；可点击卡片 hover/pressed 加 on-surface overlay（4%/8%）+ `focus-visible` primary 焦点环；`color` 覆盖容器背景（`--m3-card-bg`）、`radius` 覆盖圆角（token 名 m/l/xl/full 或任意 CSS 长度）、`id` 透传根元素；内容溢出圆角裁剪 | surface-container-highest / surface-container-low / surface、outline-variant；`--m3e-elevation-1/2` | 移植 |
 | SplitButton | `action/SplitButton.svelte` | M3E 分离式按钮：`variant`（filled/tonal/outlined/elevated）、`size`（xs/s/m/l/xl，M3E 五档 32–136）、`menuOpen`（$bindable，trailing 激活旋转 180°）、`onclick`（leading 主操作）、`trailingLabel`（trailing 按钮无障碍标签）；leading/trailing 插槽；**两段相接内角在 hover/pressed 时变形更圆**（4→12px 等，官方 SplitButton*Tokens） | primary / secondary-container / outline；`--m3e-elevation-*` | 移植 |
@@ -259,7 +258,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/menu-bus.ts` | 菜单互斥事件总线（Menu/FABMenu 单开联动，`exclusive` 参数） |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 61 个原子组件（清单单一真源见 `manifest.json`） |
+| `src/components/atoms/*` | 60 个原子组件（清单单一真源见 `manifest.json`） |
 | `src/components/atoms/manifest.json` | 原子清单单一真源（tier / source / landed），由 `pnpm check:manifest` 校验 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
 

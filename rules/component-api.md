@@ -9,7 +9,7 @@
 
 | 类型 | 文件 | 说明 |
 |---|---|---|
-| 静态原子 | `.astro` | 无交互、纯展示或仅导航跳转（如 `action/Button.astro`、`blog/PostCard.astro`） |
+| 静态原子 | `.astro` | 无交互、纯展示或仅导航跳转（如 `action/Chip.astro`、`blog/PostCard.astro`） |
 | 交互原子 | `.svelte`（Svelte 5） | 有状态、事件、焦点管理（如 `selection/Switch.svelte`、`overlay/Dialog.svelte`） |
 
 判断标准：只要需要「点击回调以外的状态管理」（展开/收起、`$bindable`、焦点陷阱、ResizeObserver），用 Svelte；纯导航 `<a>`、纯展示用 Astro。
