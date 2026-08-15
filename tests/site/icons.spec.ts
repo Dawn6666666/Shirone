@@ -31,4 +31,10 @@ test.describe("SSR 图标渲染", () => {
 		await page.goto("/posts/markdown/");
 		await expect(page.locator("#copy-post-link svg")).toBeVisible();
 	});
+
+	test("BackToTop FAB 图标 SSR 渲染存在（初始隐藏态）", async ({ page }) => {
+		// BackToTop 初始带 .hide（opacity 0 + 移出视口），只断言 svg 存在（SSR 直出）
+		await page.goto("/");
+		await expect(page.locator("#back-to-top-btn svg")).toHaveCount(1);
+	});
 });

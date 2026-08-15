@@ -13,6 +13,7 @@ import Icon from "@iconify/svelte";
  * - 通用场景：页面主操作、返回顶部、撰写/发布等核心动作。
  */
 let {
+	children,
 	icon = "",
 	label = "",
 	ariaLabel = "",
@@ -26,7 +27,9 @@ let {
 	style = "",
 	radius = "",
 }: {
-	/** 图标（Iconify 名，必填） */
+	/** 图标内容插槽（优先于 icon prop；SSR 静态场景请用此方式传入 astro-icon 等已渲染图标，尺寸由调用方 class 控制） */
+	children?: import("svelte").Snippet;
+	/** 图标（Iconify 名；仅客户端水合场景可用，SSR 无水合时图标不会加载） */
 	icon?: string;
 	/** 可见文本：传入即变为 Extended FAB（含图标） */
 	label?: string;
@@ -71,6 +74,8 @@ const radiusVar = (r: string) => RADIUS_TOKENS[r] ?? r;
 >
 	{#if icon}
 		<span class="m3-fab__icon" aria-hidden="true"><Icon icon={icon} /></span>
+	{:else if children}
+		{@render children()}
 	{/if}
 	{#if label}
 		<span class="m3-fab__label">{label}</span>

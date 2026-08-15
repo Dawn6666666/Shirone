@@ -1,13 +1,13 @@
 ---
-import FAB from "@components/atoms/action/FAB.astro";
+import FAB from "@components/atoms/action/FAB.svelte";
 import { Icon } from "astro-icon/components";
 ---
 
 <!-- There can't be a filter on parent element, or it will break `fixed` -->
 <div class="back-to-top-wrapper hidden lg:block">
     <div id="back-to-top-btn" class="back-to-top-btn hide flex items-center rounded-2xl overflow-hidden transition" onclick="backToTop()">
-        <FAB label="Back to Top" class="m-0">
-            <Icon name="material-symbols:keyboard-arrow-up-rounded" class="mx-auto"></Icon>
+        <FAB ariaLabel="Back to Top" class="m-0">
+            <Icon name="material-symbols:keyboard-arrow-up-rounded" class="text-[1.5rem] mx-auto"></Icon>
         </FAB>
     </div>
 </div>
