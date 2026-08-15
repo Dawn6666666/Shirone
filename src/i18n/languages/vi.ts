@@ -6,6 +6,11 @@ export const vi: Translation = {
 	[Key.about]: "Giới thiệu",
 	[Key.archive]: "Kho bài",
 	[Key.search]: "Tìm kiếm",
+	[Key.clear]: "Xóa",
+
+	[Key.friends]: "Bạn bè",
+	[Key.friendsNoResults]: "Không có bạn bè nào khớp bộ lọc",
+	[Key.friendsBanner]: "Chào đón trao đổi liên kết — xem trang Giới thiệu để biết cách đăng ký.",
 
 	[Key.tags]: "Thẻ",
 	[Key.categories]: "Danh mục",

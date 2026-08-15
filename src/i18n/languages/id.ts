@@ -6,6 +6,11 @@ export const id: Translation = {
 	[Key.about]: "Tentang",
 	[Key.archive]: "Arsip",
 	[Key.search]: "Cari",
+	[Key.clear]: "Hapus",
+
+	[Key.friends]: "Teman",
+	[Key.friendsNoResults]: "Tidak ada teman yang cocok dengan filter",
+	[Key.friendsBanner]: "Tukar tautan dipersilakan — lihat halaman Tentang untuk cara mendaftar.",
 
 	[Key.tags]: "Tag",
 	[Key.categories]: "Kategori",

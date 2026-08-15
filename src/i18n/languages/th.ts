@@ -6,6 +6,11 @@ export const th: Translation = {
 	[Key.about]: "เกี่ยวกับ",
 	[Key.archive]: "คลัง",
 	[Key.search]: "ค้นหา",
+	[Key.clear]: "ล้าง",
+
+	[Key.friends]: "เพื่อน",
+	[Key.friendsNoResults]: "ไม่พบเพื่อนที่ตรงกับตัวกรอง",
+	[Key.friendsBanner]: "ยินดีแลกลิงก์ ดูวิธีสมัครได้ที่หน้าเกี่ยวกับ",
 
 	[Key.tags]: "ป้ายกำกับ",
 	[Key.categories]: "หมวดหมู่",

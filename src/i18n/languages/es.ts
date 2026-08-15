@@ -6,6 +6,11 @@ export const es: Translation = {
 	[Key.about]: "Sobre mí",
 	[Key.archive]: "Archivo",
 	[Key.search]: "Buscar",
+	[Key.clear]: "Borrar",
+
+	[Key.friends]: "Amigos",
+	[Key.friendsNoResults]: "Ningún amigo coincide con los filtros",
+	[Key.friendsBanner]: "Se aceptan intercambios de enlaces; consulta la página Acerca de.",
 
 	[Key.tags]: "Etiquetas",
 	[Key.categories]: "Categorías",

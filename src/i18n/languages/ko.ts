@@ -6,6 +6,11 @@ export const ko: Translation = {
 	[Key.about]: "소개",
 	[Key.archive]: "아카이브",
 	[Key.search]: "검색",
+	[Key.clear]: "지우기",
+
+	[Key.friends]: "친구",
+	[Key.friendsNoResults]: "조건에 맞는 친구가 없습니다",
+	[Key.friendsBanner]: "링크 교환을 환영합니다. 신청 방법은 소개 페이지를 참고하세요.",
 
 	[Key.tags]: "태그",
 	[Key.categories]: "카테고리",

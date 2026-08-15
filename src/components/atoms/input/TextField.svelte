@@ -55,7 +55,7 @@ let focused = $state(false);
             {name}
             {id}
             bind:value
-            placeholder={focused ? placeholder : undefined}
+            placeholder={hideLabel ? placeholder : focused ? placeholder : undefined}
             aria-label={label || placeholder}
             onfocus={() => {
                 focused = true;
