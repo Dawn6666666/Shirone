@@ -13,7 +13,7 @@ import { expect, test } from "@playwright/test";
 const pages = [
 	{ name: "首页", path: "/" },
 	{ name: "归档", path: "/archive/" },
-	{ name: "动态", path: "/moments/" },
+	{ name: "动态", path: "/moments/", ready: ".moment-card" },
 	{ name: "关于", path: "/about/" },
 	{ name: "文章页", path: "/posts/guide/" },
 ];
@@ -65,6 +65,25 @@ for (const mode of modes) {
 					undefined,
 					{ timeout: 15_000 },
 				);
+				// client:only 岛（如动态页）等水合产物出现，避免截到 fallback
+				if (p.ready) {
+					await page.waitForSelector(p.ready, { timeout: 15_000 });
+				}
+				// 逐步滚动触发 lazy 图片加载，全部完成后回顶，保证 fullPage 拼接确定性
+				await page.evaluate(async () => {
+					await new Promise<void>((resolve) => {
+						let y = 0;
+						const step = () => {
+							y += window.innerHeight;
+							window.scrollTo(0, y);
+							const loaded = [...document.images].every((img) => img.complete);
+							if (loaded || y >= document.body.scrollHeight) return resolve();
+							setTimeout(step, 100);
+						};
+						step();
+					});
+					window.scrollTo(0, 0);
+				});
 				await page.waitForTimeout(300);
 				await expect(page).toHaveScreenshot(`${p.name}-${mode.name}.png`, {
 					fullPage: true,

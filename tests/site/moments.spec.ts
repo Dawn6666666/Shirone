@@ -140,9 +140,24 @@ test.describe("动态页", () => {
 		await expect(tagFilter).toHaveAttribute("aria-pressed", "false");
 	});
 
+	test("筛选过渡：指示器展示 → 淡出 → 列表 stagger 揭幕", async ({ page }) => {
+		await page.getByRole("button", { name: "wallpaper", exact: true }).click();
+		// loading 段：contained LoadingIndicator 占据列表位
+		const loading = page.locator(".moment-section__loading");
+		await expect(loading).toBeVisible();
+		await expect(loading.locator(".m3-loading")).toHaveCount(1);
+		// out 段：淡出修饰生效（reduced-motion 下压缩为终态仍可见类切换）
+		await expect(loading).toHaveClass(/moment-section__loading--out/);
+		// idle 段：指示器让位，新列表揭幕
+		await expect(loading).toHaveCount(0);
+		await expect(page.locator(".moment-card")).toHaveCount(3);
+	});
+
 	test("搜索过滤 + 空态", async ({ page }) => {
 		await page.locator(".moment-section__search input").fill("scenery");
 		await expect(page.locator(".moment-card")).toHaveCount(1);
+		// 单条结果不显示计数（结果不言自明）
+		await expect(page.locator(".moment-section__count")).toHaveCount(0);
 		await page.locator(".moment-section__search input").fill("no such moment");
 		await expect(page.locator(".moment-section__empty")).toBeVisible();
 		await expect(page.locator(".moment-section__empty")).toContainText(

@@ -29,9 +29,10 @@
 	let selectedTag = $state("");
 	let shownCount = $state(MOMENTS_PAGE_SIZE);
 	let initialized = false;
-	/** 分类（标签）筛选过渡态：短暂展示 LoadingIndicator，配合列表 stagger 入场 */
-	let filtering = $state(false);
-	let filterTimer: ReturnType<typeof setTimeout> | undefined;
+	/** 分类（标签）筛选过渡三段态：loading 展示指示器 → out 指示器淡出 → idle 列表 stagger 揭幕 */
+	type FilterPhase = "idle" | "loading" | "out";
+	let phase = $state<FilterPhase>("idle");
+	let phaseTimers: ReturnType<typeof setTimeout>[] = [];
 
 	const tagItems = $derived(
 		Array.from(new Set(moments.flatMap((moment) => moment.tags)))
@@ -66,14 +67,17 @@
 	const hasMore = $derived(filtered.length > shownCount);
 
 	function countLabel(count: number) {
-		return `${count} ${i18n(count === 1 ? I18nKey.momentsCount : I18nKey.momentsCounts)}`;
+		return `${count} ${i18n(I18nKey.momentsCounts)}`;
 	}
 
-	/** 分类（标签）筛选：短暂显示 LoadingIndicator 后淡入新列表 */
+	/** 分类（标签）筛选：指示器展示 → 淡出 → 列表 stagger 揭幕 */
 	function onTagChange() {
-		filtering = true;
-		clearTimeout(filterTimer);
-		filterTimer = setTimeout(() => (filtering = false), 300);
+		phaseTimers.forEach(clearTimeout);
+		phase = "loading";
+		phaseTimers = [
+			setTimeout(() => (phase = "out"), 300),
+			setTimeout(() => (phase = "idle"), 300 + 150),
+		];
 	}
 
 	// 筛选变化时重置已加载数（读依赖注册在前，避免首次 return 后失联）
@@ -105,7 +109,7 @@
 		initialized = true;
 		// 图片灯箱：client:only 岛挂载晚于全局 init，此处确保 [data-fancybox] 已绑定
 		initFancybox();
-		return () => clearTimeout(filterTimer);
+		return () => phaseTimers.forEach(clearTimeout);
 	});
 </script>
 
@@ -152,13 +156,18 @@
 					/>
 				</div>
 			{/if}
-			<p class="moment-section__count">{countLabel(filtered.length)}</p>
+			{#if filtered.length > 1}
+				<p class="moment-section__count">{countLabel(filtered.length)}</p>
+			{/if}
 		</div>
 	{/if}
 
-	{#if filtering}
-		<!-- 分类（标签）筛选过渡：区块位置显示大号 contained LoadingIndicator -->
-		<div class="moment-section__loading">
+	{#if phase !== "idle"}
+		<!-- 分类（标签）筛选过渡：contained 指示器展示后淡出，再由列表 stagger 揭幕 -->
+		<div
+			class="moment-section__loading"
+			class:moment-section__loading--out={phase === "out"}
+		>
 			<LoadingIndicator contained size={64} />
 		</div>
 	{:else if visibleMoments.length > 0}
@@ -245,13 +254,16 @@
 		gap: 1rem
 		padding-top: 1.5rem
 
-	/* 分类筛选过渡：区块位置的大号 contained LoadingIndicator */
+	/* 分类筛选过渡：区块位置的大号 contained LoadingIndicator（out = 淡出退场） */
 	&__loading
 		display: flex
 		align-items: center
 		justify-content: center
 		min-height: 11rem
 		padding-top: 1.5rem
+
+		&--out
+			animation: moment-loading-out var(--m3e-duration-short) var(--m3e-easing-emphasized-accelerate) both
 
 	&__more
 		display: flex
@@ -277,4 +289,13 @@
 
 		&__list
 			padding-top: 1.25rem
+
+/* 指示器退场：淡出 + 轻微收拢（reduced-motion 由全局规则压至终态） */
+@keyframes moment-loading-out
+	from
+		opacity: 1
+		transform: none
+	to
+		opacity: 0
+		transform: scale(0.96)
 </style>
