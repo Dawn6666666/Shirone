@@ -1,11 +1,9 @@
-import type {
-	ExpressiveCodeConfig,
-	LicenseConfig,
-	ProfileConfig,
-	SiteConfig,
-} from "./types/config";
+import type { SiteConfig } from "@/types/config";
 
-
+/**
+ * 站点核心配置：标题 / 语言 / 主题色（HCT 动态配色）/ 横幅 / 目录 / 进度条 / favicon。
+ * 类型见 src/types/config.ts。
+ */
 export const siteConfig: SiteConfig = {
 	title: "Shirone",
 	subtitle: "A Material 3 anime blog",
@@ -42,54 +40,17 @@ export const siteConfig: SiteConfig = {
 		// {
 		//   src: '/favicon/icon.png',    // Path of the favicon, relative to the /public directory
 		//   theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
-		//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
+		//   sizes: '32x32',              // (Optional) Only if you have favicons of different sizes
 		// }
 	],
 };
 
-export const profileConfig: ProfileConfig = {
-	avatar: "assets/images/demo-avatar.webp", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-	name: "Shirone",
-	bio: "The rain remembers what the sky forgot to say.",
-	links: [
-		{
-			name: "Twitter",
-			icon: "fa6-brands:twitter", // Visit https://icones.js.org/ for icon codes
-			// You will need to install the corresponding icon set if it's not already included
-			// `pnpm add @iconify-json/<icon-set-name>`
-			url: "https://twitter.com",
-		},
-		{
-			name: "Steam",
-			icon: "fa6-brands:steam",
-			url: "https://store.steampowered.com",
-		},
-		{
-			name: "GitHub",
-			icon: "fa6-brands:github",
-			url: "https://github.com/LyraVoid/Shirone",
-		},
-	],
-};
-
-export const licenseConfig: LicenseConfig = {
-	enable: true,
-	name: "CC BY-NC-SA 4.0",
-	url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-};
-
-export const expressiveCodeConfig: ExpressiveCodeConfig = {
-	// Note: Some styles (such as background color) are being overridden, see the astro.config.mjs file.
-	// 代码块跟随明暗模式切换深浅主题
-	theme: "github-dark",
-	lightTheme: "github-light",
-	darkTheme: "github-dark",
-};
-
+/** 站点默认配色风格（访客未做选择时的回退值） */
 export function getDefaultStyle(): string {
 	return siteConfig.themeColor.style;
 }
 
+/** 站点默认 Color Spec（2021 / 2025） */
 export function getDefaultSpec(): string {
 	return siteConfig.themeColor.spec;
 }

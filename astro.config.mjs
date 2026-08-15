@@ -7,7 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
-import { expressiveCodeConfig } from "./src/config.ts";
+import { expressiveCodeConfig } from "./src/config/expressiveCodeConfig.ts";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { siteMarkdownProcessor } from "./src/utils/markdown-processor.mjs";

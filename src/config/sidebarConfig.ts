@@ -3,19 +3,9 @@
  * 不做 both 双侧栏与 tablet 降级）。
  * 侧栏组件数据驱动：type 对应 components/molecules 或 organisms 的分子，
  * position 决定 top（固定顶部）还是 sticky（跟随滚动）。
+ * 类型见 src/types/sidebarConfig.ts。
  */
-export interface SidebarComponentConfig {
-	type: "profile" | "categories" | "tags";
-	enable: boolean;
-	position: "top" | "sticky";
-}
-
-export interface SidebarConfig {
-	enable: boolean;
-	/** left（默认，站点既有）/ right */
-	position: "left" | "right";
-	components: SidebarComponentConfig[];
-}
+import type { SidebarConfig } from "@/types/sidebarConfig";
 
 export const sidebarConfig: SidebarConfig = {
 	enable: true,

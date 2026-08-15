@@ -1,4 +1,6 @@
-import { siteConfig } from "../config";
+// 循环依赖规避：navBarConfig 等配置消费 i18n，本模块只允许从具体文件导入 siteConfig，
+// 禁止走 @/config barrel（见 src/config/README.md）
+import { siteConfig } from "@/config/siteConfig";
 import type I18nKey from "./i18nKey";
 import { en } from "./languages/en";
 import { es } from "./languages/es";
