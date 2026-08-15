@@ -11,6 +11,8 @@ export const ja: Translation = {
 	[Key.friends]: "フレンド",
 	[Key.friendsNoResults]: "条件に合うフレンドが見つかりません",
 	[Key.friendsBanner]: "リンクの交換を歓迎します。申請方法は About ページをご覧ください。",
+	[Key.friendsCount]: "件の友達リンク",
+	[Key.friendsCounts]: "件の友達リンク",
 
 	[Key.tags]: "タグ",
 	[Key.categories]: "カテゴリ",

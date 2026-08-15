@@ -11,6 +11,8 @@ export const id: Translation = {
 	[Key.friends]: "Teman",
 	[Key.friendsNoResults]: "Tidak ada teman yang cocok dengan filter",
 	[Key.friendsBanner]: "Tukar tautan dipersilakan — lihat halaman Tentang untuk cara mendaftar.",
+	[Key.friendsCount]: "teman",
+	[Key.friendsCounts]: "teman",
 
 	[Key.tags]: "Tag",
 	[Key.categories]: "Kategori",

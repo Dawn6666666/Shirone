@@ -8,6 +8,8 @@ enum I18nKey {
 	friends = "friends",
 	friendsNoResults = "friendsNoResults",
 	friendsBanner = "friendsBanner",
+	friendsCount = "friendsCount",
+	friendsCounts = "friendsCounts",
 
 	tags = "tags",
 	categories = "categories",

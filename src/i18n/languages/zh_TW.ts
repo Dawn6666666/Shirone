@@ -11,6 +11,8 @@ export const zh_TW: Translation = {
 	[Key.friends]: "友鏈",
 	[Key.friendsNoResults]: "沒有符合條件的友鏈",
 	[Key.friendsBanner]: "歡迎交換友鏈，申請方式請見「關於」頁。",
+	[Key.friendsCount]: "個友鏈",
+	[Key.friendsCounts]: "個友鏈",
 
 	[Key.tags]: "標籤",
 	[Key.categories]: "分類",

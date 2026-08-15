@@ -11,6 +11,8 @@ export const vi: Translation = {
 	[Key.friends]: "Bạn bè",
 	[Key.friendsNoResults]: "Không có bạn bè nào khớp bộ lọc",
 	[Key.friendsBanner]: "Chào đón trao đổi liên kết — xem trang Giới thiệu để biết cách đăng ký.",
+	[Key.friendsCount]: "liên kết bạn bè",
+	[Key.friendsCounts]: "liên kết bạn bè",
 
 	[Key.tags]: "Thẻ",
 	[Key.categories]: "Danh mục",

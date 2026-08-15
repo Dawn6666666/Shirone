@@ -138,7 +138,7 @@
 
 	&__desc
 		margin: 0 0 0.625rem
-		color: unquote("color-mix(in oklab, var(--on-surface) 78%, transparent)")
+		color: var(--on-surface-variant)
 		font: var(--m3e-type-body-small)
 		line-height: 1.5
 		display: -webkit-box

@@ -3,18 +3,23 @@
 	import Card from "@components/atoms/display/Card.svelte";
 	import TextField from "@components/atoms/input/TextField.svelte";
 	import FriendCard from "@components/molecules/FriendCard.svelte";
+	import PageHeader from "@components/molecules/PageHeader.svelte";
 	import Icon from "@iconify/svelte";
 	import I18nKey from "@i18n/i18nKey";
 	import { i18n } from "@i18n/translation";
+	import { onMount } from "svelte";
 	import type { FriendItem } from "../../data/friends";
 
 	let { friends = [] as FriendItem[] }: { friends?: FriendItem[] } = $props();
 
 	let query = $state("");
 	let selectedTag = $state("");
+	let initialized = false;
 
-	const tagItems = Array.from(new Set(friends.flatMap((friend) => friend.tags))).map(
-		(tag) => ({ value: tag, label: tag }),
+	const tagItems = $derived(
+		Array.from(new Set(friends.flatMap((friend) => friend.tags)))
+			.sort((a, b) => a.localeCompare(b))
+			.map((tag) => ({ value: tag, label: tag })),
 	);
 
 	const filtered = $derived.by(() => {
@@ -36,9 +41,43 @@
 			);
 		});
 	});
+
+	const visibleCount = $derived(filtered.length);
+
+	function countLabel(count: number) {
+		return `${count} ${i18n(count === 1 ? I18nKey.friendsCount : I18nKey.friendsCounts)}`;
+	}
+
+	// 筛选状态同步到 URL（?q= / ?tag=），刷新/分享/回退保留
+	$effect(() => {
+		// 先读依赖（无论是否初始化都注册），避免首次 return 后不再追踪
+		const q = query;
+		const t = selectedTag;
+		if (!initialized) return;
+		const params = new URLSearchParams(window.location.search);
+		params.delete("q");
+		params.delete("tag");
+		if (q) params.set("q", q);
+		if (t) params.set("tag", t);
+		const qs = params.toString();
+		history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+	});
+
+	onMount(() => {
+		const params = new URLSearchParams(window.location.search);
+		query = params.get("q") || "";
+		selectedTag = params.get("tag") || "";
+		initialized = true;
+	});
 </script>
 
 <Card color="var(--card-bg)" radius="l" class="friend-section px-8 py-6">
+	<PageHeader
+		icon="material-symbols:handshake-outline-rounded"
+		title={i18n(I18nKey.friends)}
+		subtitle={i18n(I18nKey.friendsBanner)}
+	/>
+
 	{#if friends.length > 0}
 		<div class="friend-section__tools">
 			<div class="friend-section__search">
@@ -70,16 +109,18 @@
 					<Chips items={tagItems} variant="filter" bind:value={selectedTag} />
 				</div>
 			{/if}
+			<p class="friend-section__count">{countLabel(visibleCount)}</p>
 		</div>
 	{/if}
 
 	{#if filtered.length > 0}
-		<div class="friend-section__list">
-			{#each filtered as friend (friend.id)}
-				<FriendCard {friend} />
-			{/each}
-		</div>
-		<p class="friend-section__note">{i18n(I18nKey.friendsBanner)}</p>
+		{#key `${query}|${selectedTag}`}
+			<div class="friend-section__list">
+				{#each filtered as friend (friend.id)}
+					<FriendCard {friend} />
+				{/each}
+			</div>
+		{/key}
 	{:else}
 		<div class="friend-section__empty">
 			<Icon icon="material-symbols:search-off-outline-rounded" aria-hidden="true" />
@@ -132,14 +173,20 @@
 		&:hover
 			background: unquote("color-mix(in oklab, var(--on-surface-variant) 8%, transparent)")
 
-	&__filters
+	&__chips
 		width: 100%
+
+	&__count
+		margin: 0
+		color: var(--on-surface-variant)
+		font: var(--m3e-type-body-small)
 
 	&__list
 		display: grid
 		grid-template-columns: 1fr
 		gap: 1rem
 		padding-top: 1.5rem
+		animation: friend-fade-in var(--m3e-duration-medium) var(--m3e-easing-standard)
 
 		@media (min-width: bp-md)
 			grid-template-columns: repeat(2, 1fr)
@@ -157,15 +204,18 @@
 			width: 2.5rem
 			height: 2.5rem
 
-	&__note
-		margin: 1.25rem 0 0
-		color: var(--on-surface-variant)
-		font: var(--m3e-type-body-small)
-		line-height: 1.5
-
 	@media (max-width: bp-sm - 1px)
 		padding: 1rem 0.75rem
 
 		&__list
 			padding-top: 1.25rem
+
+/* 筛选结果淡入（reduced-motion 由全局 motion-reduced 规则禁用动画） */
+@keyframes friend-fade-in
+	from
+		opacity: 0
+		transform: translateY(0.25rem)
+	to
+		opacity: 1
+		transform: translateY(0)
 </style>

@@ -2,8 +2,9 @@ import { expect, test } from "@playwright/test";
 
 /**
  * 友链页功能锁定（pages/friends.astro -> organisms/FriendSection.svelte，client:only）。
- * 视觉约束对齐站点设计语言：无页内大标题（同归档页）、胶囊搜索条、
- * 官方 Chips 筛选原子、PostCard 风格卡片（hover 箭头 + #tag 弱文本标签）。
+ * 视觉约束对齐站点设计语言：PageHeader 页内大标题（装饰图标）、胶囊搜索条、
+ * 官方 Chips 筛选原子、PostCard 风格卡片（hover 箭头 + #tag 弱文本标签）、
+ * 筛选状态 URL 同步（?q= / ?tag=）。
  * 数据来自 src/data/friends.ts（getFriendsList 稳定顺序），断言基于默认数据集；
  * 站点默认语言为 en（siteConfig.lang），文案断言用英文。
  */
@@ -26,14 +27,26 @@ test.describe("友链页", () => {
 	});
 
 	test("使用站点统一的友链视觉结构", async ({ page }) => {
-		// 无页内大标题（同归档页，页面位置由顶栏标识）
-		await expect(page.locator(".friend-section__title-row")).toHaveCount(0);
+		// PageHeader 封装的大标题（带装饰图标）
+		await expect(page.locator(".page-header")).toHaveCount(1);
+		await expect(page.locator(".page-header__title")).toHaveText("Friends");
+		await expect(page.locator(".page-header__icon svg")).toHaveCount(1);
 		// PostCard 式箭头（chevron，hover 右滑）
 		await expect(page.locator(".friend-card__arrow")).toHaveCount(FRIEND_COUNT);
 		// 官方 Chips 原子（filter 形态）承担标签筛选
 		await expect(page.locator(".friend-section__chips .m3-chip--filter")).toHaveCount(4);
-		// 换链说明为底部脚注
-		await expect(page.locator(".friend-section__note")).toBeVisible();
+		// 换链说明为 PageHeader 副标题
+		await expect(page.locator(".page-header__subtitle")).toBeVisible();
+		await expect(page.locator(".page-header__subtitle")).toContainText("Link exchange");
+	});
+
+	test("筛选状态同步到 URL（?q= / ?tag=）", async ({ page }) => {
+		await page.locator(".friend-section__search input").fill("Mizuki");
+		await expect(page).toHaveURL(/[?&]q=Mizuki/);
+		await page.getByRole("button", { name: "Blog", exact: true }).click();
+		await expect(page).toHaveURL(/[?&]tag=Blog/);
+		await page.locator(".friend-section__search input").fill("");
+		await expect(page).toHaveURL(/[?&]tag=Blog/);
 	});
 
 	test("单选标签筛选（再点取消恢复全部，aria-pressed 同步）", async ({ page }) => {
