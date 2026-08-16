@@ -248,8 +248,7 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 	&__nums
 		display: flex
 		align-items: center
-		border-radius: var(--shape-corner-l)
-		background: var(--surface-container-low)
+		gap: 0.5rem
 
 	&__num
 		display: inline-flex
@@ -257,7 +256,8 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 		justify-content: center
 		width: 2.75rem
 		height: 2.75rem
-		border-radius: var(--shape-corner-m)
+		border-radius: var(--shape-corner-l)
+		background: var(--surface-container-low)
 		font: var(--m3e-type-label-large)
 		font-weight: 700
 		text-decoration: none
@@ -266,7 +266,7 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 			background-color var(--m3e-duration-short) var(--m3e-easing-standard),
 			color var(--m3e-duration-short) var(--m3e-easing-standard)
 		&:hover
-			background: unquote("color-mix(in oklab, var(--on-surface) 8%, transparent)")
+			background: var(--surface-container-high)
 
 		&--active
 			background: var(--primary)
