@@ -88,12 +88,25 @@ export interface StatsWidget {
 	pages?: SidebarPage[];
 }
 
+/** 月度文章历（有文日填色标记，点击日期展开当日文章） */
+export interface CalendarWidget {
+	type: "calendar";
+	enable: boolean;
+	slot: SidebarWidgetSlot;
+	column?: SidebarColumn;
+	/** 限定显示的页面，省略或空数组表示所有页面 */
+	pages?: SidebarPage[];
+	/** 周起始日，默认 mon（周一） */
+	startOfWeek?: "mon" | "sun";
+}
+
 export type SidebarWidget =
 	| ProfileWidget
 	| CategoriesWidget
 	| TagsWidget
 	| AnnouncementWidget
-	| StatsWidget;
+	| StatsWidget
+	| CalendarWidget;
 
 /**
  * 侧栏整体配置。components 渲染顺序 = 数组顺序，top 恒排在 sticky 之前。

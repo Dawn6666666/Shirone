@@ -51,6 +51,14 @@ export const en: Translation = {
 	[Key.statsWords]: "Words",
 	[Key.statsDays]: "Uptime",
 
+	[Key.calendar]: "Calendar",
+	[Key.calendarBackToday]: "Back to today",
+	[Key.calendarPrevMonth]: "Previous month",
+	[Key.calendarNextMonth]: "Next month",
+
+	[Key.sidebar]: "Sidebar",
+	[Key.sidebarSecondary]: "Secondary sidebar",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Color Style",
 	[Key.colorSpec]: "Color Spec",

@@ -154,6 +154,7 @@ export const sidebarConfig: SidebarConfig = {
 | `tags` | `Tags` | `getTagList` | `WidgetLayout` | `collapseAfter?`（默认 20） |
 | `announcement` | `Announcement` | `announcementConfig` | 无（Banner round） | — |
 | `stats` | `SiteStats` | `getSiteStats` | `WidgetLayout` | — |
+| `calendar` | `Calendar` | `getCalendarData` | `WidgetLayout` | `startOfWeek?`（默认 `"mon"`） |
 
 逐个文档见 `sidebar-widgets.md`。
 

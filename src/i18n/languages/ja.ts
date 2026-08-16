@@ -51,6 +51,14 @@ export const ja: Translation = {
 	[Key.statsWords]: "総文字数",
 	[Key.statsDays]: "運営日数",
 
+	[Key.calendar]: "カレンダー",
+	[Key.calendarBackToday]: "今日に戻る",
+	[Key.calendarPrevMonth]: "前の月",
+	[Key.calendarNextMonth]: "次の月",
+
+	[Key.sidebar]: "サイドバー",
+	[Key.sidebarSecondary]: "サブサイドバー",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "配色スタイル",
 	[Key.colorSpec]: "配色仕様",

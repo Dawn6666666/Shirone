@@ -17,6 +17,7 @@
 | `tags` | `Tags` | sticky | 标签云（tonal Chip），可折叠 |
 | `announcement` | `Announcement` | top | 公告横幅，无标题外壳 |
 | `stats` | `SiteStats` | top | 站点统计规格表 |
+| `calendar` | `Calendar` | sticky | 月度文章历（SSR 直出 + 水合岛） |
 
 ### 1.1 通用字段
 
@@ -104,6 +105,22 @@ export const announcementConfig = {
 | 运行天数 | `calendar-month-outline-rounded` | 以最早一篇文章发布日为起点推导，无需配置建站日期 |
 
 - 无专属配置项；停靠建议 `top`（信息密度高，放 sticky 会频繁扫过）。
+
+## 7b. Calendar — 月度文章历
+
+- **数据源**：`utils/calendar-data.ts` 的 `getCalendarData()`（模块级备忘化）——聚合全部文章的
+  发布日（`dateKey → 当日文章`），**SSR 直出**（侧栏静态渲染在 Swup 容器外，不走 API 端点）；
+  日期口径与文章卡片一致（`formatDateToYYYYMMDD`），URL 复用 `getPostUrlBySlug`；
+- **结构**：`Calendar.astro` wrapper（取数 + i18n 外壳）+ `CalendarView.svelte`（`client:visible`
+  惰性水合岛）；月/周名由 `Intl.DateTimeFormat` 按站点 locale 生成——本地化数据不占 i18n key，
+  仅 widget 标题与操作按钮走 `I18nKey`；
+- **视图（克制）**：单月视图 + 上/下月 + 回今天（非当前月时标题可点击回今天），
+  不做年视图/热力图/三级钻取；
+- **视觉（M3E 填色语言）**：有文日 = `primary-container` 淡底 + `on-primary-container` 深色数字；
+  今天 = `primary` 实底 + `on-primary` 数字（叠加描边选中态用 `outline`）；无文日 disabled 55%；
+- **交互**：点击有文日在网格下方 `collapse` 展开当日文章（标题 + MM-DD，hover 状态层），
+  再点收起；切月网格 `reveal` 淡入——均走 `motion.ts` 原语，reduced-motion 瞬切；
+- **配置**：`startOfWeek?: "mon" | "sun"`（默认周一），其余走通用 `slot`/`column`/`pages` 标签。
 
 ## 8. 新增 widget 的设计约束
 

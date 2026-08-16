@@ -51,6 +51,14 @@ export const vi: Translation = {
 	[Key.statsWords]: "Tổng số từ",
 	[Key.statsDays]: "Số ngày hoạt động",
 
+	[Key.calendar]: "Lịch",
+	[Key.calendarBackToday]: "Về hôm nay",
+	[Key.calendarPrevMonth]: "Tháng trước",
+	[Key.calendarNextMonth]: "Tháng sau",
+
+	[Key.sidebar]: "Thanh bên",
+	[Key.sidebarSecondary]: "Thanh bên phụ",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Phong cách màu",
 	[Key.colorSpec]: "Đặc tả màu",

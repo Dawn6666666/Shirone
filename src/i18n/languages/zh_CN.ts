@@ -51,6 +51,14 @@ export const zh_CN: Translation = {
 	[Key.statsWords]: "总字数",
 	[Key.statsDays]: "运行天数",
 
+	[Key.calendar]: "日历",
+	[Key.calendarBackToday]: "回到今天",
+	[Key.calendarPrevMonth]: "上一月",
+	[Key.calendarNextMonth]: "下一月",
+
+	[Key.sidebar]: "侧栏",
+	[Key.sidebarSecondary]: "次侧栏",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "配色风格",
 	[Key.colorSpec]: "配色规范",

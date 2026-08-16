@@ -51,6 +51,14 @@ export const th: Translation = {
 	[Key.statsWords]: "จำนวนคำ",
 	[Key.statsDays]: "จำนวนวันที่เปิดใช้งาน",
 
+	[Key.calendar]: "ปฏิทิน",
+	[Key.calendarBackToday]: "กลับไปวันนี้",
+	[Key.calendarPrevMonth]: "เดือนก่อน",
+	[Key.calendarNextMonth]: "เดือนถัดไป",
+
+	[Key.sidebar]: "แถบด้านข้าง",
+	[Key.sidebarSecondary]: "แถบด้านข้างรอง",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "สไตล์สี",
 	[Key.colorSpec]: "สเปกสี",

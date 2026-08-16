@@ -73,6 +73,7 @@
 | `WidgetLayout` | 侧栏卡片容器（折叠标题 + 内容） |
 | `Announcement` | 公告侧栏 widget（Banner 原子 round 形态，无标题外壳；内容源 `announcementConfig`） |
 | `SiteStats` | 站点统计侧栏 widget（规格表行：MetaIcon 徽标 + 点线引导 + 表格数字；数据源 `utils/site-stats` 备忘化汇总） |
+| `Calendar` | 月度文章历侧栏 widget（SSR 直出日期聚合 + CalendarView 水合岛：单月视图、切月 reveal、点击有文日 collapse 展开当日文章） |
 
 原子层通用件（`Button` / `Card` / `IconButton` / `Avatar` / `AccentBar` 等）见 `m3e-standard.md` §4。
 

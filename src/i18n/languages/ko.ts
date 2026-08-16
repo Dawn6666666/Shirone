@@ -51,6 +51,14 @@ export const ko: Translation = {
 	[Key.statsWords]: "총 글자 수",
 	[Key.statsDays]: "운영 일수",
 
+	[Key.calendar]: "캘린더",
+	[Key.calendarBackToday]: "오늘로 돌아가기",
+	[Key.calendarPrevMonth]: "이전 달",
+	[Key.calendarNextMonth]: "다음 달",
+
+	[Key.sidebar]: "사이드바",
+	[Key.sidebarSecondary]: "보조 사이드바",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "색상 스타일",
 	[Key.colorSpec]: "색상 규격",

@@ -51,6 +51,14 @@ export const id: Translation = {
 	[Key.statsWords]: "Kata",
 	[Key.statsDays]: "Hari aktif",
 
+	[Key.calendar]: "Kalender",
+	[Key.calendarBackToday]: "Kembali ke hari ini",
+	[Key.calendarPrevMonth]: "Bulan sebelumnya",
+	[Key.calendarNextMonth]: "Bulan berikutnya",
+
+	[Key.sidebar]: "Bilah samping",
+	[Key.sidebarSecondary]: "Bilah samping sekunder",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Gaya Warna",
 	[Key.colorSpec]: "Spesifikasi Warna",

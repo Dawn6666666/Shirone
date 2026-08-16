@@ -48,6 +48,14 @@ enum I18nKey {
 	statsWords = "statsWords",
 	statsDays = "statsDays",
 
+	calendar = "calendar",
+	calendarBackToday = "calendarBackToday",
+	calendarPrevMonth = "calendarPrevMonth",
+	calendarNextMonth = "calendarNextMonth",
+
+	sidebar = "sidebar",
+	sidebarSecondary = "sidebarSecondary",
+
 	themeColor = "themeColor",
 	colorStyle = "colorStyle",
 	colorSpec = "colorSpec",

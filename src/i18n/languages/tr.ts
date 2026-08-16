@@ -51,6 +51,14 @@ export const tr: Translation = {
 	[Key.statsWords]: "Kelime",
 	[Key.statsDays]: "Aktif gün sayısı",
 
+	[Key.calendar]: "Takvim",
+	[Key.calendarBackToday]: "Bugüne dön",
+	[Key.calendarPrevMonth]: "Önceki ay",
+	[Key.calendarNextMonth]: "Sonraki ay",
+
+	[Key.sidebar]: "Kenar çubuğu",
+	[Key.sidebarSecondary]: "İkincil kenar çubuğu",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Renk Stili",
 	[Key.colorSpec]: "Renk Spesifikasyonu",
