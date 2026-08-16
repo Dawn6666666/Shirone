@@ -14,9 +14,14 @@ test.describe("Site motion", () => {
 		await page.waitForTimeout(600);
 	}
 
-	async function bodyHeight(page: import("@playwright/test").Page, index: number) {
+	async function bodyHeight(
+		page: import("@playwright/test").Page,
+		index: number,
+	) {
 		return page.evaluate((i) => {
-			const body = document.querySelectorAll<HTMLElement>(".m3-blog-archive__body")[i];
+			const body = document.querySelectorAll<HTMLElement>(
+				".m3-blog-archive__body",
+			)[i];
 			return body ? parseFloat(getComputedStyle(body).height) : NaN;
 		}, index);
 	}
@@ -26,7 +31,9 @@ test.describe("Site motion", () => {
 
 		// 第二个年份默认折叠（0px），点击展开播放动画
 		expect(await bodyHeight(page, 1)).toBe(0);
-		await page.click('.m3-blog-archive__group:nth-child(2) .m3-blog-archive__header');
+		await page.click(
+			".m3-blog-archive__group:nth-child(2) .m3-blog-archive__header",
+		);
 
 		// 动画进行中：高度应为 0 与最终值之间的中间值
 		await page.waitForTimeout(100);
@@ -38,30 +45,42 @@ test.describe("Site motion", () => {
 		const expanded = await bodyHeight(page, 1);
 		expect(expanded).toBeGreaterThan(mid);
 		await expect(
-			page.locator('.m3-blog-archive__group:nth-child(2) .m3-blog-archive__item'),
+			page.locator(
+				".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
+			),
 		).toHaveCount(2);
 	});
 
-	test("reduced motion lands instantly without transition", async ({ page }) => {
+	test("reduced motion lands instantly without transition", async ({
+		page,
+	}) => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await openArchive(page);
 
 		expect(await bodyHeight(page, 1)).toBe(0);
-		await page.click('.m3-blog-archive__group:nth-child(2) .m3-blog-archive__header');
+		await page.click(
+			".m3-blog-archive__group:nth-child(2) .m3-blog-archive__header",
+		);
 
 		// 30ms 内即到位（无过渡中间值）
 		await page.waitForTimeout(30);
 		const height = await bodyHeight(page, 1);
 		expect(height).toBeGreaterThan(0);
 		await expect(
-			page.locator('.m3-blog-archive__group:nth-child(2) .m3-blog-archive__item'),
+			page.locator(
+				".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
+			),
 		).toHaveCount(2);
 	});
 
-	test("toggles aria-expanded and hides content when collapsed", async ({ page }) => {
+	test("toggles aria-expanded and hides content when collapsed", async ({
+		page,
+	}) => {
 		await openArchive(page);
 
-		const header = page.locator('.m3-blog-archive__group:nth-child(2) .m3-blog-archive__header');
+		const header = page.locator(
+			".m3-blog-archive__group:nth-child(2) .m3-blog-archive__header",
+		);
 		await expect(header).toHaveAttribute("aria-expanded", "false");
 		expect(await bodyHeight(page, 1)).toBe(0);
 
@@ -81,7 +100,10 @@ test.describe("Site motion", () => {
 test.describe("sidebar pages filter (swup sync)", () => {
 	test.use({ viewport: { width: 1280, height: 900 } });
 
-	async function clickLink(page: import("@playwright/test").Page, selector: string) {
+	async function clickLink(
+		page: import("@playwright/test").Page,
+		selector: string,
+	) {
 		await page.evaluate((sel) => {
 			(document.querySelector(sel) as HTMLAnchorElement | null)?.click();
 		}, selector);
@@ -96,7 +118,24 @@ test.describe("sidebar pages filter (swup sync)", () => {
 		});
 	}
 
-	function waitStatsHidden(page: import("@playwright/test").Page, hidden: boolean) {
+	async function statsTagIconHasInlinePath(
+		page: import("@playwright/test").Page,
+	) {
+		return page.evaluate(() => {
+			const row = [...document.querySelectorAll(".m3-site-stats__row")].find(
+				(element) => element.textContent?.includes("Tags"),
+			);
+			const icon = row?.querySelector(
+				'svg[data-icon="material-symbols:tag-rounded"]',
+			);
+			return !!icon?.querySelector("path");
+		});
+	}
+
+	function waitStatsHidden(
+		page: import("@playwright/test").Page,
+		hidden: boolean,
+	) {
 		return page.waitForFunction(
 			(expectHidden) => {
 				const wrapper = document
@@ -110,7 +149,10 @@ test.describe("sidebar pages filter (swup sync)", () => {
 		);
 	}
 
-	function waitCurrentPage(page: import("@playwright/test").Page, value: string) {
+	function waitCurrentPage(
+		page: import("@playwright/test").Page,
+		value: string,
+	) {
 		return page.waitForFunction(
 			(expected) =>
 				document.getElementById("swup-container")?.dataset.currentPage ===
@@ -120,7 +162,9 @@ test.describe("sidebar pages filter (swup sync)", () => {
 		);
 	}
 
-	test("stats hides on post page and returns on home (animated path)", async ({ page }) => {
+	test("stats hides on post page and returns on home (animated path)", async ({
+		page,
+	}) => {
 		await page.goto("/", { waitUntil: "networkidle" });
 		expect(await statsWrapperHidden(page)).toBe(false);
 
@@ -138,10 +182,23 @@ test.describe("sidebar pages filter (swup sync)", () => {
 		});
 		expect(tagsVisible).toBe(true);
 
-		// swup 点回首页：stats 入场恢复
+		// swup 点回首页：stats 入场恢复，且图标仍为自包含 SVG
 		await clickLink(page, '#top-row a[href="/"]');
 		await waitCurrentPage(page, "home");
 		await waitStatsHidden(page, false);
+		expect(await statsTagIconHasInlinePath(page)).toBe(true);
+	});
+
+	test("stats tag icon remains self-contained after post to archive navigation", async ({
+		page,
+	}) => {
+		await page.goto("/posts/guide/", { waitUntil: "networkidle" });
+		expect(await statsWrapperHidden(page)).toBe(true);
+
+		await clickLink(page, '#top-row a[href="/archive/"]');
+		await waitCurrentPage(page, "archive");
+		await waitStatsHidden(page, false);
+		expect(await statsTagIconHasInlinePath(page)).toBe(true);
 	});
 
 	test("reduced motion lands instantly without fade", async ({ page }) => {
