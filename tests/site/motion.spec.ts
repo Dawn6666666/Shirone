@@ -167,6 +167,13 @@ test.describe("sidebar pages filter (swup sync)", () => {
 	}) => {
 		await page.goto("/", { waitUntil: "networkidle" });
 		expect(await statsWrapperHidden(page)).toBe(false);
+		const secondary = page.locator("#sidebar-secondary");
+		await expect(secondary).toHaveCSS("scrollbar-width", "none");
+		expect(
+			await secondary.evaluate(
+				(element) => getComputedStyle(element, "::-webkit-scrollbar").display,
+			),
+		).toBe("none");
 
 		// swup 点击文章卡链接 → 文章页：退场淡出（150ms）后 hidden
 		await clickLink(page, '#swup-container a[href^="/posts/"]');

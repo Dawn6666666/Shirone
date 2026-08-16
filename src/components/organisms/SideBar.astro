@@ -86,7 +86,7 @@ const hasVisibleTop = topWidgets.some(isVisible);
 const hasVisibleSticky = stickyWidgets.some(isVisible);
 ---
 
-<aside id={id} aria-label={ariaLabel} class:list={[className, "w-full lg:self-start lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto"]}>
+<aside id={id} aria-label={ariaLabel} class:list={[className, "w-full lg:self-start lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto", { "hide-scrollbar": column === "secondary" }]}>
 	{topWidgets.length > 0 && (
 		<div
 			data-sidebar-group
