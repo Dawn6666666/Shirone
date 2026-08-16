@@ -51,6 +51,10 @@ export const th: Translation = {
 	[Key.statsPosts]: "บทความ",
 	[Key.statsWords]: "จำนวนคำ",
 	[Key.statsDays]: "จำนวนวันที่เปิดใช้งาน",
+	[Key.statsUpdated]: "อัปเดตล่าสุด",
+	[Key.statsToday]: "วันนี้",
+	[Key.statsYesterday]: "เมื่อวาน",
+	[Key.statsDaysAgo]: "{days} วันที่แล้ว",
 
 	[Key.calendar]: "ปฏิทิน",
 	[Key.calendarBackToday]: "กลับไปวันนี้",

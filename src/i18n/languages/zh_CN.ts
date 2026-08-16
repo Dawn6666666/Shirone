@@ -51,6 +51,10 @@ export const zh_CN: Translation = {
 	[Key.statsPosts]: "文章",
 	[Key.statsWords]: "总字数",
 	[Key.statsDays]: "运行天数",
+	[Key.statsUpdated]: "最近更新",
+	[Key.statsToday]: "今天",
+	[Key.statsYesterday]: "昨天",
+	[Key.statsDaysAgo]: "{days} 天前",
 
 	[Key.calendar]: "日历",
 	[Key.calendarBackToday]: "回到今天",

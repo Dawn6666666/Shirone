@@ -51,6 +51,10 @@ export const ja: Translation = {
 	[Key.statsPosts]: "記事",
 	[Key.statsWords]: "総文字数",
 	[Key.statsDays]: "運営日数",
+	[Key.statsUpdated]: "最終更新",
+	[Key.statsToday]: "今日",
+	[Key.statsYesterday]: "昨日",
+	[Key.statsDaysAgo]: "{days}日前",
 
 	[Key.calendar]: "カレンダー",
 	[Key.calendarBackToday]: "今日に戻る",

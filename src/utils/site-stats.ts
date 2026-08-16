@@ -15,6 +15,8 @@ export interface SiteStats {
 	words: number;
 	/** 运行天数：以最早一篇文章的发布日为起点（无文章则 0） */
 	days: number;
+	/** 最近更新：全站最新一篇的发布/更新日（ISO 字符串；无文章为 null） */
+	lastActivity: string | null;
 }
 
 const DAY_MS = 86_400_000;
@@ -31,14 +33,19 @@ export async function getSiteStats(): Promise<SiteStats> {
 		getTagList(),
 	]);
 
-	// 总字数与最早发布日来自同一批文章，一次遍历
+	// 总字数、最早发布日与最近更新日来自同一批文章，一次遍历
 	let words = 0;
 	let earliest = Number.POSITIVE_INFINITY;
+	let latestActivity = 0;
 	for (const post of posts) {
 		const { remarkPluginFrontmatter } = await render(post);
 		words += remarkPluginFrontmatter.words ?? 0;
-		const t = new Date(post.data.published).getTime();
-		if (t < earliest) earliest = t;
+		const published = new Date(post.data.published).getTime();
+		if (published < earliest) earliest = published;
+		const updated = post.data.updated
+			? new Date(post.data.updated).getTime()
+			: 0;
+		latestActivity = Math.max(latestActivity, published, updated);
 	}
 
 	cache = {
@@ -50,6 +57,9 @@ export async function getSiteStats(): Promise<SiteStats> {
 		days: Number.isFinite(earliest)
 			? Math.max(0, Math.floor((Date.now() - earliest) / DAY_MS))
 			: 0,
+		lastActivity: latestActivity > 0
+			? new Date(latestActivity).toISOString()
+			: null,
 	};
 	return cache;
 }

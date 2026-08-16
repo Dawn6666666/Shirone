@@ -51,6 +51,10 @@ export const zh_TW: Translation = {
 	[Key.statsPosts]: "文章",
 	[Key.statsWords]: "總字數",
 	[Key.statsDays]: "運行天數",
+	[Key.statsUpdated]: "最近更新",
+	[Key.statsToday]: "今天",
+	[Key.statsYesterday]: "昨天",
+	[Key.statsDaysAgo]: "{days} 天前",
 
 	[Key.calendar]: "日曆",
 	[Key.calendarBackToday]: "回到今天",

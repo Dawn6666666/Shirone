@@ -51,6 +51,10 @@ export const id: Translation = {
 	[Key.statsPosts]: "Artikel",
 	[Key.statsWords]: "Kata",
 	[Key.statsDays]: "Hari aktif",
+	[Key.statsUpdated]: "Pembaruan terakhir",
+	[Key.statsToday]: "Hari ini",
+	[Key.statsYesterday]: "Kemarin",
+	[Key.statsDaysAgo]: "{days} hari lalu",
 
 	[Key.calendar]: "Kalender",
 	[Key.calendarBackToday]: "Kembali ke hari ini",

@@ -51,6 +51,10 @@ export const vi: Translation = {
 	[Key.statsPosts]: "Bài viết",
 	[Key.statsWords]: "Tổng số từ",
 	[Key.statsDays]: "Số ngày hoạt động",
+	[Key.statsUpdated]: "Cập nhật gần nhất",
+	[Key.statsToday]: "Hôm nay",
+	[Key.statsYesterday]: "Hôm qua",
+	[Key.statsDaysAgo]: "{days} ngày trước",
 
 	[Key.calendar]: "Lịch",
 	[Key.calendarBackToday]: "Về hôm nay",

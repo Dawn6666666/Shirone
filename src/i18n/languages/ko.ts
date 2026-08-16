@@ -51,6 +51,10 @@ export const ko: Translation = {
 	[Key.statsPosts]: "게시글",
 	[Key.statsWords]: "총 글자 수",
 	[Key.statsDays]: "운영 일수",
+	[Key.statsUpdated]: "최근 업데이트",
+	[Key.statsToday]: "오늘",
+	[Key.statsYesterday]: "어제",
+	[Key.statsDaysAgo]: "{days}일 전",
 
 	[Key.calendar]: "캘린더",
 	[Key.calendarBackToday]: "오늘로 돌아가기",

@@ -51,6 +51,10 @@ export const tr: Translation = {
 	[Key.statsPosts]: "Yazılar",
 	[Key.statsWords]: "Kelime",
 	[Key.statsDays]: "Aktif gün sayısı",
+	[Key.statsUpdated]: "Son güncelleme",
+	[Key.statsToday]: "Bugün",
+	[Key.statsYesterday]: "Dün",
+	[Key.statsDaysAgo]: "{days} gün önce",
 
 	[Key.calendar]: "Takvim",
 	[Key.calendarBackToday]: "Bugüne dön",

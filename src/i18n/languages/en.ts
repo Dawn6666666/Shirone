@@ -51,6 +51,10 @@ export const en: Translation = {
 	[Key.statsPosts]: "Posts",
 	[Key.statsWords]: "Words",
 	[Key.statsDays]: "Uptime",
+	[Key.statsUpdated]: "Last updated",
+	[Key.statsToday]: "Today",
+	[Key.statsYesterday]: "Yesterday",
+	[Key.statsDaysAgo]: "{days} days ago",
 
 	[Key.calendar]: "Calendar",
 	[Key.calendarBackToday]: "Back to today",

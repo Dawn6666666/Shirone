@@ -9,6 +9,7 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import type { StatsWidget } from "@/types/sidebarConfig";
 import { getSiteStats } from "@utils/site-stats";
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import WidgetLayout from "./WidgetLayout.astro";
 
 interface Props {
@@ -23,6 +24,15 @@ const style = Astro.props.style;
 const stats = await getSiteStats();
 // 千位分隔固定 en-US：构建产物数值稳定，不随构建机 locale 漂移
 const fmt = (n: number) => n.toLocaleString("en-US");
+
+// 最近更新：SSR 渲染绝对日期（构建产物稳定、无 JS 也可读），
+// 页面加载后由底部脚本升级为相对时间（今天/昨天/N 天前）
+const lastActivityText = stats.lastActivity
+	? formatDateToYYYYMMDD(new Date(stats.lastActivity))
+	: "—";
+const todayText = i18n(I18nKey.statsToday);
+const yesterdayText = i18n(I18nKey.statsYesterday);
+const daysAgoText = i18n(I18nKey.statsDaysAgo);
 
 const rows = [
 	{
@@ -55,6 +65,12 @@ const rows = [
 		label: i18n(I18nKey.statsDays),
 		value: fmt(stats.days),
 	},
+	{
+		icon: "material-symbols:update-rounded",
+		label: i18n(I18nKey.statsUpdated),
+		value: lastActivityText,
+		relative: true,
+	},
 ];
 ---
 
@@ -65,7 +81,11 @@ const rows = [
 				<MetaIcon icon={row.icon} />
 				<span class="m3-site-stats__label">{row.label}</span>
 				<span class="m3-site-stats__rule" aria-hidden="true"></span>
-				<span class="m3-site-stats__value">{row.value}</span>
+				<span
+					class="m3-site-stats__value"
+					data-last-update={row.relative ? "" : undefined}
+					>{row.value}</span
+				>
 			</li>
 		))}
 	</ul>
@@ -106,3 +126,21 @@ const rows = [
 		color: var(--on-surface)
 		white-space: nowrap
 </style>
+
+<script is:inline define:vars={{ lastActivityISO: stats.lastActivity, todayText, yesterdayText, daysAgoText }}>
+	// 最近更新相对化：按本地时区取日界，差值恒为整天数；
+	// 无文章或脚本禁用时保留 SSR 的绝对日期
+	(() => {
+		const el = document.querySelector("[data-last-update]");
+		if (!el || !lastActivityISO) return;
+		const DAY_MS = 86_400_000;
+		const dayStart = (d) =>
+			new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+		const diffDays = Math.round(
+			(dayStart(new Date()) - dayStart(new Date(lastActivityISO))) / DAY_MS,
+		);
+		if (diffDays <= 0) el.textContent = todayText;
+		else if (diffDays === 1) el.textContent = yesterdayText;
+		else el.textContent = daysAgoText.replace("{days}", String(diffDays));
+	})();
+</script>

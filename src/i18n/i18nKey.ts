@@ -48,6 +48,10 @@ enum I18nKey {
 	statsPosts = "statsPosts",
 	statsWords = "statsWords",
 	statsDays = "statsDays",
+	statsUpdated = "statsUpdated",
+	statsToday = "statsToday",
+	statsYesterday = "statsYesterday",
+	statsDaysAgo = "statsDaysAgo",
 
 	calendar = "calendar",
 	calendarBackToday = "calendarBackToday",

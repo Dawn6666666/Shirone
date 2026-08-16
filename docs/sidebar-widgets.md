@@ -93,7 +93,7 @@ export const announcementConfig = {
 
 - **数据源**：`utils/site-stats.ts` 的 `getSiteStats()`（模块级备忘化，构建期多页面共享一次汇总）；
 - **渲染**：规格表风格——每行 = `MetaIcon` tonal 徽标（32px，与 PostMeta 元信息同语言）+ 标签 + 点线引导 + 表格数字（`tabular-nums`，千位分隔固定 en-US，构建产物数值稳定）；
-- **六项指标**：
+- **七项指标**：
 
 | 行 | 图标 | 来源 |
 |---|---|---|
@@ -103,7 +103,11 @@ export const announcementConfig = {
 | 标签 | `tag-rounded` | 标签数 |
 | 总字数 | `edit-note-outline-rounded` | 全部文章 remark 字数之和（与文章卡片同一统计口径） |
 | 运行天数 | `calendar-month-outline-rounded` | 以最早一篇文章发布日为起点推导，无需配置建站日期 |
+| 最近更新 | `update-rounded` | 全站最新一篇的发布/更新日（取二者较新） |
 
+- **最近更新的渐进增强**：SSR 直出绝对日期（`YYYY-MM-DD`，构建产物稳定、无 JS 也可读）；
+  页面加载后内联脚本升级为相对时间——今天 / 昨天 / `{days} 天前`（`{days}` 占位符，按本地
+  时区日界计算，差值恒为整天数）；无文章时显示 `—`；
 - 无专属配置项；停靠建议 `top`（信息密度高，放 sticky 会频繁扫过）。
 
 ## 7b. Calendar — 月度文章历
