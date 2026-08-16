@@ -28,7 +28,12 @@ export default defineConfig({
 			cache: true,
 			preload: true,
 			accessibility: true,
-			updateHead: true,
+			updateHead: {
+				awaitAssets: true,
+				// Cached client-only islands do not re-inject component CSS after
+				// Swup removes it from the head. Keep styles across page visits.
+				persistTags: "link[rel=stylesheet], style",
+			},
 			updateBodyClass: false,
 			globalInstance: true,
 		}),

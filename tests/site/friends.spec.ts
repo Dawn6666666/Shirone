@@ -67,3 +67,41 @@ test.describe("友链页", () => {
 		await expect(page.locator(".friend-section__empty")).toBeVisible();
 	});
 });
+
+test.describe("友链页 Swup 导航", () => {
+	test.use({ viewport: { width: 1280, height: 900 } });
+
+	test("重复进入后保持组件样式和加载指示器居中", async ({ page }) => {
+		await page.goto("/", { waitUntil: "networkidle" });
+
+		for (let visit = 0; visit < 3; visit++) {
+			await page.locator('#top-row a[href="/friends/"]').click();
+			await expect(page).toHaveURL(/\/friends\/$/);
+			const list = page.locator(".friend-section__list");
+			await expect(page.locator(".friend-card")).toHaveCount(FRIEND_COUNT);
+			await expect(list).toHaveCSS("display", "grid");
+			await expect(list).toHaveCSS("gap", "16px");
+			await expect(list).toHaveCSS("grid-template-columns", /\d+(\.\d+)?px \d+(\.\d+)?px/);
+
+			const blogFilter = page.getByRole("button", { name: "Blog", exact: true });
+			await blogFilter.click();
+			const loading = page.locator(".friend-section__loading");
+			const indicator = loading.locator(".m3-loading");
+			await expect(loading).toBeVisible();
+			await expect(indicator).toHaveCSS("width", "64px");
+			await expect(indicator).toHaveCSS("height", "64px");
+			const centers = await Promise.all([loading.boundingBox(), indicator.boundingBox()]);
+			expect(centers[0]).not.toBeNull();
+			expect(centers[1]).not.toBeNull();
+			expect(
+				Math.abs(
+					centers[0]!.x + centers[0]!.width / 2 -
+						(centers[1]!.x + centers[1]!.width / 2),
+				),
+			).toBeLessThanOrEqual(1);
+
+			await page.locator('#top-row a[data-nav-key="home"]').click();
+			await expect(page).toHaveURL(/\/$/);
+		}
+	});
+});
