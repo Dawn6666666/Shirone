@@ -15,6 +15,11 @@ test.describe("分类索引页 /categories/", () => {
 		page,
 	}) => {
 		await expect(page.locator(".page-header__title")).toHaveText("Categories");
+		// 页头装饰图标：SSR 直出（astro-icon 构建期内联，非空）
+		await expect(page.locator(".page-header__icon svg")).toHaveCount(1);
+		await expect(
+			page.locator('.page-header__icon svg[data-icon="material-symbols:folder-outline-rounded"]'),
+		).toHaveCount(1);
 		const rows = page.locator(".category-index__row");
 		await expect(rows).toHaveCount(2);
 		const first = rows.first();
@@ -46,6 +51,11 @@ test.describe("标签索引页 /tags/", () => {
 		page,
 	}) => {
 		await expect(page.locator(".page-header__title")).toHaveText("Tags");
+		// 页头装饰图标：SSR 直出（astro-icon 构建期内联，非空）
+		await expect(page.locator(".page-header__icon svg")).toHaveCount(1);
+		await expect(
+			page.locator('.page-header__icon svg[data-icon="material-symbols:tag-rounded"]'),
+		).toHaveCount(1);
 		const chips = page.locator(".tag-index__chip");
 		await expect(chips).toHaveCount(7);
 		const first = chips.first();
