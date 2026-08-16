@@ -20,6 +20,8 @@ export interface CalendarPost {
 export interface CalendarData {
 	/** dateKey → 当日文章（按发布时间倒序，列表展开展示用） */
 	postsByDate: Record<string, CalendarPost[]>;
+	/** 有文章月份列表（升序 YYYY-MM），跳月导航用（跳过空月） */
+	activeMonths: string[];
 }
 
 const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
@@ -31,6 +33,7 @@ export async function getCalendarData(): Promise<CalendarData> {
 
 	const posts = await getSortedPosts();
 	const postsByDate: Record<string, CalendarPost[]> = {};
+	const activeMonthSet = new Set<string>();
 
 	for (const post of posts) {
 		const date = formatDateToYYYYMMDD(post.data.published);
@@ -42,8 +45,11 @@ export async function getCalendarData(): Promise<CalendarData> {
 			date,
 		};
 		(postsByDate[date] ??= []).push(item);
+		activeMonthSet.add(date.slice(0, 7));
 	}
 
-	cache = { postsByDate };
+	const activeMonths = Array.from(activeMonthSet).sort();
+
+	cache = { postsByDate, activeMonths };
 	return cache;
 }

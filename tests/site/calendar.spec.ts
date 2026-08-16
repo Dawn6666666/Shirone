@@ -68,6 +68,26 @@ test.describe("sidebar calendar widget", () => {
 		expect((await title(page).textContent())?.trim()).toBe(initial);
 	});
 
+	test("prev/next skip empty months and disable at boundaries", async ({ page }) => {
+		await openHome(page);
+
+		// 当前月（2026-08）无文：一次 prev 直达最近有文月（2024-05）
+		await prevBtn(page).click();
+		await page.waitForTimeout(300);
+		expect((await title(page).textContent())?.trim()).toBe("May 2024");
+		// 2024-05 之后无有文月：next 禁用
+		await expect(calendar(page).locator('[aria-label="Next month"]')).toBeDisabled();
+
+		// 继续 prev：2024-04 → 2023-10 → 2023-08 → 2022-07
+		for (const expected of ["April 2024", "October 2023", "August 2023", "July 2022"]) {
+			await prevBtn(page).click();
+			await page.waitForTimeout(250);
+			expect((await title(page).textContent())?.trim()).toBe(expected);
+		}
+		// 最早有文月：prev 禁用
+		await expect(calendar(page).locator('[aria-label="Previous month"]')).toBeDisabled();
+	});
+
 	test("expands and collapses post list on post-day click", async ({ page }) => {
 		await openHome(page);
 		await gotoMonth(page, "May 2024");

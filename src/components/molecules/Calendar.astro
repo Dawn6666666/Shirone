@@ -27,7 +27,7 @@ const startOfWeek = Astro.props.widget?.startOfWeek ?? "mon";
 // siteConfig.lang 形如 zh_CN / en：替换为 BCP47 供 Intl 使用
 const locale = siteConfig.lang.replace("_", "-");
 
-const { postsByDate } = await getCalendarData();
+const { postsByDate, activeMonths } = await getCalendarData();
 ---
 
 <WidgetLayout name={i18n(I18nKey.calendar)} id="calendar" class={className} style={style}>
@@ -36,6 +36,7 @@ const { postsByDate } = await getCalendarData();
 		{locale}
 		{startOfWeek}
 		{postsByDate}
+		{activeMonths}
 		backTodayLabel={i18n(I18nKey.calendarBackToday)}
 		prevMonthLabel={i18n(I18nKey.calendarPrevMonth)}
 		nextMonthLabel={i18n(I18nKey.calendarNextMonth)}

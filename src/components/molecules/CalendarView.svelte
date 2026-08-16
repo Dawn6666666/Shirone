@@ -16,6 +16,8 @@
 		startOfWeek: "mon" | "sun";
 		/** dateKey（YYYY-MM-DD）→ 当日文章 */
 		postsByDate: Record<string, CalendarPost[]>;
+		/** 有文章月份列表（升序 YYYY-MM），跳月导航用 */
+		activeMonths: string[];
 		backTodayLabel: string;
 		prevMonthLabel: string;
 		nextMonthLabel: string;
@@ -25,6 +27,7 @@
 		locale,
 		startOfWeek = "mon",
 		postsByDate,
+		activeMonths = [],
 		backTodayLabel,
 		prevMonthLabel,
 		nextMonthLabel,
@@ -92,7 +95,38 @@
 		);
 	}
 
+	const currentMonthKey = $derived(`${year}-${pad(month + 1)}`);
+
+	// 相邻有文月：prev/next 跳过空月——博客日历的信息单元是「有文章的
+	// 月份」，空月没有可浏览的内容；无文章数据时退化为逐月 ±1。
+	const prevMonthKey = $derived.by(() => {
+		let best: string | null = null;
+		for (const key of activeMonths) {
+			if (key < currentMonthKey) best = key;
+			else break;
+		}
+		return best;
+	});
+	const nextMonthKey = $derived.by(() => {
+		for (const key of activeMonths) {
+			if (key > currentMonthKey) return key;
+		}
+		return null;
+	});
+	// 边界禁用：有文月存在且相邻方向没有更多有文月
+	const canPrev = $derived(activeMonths.length === 0 || prevMonthKey !== null);
+	const canNext = $derived(activeMonths.length === 0 || nextMonthKey !== null);
+
 	function shiftMonth(delta: number) {
+		if (activeMonths.length > 0) {
+			const target = delta < 0 ? prevMonthKey : nextMonthKey;
+			if (!target) return;
+			const [y, m] = target.split("-").map(Number);
+			year = y;
+			month = m - 1;
+			selectedDate = null;
+			return;
+		}
 		const next = new Date(year, month + delta, 1);
 		year = next.getFullYear();
 		month = next.getMonth();
@@ -118,6 +152,7 @@
 			size="xsmall"
 			icon="material-symbols:chevron-left-rounded"
 			label={prevMonthLabel}
+			disabled={!canPrev}
 			onclick={() => shiftMonth(-1)}
 		/>
 		<button
@@ -137,6 +172,7 @@
 			size="xsmall"
 			icon="material-symbols:chevron-right-rounded"
 			label={nextMonthLabel}
+			disabled={!canNext}
 			onclick={() => shiftMonth(1)}
 		/>
 	</header>
