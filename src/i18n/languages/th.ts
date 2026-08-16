@@ -90,6 +90,10 @@ export const th: Translation = {
 
 	[Key.more]: "ดูเพิ่ม",
 	[Key.categoriesViewAll]: "ดูหมวดหมู่ทั้งหมด",
+	[Key.paginationPrev]: "หน้าก่อนหน้า",
+	[Key.paginationNext]: "หน้าถัดไป",
+	[Key.paginationPage]: "หน้า {page}",
+	[Key.paginationJump]: "ไปที่หน้า",
 	[Key.tagsViewAll]: "ดูแท็กทั้งหมด",
 
 	[Key.author]: "ผู้เขียน",

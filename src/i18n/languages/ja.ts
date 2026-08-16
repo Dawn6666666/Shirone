@@ -90,6 +90,10 @@ export const ja: Translation = {
 
 	[Key.more]: "もっと",
 	[Key.categoriesViewAll]: "すべてのカテゴリを見る",
+	[Key.paginationPrev]: "前のページ",
+	[Key.paginationNext]: "次のページ",
+	[Key.paginationPage]: "{page} ページ",
+	[Key.paginationJump]: "ページへ移動",
 	[Key.tagsViewAll]: "すべてのタグを見る",
 
 	[Key.author]: "作者",

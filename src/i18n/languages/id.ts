@@ -90,6 +90,10 @@ export const id: Translation = {
 
 	[Key.more]: "Lainnya",
 	[Key.categoriesViewAll]: "Lihat semua kategori",
+	[Key.paginationPrev]: "Halaman sebelumnya",
+	[Key.paginationNext]: "Halaman berikutnya",
+	[Key.paginationPage]: "Halaman {page}",
+	[Key.paginationJump]: "Lompat ke halaman",
 	[Key.tagsViewAll]: "Lihat semua tag",
 
 	[Key.author]: "Penulis",

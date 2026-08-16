@@ -90,6 +90,10 @@ export const zh_CN: Translation = {
 
 	[Key.more]: "更多",
 	[Key.categoriesViewAll]: "查看全部分类",
+	[Key.paginationPrev]: "上一页",
+	[Key.paginationNext]: "下一页",
+	[Key.paginationPage]: "第 {page} 页",
+	[Key.paginationJump]: "跳转到页面",
 	[Key.tagsViewAll]: "查看全部标签",
 
 	[Key.author]: "作者",

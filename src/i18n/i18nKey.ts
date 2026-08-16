@@ -100,6 +100,11 @@ enum I18nKey {
 	categoriesViewAll = "categoriesViewAll",
 	tagsViewAll = "tagsViewAll",
 
+	paginationPrev = "paginationPrev",
+	paginationNext = "paginationNext",
+	paginationPage = "paginationPage",
+	paginationJump = "paginationJump",
+
 	author = "author",
 	publishedAt = "publishedAt",
 	license = "license",

@@ -90,6 +90,10 @@ export const vi: Translation = {
 
 	[Key.more]: "Thêm",
 	[Key.categoriesViewAll]: "Xem tất cả danh mục",
+	[Key.paginationPrev]: "Trang trước",
+	[Key.paginationNext]: "Trang sau",
+	[Key.paginationPage]: "Trang {page}",
+	[Key.paginationJump]: "Đi tới trang",
 	[Key.tagsViewAll]: "Xem tất cả thẻ",
 
 	[Key.author]: "Tác giả",

@@ -90,6 +90,10 @@ export const en: Translation = {
 
 	[Key.more]: "More",
 	[Key.categoriesViewAll]: "View all categories",
+	[Key.paginationPrev]: "Previous page",
+	[Key.paginationNext]: "Next page",
+	[Key.paginationPage]: "Page {page}",
+	[Key.paginationJump]: "Jump to page",
 	[Key.tagsViewAll]: "View all tags",
 
 	[Key.author]: "Author",

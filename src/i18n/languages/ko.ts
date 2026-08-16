@@ -90,6 +90,10 @@ export const ko: Translation = {
 
 	[Key.more]: "더 보기",
 	[Key.categoriesViewAll]: "모든 카테고리 보기",
+	[Key.paginationPrev]: "이전 페이지",
+	[Key.paginationNext]: "다음 페이지",
+	[Key.paginationPage]: "{page} 페이지",
+	[Key.paginationJump]: "페이지로 이동",
 	[Key.tagsViewAll]: "모든 태그 보기",
 
 	[Key.author]: "저자",

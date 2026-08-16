@@ -90,6 +90,10 @@ export const tr: Translation = {
 
 	[Key.more]: "Daha Fazla",
 	[Key.categoriesViewAll]: "Tüm kategorileri gör",
+	[Key.paginationPrev]: "Önceki sayfa",
+	[Key.paginationNext]: "Sonraki sayfa",
+	[Key.paginationPage]: "Sayfa {page}",
+	[Key.paginationJump]: "Sayfaya git",
 	[Key.tagsViewAll]: "Tüm etiketleri gör",
 
 	[Key.author]: "Yazar",
