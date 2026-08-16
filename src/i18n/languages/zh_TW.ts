@@ -89,6 +89,8 @@ export const zh_TW: Translation = {
 	[Key.systemMode]: "跟隨系統",
 
 	[Key.more]: "更多",
+	[Key.categoriesViewAll]: "查看全部分類",
+	[Key.tagsViewAll]: "查看全部標籤",
 
 	[Key.author]: "作者",
 	[Key.publishedAt]: "發佈於",

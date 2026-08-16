@@ -97,6 +97,8 @@ enum I18nKey {
 	reset = "reset",
 
 	more = "more",
+	categoriesViewAll = "categoriesViewAll",
+	tagsViewAll = "tagsViewAll",
 
 	author = "author",
 	publishedAt = "publishedAt",

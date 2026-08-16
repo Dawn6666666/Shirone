@@ -89,6 +89,8 @@ export const th: Translation = {
 	[Key.systemMode]: "ตามระบบ",
 
 	[Key.more]: "ดูเพิ่ม",
+	[Key.categoriesViewAll]: "ดูหมวดหมู่ทั้งหมด",
+	[Key.tagsViewAll]: "ดูแท็กทั้งหมด",
 
 	[Key.author]: "ผู้เขียน",
 	[Key.publishedAt]: "เผยแพร่เมื่อ",

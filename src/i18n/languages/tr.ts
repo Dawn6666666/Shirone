@@ -89,6 +89,8 @@ export const tr: Translation = {
 	[Key.systemMode]: "Sistem",
 
 	[Key.more]: "Daha Fazla",
+	[Key.categoriesViewAll]: "Tüm kategorileri gör",
+	[Key.tagsViewAll]: "Tüm etiketleri gör",
 
 	[Key.author]: "Yazar",
 	[Key.publishedAt]: "Yayınlanma:",

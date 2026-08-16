@@ -89,6 +89,8 @@ export const ja: Translation = {
 	[Key.systemMode]: "システム",
 
 	[Key.more]: "もっと",
+	[Key.categoriesViewAll]: "すべてのカテゴリを見る",
+	[Key.tagsViewAll]: "すべてのタグを見る",
 
 	[Key.author]: "作者",
 	[Key.publishedAt]: "公開日",

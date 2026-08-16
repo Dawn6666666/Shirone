@@ -18,8 +18,20 @@ export const sidebarConfig: SidebarConfig = {
 	components: [
 		{ type: "profile", enable: true, slot: "top" },
 		{ type: "announcement", enable: false, slot: "top", pages: ["home"] },
-		{ type: "categories", enable: true, slot: "sticky" },
-		{ type: "tags", enable: true, slot: "sticky" },
+		{
+			type: "categories",
+			enable: true,
+			slot: "sticky",
+			collapseAfter: 5,
+			pages: ["home", "archive", "friends", "moments", "about", "post"],
+		},
+		{
+			type: "tags",
+			enable: true,
+			slot: "sticky",
+			collapseAfter: 6,
+			pages: ["home", "archive", "friends", "moments", "about", "post"],
+		},
 		{ type: "stats", enable: true, slot: "top", column: "secondary", pages: ["home", "archive"] },
 		{ type: "calendar", enable: true, slot: "sticky", column: "secondary" },
 		{ type: "toc", enable: true, slot: "sticky", column: "secondary", pages: ["post"] },

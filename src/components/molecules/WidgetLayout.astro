@@ -34,6 +34,8 @@ const className = Astro.props.class;
             </div>
         </Button>
     </div>}
+    {/* 底部扩展区：消费方在折叠态传入索引页入口等补充链接（slot 未填则无输出） */}
+    <slot name="footer" />
     </Card>
 </widget-layout>
 

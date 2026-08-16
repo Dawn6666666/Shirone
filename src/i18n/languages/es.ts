@@ -89,6 +89,8 @@ export const es: Translation = {
 	[Key.systemMode]: "Sistema",
 
 	[Key.more]: "Más",
+	[Key.categoriesViewAll]: "Ver todas las categorías",
+	[Key.tagsViewAll]: "Ver todas las etiquetas",
 
 	[Key.author]: "Autor",
 	[Key.publishedAt]: "Publicado el",

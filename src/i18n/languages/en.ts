@@ -89,6 +89,8 @@ export const en: Translation = {
 	[Key.systemMode]: "System",
 
 	[Key.more]: "More",
+	[Key.categoriesViewAll]: "View all categories",
+	[Key.tagsViewAll]: "View all tags",
 
 	[Key.author]: "Author",
 	[Key.publishedAt]: "Published at",

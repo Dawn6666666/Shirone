@@ -89,6 +89,8 @@ export const vi: Translation = {
 	[Key.systemMode]: "Hệ thống",
 
 	[Key.more]: "Thêm",
+	[Key.categoriesViewAll]: "Xem tất cả danh mục",
+	[Key.tagsViewAll]: "Xem tất cả thẻ",
 
 	[Key.author]: "Tác giả",
 	[Key.publishedAt]: "Đăng vào lúc",
