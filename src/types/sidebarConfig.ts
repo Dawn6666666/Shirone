@@ -5,7 +5,7 @@
  * 在此扩展联合分支，并在 SideBar.astro 的 componentMap 注册组件。
  */
 
-/** widget 在侧栏中的停靠位：top 固定顶部 / sticky 跟随滚动 */
+/** widget 在侧栏中的停靠位：top 位于顶部 / sticky 位于跟随滚动区域 */
 export type SidebarWidgetSlot = "top" | "sticky";
 
 /**
@@ -100,13 +100,23 @@ export interface CalendarWidget {
 	startOfWeek?: "mon" | "sun";
 }
 
+/** 文章目录（仅文章详情页显示） */
+export interface TocWidget {
+	type: "toc";
+	enable: boolean;
+	slot: SidebarWidgetSlot;
+	column?: SidebarColumn;
+	pages?: SidebarPage[];
+}
+
 export type SidebarWidget =
 	| ProfileWidget
 	| CategoriesWidget
 	| TagsWidget
 	| AnnouncementWidget
 	| StatsWidget
-	| CalendarWidget;
+	| CalendarWidget
+	| TocWidget;
 
 /**
  * 侧栏整体配置。components 渲染顺序 = 数组顺序，top 恒排在 sticky 之前。

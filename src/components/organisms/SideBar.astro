@@ -12,6 +12,7 @@
  */
 import Announcement from "@components/molecules/Announcement.astro";
 import Calendar from "@components/molecules/Calendar.astro";
+import SidebarTOC from "@components/molecules/SidebarTOC.astro";
 import Categories from "@components/molecules/Categories.astro";
 import SiteStats from "@components/molecules/SiteStats.astro";
 import Tags from "@components/molecules/Tags.astro";
@@ -30,9 +31,16 @@ interface Props {
 	id?: string;
 	/** 当前页面标识符，用于 widget 的 pages 过滤 */
 	currentPage?: SidebarPage;
+	headings?: import("astro").MarkdownHeading[];
 }
 
-const { class: className, column = "primary", id = "sidebar", currentPage } = Astro.props;
+const {
+	class: className,
+	column = "primary",
+	id = "sidebar",
+	currentPage,
+	headings = [],
+} = Astro.props;
 
 // 双栏时页面存在两个 complementary landmark，axe landmark-unique
 // 要求每个 aside 有区分性名称
@@ -49,6 +57,7 @@ const componentMap = {
 	announcement: Announcement,
 	stats: SiteStats,
 	calendar: Calendar,
+	toc: SidebarTOC,
 } satisfies Record<SidebarWidget["type"], unknown>;
 
 type WidgetRenderer = (props: Record<string, unknown>) => unknown;
@@ -77,7 +86,7 @@ const hasVisibleTop = topWidgets.some(isVisible);
 const hasVisibleSticky = stickyWidgets.some(isVisible);
 ---
 
-<aside id={id} aria-label={ariaLabel} class:list={[className, "w-full"]}>
+<aside id={id} aria-label={ariaLabel} class:list={[className, "w-full lg:self-start lg:sticky lg:top-4 lg:max-h-[calc(100vh-1rem)] lg:overflow-y-auto"]}>
 	{topWidgets.length > 0 && (
 		<div
 			data-sidebar-group
@@ -90,7 +99,10 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 						data-sidebar-pages={pagesToAttribute(widget.pages)}
 						class:list={["sidebar-widget", { hidden: !isVisible(widget) }]}
 					>
-						<Component widget={widget} />
+						<Component
+							widget={widget}
+							headings={widget.type === "toc" ? headings : undefined}
+						/>
 					</div>
 				);
 			})}
@@ -101,7 +113,7 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 			id={`${id}-sticky`}
 			data-sidebar-group
 			class:list={[
-				"transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4 sticky top-4",
+				"transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4",
 				{ hidden: !hasVisibleSticky },
 			]}
 		>
@@ -114,6 +126,7 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 					>
 						<Component
 							widget={widget}
+							headings={widget.type === "toc" ? headings : undefined}
 							class="onload-animation"
 							style={`animation-delay: ${animationDelay(index)}`}
 						/>

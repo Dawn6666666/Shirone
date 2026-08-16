@@ -1,6 +1,5 @@
 ---
 import ImageWrapper from "@components/molecules/ImageWrapper.astro";
-import TOC from "@components/molecules/TOC.astro";
 import BackToTop from "@components/organisms/BackToTop.astro";
 import CategoryBar from "@components/organisms/CategoryBar.astro";
 import Footer from "@components/organisms/Footer.astro";
@@ -66,8 +65,6 @@ const gridClasses = generateGridClasses(sidebarResponsive);
 const sidebarClasses = generatePrimarySidebarClasses(sidebarResponsive);
 const secondarySidebarClasses = generateSecondarySidebarClasses(sidebarResponsive);
 const mainContentClasses = generateMainContentClasses(sidebarResponsive);
-// 双栏生效（xl 三列）时 TOC 悬浮 rail 让位——副栏已占据右侧视口余量
-const showTocRail = !isDualColumn(sidebarResponsive);
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
@@ -107,10 +104,10 @@ const showTocRail = !isDualColumn(sidebarResponsive);
             </a>}
 
 
-            <SideBar class={sidebarClasses} currentPage={page}></SideBar>
-            {isDualColumn(sidebarResponsive) && (
-                <SideBar id="sidebar-secondary" column="secondary" class={secondarySidebarClasses} currentPage={page}></SideBar>
-            )}
+            <SideBar class={sidebarClasses} currentPage={page} headings={headings}></SideBar>
+			{isDualColumn(sidebarResponsive) && (
+				<SideBar id="sidebar-secondary" column="secondary" class={secondarySidebarClasses} currentPage={page} headings={headings}></SideBar>
+			)}
 
             <!-- 主内容列：分类导航栏静态渲染（位于 Swup 容器外），
                  页面切换时保持固定不重渲染；仅内容区随导航替换 -->
@@ -145,27 +142,4 @@ const showTocRail = !isDualColumn(sidebarResponsive);
 
 <SiteNavigationDrawer client:load />
 
-<!-- The things that should be under the banner, only the TOC for now -->
-<!-- 页框宽（单栏 85rem / 双栏 96rem）：TOC rail 需视口 ≥1700px 才有可用余量
-     （--toc-width = 余量一半）；双栏时右侧余量被副栏占据，rail 整体让位，
-     但 #toc 空元素必须保留（swup containers 依赖它存在） -->
-<div class:list={["absolute w-full z-0", showTocRail ? "hidden min-[1700px]:block" : "hidden"]}>
-    <div class="relative max-w-[var(--page-width)] mx-auto">
-        <!-- TOC component -->
-        {siteConfig.toc.enable && showTocRail && <div id="toc-wrapper" class:list={["hidden lg:block transition absolute top-0 -right-[var(--toc-width)] w-[var(--toc-width)] items-center",
-            {"toc-hide": siteConfig.banner.enable}]}
-        >
-            <div id="toc-inner-wrapper" class="fixed top-14 w-[var(--toc-width)] h-[calc(100vh_-_20rem)] overflow-y-scroll overflow-x-hidden hide-scrollbar">
-                <div id="toc" class="w-full h-full transition-swup-fade ">
-                    <div class="h-8 w-full"></div>
-                    <TOC headings={headings}></TOC>
-                    <div class="h-8 w-full"></div>
-                </div>
-            </div>
-        </div>}
-
-        <!-- #toc needs to exist for Swup to work normally -->
-        {!(siteConfig.toc.enable && showTocRail) && <div id="toc"></div>}
-    </div>
-</div>
 </Layout>

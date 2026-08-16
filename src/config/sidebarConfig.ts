@@ -21,6 +21,7 @@ export const sidebarConfig: SidebarConfig = {
 		{ type: "categories", enable: true, slot: "sticky" },
 		{ type: "calendar", enable: true, slot: "sticky" },
 		{ type: "stats", enable: true, slot: "top", column: "secondary", pages: ["home", "archive"] },
+		{ type: "toc", enable: true, slot: "sticky", column: "secondary", pages: ["post"] },
 		{ type: "tags", enable: true, slot: "sticky", column: "secondary" },
 	],
 };

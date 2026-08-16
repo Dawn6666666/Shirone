@@ -1,0 +1,27 @@
+---
+import type { MarkdownHeading } from "astro";
+import TOC from "./TOC.astro";
+import WidgetLayout from "./WidgetLayout.astro";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+
+interface Props {
+	headings?: MarkdownHeading[];
+	class?: string;
+	style?: string;
+	widget?: unknown;
+}
+
+const { headings = [], class: className, style } = Astro.props;
+---
+
+<WidgetLayout id="toc-inner-wrapper" name={i18n(I18nKey.tableOfContents)} class={className} {style} scrollContent>
+	<div id="toc" class="sidebar-toc__content">
+		<TOC headings={headings} />
+	</div>
+</WidgetLayout>
+
+<style lang="stylus">
+.sidebar-toc__content
+	padding-right: 0.125rem
+</style>
