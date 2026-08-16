@@ -327,11 +327,17 @@ const hasCover = !!image;
 			margin: var(--m3e-space-4) var(--m3e-space-4) 0
 			border-radius: var(--shape-corner-m)
 
-		/* 覆写 list 桌面端的封面右置内边距（同特异性靠源顺序取胜）；
-		   无封面卡的右缘让位由原 :not(--cover) 规则继续接管。
-		   正文区左右与封面内缩同值（16px），顶部 16px 紧凑不贴 */
-		:global(.m3e-post-list--grid) &__body
+		/* 覆写 list 桌面端的封面右置内边距（list 规则 0,2,0，此处以
+		   0,3,0 显式取胜，不依赖源顺序）；无封面卡的右缘让位由下方
+		   显式的 :not(--cover) 规则（0,4,0）接管 */
+		:global(.m3e-post-list--grid .m3-blog-postcard) &__body
 			padding: var(--m3e-space-4) var(--m3e-space-4) var(--m3e-space-5)
+
+		/* 无封面卡：右上 enter 区块让位（与 list 同值 4.75rem）。
+		   :global 内只放容器类，`:not` 挂在 & 上（自身复合），
+		   叠 &__body 后天然高于上面的统一 padding */
+		:global(.m3e-post-list--grid) &:not(.m3-blog-postcard--cover) &__body
+			padding-right: 4.75rem
 
 		/* 块间韵律放宽一档（12px → 16px）：标题/元信息/描述不再贴在一起 */
 		:global(.m3e-post-list--grid) &__title
