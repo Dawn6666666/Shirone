@@ -32,6 +32,8 @@ export type SidebarPage =
 	| "friends" // 友链
 	| "moments" // 动态
 	| "about" // 关于
+	| "categories" // 分类索引
+	| "tags" // 标签索引
 	| "post"; // 文章详情页
 
 /** 资料卡（内容来自 profileConfig，无 WidgetLayout 标题外壳） */

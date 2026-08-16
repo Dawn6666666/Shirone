@@ -63,6 +63,8 @@ widget 的专属配置（如分类的折叠阈值 `collapseAfter`）只存在于
 | `"friends"` | 友链页（`friends.astro`） |
 | `"moments"` | 动态页（`moments.astro`） |
 | `"about"` | 关于页（`about.astro`） |
+| `"categories"` | 分类索引页（`categories.astro`） |
+| `"tags"` | 标签索引页（`tags.astro`） |
 | `"post"` | 文章详情页（`posts/[...slug].astro`） |
 
 **实现机制（含 Swup 站内导航）**：

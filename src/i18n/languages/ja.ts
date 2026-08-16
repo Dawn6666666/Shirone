@@ -46,6 +46,9 @@ export const ja: Translation = {
 	[Key.minutesCount]: "分",
 	[Key.postCount]: "件の投稿",
 	[Key.postsCount]: "件の投稿",
+	[Key.categoriesCount]: "つのカテゴリ",
+	[Key.tagsCount]: "つのタグ",
+	[Key.noData]: "データがありません",
 
 	[Key.stats]: "統計",
 	[Key.statsPosts]: "記事",

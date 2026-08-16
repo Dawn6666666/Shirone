@@ -46,6 +46,9 @@ export const th: Translation = {
 	[Key.minutesCount]: "นาที",
 	[Key.postCount]: "โพสต์",
 	[Key.postsCount]: "โพสต์",
+	[Key.categoriesCount]: "หมวดหมู่",
+	[Key.tagsCount]: "แท็ก",
+	[Key.noData]: "ไม่มีข้อมูล",
 
 	[Key.stats]: "สถิติ",
 	[Key.statsPosts]: "บทความ",

@@ -20,6 +20,8 @@ const pages = [
 	{ name: "动态", path: "/moments/" },
 	{ name: "关于", path: "/about/" },
 	{ name: "文章页", path: "/posts/guide/" },
+	{ name: "分类索引", path: "/categories/" },
+	{ name: "标签索引", path: "/tags/" },
 ];
 
 const DISABLED_RULES = ["page-has-heading-one"];

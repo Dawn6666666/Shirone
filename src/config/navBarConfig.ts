@@ -36,17 +36,16 @@ export const LinkPresets: Record<string, NavBarLink> = {
 	},
 	Categories: {
 		name: i18n(I18nKey.categories),
-		url: "/archive/",
+		url: "/categories/",
 		icon: "material-symbols:folder-outline-rounded",
 		pageKey: "categories",
 	},
 	Tags: {
 		name: i18n(I18nKey.tags),
-		url: "/archive/",
+		url: "/tags/",
 		icon: "material-symbols:tag-rounded",
 		pageKey: "tags",
-	},
-	About: {
+	},	About: {
 		name: i18n(I18nKey.about),
 		url: "/about/",
 		icon: "material-symbols:info-outline-rounded",
@@ -71,7 +70,8 @@ export const navBarConfig: NavBarConfig = {
 			name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",
 			children: [
-				// 分类/标签入口暂不启用（无独立页面），预设已登记，启用时取消注释即可
+				// 分类/标签入口不进导航菜单（避免菜单项过多），预设已登记指向独立页面，
+				// 需要时取消注释即可
 				// LinkPresets.Categories,
 				// LinkPresets.Tags,
 				LinkPresets.About,
