@@ -132,29 +132,25 @@ class TableOfContents extends HTMLElement {
             entry.classList.remove("m3-blog-toc__item--active")
         );
         this.tocEntries[best]?.classList.add("m3-blog-toc__item--active");
-        this.scrollToActiveHeading();
+        this.scrollToActiveHeading(this.tocEntries[best]);
     };
 
-    scrollToActiveHeading = () => {
-        // If the TOC widget can accommodate both the topmost
-        // and bottommost items, scroll to the topmost item. 
-        // Otherwise, scroll to the bottommost one.
+    scrollToActiveHeading = (activeHeading?: HTMLAnchorElement) => {
+        if (this.anchorNavTarget || !this.tocEl || !activeHeading) return;
 
-        if (this.anchorNavTarget || !this.tocEl) return;
-        const activeHeading =
-            document.querySelectorAll<HTMLDivElement>(`#toc .${this.visibleClass}`);
-        if (!activeHeading.length) return;
+        const containerRect = this.tocEl.getBoundingClientRect();
+        const itemRect = activeHeading.getBoundingClientRect();
+        const edgePadding = 4;
+        const visibleTop = containerRect.top + edgePadding;
+        const visibleBottom = containerRect.bottom - edgePadding;
 
-        const topmost = activeHeading[0];
-        const bottommost = activeHeading[activeHeading.length - 1];
-        const tocHeight = this.tocEl.clientHeight;
+        if (itemRect.top >= visibleTop && itemRect.bottom <= visibleBottom) return;
 
-        let top;
-        if (bottommost.getBoundingClientRect().bottom -
-            topmost.getBoundingClientRect().top < 0.9 * tocHeight)
-            top = topmost.offsetTop - 32;
-        else
-            top = bottommost.offsetTop - tocHeight * 0.8;
+        const delta = itemRect.top < visibleTop
+            ? itemRect.top - visibleTop
+            : itemRect.bottom - visibleBottom;
+        const maxScrollTop = Math.max(0, this.tocEl.scrollHeight - this.tocEl.clientHeight);
+        const top = Math.max(0, Math.min(this.tocEl.scrollTop + delta, maxScrollTop));
 
         this.tocEl.scrollTo({
             top,

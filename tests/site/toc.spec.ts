@@ -32,16 +32,89 @@ test.describe("Site TOC", () => {
 
 		// 初始高亮第一个标题
 		await expect(active).toHaveText(/Front-matter of Posts/);
+		const initialBounds = await page.evaluate(() => {
+			const title = document.querySelector(".sidebar-toc .font-bold");
+			const wrapper = document.getElementById("toc-inner-wrapper");
+			const first = document.querySelector("#toc .m3-blog-toc__item");
+			if (!title || !wrapper || !first) return null;
+			return {
+				titleBottom: title.getBoundingClientRect().bottom,
+				wrapperTop: wrapper.getBoundingClientRect().top,
+				firstTop: first.getBoundingClientRect().top,
+				wrapperScrollTop: wrapper.scrollTop,
+			};
+		});
+		expect(initialBounds).not.toBeNull();
+		expect(initialBounds!.wrapperTop).toBeGreaterThanOrEqual(initialBounds!.titleBottom);
+		expect(initialBounds!.firstTop).toBeGreaterThanOrEqual(initialBounds!.wrapperTop);
+		expect(initialBounds!.wrapperScrollTop).toBe(0);
 
 		// 滚动到底部 → 高亮最后一个标题
 		await page.evaluate(() =>
 			window.scrollTo(0, document.documentElement.scrollHeight),
 		);
 		await expect(active).toHaveText(/Where to Place the Post Files/);
+		const finalBounds = await page.evaluate(() => {
+			const wrapper = document.getElementById("toc-inner-wrapper");
+			const items = document.querySelectorAll("#toc .m3-blog-toc__item");
+			const last = items.item(items.length - 1);
+			if (!wrapper || !last) return null;
+			return {
+				wrapperBottom: wrapper.getBoundingClientRect().bottom,
+				lastBottom: last.getBoundingClientRect().bottom,
+			};
+		});
+		expect(finalBounds).not.toBeNull();
+		expect(finalBounds!.lastBottom).toBeLessThanOrEqual(finalBounds!.wrapperBottom);
 
 		// 点击目录项 → 锚点定位 + 高亮切回
 		await page.click('#toc a[href="#front-matter-of-posts"]');
 		await expect(page).toHaveURL(/#front-matter-of-posts/);
 		await expect(active).toHaveText(/Front-matter of Posts/);
+	});
+
+	test("keeps a long TOC inside a short viewport", async ({ page }) => {
+		await page.setViewportSize({ width: 1600, height: 500 });
+		await page.goto("/posts/expressive-code/", { waitUntil: "networkidle" });
+		await page.waitForFunction(() =>
+			document.querySelector("#toc .m3-blog-toc__item--active"),
+		);
+
+		const wrapper = page.locator("#toc-inner-wrapper");
+		const items = page.locator("#toc .m3-blog-toc__item");
+		expect(await items.count()).toBeGreaterThan(5);
+		await expect
+			.poll(() =>
+				wrapper.evaluate((element) => ({
+					clientHeight: element.clientHeight,
+					scrollHeight: element.scrollHeight,
+				})),
+			)
+			.toMatchObject({ clientHeight: 324 });
+		const scrollSize = await wrapper.evaluate((element) => ({
+			clientHeight: element.clientHeight,
+			scrollHeight: element.scrollHeight,
+		}));
+		expect(scrollSize.scrollHeight).toBeGreaterThan(scrollSize.clientHeight);
+
+		const cardBottom = await page
+			.locator(".sidebar-toc")
+			.evaluate((element) => element.getBoundingClientRect().bottom);
+		expect(cardBottom).toBeLessThanOrEqual(500);
+
+		await page.evaluate(() =>
+			window.scrollTo(0, document.documentElement.scrollHeight),
+		);
+		const last = items.last();
+		await expect
+			.poll(async () => {
+				const [wrapperBox, lastBox] = await Promise.all([
+					wrapper.boundingBox(),
+					last.boundingBox(),
+				]);
+				if (!wrapperBox || !lastBox) return false;
+				return lastBox.y + lastBox.height <= wrapperBox.y + wrapperBox.height;
+			})
+			.toBe(true);
 	});
 });

@@ -45,8 +45,10 @@ const className = Astro.props.class;
 
 <style lang="stylus">
 .widget-layout__scroll-content
-	max-height: calc(100vh - 8rem)
+	max-height: calc(100dvh - 11rem)
 	overflow-y: auto
+	overflow-x: hidden
+	overscroll-behavior: contain
 	scrollbar-width: thin
 </style>
 
