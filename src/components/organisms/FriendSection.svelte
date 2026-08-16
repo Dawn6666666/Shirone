@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Chips from "@components/atoms/action/Chips.svelte";
 	import Card from "@components/atoms/display/Card.svelte";
+	import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
 	import TextField from "@components/atoms/input/TextField.svelte";
 	import FriendCard from "@components/molecules/FriendCard.svelte";
 	import PageHeader from "@components/molecules/PageHeader.svelte";
@@ -15,6 +16,10 @@
 	let query = $state("");
 	let selectedTag = $state("");
 	let initialized = false;
+	/** 标签筛选过渡三段态：loading 展示指示器 → out 指示器淡出 → idle 列表揭幕（与动态页同语言） */
+	type FilterPhase = "idle" | "loading" | "out";
+	let phase = $state<FilterPhase>("idle");
+	let phaseTimers: ReturnType<typeof setTimeout>[] = [];
 
 	const tagItems = $derived(
 		Array.from(new Set(friends.flatMap((friend) => friend.tags)))
@@ -48,6 +53,16 @@
 		return `${count} ${i18n(count === 1 ? I18nKey.friendsCount : I18nKey.friendsCounts)}`;
 	}
 
+	/** 标签筛选：指示器展示 → 淡出 → 列表重新揭幕（与动态页同语言） */
+	function onTagChange() {
+		phaseTimers.forEach(clearTimeout);
+		phase = "loading";
+		phaseTimers = [
+			setTimeout(() => (phase = "out"), 300),
+			setTimeout(() => (phase = "idle"), 300 + 150),
+		];
+	}
+
 	// 筛选状态同步到 URL（?q= / ?tag=），刷新/分享/回退保留
 	$effect(() => {
 		// 先读依赖（无论是否初始化都注册），避免首次 return 后不再追踪
@@ -68,6 +83,7 @@
 		query = params.get("q") || "";
 		selectedTag = params.get("tag") || "";
 		initialized = true;
+		return () => phaseTimers.forEach(clearTimeout);
 	});
 </script>
 
@@ -106,14 +122,27 @@
 
 			{#if tagItems.length > 0}
 				<div class="friend-section__chips">
-					<Chips items={tagItems} variant="filter" bind:value={selectedTag} />
+					<Chips
+						items={tagItems}
+						variant="filter"
+						bind:value={selectedTag}
+						onchange={onTagChange}
+					/>
 				</div>
 			{/if}
 			<p class="friend-section__count">{countLabel(visibleCount)}</p>
 		</div>
 	{/if}
 
-	{#if filtered.length > 0}
+	{#if phase !== "idle"}
+		<!-- 标签筛选过渡：contained 指示器展示后淡出，再由列表揭幕（与动态页同语言） -->
+		<div
+			class="friend-section__loading"
+			class:friend-section__loading--out={phase === "out"}
+		>
+			<LoadingIndicator contained size={64} />
+		</div>
+	{:else if filtered.length > 0}
 		{#key `${query}|${selectedTag}`}
 			<div class="friend-section__list">
 				{#each filtered as friend (friend.id)}
@@ -181,6 +210,17 @@
 		color: var(--on-surface-variant)
 		font: var(--m3e-type-body-small)
 
+	/* 标签筛选过渡：区块位置的大号 contained LoadingIndicator（out = 淡出退场，与动态页同语言） */
+	&__loading
+		display: flex
+		align-items: center
+		justify-content: center
+		min-height: 11rem
+		padding-top: 1.5rem
+
+		&--out
+			animation: friend-loading-out var(--m3e-duration-short) var(--m3e-easing-emphasized-accelerate) both
+
 	&__list
 		display: grid
 		grid-template-columns: 1fr
@@ -218,4 +258,13 @@
 	to
 		opacity: 1
 		transform: translateY(0)
+
+/* 指示器退场：淡出 + 轻微收拢（reduced-motion 由全局规则压至终态） */
+@keyframes friend-loading-out
+	from
+		opacity: 1
+		transform: none
+	to
+		opacity: 0
+		transform: scale(0.96)
 </style>
