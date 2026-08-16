@@ -8,6 +8,8 @@
  * - plain（默认）：inverse-surface + corner-xs + body-small，无阴影
  * - rich：surface-container + corner-medium + elevation-2，title（title-small）
  *   + supporting（body-medium）+ 可选 action（primary, label-large）
+ * 方向：placement="bottom"（默认，向下弹出）/ "top"（向上弹出，
+ * 用于卡片底部等下方空间不足的锚点，如资料卡社交图标）。
  */
 let {
     variant = "plain",
@@ -15,6 +17,7 @@ let {
     title = "",
     supporting = "",
     action = null,
+    placement = "bottom",
     class: className = "",
 }: {
     variant?: "plain" | "rich";
@@ -22,6 +25,8 @@ let {
     title?: string;
     supporting?: string;
     action?: { label: string; onClick: () => void } | null;
+    /** 弹出方向：bottom（锚点下方，默认）/ top（锚点上方） */
+    placement?: "top" | "bottom";
     class?: string;
 } = $props();
 
@@ -63,8 +68,7 @@ function onActionClick() {
 </script>
 
 <span
-    class="m3-tooltip m3-tooltip--{variant} {className}"
-    class:m3-tooltip--open={open}
+    class={`m3-tooltip m3-tooltip--${variant} ${className}${placement === "top" ? " m3-tooltip--top" : ""}${open ? " m3-tooltip--open" : ""}`}
     bind:this={wrapEl}
     onmouseenter={onMouseEnter}
     onmouseleave={onMouseLeave}
@@ -117,6 +121,16 @@ function onActionClick() {
     &--open &__tip
         opacity: 1
         transform: translate(-50%, 0)
+
+    /* 向上弹出（placement="top"）：锚点上方，入场方向反向。
+       选择器沿用 & 拼接（字面类名会被 Svelte unused-CSS 剥离） */
+    &--top
+        .m3-tooltip__tip
+            top: auto
+            bottom: calc(100% + 0.5rem)
+            transform: translate(-50%, -0.25rem)
+        &.m3-tooltip--open .m3-tooltip__tip
+            transform: translate(-50%, 0)
 
     /* rich：surface-container + elevation-2 + 结构列 */
     &--rich &__tip
