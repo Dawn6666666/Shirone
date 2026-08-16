@@ -84,15 +84,28 @@ svelte({
 
 ---
 
+### 1.6 Svelte 5 unused-CSS 分析剥离条件类选择器
+
+**现象**：`class:m3-tooltip--top={cond}` + 字面类名选择器 `.m3-tooltip--top { ... }` 的规则不出现在编译产物里，样式静默失效。日历组件也踩过同款（`{@const}` 块里的 class 指令被误判 unused，整段规则被注释掉）。
+
+**根因**：vite-plugin-svelte 的 unused-CSS 分析对部分条件类写法误判为未使用并剥离——字面类名选择器（非 `&` 拼接产生）尤其容易中招。
+
+**解法**（已验证）：
+- 模板类名统一用 **template-literal class**：`class={`m3-tooltip m3-tooltip--${variant}${cond ? " m3-tooltip--top" : ""}`}`，不依赖 class 指令；
+- CSS 选择器用 stylus `&` 拼接形态（`&--top`、`&--open`），与组件 class 绑定同源；
+- 改完遍历 `document.styleSheets` 确认规则真实存在，再测行为。
+
+---
+
 ## 2. CSS / Stylus
 
 ### 2.1 Stylus 嵌套同名子元素会拼错类名
 
 **现象**：`&__cover` 里再写 `&__cover-mask` 会编译成 `__cover__cover-mask`。
 
-**根因**：Stylus 的 `&` 引用完整父选择器，同名前缀二次拼接。
+**根因**：Stylus 的 `&` 引用完整父选择器，同名前缀二次拼接。同类问题：`&--top` 里嵌套 `&__tip` 会拼成单类名 `.m3-tooltip--top__tip`（修饰符与元素合并，丢失后代关系）。
 
-**解法**：把 `__cover-mask`、`__cover-arrow` 等放到 `&__cover` 同级，不要嵌套在 `&__cover` 内。
+**解法**：把 `__cover-mask`、`__cover-arrow` 等放到 `&__cover` 同级，不要嵌套在 `&__cover` 内；修饰符块内的子元素选择器用完整类名 + 空格（`.m3-tooltip--top .m3-tooltip__tip`）或 `& .m3-tooltip__tip`，不要用 `&__tip`。
 
 ---
 
@@ -219,3 +232,15 @@ snapshotPathTemplate: "{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg
 ### 6.3 npm 的「Unknown project config」警告可忽略
 
 `npx.cmd xxx` 常带 stderr 警告 `npm warn Unknown project config "manage-package-manager-versions"`，导致 `[exit code: 1]`。这是 npm 无关警告，不是命令失败——判断成败以 stdout 的实质结果为准（如 `0 errors`、`N passed`）。
+
+---
+
+### 6.4 改了 Svelte 组件样式不生效？先清 vite 缓存
+
+**现象**：改了 Svelte 组件（如 Tooltip）后，页面上同一组件内 root 与子元素的 scope hash 不一致（`svelte-a` vs `svelte-b`），或新 CSS 规则不在产物里；重启 dev server 也无效。
+
+**根因**：Astro dev 的 vite 模块缓存（`node_modules/.vite`）残留旧编译产物，新编译的 DOM 与旧编译的 CSS scope 对不上。
+
+**解法**：删 `node_modules/.vite` + `.astro` 后重启 dev server。
+
+**验证技巧**：怀疑样式未生效时，先遍历 `document.styleSheets` 确认规则存在、并比对元素 scope 属性是否一致，再决定清缓存还是查选择器。
