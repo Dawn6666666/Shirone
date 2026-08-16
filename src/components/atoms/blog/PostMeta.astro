@@ -2,9 +2,11 @@
 /**
  * M3E 博客原子 — PostMeta 文章元信息行。
  * 数据驱动：日期 / 更新日期 / 分类 / 标签均为展示层 props（日期由调用方格式化）。
- * 图标 + 文字 on-surface-variant，链接 hover 变 primary。
+ * 每个元信息项 = display/MetaIcon 图标徽标（32px tonal 圆角方块）+
+ * body-medium 文字；链接 hover 变 primary。
  */
 import { Icon } from "astro-icon/components";
+import MetaIcon from "@components/atoms/display/MetaIcon.astro";
 
 export interface BlogMetaLink {
 	name: string;
@@ -48,20 +50,20 @@ const {
 <div class:list={["m3-blog-postmeta", className]}>
 	{published && (
 		<span class="m3-blog-postmeta__item">
-			<Icon name="material-symbols:calendar-today-outline-rounded" />
+			<MetaIcon icon="material-symbols:calendar-today-outline-rounded" />
 			<span class="m3-blog-postmeta__text">{published}</span>
 		</span>
 	)}
 
 	{!hideUpdate && updated && updated !== published && (
 		<span class="m3-blog-postmeta__item">
-			<Icon name="material-symbols:edit-calendar-outline-rounded" />
+			<MetaIcon icon="material-symbols:edit-calendar-outline-rounded" />
 			<span class="m3-blog-postmeta__text">{updated}</span>
 		</span>
 	)}
 
 	<span class="m3-blog-postmeta__item">
-		<Icon name="material-symbols:book-2-outline-rounded" />
+		<MetaIcon icon="material-symbols:book-2-outline-rounded" />
 		{category ? (
 			<a
 				class="m3-blog-postmeta__link"
@@ -80,7 +82,7 @@ const {
 				{ "m3-blog-postmeta__item--hide-mobile": hideTagsOnMobile },
 			]}
 		>
-			<Icon name="material-symbols:tag-rounded" />
+			<MetaIcon icon="material-symbols:tag-rounded" />
 			{tags.length > 0 ? (
 				<span class="m3-blog-postmeta__tags">
 					{tags.map((t, i) => (
@@ -113,21 +115,17 @@ const {
 	&__item
 		display: inline-flex
 		align-items: center
-		gap: 0.375rem
+		/* 徽标与文字间距由消费方控制（原子不自带 margin） */
+		gap: 0.5rem
 		min-width: 0
-		> :global(svg)
-			width: 1.25rem
-			height: 1.25rem
-			flex-shrink: 0
-			color: var(--on-surface-variant)
 
 	&__text
-		font: var(--m3e-type-body-small)
+		font: var(--m3e-type-body-medium)
 		font-weight: 500
 		white-space: nowrap
 
 	&__link
-		font: var(--m3e-type-body-small)
+		font: var(--m3e-type-body-medium)
 		font-weight: 500
 		white-space: nowrap
 		text-decoration: none

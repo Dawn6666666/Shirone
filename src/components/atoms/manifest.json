@@ -24,6 +24,7 @@
 		{ "name": "TocList", "file": "blog/TocList.astro", "category": "blog", "tier": "A", "source": "原创", "landed": true },
 
 		{ "name": "AccentBar", "file": "display/AccentBar.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true },
+		{ "name": "MetaIcon", "file": "display/MetaIcon.astro", "category": "display", "tier": "A", "source": "原创", "landed": true },
 		{ "name": "Avatar", "file": "display/Avatar.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true },
 		{ "name": "Badge", "file": "display/Badge.svelte", "category": "display", "tier": "B", "source": "移植", "landed": false, "note": "评论/通知徽标，P2" },
 		{ "name": "BadgedBox", "file": "display/BadgedBox.svelte", "category": "display", "tier": "B", "source": "移植", "landed": false, "note": "徽标锚定容器，P2" },

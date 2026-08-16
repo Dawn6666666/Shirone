@@ -182,6 +182,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | BadgedBox | `display/BadgedBox.svelte` | 徽标锚定容器（Compose BadgedBox 移植）：默认插槽为锚定内容、`badge` 命名插槽放徽标（配合 `Badge.svelte`），自动定位右上角（translate 50%/-50%） | — | 移植 |
 | Divider | `display/Divider.svelte` | `vertical`、`thickness`、`color`；默认 1px | outline-variant | 移植 |
 | AccentBar | `display/AccentBar.svelte` | 标题左侧竖线装饰原子（Svelte，纯装饰 aria-hidden）：`size`（small 16 / medium 20 / large 24）、`color`（默认 `--primary`，可覆盖 token/色值）、`radius`（默认 6px）；定位由调用方负责（absolute / flex 首项）；已封装进 WidgetLayout / DisplaySettings / 文章页标题 / blog/PostCard 卡片标题 | `--primary` | 原创 |
+| MetaIcon | `display/MetaIcon.astro` | 图标徽标（单图标徽标语言）：32px tonal 圆角方块容器（btn-regular-bg 跟随明暗）+ 20px 图标，纯装饰 aria-hidden；消费方与文字搭配（PostMeta 的日期/分类/标签） | btn-regular-bg / btn-content | 原创 |
 | Avatar | `display/Avatar.svelte` | 通用头像（原创）：`src`/`alt`、`size`（直径 px，默认 40）、`shape`（circle 圆 / rounded 圆角 / square 方形）、`fallback`（无图或加载失败时的文字，默认取 alt 首字符）；容器 surface-container-high 底 + on-surface-variant 回退字 | `--surface-container-high` | 原创 |
 | Skeleton | `display/Skeleton.svelte` | 加载占位（原创）：`variant`（text 一行 / circle 圆形 / rect 矩形块，默认）、`width`/`height`/`radius` 可覆盖；surface-container-high 底 + shimmer 高光扫过动画 | `--surface-container-high` | 原创 |
 | Dialog | `overlay/Dialog.svelte` | `open`（$bindable）、`title`、默认插槽 + `actions` 命名插槽；scrim/ESC 关闭、打开聚焦容器、Tab 焦点陷阱循环、关闭后焦点返还触发元素；**进场 scrim fade + 内容 scale 展开，退场对称动画后卸载**（closing 状态 + animationend） | surface-container-high、`--m3e-elevation-3`、scrim `--mc-scrim` | 移植 |
@@ -281,7 +282,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/menu-bus.ts` | 菜单互斥事件总线（Menu/FABMenu 单开联动，`exclusive` 参数） |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 61 个原子组件（清单单一真源见 `manifest.json`） |
+| `src/components/atoms/*` | 62 个原子组件（清单单一真源见 `manifest.json`） |
 | `src/components/atoms/manifest.json` | 原子清单单一真源（tier / source / landed），由 `pnpm check:manifest` 校验 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
 | `src/components/molecules/PageHeader.svelte` | 页面级标题（图标 + 标题 + 副标题），见 `docs/common-components.md` |
