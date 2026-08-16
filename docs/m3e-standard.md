@@ -295,6 +295,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/markdown-processor.mjs` | 站点统一 markdown 插件链（astro.config 与构建期离线渲染共用） |
 | `src/utils/layout-mode.ts` | 文章列表布局模式（list/grid）：访客偏好存取、FLIP 切换动效 |
 | `src/utils/masonry.ts` | 瀑布流打包（grid row-span + 最短列分配，无绝对定位） |
+| `src/utils/responsive-utils.ts` | 侧栏响应式布局（single/dual 编排三列 grid 类、主/副栏定位类）+ 页框宽度自动解析（`resolvePageWidth`） |
 
 ---
 

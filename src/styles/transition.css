@@ -32,6 +32,9 @@ html.is-animating .transition-swup-fade {
 #sidebar {
     animation-delay: 100ms
 }
+#sidebar-secondary {
+    animation-delay: 100ms
+}
 #swup-container {
     outline: none;
 }

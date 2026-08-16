@@ -85,6 +85,12 @@
 5. 若有独立内容源（如 `announcementConfig`），类型放 `src/types/`、值放 `src/config/` 并在 barrel 注册；
 6. 本文件 §3 登记 + `atomic-structure.md` §6 分层清单同步。
 
+widget 编排还带两个通用标签（见 `sidebarConfig.ts` 注释）：
+
+- `slot: "top" | "sticky"`——栏内停靠位（固定顶部 / 跟随滚动）；
+- `column: "primary" | "secondary"`——分栏标签，仅在 `arrangement: "dual"` 时生效，
+  标记为 `secondary` 的 widget 渲染进副栏（`SideBar.astro` 按标签过滤，主/副栏各一个实例）。
+
 ## 4. 新增通用组件约定
 
 1. 判断落层：跨场景复用的原子组合 → molecules；单元素 → atoms；带业务 → organisms；

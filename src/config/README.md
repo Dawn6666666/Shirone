@@ -39,6 +39,16 @@
 | `licenseConfig.ts` | 文章版权声明 |
 | `expressiveCodeConfig.ts` | 代码块明暗主题 |
 | `navBarConfig.ts` | 导航栏链接（`LinkPresets` 预设表 + 组装） |
-| `sidebarConfig.ts` | 侧栏位置与 widget 编排（判别联合类型见 `types/sidebarConfig.ts`，新增 widget 的 checklist 见 `docs/common-components.md` §3.1） |
+| `sidebarConfig.ts` | 侧栏编排与 widget 清单（`arrangement` 单/双栏、`side` 主栏物理侧、widget `column` 分栏标签；判别联合类型见 `types/sidebarConfig.ts`，新增 widget 的 checklist 见 `docs/common-components.md` §3.1） |
 | `announcementConfig.ts` | 公告内容（侧栏 announcement widget 消费，text 为空不渲染） |
 | `postListConfig.ts` | 文章列表：分页大小 + 布局（list/grid 模式、封面位置、grid 卡片宽度档位） |
+
+## 侧栏编排与页框宽度
+
+- `arrangement: "single"`（默认）——全部 widget 渲染进唯一侧栏，页框 85rem；
+- `arrangement: "dual"`——`column: "secondary"` 的 widget 进入副栏（视口 ≥1280px 起三列），
+  其余留在主栏；页框自动放宽到 96rem，TOC 悬浮 rail 自动让位（右侧余量被副栏占据）。
+  1280px 以下自动退化为单栏（只显主栏），无需配置。
+- `side: "left" | "right"` 决定主栏物理侧，dual 下副栏落在对面。
+- 页框宽度由 `resolvePageWidth()`（`src/utils/responsive-utils.ts`）按编排自动解析，
+  常量在 `src/constants/constants.ts`（`PAGE_WIDTH` / `PAGE_WIDTH_DUAL`），不提供手动覆盖。

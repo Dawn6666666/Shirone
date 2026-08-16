@@ -9,14 +9,18 @@ import Announcement from "@components/molecules/Announcement.astro";
 import Categories from "@components/molecules/Categories.astro";
 import Tags from "@components/molecules/Tags.astro";
 import { sidebarConfig } from "@/config/sidebarConfig";
-import type { SidebarWidget } from "@/types/sidebarConfig";
+import type { SidebarColumn, SidebarWidget } from "@/types/sidebarConfig";
 import Profile from "./Profile.astro";
 
 interface Props {
 	class?: string;
+	/** 本实例渲染哪一栏的 widget（dual 编排下主/副栏各挂一个实例） */
+	column?: SidebarColumn;
+	/** 侧栏根元素 id，sticky 容器 id 由其派生（多实例必须不同，默认 "sidebar"） */
+	id?: string;
 }
 
-const className = Astro.props.class;
+const { class: className, column = "primary", id = "sidebar" } = Astro.props;
 
 // widget 类型 → 组件（键必须覆盖 SidebarWidget 的全部 type）
 const componentMap = {
@@ -29,7 +33,10 @@ const componentMap = {
 type WidgetRenderer = (props: Record<string, unknown>) => unknown;
 
 const widgets = sidebarConfig.enable
-	? sidebarConfig.components.filter((widget) => widget.enable)
+	? sidebarConfig.components.filter(
+			(widget) =>
+				widget.enable && (widget.column ?? "primary") === column,
+		)
 	: [];
 const topWidgets = widgets.filter((widget) => widget.slot === "top");
 const stickyWidgets = widgets.filter((widget) => widget.slot === "sticky");
@@ -41,7 +48,7 @@ const animationDelay = (index: number) =>
 	`${STAGGER_BASE_MS + index * STAGGER_STEP_MS}ms`;
 ---
 
-<aside id="sidebar" class:list={[className, "w-full"]}>
+<aside id={id} class:list={[className, "w-full"]}>
 	{topWidgets.length > 0 && (
 		<div class="flex flex-col w-full gap-4 mb-4">
 			{topWidgets.map((widget) => {
@@ -52,7 +59,7 @@ const animationDelay = (index: number) =>
 	)}
 	{stickyWidgets.length > 0 && (
 		<div
-			id="sidebar-sticky"
+			id={`${id}-sticky`}
 			class="transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4 sticky top-4"
 		>
 			{stickyWidgets.map((widget, index) => {
