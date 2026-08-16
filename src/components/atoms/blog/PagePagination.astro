@@ -75,7 +75,7 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 	<!-- 移动端简化版：prev + 当前/总页（点击跳转）+ next -->
 	<div class="m3-blog-pagination__mobile">
 		{prevUrl ? (
-			<a href={prevUrl} aria-label={labels.prev} class="m3-blog-pagination__arrow">
+			<a href={prevUrl} aria-label={labels.prev} class="m3-blog-pagination__arrow m3-state-layer">
 				<Icon name="material-symbols:chevron-left-rounded" />
 			</a>
 		) : (
@@ -85,7 +85,7 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 		)}
 		<button
 			type="button"
-			class="m3-blog-pagination__jump"
+			class="m3-blog-pagination__jump m3-state-layer"
 			aria-label={jumpLabel}
 			data-current={currentPage}
 			data-total={totalPages}
@@ -97,7 +97,7 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 			<span class="m3-blog-pagination__jump-total">{totalPages}</span>
 		</button>
 		{nextUrl ? (
-			<a href={nextUrl} aria-label={labels.next} class="m3-blog-pagination__arrow">
+			<a href={nextUrl} aria-label={labels.next} class="m3-blog-pagination__arrow m3-state-layer">
 				<Icon name="material-symbols:chevron-right-rounded" />
 			</a>
 		) : (
@@ -113,7 +113,7 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 			<a
 				href={prevUrl}
 				aria-label={labels.prev}
-				class="m3-blog-pagination__arrow"
+				class="m3-blog-pagination__arrow m3-state-layer"
 			>
 				<Icon name="material-symbols:chevron-left-rounded" />
 			</a>
@@ -133,7 +133,7 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 						{p}
 					</span>
 				) : (
-					<a class="m3-blog-pagination__num" href={buildUrl(p)} aria-label={pageLabel(p)}>
+					<a class="m3-blog-pagination__num m3-state-layer" href={buildUrl(p)} aria-label={pageLabel(p)}>
 						{p}
 					</a>
 				),
@@ -143,7 +143,7 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 			<a
 				href={nextUrl}
 				aria-label={labels.next}
-				class="m3-blog-pagination__arrow"
+				class="m3-blog-pagination__arrow m3-state-layer"
 			>
 				<Icon name="material-symbols:chevron-right-rounded" />
 			</a>
@@ -188,12 +188,16 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 		background: var(--surface-container-low)
 		color: var(--primary)
 		text-decoration: none
-		transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
+		transition:
+			background-color var(--m3e-duration-short) var(--m3e-easing-standard),
+			transform var(--m3e-duration-short) var(--m3e-easing-standard)
 		> :global(svg)
 			width: 1.75rem
 			height: 1.75rem
 		&:hover:not(.m3-blog-pagination__arrow--disabled)
 			background: var(--surface-container-high)
+		&:active
+			transform: scale(0.96)
 
 		&--disabled
 			opacity: 0.38
@@ -214,9 +218,13 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 		color: var(--on-surface)
 		font: var(--m3e-type-label-large)
 		cursor: pointer
-		transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
+		transition:
+			background-color var(--m3e-duration-short) var(--m3e-easing-standard),
+			transform var(--m3e-duration-short) var(--m3e-easing-standard)
 		&:hover
 			background: var(--surface-container-high)
+		&:active
+			transform: scale(0.96)
 
 		&--current
 			font-weight: 700
@@ -264,9 +272,12 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 		color: var(--on-surface-variant)
 		transition:
 			background-color var(--m3e-duration-short) var(--m3e-easing-standard),
-			color var(--m3e-duration-short) var(--m3e-easing-standard)
+			color var(--m3e-duration-short) var(--m3e-easing-standard),
+			transform var(--m3e-duration-short) var(--m3e-easing-standard)
 		&:hover
 			background: var(--surface-container-high)
+		&:active
+			transform: scale(0.96)
 
 		&--active
 			background: var(--primary)
