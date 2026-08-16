@@ -124,46 +124,115 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 
 <script>
 	import type { SidebarPage } from "@/types/sidebarConfig";
+	import {
+		fadeOutThenHide,
+		flipFromRect,
+		prefersReducedMotion,
+		revealIn,
+	} from "@utils/motion";
 	import { attributeToPages, isWidgetVisibleOnPage } from "@utils/sidebar-page";
 
 	// 页面过滤同步：侧栏静态渲染在 Swup 容器外，导航后不重渲染。
 	// 当前页面标识由 MainGridLayout 输出到 #swup-container 的
 	// data-current-page（Swup 替换容器时同步属性），据此切换各 widget
 	// 与空组的 hidden 状态。判定与 SSR 共用 utils/sidebar-page。
-	function syncSidebarPages() {
+	//
+	// 动效（motion.ts 集合变更原语，reduced-motion 瞬切）：
+	// 退场组件先原地淡出（150ms，让出布局后再隐藏）→ 留存组件从旧位置
+	// FLIP 平移到位 → 入场组件淡入上移。快速连续导航用代际计数丢弃过期回调。
+
+	function readCurrentPage(): SidebarPage | undefined {
 		const container = document.getElementById("swup-container");
-		const currentPage = (container?.dataset.currentPage ||
-			undefined) as SidebarPage | undefined;
+		return (container?.dataset.currentPage || undefined) as
+			| SidebarPage
+			| undefined;
+	}
 
-		document
-			.querySelectorAll<HTMLElement>("[data-sidebar-pages]")
-			.forEach((widget) => {
-				const visible = isWidgetVisibleOnPage(
-					attributeToPages(widget.dataset.sidebarPages),
-					currentPage,
-				);
-				widget.classList.toggle("hidden", !visible);
-			});
+	function collectWrappers(): HTMLElement[] {
+		return Array.from(
+			document.querySelectorAll<HTMLElement>("[data-sidebar-pages]"),
+		);
+	}
 
-		// 组内 widget 全部隐藏时收起容器，避免空 top 组残留底部间距
+	/** 空组收起：组内 widget 全部隐藏时隐藏容器，避免残留底部间距 */
+	function collapseEmptyGroups(): void {
 		document
 			.querySelectorAll<HTMLElement>("[data-sidebar-group]")
 			.forEach((group) => {
 				const hasVisible =
-					group.querySelectorAll(
-						"[data-sidebar-pages]:not(.hidden)",
-					).length > 0;
+					group.querySelectorAll("[data-sidebar-pages]:not(.hidden)")
+						.length > 0;
 				group.classList.toggle("hidden", !hasVisible);
 			});
 	}
 
-	syncSidebarPages();
+	// 代际计数：退场淡出 await 期间若又发生导航（sync 再次被调用），
+	// 旧回调在恢复点作废，由最新一次接管终态
+	let generation = 0;
+
+	async function syncSidebarPages(): Promise<void> {
+		const my = ++generation;
+		const currentPage = readCurrentPage();
+		const willShow = (widget: HTMLElement) =>
+			isWidgetVisibleOnPage(
+				attributeToPages(widget.dataset.sidebarPages),
+				currentPage,
+			);
+
+		const wrappers = collectWrappers();
+		const visibleBefore = wrappers.filter(
+			(widget) => !widget.classList.contains("hidden"),
+		);
+		const exiters = visibleBefore.filter((widget) => !willShow(widget));
+		const enterers = wrappers.filter(
+			(widget) => widget.classList.contains("hidden") && willShow(widget),
+		);
+
+		if (exiters.length === 0 && enterers.length === 0) {
+			collapseEmptyGroups();
+			return;
+		}
+
+		if (prefersReducedMotion()) {
+			exiters.forEach((widget) => widget.classList.add("hidden"));
+			enterers.forEach((widget) => widget.classList.remove("hidden"));
+			collapseEmptyGroups();
+			return;
+		}
+
+		// 变更前记录位置（淡出期间布局未变，随后一次性切换）
+		const rects = new Map(
+			visibleBefore.map((widget) => [widget, widget.getBoundingClientRect()]),
+		);
+		await Promise.all(exiters.map((widget) => fadeOutThenHide(widget)));
+		if (my !== generation) return;
+
+		enterers.forEach((widget) => widget.classList.remove("hidden"));
+		collapseEmptyGroups();
+
+		// 留存组件：从旧位置 FLIP 到新位置（退场让出的位移被平滑吸收）
+		const survivors = visibleBefore.filter(
+			(widget) => !exiters.includes(widget),
+		);
+		for (const widget of survivors) {
+			const rect = rects.get(widget);
+			if (rect) flipFromRect(widget, rect);
+		}
+		// 入场组件：淡入上移，多个时 50ms 阶梯
+		enterers.forEach((widget, index) => revealIn(widget, { delay: index * 50 }));
+	}
+
+	void syncSidebarPages();
+
+	function onSwupReplace(): void {
+		void syncSidebarPages();
+	}
 
 	if (window.swup?.hooks) {
-		window.swup.hooks.on("content:replace", syncSidebarPages);
+		window.swup.hooks.on("content:replace", onSwupReplace);
 	} else {
 		document.addEventListener("swup:enable", () => {
-			window.swup?.hooks.on("content:replace", syncSidebarPages);
+			window.swup?.hooks.on("content:replace", onSwupReplace);
 		});
 	}
 </script>

@@ -71,3 +71,86 @@ test.describe("Site motion", () => {
 		expect(await bodyHeight(page, 1)).toBeGreaterThan(0);
 	});
 });
+
+/**
+ * 侧栏 pages 过滤（swup 导航同步 + 集合变更原语）：
+ * 站点配置 stats 仅 home/archive 可见，首页↔文章页导航会触发退场/入场。
+ * swup 触发时机不可控，动画中间值不做采样断言（避免 flake），
+ * 锁定终态：hidden 切换正确、留存 widget 可见、双向导航可恢复。
+ */
+test.describe("sidebar pages filter (swup sync)", () => {
+	test.use({ viewport: { width: 1280, height: 900 } });
+
+	async function clickLink(page: import("@playwright/test").Page, selector: string) {
+		await page.evaluate((sel) => {
+			(document.querySelector(sel) as HTMLAnchorElement | null)?.click();
+		}, selector);
+	}
+
+	async function statsWrapperHidden(page: import("@playwright/test").Page) {
+		return page.evaluate(() => {
+			const wrapper = document
+				.querySelector('widget-layout[data-id="site-stats"]')
+				?.closest("[data-sidebar-pages]");
+			return !wrapper || wrapper.classList.contains("hidden");
+		});
+	}
+
+	function waitStatsHidden(page: import("@playwright/test").Page, hidden: boolean) {
+		return page.waitForFunction(
+			(expectHidden) => {
+				const wrapper = document
+					.querySelector('widget-layout[data-id="site-stats"]')
+					?.closest("[data-sidebar-pages]");
+				if (!wrapper) return false;
+				return wrapper.classList.contains("hidden") === expectHidden;
+			},
+			hidden,
+			{ timeout: 5000 },
+		);
+	}
+
+	function waitCurrentPage(page: import("@playwright/test").Page, value: string) {
+		return page.waitForFunction(
+			(expected) =>
+				document.getElementById("swup-container")?.dataset.currentPage ===
+				expected,
+			value,
+			{ timeout: 5000 },
+		);
+	}
+
+	test("stats hides on post page and returns on home (animated path)", async ({ page }) => {
+		await page.goto("/", { waitUntil: "networkidle" });
+		expect(await statsWrapperHidden(page)).toBe(false);
+
+		// swup 点击文章卡链接 → 文章页：退场淡出（150ms）后 hidden
+		await clickLink(page, '#swup-container a[href^="/posts/"]');
+		await waitCurrentPage(page, "post");
+		await waitStatsHidden(page, true);
+
+		// 留存 widget（tags）保持可见
+		const tagsVisible = await page.evaluate(() => {
+			const wrapper = document
+				.querySelector('widget-layout[data-id="tags"]')
+				?.closest("[data-sidebar-pages]");
+			return !!wrapper && !wrapper.classList.contains("hidden");
+		});
+		expect(tagsVisible).toBe(true);
+
+		// swup 点回首页：stats 入场恢复
+		await clickLink(page, '#top-row a[href="/"]');
+		await waitCurrentPage(page, "home");
+		await waitStatsHidden(page, false);
+	});
+
+	test("reduced motion lands instantly without fade", async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: "reduce" });
+		await page.goto("/", { waitUntil: "networkidle" });
+
+		await clickLink(page, '#swup-container a[href^="/posts/"]');
+		await waitCurrentPage(page, "post");
+		// 瞬切路径：无 150ms 淡出等待，hidden 立即出现
+		await waitStatsHidden(page, true);
+	});
+});

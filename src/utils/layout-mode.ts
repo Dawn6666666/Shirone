@@ -11,7 +11,7 @@
  */
 import { postListConfig } from "@/config/postListConfig";
 import type { PostListMode } from "@/types/postListConfig";
-import { EASING_EMPHASIZED, prefersReducedMotion } from "./motion";
+import { flipFromRect, prefersReducedMotion } from "./motion";
 import { packMasonry, setupMasonry } from "./masonry";
 
 const MODE_KEY = "post-list-mode";
@@ -56,7 +56,8 @@ export function applyStoredLayoutMode(
 /**
  * 切换布局模式并播放 FLIP 重排（400ms = --m3e-duration-long）。
  * grid 模式切换后重新做最短列打包（span/列定位），卡片从旧位置平滑
- * 平移到新位置；reduced-motion 时不播放动画直接切换。
+ * 平移到新位置（位移播放走 motion.ts 的 flipFromRect 共享原语）；
+ * reduced-motion 时不播放动画直接切换。
  */
 export function flipToMode(container: HTMLElement, mode: PostListMode): void {
 	const cards = Array.from(
@@ -68,15 +69,6 @@ export function flipToMode(container: HTMLElement, mode: PostListMode): void {
 	packMasonry(container);
 	if (prefersReducedMotion()) return;
 	for (const [index, card] of cards.entries()) {
-		const dx = before[index].left - card.getBoundingClientRect().left;
-		const dy = before[index].top - card.getBoundingClientRect().top;
-		if (!dx && !dy) continue;
-		card.animate(
-			[
-				{ transform: `translate(${dx}px, ${dy}px)` },
-				{ transform: "translate(0, 0)" },
-			],
-			{ duration: 400, easing: EASING_EMPHASIZED },
-		);
+		flipFromRect(card, before[index], 400);
 	}
 }

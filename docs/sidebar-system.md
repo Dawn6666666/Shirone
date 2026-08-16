@@ -75,6 +75,9 @@ widget 的专属配置（如分类的折叠阈值 `collapseAfter`）只存在于
    `#swup-container` 的 `data-current-page`，Swup 替换容器时同步该属性，
    SideBar 的脚本监听 `content:replace` 按新页面重新切换各 widget 与
    空组的 `hidden` 状态。
+4. 显隐切换带 M3E 动效（退场淡出 → 留存组件 FLIP 平移 → 入场淡入，
+   reduced-motion 瞬切），实现走 `motion.ts` 的集合变更原语，
+   见 `animation.md` §3。
 
 > 新增页面时务必在 `SidebarPage` 联合中加分支并传 `page` prop——漏传的页面
 > 上，带 `pages` 限制的 widget 一律不显示（宁可少显示，不显示到错误页面）。
