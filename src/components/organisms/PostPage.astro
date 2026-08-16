@@ -55,7 +55,7 @@ const { mode, cover, cardWidth } = postListConfig.layout;
 	   colCount ≤ 1，自动清空 span，无需 JS 分支。
 	   卡片高度天然混合（有/无封面），由 utils/masonry.ts 做最短列打包：
 	   JS 给每张卡片设置 grid-column-start + grid-row-end: span N。
-	   行轨道 8px、row-gap 0（行距烘焙进 span）——与 masonry.ts 的
+	   行轨道 8px、row-gap 0（16px 行距烘焙进 span）——与 masonry.ts 的
 	   ROW_UNIT / ROW_GAP 常量约定，两处需同步改。 */
 	&--grid
 		@media (min-width: bp-md)

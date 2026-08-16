@@ -131,7 +131,8 @@ const mainContentClasses = generateMainContentClasses(sidebarConfig);
 <SiteNavigationDrawer client:load />
 
 <!-- The things that should be under the banner, only the TOC for now -->
-<div class="absolute w-full z-0 hidden 2xl:block">
+<!-- 页面宽 90rem：TOC rail 需视口 ≥1700px 才有可用余量（--toc-width = 余量一半） -->
+<div class="absolute w-full z-0 hidden min-[1700px]:block">
     <div class="relative max-w-[var(--page-width)] mx-auto">
         <!-- TOC component -->
         {siteConfig.toc.enable && <div id="toc-wrapper" class:list={["hidden lg:block transition absolute top-0 -right-[var(--toc-width)] w-[var(--toc-width)] items-center",
