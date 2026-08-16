@@ -167,6 +167,13 @@ test.describe("sidebar pages filter (swup sync)", () => {
 	}) => {
 		await page.goto("/", { waitUntil: "networkidle" });
 		expect(await statsWrapperHidden(page)).toBe(false);
+		const primary = page.locator("#sidebar");
+		await expect(primary).toHaveCSS("scrollbar-width", "none");
+		expect(
+			await primary.evaluate(
+				(element) => getComputedStyle(element, "::-webkit-scrollbar").display,
+			),
+		).toBe("none");
 		const secondary = page.locator("#sidebar-secondary");
 		await expect(secondary).toHaveCSS("scrollbar-width", "none");
 		expect(
