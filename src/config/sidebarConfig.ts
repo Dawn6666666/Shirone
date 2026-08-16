@@ -17,9 +17,9 @@ export const sidebarConfig: SidebarConfig = {
 	side: "left",
 	components: [
 		{ type: "profile", enable: true, slot: "top" },
-		{ type: "announcement", enable: false, slot: "top" },
+		{ type: "announcement", enable: false, slot: "top", pages: ["home"] },
 		{ type: "categories", enable: true, slot: "sticky" },
-		{ type: "stats", enable: true, slot: "top", column: "secondary" },
+		{ type: "stats", enable: true, slot: "top", column: "secondary", pages: ["home", "archive"] },
 		{ type: "tags", enable: true, slot: "sticky", column: "secondary" },
 	],
 };

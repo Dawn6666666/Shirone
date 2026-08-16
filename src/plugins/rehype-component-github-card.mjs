@@ -58,6 +58,9 @@ export function GithubCardComponent(properties, children) {
 		`script#${cardUuid}-script`,
 		{ type: "text/javascript", defer: true },
 		`
+      // 块级作用域包裹：swup 站内导航会重新执行内联脚本，
+      // 顶层 const 会在同页多次执行时报 Identifier 已声明
+      {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 10000);
       fetch('https://api.github.com/repos/${repo}', {
@@ -88,6 +91,7 @@ export function GithubCardComponent(properties, children) {
         document.getElementById('${cardUuid}-description').innerText = "Failed to load repository info";
         console.warn("[GITHUB-CARD] (Error) Loading card for ${repo} | ${cardUuid}:", err.message || err)
       })
+      }
     `,
 	);
 

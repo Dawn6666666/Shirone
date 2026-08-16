@@ -20,12 +20,28 @@ export type SidebarArrangement = "single" | "dual";
 /** 主栏物理侧：left（默认）/ right；dual 下副栏落在对面 */
 export type SidebarSide = "left" | "right";
 
+/**
+ * 页面标识符：widget 的 pages 过滤目标。
+ * 每个页面通过 MainGridLayout 的 page prop 声明自身；MainGridLayout
+ * 同时把它输出到 #swup-container 的 data-current-page（Swup 替换
+ * 容器时同步属性），供 SideBar 在导航后重新过滤。
+ */
+export type SidebarPage =
+	| "home" // 首页（[...page].astro 及其分页）
+	| "archive" // 归档
+	| "friends" // 友链
+	| "moments" // 动态
+	| "about" // 关于
+	| "post"; // 文章详情页
+
 /** 资料卡（内容来自 profileConfig，无 WidgetLayout 标题外壳） */
 export interface ProfileWidget {
 	type: "profile";
 	enable: boolean;
 	slot: SidebarWidgetSlot;
 	column?: SidebarColumn;
+	/** 限定显示的页面，省略或空数组表示所有页面 */
+	pages?: SidebarPage[];
 }
 
 /** 分类列表（超过 collapseAfter 个后折叠出「更多」） */
@@ -36,6 +52,8 @@ export interface CategoriesWidget {
 	column?: SidebarColumn;
 	/** 折叠阈值，默认 5 */
 	collapseAfter?: number;
+	/** 限定显示的页面，省略或空数组表示所有页面 */
+	pages?: SidebarPage[];
 }
 
 /** 标签云（超过 collapseAfter 个后折叠出「更多」） */
@@ -46,6 +64,8 @@ export interface TagsWidget {
 	column?: SidebarColumn;
 	/** 折叠阈值，默认 20 */
 	collapseAfter?: number;
+	/** 限定显示的页面，省略或空数组表示所有页面 */
+	pages?: SidebarPage[];
 }
 
 /** 公告（内容来自 announcementConfig，text 为空时不渲染） */
@@ -54,6 +74,8 @@ export interface AnnouncementWidget {
 	enable: boolean;
 	slot: SidebarWidgetSlot;
 	column?: SidebarColumn;
+	/** 限定显示的页面，省略或空数组表示所有页面 */
+	pages?: SidebarPage[];
 }
 
 /** 站点统计（数据自动汇总：文章/动态/分类/标签/总字数/运行天数） */
@@ -62,6 +84,8 @@ export interface StatsWidget {
 	enable: boolean;
 	slot: SidebarWidgetSlot;
 	column?: SidebarColumn;
+	/** 限定显示的页面，省略或空数组表示所有页面 */
+	pages?: SidebarPage[];
 }
 
 export type SidebarWidget =

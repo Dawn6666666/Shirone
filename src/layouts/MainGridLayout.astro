@@ -8,6 +8,7 @@ import RouteProgress from "@components/organisms/RouteProgress.svelte";
 import SideBar from "@components/organisms/SideBar.astro";
 import SiteNavigationDrawer from "@components/organisms/SiteNavigationDrawer.svelte";
 import TopAppBar from "@components/organisms/TopAppBar.astro";
+import type { SidebarPage } from "@/types/sidebarConfig";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import { siteConfig } from "@/config";
@@ -35,6 +36,10 @@ interface Props {
 	headings?: MarkdownHeading[];
 	/** 文章页所属分类名，透传给 CategoryBar 做弱高亮 */
 	postCategory?: string;
+	/** 当前页面标识符（SidebarPage），透传给 SideBar 做 pages 过滤，并输出到
+	 *  #swup-container 的 data-current-page——Swup 替换容器时同步该属性，
+	 *  侧栏据此在站内导航后重新过滤 */
+	page?: SidebarPage;
 }
 
 const {
@@ -45,6 +50,7 @@ const {
 	setOGTypeArticle,
 	headings = [],
 	postCategory,
+	page,
 } = Astro.props;
 const hasBannerCredit =
 	siteConfig.banner.enable && siteConfig.banner.credit.enable;
@@ -101,9 +107,9 @@ const showTocRail = !isDualColumn(sidebarResponsive);
             </a>}
 
 
-            <SideBar class={sidebarClasses}></SideBar>
+            <SideBar class={sidebarClasses} currentPage={page}></SideBar>
             {isDualColumn(sidebarResponsive) && (
-                <SideBar id="sidebar-secondary" column="secondary" class={secondarySidebarClasses}></SideBar>
+                <SideBar id="sidebar-secondary" column="secondary" class={secondarySidebarClasses} currentPage={page}></SideBar>
             )}
 
             <!-- 主内容列：分类导航栏静态渲染（位于 Swup 容器外），
@@ -113,6 +119,7 @@ const showTocRail = !isDualColumn(sidebarResponsive);
                 <main
                     id="swup-container"
                     data-current-post-category={postCategory || ""}
+                    data-current-page={page}
                     class="transition-swup-fade"
                 >
                     <div id="content-wrapper" class="onload-animation">

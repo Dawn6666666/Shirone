@@ -18,6 +18,19 @@
 | `announcement` | `Announcement` | top | 公告横幅，无标题外壳 |
 | `stats` | `SiteStats` | top | 站点统计规格表 |
 
+### 1.1 通用字段
+
+每个 widget 条目都支持以下字段（判别联合类型中的公共部分）：
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `enable` | `boolean` | ✓ | 独立开关 |
+| `slot` | `"top" \| "sticky"` | ✓ | 栏内停靠位 |
+| `column` | `"primary" \| "secondary"` | — | 分栏标签（默认 `"primary"`，仅 `arrangement: "dual"` 时生效） |
+| `pages` | `SidebarPage[]` | — | **页面级过滤**：限定显示的页面，省略或空数组表示所有页面；判定逻辑在 `utils/sidebar-page.ts`，站内导航（Swup）后由 SideBar 脚本按 `#swup-container` 的 `data-current-page` 自动同步 |
+
+页面标识符（`SidebarPage`）：`"home" \| "archive" \| "friends" \| "moments" \| "about" \| "post"`。详见 `sidebar-system.md` §2.4。
+
 ## 2. WidgetLayout（标题外壳）
 
 所有带标题的 widget 共用 `molecules/WidgetLayout.astro`。

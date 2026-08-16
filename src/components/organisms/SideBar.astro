@@ -4,13 +4,19 @@
  * componentMap 是唯一的 widget 注册表——新增 widget 时在
  * src/types/sidebarConfig.ts 扩展联合分支，并在此注册组件。
  * 职责仅是编排，不取数；widget 自己的配置经 `widget` prop 透传。
+ *
+ * 页面过滤（widget.pages）：SSR 全量渲染并在包装层打
+ * data-sidebar-pages + hidden 初始标记；侧栏静态渲染在 Swup 容器外，
+ * 导航后不重渲染，由底部脚本监听 content:replace 按新页面的
+ * data-current-page（#swup-container，Swup 同步属性）重新过滤。
  */
 import Announcement from "@components/molecules/Announcement.astro";
 import Categories from "@components/molecules/Categories.astro";
 import SiteStats from "@components/molecules/SiteStats.astro";
 import Tags from "@components/molecules/Tags.astro";
 import { sidebarConfig } from "@/config/sidebarConfig";
-import type { SidebarColumn, SidebarWidget } from "@/types/sidebarConfig";
+import type { SidebarColumn, SidebarPage, SidebarWidget } from "@/types/sidebarConfig";
+import { isWidgetVisibleOnPage, pagesToAttribute } from "@utils/sidebar-page";
 import Profile from "./Profile.astro";
 
 interface Props {
@@ -19,9 +25,11 @@ interface Props {
 	column?: SidebarColumn;
 	/** 侧栏根元素 id，sticky 容器 id 由其派生（多实例必须不同，默认 "sidebar"） */
 	id?: string;
+	/** 当前页面标识符，用于 widget 的 pages 过滤 */
+	currentPage?: SidebarPage;
 }
 
-const { class: className, column = "primary", id = "sidebar" } = Astro.props;
+const { class: className, column = "primary", id = "sidebar", currentPage } = Astro.props;
 
 // widget 类型 → 组件（键必须覆盖 SidebarWidget 的全部 type）
 const componentMap = {
@@ -34,6 +42,8 @@ const componentMap = {
 
 type WidgetRenderer = (props: Record<string, unknown>) => unknown;
 
+// 按列取整：SSR 不做页面过滤（全量渲染，swup 导航后客户端才能恢复
+// 被隐藏的 widget），页面可见性仅体现在包装层的 hidden 标记上
 const widgets = sidebarConfig.enable
 	? sidebarConfig.components.filter(
 			(widget) =>
@@ -48,32 +58,112 @@ const STAGGER_BASE_MS = 150;
 const STAGGER_STEP_MS = 50;
 const animationDelay = (index: number) =>
 	`${STAGGER_BASE_MS + index * STAGGER_STEP_MS}ms`;
+
+// 首屏可见性：与客户端脚本共用 utils/sidebar-page 的判定，避免漂移
+const isVisible = (widget: SidebarWidget) =>
+	isWidgetVisibleOnPage(widget.pages, currentPage);
+const hasVisibleTop = topWidgets.some(isVisible);
+const hasVisibleSticky = stickyWidgets.some(isVisible);
 ---
 
 <aside id={id} class:list={[className, "w-full"]}>
 	{topWidgets.length > 0 && (
-		<div class="flex flex-col w-full gap-4 mb-4">
+		<div
+			data-sidebar-group
+			class:list={["flex flex-col w-full gap-4 mb-4", { hidden: !hasVisibleTop }]}
+		>
 			{topWidgets.map((widget) => {
 				const Component = componentMap[widget.type] as WidgetRenderer;
-				return <Component widget={widget} />;
+				return (
+					<div
+						data-sidebar-pages={pagesToAttribute(widget.pages)}
+						class:list={["sidebar-widget", { hidden: !isVisible(widget) }]}
+					>
+						<Component widget={widget} />
+					</div>
+				);
 			})}
 		</div>
 	)}
 	{stickyWidgets.length > 0 && (
 		<div
 			id={`${id}-sticky`}
-			class="transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4 sticky top-4"
+			data-sidebar-group
+			class:list={[
+				"transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4 sticky top-4",
+				{ hidden: !hasVisibleSticky },
+			]}
 		>
 			{stickyWidgets.map((widget, index) => {
 				const Component = componentMap[widget.type] as WidgetRenderer;
 				return (
-					<Component
-						widget={widget}
-						class="onload-animation"
-						style={`animation-delay: ${animationDelay(index)}`}
-					/>
+					<div
+						data-sidebar-pages={pagesToAttribute(widget.pages)}
+						class:list={["sidebar-widget", { hidden: !isVisible(widget) }]}
+					>
+						<Component
+							widget={widget}
+							class="onload-animation"
+							style={`animation-delay: ${animationDelay(index)}`}
+						/>
+					</div>
 				);
 			})}
 		</div>
 	)}
 </aside>
+
+<style lang="stylus">
+	/* 包装层修正：widget 根元素原本直接作为 flex item 被 blockified；
+	   包进 .sidebar-widget 后自定义元素（widget-layout）恢复 inline，
+	   需显式拉满宽度 */
+	.sidebar-widget > *
+		display: block
+		width: 100%
+</style>
+
+<script>
+	import type { SidebarPage } from "@/types/sidebarConfig";
+	import { attributeToPages, isWidgetVisibleOnPage } from "@utils/sidebar-page";
+
+	// 页面过滤同步：侧栏静态渲染在 Swup 容器外，导航后不重渲染。
+	// 当前页面标识由 MainGridLayout 输出到 #swup-container 的
+	// data-current-page（Swup 替换容器时同步属性），据此切换各 widget
+	// 与空组的 hidden 状态。判定与 SSR 共用 utils/sidebar-page。
+	function syncSidebarPages() {
+		const container = document.getElementById("swup-container");
+		const currentPage = (container?.dataset.currentPage ||
+			undefined) as SidebarPage | undefined;
+
+		document
+			.querySelectorAll<HTMLElement>("[data-sidebar-pages]")
+			.forEach((widget) => {
+				const visible = isWidgetVisibleOnPage(
+					attributeToPages(widget.dataset.sidebarPages),
+					currentPage,
+				);
+				widget.classList.toggle("hidden", !visible);
+			});
+
+		// 组内 widget 全部隐藏时收起容器，避免空 top 组残留底部间距
+		document
+			.querySelectorAll<HTMLElement>("[data-sidebar-group]")
+			.forEach((group) => {
+				const hasVisible =
+					group.querySelectorAll(
+						"[data-sidebar-pages]:not(.hidden)",
+					).length > 0;
+				group.classList.toggle("hidden", !hasVisible);
+			});
+	}
+
+	syncSidebarPages();
+
+	if (window.swup?.hooks) {
+		window.swup.hooks.on("content:replace", syncSidebarPages);
+	} else {
+		document.addEventListener("swup:enable", () => {
+			window.swup?.hooks.on("content:replace", syncSidebarPages);
+		});
+	}
+</script>

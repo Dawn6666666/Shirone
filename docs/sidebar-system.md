@@ -42,6 +42,43 @@
 
 widget 的专属配置（如分类的折叠阈值 `collapseAfter`）只存在于自己的联合分支里，新增 widget 时扩展 `SidebarWidget` 联合即可，不搞扁平大对象。
 
+### 2.4 页面级过滤（pages 标签）
+
+每个 widget 可选 `pages?: SidebarPage[]` 字段，控制只在哪些页面显示：
+
+```ts
+{ type: "stats", enable: true, slot: "top", column: "secondary", pages: ["home", "archive"] }
+// 只在首页和归档页显示统计，文章页不显示
+```
+
+- **省略或空数组**：在所有页面显示（向后兼容，无需改动现有配置）；
+- **有值**：仅在指定页面显示，其他页面自动隐藏。
+
+可用页面标识符（`SidebarPage`）：
+
+| 标识符 | 对应页面 |
+|---|---|
+| `"home"` | 首页（`[...page].astro` 及其分页） |
+| `"archive"` | 归档页（`archive.astro`） |
+| `"friends"` | 友链页（`friends.astro`） |
+| `"moments"` | 动态页（`moments.astro`） |
+| `"about"` | 关于页（`about.astro`） |
+| `"post"` | 文章详情页（`posts/[...slug].astro`） |
+
+**实现机制（含 Swup 站内导航）**：
+
+1. 每个页面通过 `MainGridLayout` 的 `page` prop 声明自身类型；
+2. SSR 全量渲染所有 widget，包装层打 `data-sidebar-pages`（pages 列表序列化）
+   与 `hidden` 初始标记（不匹配当前页面的先隐藏）——判定逻辑在
+   `src/utils/sidebar-page.ts`，SSR 与客户端共用；
+3. 侧栏静态渲染在 Swup 容器外，站内导航后不重渲染：`page` 同时输出到
+   `#swup-container` 的 `data-current-page`，Swup 替换容器时同步该属性，
+   SideBar 的脚本监听 `content:replace` 按新页面重新切换各 widget 与
+   空组的 `hidden` 状态。
+
+> 新增页面时务必在 `SidebarPage` 联合中加分支并传 `page` prop——漏传的页面
+> 上，带 `pages` 限制的 widget 一律不显示（宁可少显示，不显示到错误页面）。
+
 ## 3. 响应式行为
 
 断点沿用站点既有 Tailwind 约定：`lg` = 1024px，`xl` = 1280px。
