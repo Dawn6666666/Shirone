@@ -3,7 +3,7 @@
 > 本文档定义 `src/components/` 的原子化（Atomic Design）分层结构：
 > 各层职责、依赖方向与**禁止事项**。
 > 适用版本：基于 Astro 7 + Svelte 5 + Tailwind CSS 4。
-> 配套文档：`docs/m3e-standard.md`（M3E 令牌与设计规范）。
+> 配套文档：`docs/m3e-standard.md`（M3E 令牌与设计规范）、`docs/sidebar-system.md`（侧栏编排）、`docs/sidebar-widgets.md`（侧栏组件文档）。
 
 ---
 

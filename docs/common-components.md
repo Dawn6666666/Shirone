@@ -2,7 +2,8 @@
 
 > 记录 `src/components/molecules/` 中**跨页面 / 区块复用**的通用组件：
 > 职责、Props、用法与新增约定。配套文档：
-> `atomic-structure.md`（分层）、`m3e-standard.md`（令牌与原子）、`animation.md`（动效库）。
+> `atomic-structure.md`（分层）、`m3e-standard.md`（令牌与原子）、`animation.md`（动效库）、
+> `sidebar-system.md`（侧栏编排）、`sidebar-widgets.md`（侧栏组件文档）。
 
 ---
 
@@ -77,7 +78,9 @@
 
 ### 3.1 侧栏 widget 编排
 
-侧栏 widget 由 `src/config/sidebarConfig.ts` 数据驱动，`SideBar.astro` 的 `componentMap` 是唯一注册表。新增一个侧栏 widget 的 checklist：
+侧栏 widget 由 `src/config/sidebarConfig.ts` 数据驱动，`SideBar.astro` 的 `componentMap` 是唯一注册表。
+编排模型（单/双栏、slot、column 标签）见 `sidebar-system.md`；内置 widget 逐个文档见 `sidebar-widgets.md`。
+新增一个侧栏 widget 的 checklist：
 
 1. 在 `src/types/sidebarConfig.ts` 的 `SidebarWidget` 判别联合扩展分支（widget 自己的配置项放分支内，不搞扁平大对象）；
 2. 实现 widget 组件（molecules 或 organisms），接收可选 `widget` prop 读取自己的配置；

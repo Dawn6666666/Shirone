@@ -1,0 +1,102 @@
+# 侧栏组件文档（SideBar widgets）— Shirone 主题
+
+> 内置侧栏 widget 的逐个说明：数据源、Props、设计要点与启用方式。
+> 配套文档：`sidebar-system.md`（编排模型与响应式）、`common-components.md`（新增 widget 流程）。
+
+---
+
+## 1. 概览
+
+所有 widget 组件的 Props 模式一致：`class?` / `style?`（来自 SideBar 的布局类与 stagger 动画延迟）+
+`widget?`（自己的配置条目，整份透传）。数据来源遵循「组件不直接 `getCollection`，统一走 `utils/` 或内容集合工具」。
+
+| type | 组件 | 停靠建议 | 说明 |
+|---|---|---|---|
+| `profile` | `Profile` | top | 博主资料卡，无标题外壳 |
+| `categories` | `Categories` | sticky | 分类列表 + 数量，可折叠 |
+| `tags` | `Tags` | sticky | 标签云（tonal Chip），可折叠 |
+| `announcement` | `Announcement` | top | 公告横幅，无标题外壳 |
+| `stats` | `SiteStats` | top | 站点统计规格表 |
+
+## 2. WidgetLayout（标题外壳）
+
+所有带标题的 widget 共用 `molecules/WidgetLayout.astro`。
+
+| Prop | 类型 | 说明 |
+|---|---|---|
+| `id` | `string` | 折叠容器的元素 id（`data-id`，折叠按钮按它定位内容区） |
+| `name` | `string` | 标题文案（消费方传 `i18n(...)` 结果，不写死） |
+| `isCollapsed` | `boolean` | 初始是否折叠（超过阈值时由 widget 自己算） |
+| `collapsedHeight` | `string` | 折叠后的高度（如 `"7.5rem"`，约两行） |
+
+- 标题三要素：`AccentBar` 竖条 + 标题文字（`title-large`），与站点卡片标题同语言；
+- 折叠交互：内容区收起至 `collapsedHeight`，底部「更多」按钮展开（`m3e-duration` 过渡），按钮点击后隐藏；
+- `id` 在 dual 双实例下不会冲突（主/副栏是不同 widget）。
+
+## 3. Profile — 博主资料卡
+
+- **数据源**：`src/config/profileConfig.ts`（头像 / 名称 / 简介 / 社交链接）；
+- **结构**：`Card`（`card-bg`、corner-l）+ `Avatar`（176px、rounded，整图链接到 `/about/`，hover 遮罩）+ 名称 + primary 分隔线 + 简介 + 社交链接；
+- **无 WidgetLayout 外壳**：资料卡是完整独立卡片，套标题外壳会破坏视觉层级；
+- **社交链接**：>1 个时渲染为 `IconButton` 行；恰 1 个时渲染为 `Button`（text 变体，带图标和站名）。
+
+## 4. Categories — 分类列表
+
+- **数据源**：`getCategoryList()`（`utils/content-utils`），含分类名 / URL / 文章计数；
+- **渲染**：`atoms/blog/CategoryList`——text 按钮 + 右对齐数量徽标，垂直排列；
+- **折叠**：分类数 ≥ `collapseAfter` 时折叠（`WidgetLayout` 的「更多」展开），默认阈值 5，条目上可配：
+
+```ts
+{ type: "categories", enable: true, slot: "sticky", collapseAfter: 8 }
+```
+
+## 5. Tags — 标签云
+
+- **数据源**：`getTagList()`（`utils/content-utils`），标签名 + URL；
+- **渲染**：`atoms/blog/TagList`——tonal `Chip` 组（flex-wrap），跟随明暗模式；
+- **折叠**：标签数 ≥ `collapseAfter` 时折叠，默认阈值 20（标签多，阈值比分类高）：
+
+```ts
+{ type: "tags", enable: true, slot: "sticky", column: "secondary", collapseAfter: 12 }
+```
+
+## 6. Announcement — 公告
+
+- **数据源**：`src/config/announcementConfig.ts`（`icon` + `text`）；
+- **渲染**：`atoms/overlay/Banner`（round 形态，贴合 M3E 浮层圆角语言）；
+- **无 WidgetLayout 外壳**：公告是短消息，不是分组卡片；
+- **启用两步**：① `announcementConfig` 填 `text`（非空才渲染）；② `sidebarConfig` 里把 announcement 条目的 `enable` 置 `true`：
+
+```ts
+// src/config/announcementConfig.ts
+export const announcementConfig = {
+	icon: "material-symbols:campaign-rounded",
+	text: "站点正在迁移中，部分文章暂时不可用",
+};
+```
+
+## 7. SiteStats — 站点统计
+
+- **数据源**：`utils/site-stats.ts` 的 `getSiteStats()`（模块级备忘化，构建期多页面共享一次汇总）；
+- **渲染**：规格表风格——每行 = `MetaIcon` tonal 徽标（32px，与 PostMeta 元信息同语言）+ 标签 + 点线引导 + 表格数字（`tabular-nums`，千位分隔固定 en-US，构建产物数值稳定）；
+- **六项指标**：
+
+| 行 | 图标 | 来源 |
+|---|---|---|
+| 文章 | `article-outline-rounded` | 非草稿文章数 |
+| 动态 | `forum-outline-rounded` | moments 条数 |
+| 分类 | `folder-outline-rounded` | 分类数 |
+| 标签 | `tag-rounded` | 标签数 |
+| 总字数 | `edit-note-outline-rounded` | 全部文章 remark 字数之和（与文章卡片同一统计口径） |
+| 运行天数 | `calendar-month-outline-rounded` | 以最早一篇文章发布日为起点推导，无需配置建站日期 |
+
+- 无专属配置项；停靠建议 `top`（信息密度高，放 sticky 会频繁扫过）。
+
+## 8. 新增 widget 的设计约束
+
+1. **外观语言**：优先复用既有原子——`MetaIcon`（单图标徽标）、`Chip` / `Button` / `Card`、`WidgetLayout`（标题外壳）、`AccentBar`；不要自创新的徽标/容器风格；
+2. **外壳取舍**：短消息类（如公告）不用 `WidgetLayout`；有明确"分组 + 列表"语义的（分类/标签/统计）用；
+3. **取数**：一律走 `utils/content-utils` 或独立 utils（如 `site-stats`），组件内不直接 `getCollection`；多页面共享的重计算（如总字数）要备忘化；
+4. **文案**：标题与标签用 `i18n(I18nKey.*)`，新增 key 必须补全 `src/i18n/languages/` 全部 10 种语言；
+5. **默认关闭**：新 widget 的默认条目 `enable: false`，保证存量站点 DOM 零变化；
+6. **文档同步**：`sidebar-system.md` §7 总览表 + 本文件补一节。
