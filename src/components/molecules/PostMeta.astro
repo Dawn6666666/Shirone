@@ -15,7 +15,6 @@ interface Props {
 	updated?: Date;
 	tags: string[];
 	category: string | null;
-	hideTagsForMobile?: boolean;
 	hideUpdateDate?: boolean;
 }
 const {
@@ -24,7 +23,6 @@ const {
 	updated,
 	tags,
 	category,
-	hideTagsForMobile = false,
 	hideUpdateDate = false,
 } = Astro.props;
 
@@ -40,7 +38,6 @@ const tagLinks = tags.map((t) => ({ name: t.trim(), href: getTagUrl(t) }));
 	updated={updated ? formatDateToYYYYMMDD(updated) : undefined}
 	category={categoryLink}
 	tags={tagLinks}
-	hideTagsOnMobile={hideTagsForMobile}
 	hideUpdate={hideUpdateDate}
 	uncategorizedLabel={i18n(I18nKey.uncategorized)}
 	noTagsLabel={i18n(I18nKey.noTags)}
