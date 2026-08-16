@@ -9,6 +9,7 @@ import { Icon } from "astro-icon/components";
 import AccentBar from "@components/atoms/display/AccentBar.svelte";
 import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
 import PostMeta from "./PostMeta.astro";
+import TagBadge from "./TagBadge.astro";
 import type { BlogMetaLink } from "./PostMeta.astro";
 
 interface Props {
@@ -69,6 +70,13 @@ const hasCover = !!image;
 			/>
 		)}
 		{description && <p class="m3-blog-postcard__desc">{description}</p>}
+		{tags.length > 0 && (
+			<div class="m3-blog-postcard__tags">
+				{tags.map((t) => (
+					<TagBadge name={t.name} href={t.href} />
+				))}
+			</div>
+		)}
 	</div>
 	{hasCover ? (
 		<a class="m3-blog-postcard__cover" href={href} aria-label={title}>
@@ -146,7 +154,7 @@ const hasCover = !!image;
 		margin-bottom: 0.75rem
 
 	&__desc
-		margin: 0 0 0.75rem
+		margin: 0
 		font: var(--m3e-type-body-medium)
 		/* 对应站点 .text-75 */
 		color: unquote("color-mix(in oklab, var(--on-surface) 78%, transparent)")
@@ -155,6 +163,13 @@ const hasCover = !!image;
 		-webkit-line-clamp: 2
 		-webkit-box-orient: vertical
 		overflow: hidden
+
+	/* 底部标签行：描述之后的独立一层（TagBadge 文字型小标签） */
+	&__tags
+		display: flex
+		flex-wrap: wrap
+		gap: 0.25rem
+		margin-top: 0.75rem
 
 	&__cover
 		position: relative

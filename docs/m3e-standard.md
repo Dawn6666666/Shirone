@@ -204,6 +204,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | Tooltip | `overlay/Tooltip.svelte` | 包裹式（锚点插槽 + 提示内容）；`variant`：`plain`（默认，inverse-surface + corner-xs + body-small）/ `rich`（surface-container + corner-medium + `--m3e-elevation-2`，`title` title-small + `supporting` body-medium + 可选 `action` {label,onClick} primary）；hover 延迟 400ms 显示、focus 立即（键盘可达，注入 `aria-describedby`） | inverse-surface / surface-container / on-surface-variant、`--m3e-elevation-2` | 移植 |
 | PostCard | `blog/PostCard.astro` | 文章卡片（blog 原子，数据驱动）：`href`/`title`/`description`/`image`（封面，桌面端右侧 28%）/`imageAlt`/`published`/`updated`/`category`/`tags`/`readingTime`；容器对齐 display/Card 令牌（surface-container-high + corner-large 16px + hover elevation-2），标题链接 + 进入按钮/封面链接（整卡为 article，避免嵌套 `<a>`），内嵌 blog/PostMeta，描述两行截断 | surface-container-high / on-surface / primary | 原创 |
 | PostMeta | `blog/PostMeta.astro` | 文章元信息行：`published`/`updated`/`category`/`tags`（`{name,href}[]`，展示文本由调用方格式化）、`hideTags`/`hideUpdate`、无分类/无标签占位文案；图标 + 文字 on-surface-variant，链接 hover 变 primary | on-surface-variant / primary | 原创 |
+| TagBadge | `blog/TagBadge.astro` | 文字型小标签（卡片底部标签行）：`#` 前缀 + 名称的轻量标签链接，label-medium 文字、corner-s 热区、hover 变 primary 且前缀右移 | on-surface-variant / primary | 原创 |
 | TagList | `blog/TagList.astro` | 标签列表：`tags`（`{name,href}[]`）渲染为 tonal Chip 链接组（复用 action/Chip），flex-wrap 自动换行 | btn-regular 系 / primary | 原创 |
 | CategoryList | `blog/CategoryList.astro` | 分类列表：`categories`（`{name,href,count?}[]`）渲染为 text Button 行（align between）+ 数量徽标（surface-container-high 圆角，label-medium 加粗） | on-surface / surface-container-high | 原创 |
 | TocList | `blog/TocList.astro` | 目录列表（静态 SSR 版）：`headings`（`{depth,text,slug}[]`）、`maxDepth`（默认 3）；顶级编号徽标（secondary-container）+ 子级小圆点按层级缩进，hover 状态层，锚点链接；激活态由调用方叠加 | secondary-container / on-secondary-container / on-surface-variant | 原创 |
@@ -282,7 +283,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/menu-bus.ts` | 菜单互斥事件总线（Menu/FABMenu 单开联动，`exclusive` 参数） |
 | `src/styles/variables.styl` | 全部设计令牌（颜色/形状/动效/高度/字体） |
 | `src/styles/main.css` | Tailwind 层序、状态层、组件类 |
-| `src/components/atoms/*` | 62 个原子组件（清单单一真源见 `manifest.json`） |
+| `src/components/atoms/*` | 63 个原子组件（清单单一真源见 `manifest.json`） |
 | `src/components/atoms/manifest.json` | 原子清单单一真源（tier / source / landed），由 `pnpm check:manifest` 校验 |
 | `src/components/organisms/DisplaySettings.svelte` | 色相/风格/规范控制面板 |
 | `src/components/molecules/PageHeader.svelte` | 页面级标题（图标 + 标题 + 副标题），见 `docs/common-components.md` |

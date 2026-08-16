@@ -22,6 +22,7 @@
 		{ "name": "SearchPanel", "file": "blog/SearchPanel.svelte", "category": "blog", "tier": "A", "source": "原创", "landed": true },
 		{ "name": "TagList", "file": "blog/TagList.astro", "category": "blog", "tier": "A", "source": "原创", "landed": true },
 		{ "name": "TocList", "file": "blog/TocList.astro", "category": "blog", "tier": "A", "source": "原创", "landed": true },
+		{ "name": "TagBadge", "file": "blog/TagBadge.astro", "category": "blog", "tier": "A", "source": "原创", "landed": true },
 
 		{ "name": "AccentBar", "file": "display/AccentBar.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true },
 		{ "name": "MetaIcon", "file": "display/MetaIcon.astro", "category": "display", "tier": "A", "source": "原创", "landed": true },
