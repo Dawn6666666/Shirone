@@ -284,13 +284,17 @@
 			transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard)
 
 			&--has-posts
-				background: var(--primary-container)
-				color: var(--on-primary-container)
+				/* 淡 tint 状态层（primary 12%）：比实底 container 柔和得多，
+				   有文日的视觉层级应低于今天（实底 primary）；数字保持
+				   on-surface（primary 浅色系在白底卡片上对比度不足），
+				   识别靠淡底 + 加粗；hover 加深 tint 一档 */
+				background: unquote("color-mix(in oklab, var(--primary) 12%, transparent)")
+				color: var(--on-surface)
 				font-weight: 600
 				cursor: pointer
 
 				&:hover
-					filter: brightness(1.06)
+					background: unquote("color-mix(in oklab, var(--primary) 20%, transparent)")
 
 			&--today
 				background: var(--primary)
@@ -301,8 +305,9 @@
 					filter: brightness(1.06)
 
 			&--selected
-				outline: 2px solid var(--outline)
-				outline-offset: -2px
+				/* 选中强调：box-shadow 内描边跟随 corner-s 圆角
+				   （outline 不跟圆角，会画出突兀的方框） */
+				box-shadow: inset 0 0 0 2px var(--outline)
 
 			&:disabled
 				opacity: 0.55
