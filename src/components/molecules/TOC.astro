@@ -69,6 +69,8 @@ class TableOfContents extends HTMLElement {
     tocEntries: HTMLAnchorElement[] = [];
     active: boolean[] = [];
     lastActiveIdx = -1;
+    anchorNavIdx: number | null = null;
+    anchorNavScrollTop = 0;
     updateScheduled = false;
 
     constructor() {
@@ -85,8 +87,6 @@ class TableOfContents extends HTMLElement {
             if (idx != undefined)
                 this.active[idx] = entry.isIntersecting;
 
-            if (entry.isIntersecting && this.anchorNavTarget == entry.target.firstChild)
-                this.anchorNavTarget = null;
         });
 
         if (!this.active.includes(true))
@@ -118,25 +118,45 @@ class TableOfContents extends HTMLElement {
     // 无标题滚过时保持第一个。与上方 active 区间（visible 类/自动滚动）解耦。
     updateActiveHighlight = () => {
         const threshold = window.innerHeight * 0.35;
-        let best = 0;
-        for (let j = 0; j < this.headings.length; j++) {
-            if (this.headings[j].getBoundingClientRect().top <= threshold) {
-                best = j;
+        const atPageBottom = window.scrollY + window.innerHeight >=
+            document.documentElement.scrollHeight - 1;
+        let best = this.anchorNavIdx ?? 0;
+
+        if (this.anchorNavIdx === null) {
+            if (atPageBottom) {
+                best = this.headings.length - 1;
+            } else {
+                for (let j = 0; j < this.headings.length; j++) {
+                    if (this.headings[j].getBoundingClientRect().top <= threshold) {
+                        best = j;
+                    }
+                }
             }
         }
         // 仅在高亮项切换时更新 pill 并触发 TOC 跟随滚动；
         // 高频滚动时避免反复重启 smooth 滚动动画造成卡顿
-        if (best === this.lastActiveIdx) return;
+        if (best === this.lastActiveIdx) {
+            if (this.anchorNavIdx !== null) {
+                this.tocEntries.forEach((entry) =>
+                    entry.classList.toggle(
+                        "m3-blog-toc__item--active",
+                        this.tocEntries.indexOf(entry) === best,
+                    )
+                );
+                this.scrollToActiveHeading(this.tocEntries[best], true);
+            }
+            return;
+        }
         this.lastActiveIdx = best;
         this.tocEntries.forEach((entry) =>
             entry.classList.remove("m3-blog-toc__item--active")
         );
         this.tocEntries[best]?.classList.add("m3-blog-toc__item--active");
-        this.scrollToActiveHeading(this.tocEntries[best]);
+        this.scrollToActiveHeading(this.tocEntries[best], this.anchorNavIdx !== null);
     };
 
-    scrollToActiveHeading = (activeHeading?: HTMLAnchorElement) => {
-        if (this.anchorNavTarget || !this.tocEl || !activeHeading) return;
+    scrollToActiveHeading = (activeHeading?: HTMLAnchorElement, force = false) => {
+        if ((!force && this.anchorNavTarget) || !this.tocEl || !activeHeading) return;
 
         const containerRect = this.tocEl.getBoundingClientRect();
         const itemRect = activeHeading.getBoundingClientRect();
@@ -189,6 +209,13 @@ class TableOfContents extends HTMLElement {
         this.active[idx] = true;
     };
 
+    releaseAnchorNavigation = () => {
+        if (this.anchorNavIdx === null) return;
+        this.anchorNavTarget = null;
+        this.anchorNavIdx = null;
+        this.update();
+    };
+
     handleAnchorClick = (event: Event) => {
         const anchor = event
             .composedPath()
@@ -198,9 +225,21 @@ class TableOfContents extends HTMLElement {
             const id = decodeURIComponent(anchor.hash?.substring(1));
             const idx = this.headingIdxMap.get(id);
             if (idx !== undefined) {
+                event.preventDefault();
+                event.stopPropagation();
                 this.anchorNavTarget = this.headings[idx];
+                this.anchorNavIdx = idx;
+                this.anchorNavScrollTop = Math.max(
+                    0,
+                    this.headings[idx].getBoundingClientRect().top + window.scrollY - 80,
+                );
+                this.updateActiveHighlight();
+
+                history.pushState(null, "", anchor.hash);
+                window.scrollTo({ top: this.anchorNavScrollTop, behavior: "smooth" });
             } else {
                 this.anchorNavTarget = null;
+                this.anchorNavIdx = null;
             }
         }
     };
@@ -258,6 +297,10 @@ class TableOfContents extends HTMLElement {
 
         // 滚动时驱动高亮更新（observer 对长 section 可能不跨边界触发）
         window.addEventListener("scroll", this.update, { passive: true });
+        window.addEventListener("wheel", this.releaseAnchorNavigation, { passive: true });
+        window.addEventListener("touchstart", this.releaseAnchorNavigation, { passive: true });
+        window.addEventListener("pointerdown", this.releaseAnchorNavigation, { passive: true });
+        window.addEventListener("keydown", this.releaseAnchorNavigation);
 
         this.fallback();
         this.update();
@@ -270,6 +313,10 @@ class TableOfContents extends HTMLElement {
         this.observer.disconnect();
         window.removeEventListener("scroll", this.update);
         this.tocEl?.removeEventListener("click", this.handleAnchorClick);
+        window.removeEventListener("wheel", this.releaseAnchorNavigation);
+        window.removeEventListener("touchstart", this.releaseAnchorNavigation);
+        window.removeEventListener("pointerdown", this.releaseAnchorNavigation);
+        window.removeEventListener("keydown", this.releaseAnchorNavigation);
     };
 }
 

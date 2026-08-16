@@ -116,5 +116,29 @@ test.describe("Site TOC", () => {
 				return lastBox.y + lastBox.height <= wrapperBox.y + wrapperBox.height;
 			})
 			.toBe(true);
+
+		await items.first().click();
+		await expect(items.first()).toHaveClass(/m3-blog-toc__item--active/);
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => document.getElementById("expressive-code")?.getBoundingClientRect().top,
+				),
+			)
+			.toBe(80);
+		await expect
+			.poll(() => wrapper.evaluate((element) => element.scrollTop))
+			.toBe(0);
+		await expect(items.first()).toHaveClass(/m3-blog-toc__item--active/);
+
+		await items.last().click();
+		await expect(items.last()).toHaveClass(/m3-blog-toc__item--active/);
+		await expect
+			.poll(() =>
+				wrapper.evaluate(
+					(element) => element.scrollHeight - element.clientHeight - element.scrollTop,
+				),
+			)
+			.toBeLessThanOrEqual(1);
 	});
 });
