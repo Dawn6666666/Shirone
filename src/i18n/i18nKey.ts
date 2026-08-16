@@ -43,6 +43,11 @@ enum I18nKey {
 	postCount = "postCount",
 	postsCount = "postsCount",
 
+	stats = "stats",
+	statsPosts = "statsPosts",
+	statsWords = "statsWords",
+	statsDays = "statsDays",
+
 	themeColor = "themeColor",
 	colorStyle = "colorStyle",
 	colorSpec = "colorSpec",

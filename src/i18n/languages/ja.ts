@@ -46,6 +46,11 @@ export const ja: Translation = {
 	[Key.postCount]: "件の投稿",
 	[Key.postsCount]: "件の投稿",
 
+	[Key.stats]: "統計",
+	[Key.statsPosts]: "記事",
+	[Key.statsWords]: "総文字数",
+	[Key.statsDays]: "運営日数",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "配色スタイル",
 	[Key.colorSpec]: "配色仕様",

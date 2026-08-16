@@ -46,6 +46,11 @@ export const vi: Translation = {
 	[Key.postCount]: "bài viết",
 	[Key.postsCount]: "bài viết",
 
+	[Key.stats]: "Thống kê",
+	[Key.statsPosts]: "Bài viết",
+	[Key.statsWords]: "Tổng số từ",
+	[Key.statsDays]: "Số ngày hoạt động",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Phong cách màu",
 	[Key.colorSpec]: "Đặc tả màu",

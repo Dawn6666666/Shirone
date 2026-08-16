@@ -46,6 +46,11 @@ export const es: Translation = {
 	[Key.postCount]: "publicación",
 	[Key.postsCount]: "publicaciones",
 
+	[Key.stats]: "Estadísticas",
+	[Key.statsPosts]: "Artículos",
+	[Key.statsWords]: "Palabras",
+	[Key.statsDays]: "Días activo",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Estilo de color",
 	[Key.colorSpec]: "Especificación",

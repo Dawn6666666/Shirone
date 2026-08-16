@@ -46,6 +46,11 @@ export const th: Translation = {
 	[Key.postCount]: "โพสต์",
 	[Key.postsCount]: "โพสต์",
 
+	[Key.stats]: "สถิติ",
+	[Key.statsPosts]: "บทความ",
+	[Key.statsWords]: "จำนวนคำ",
+	[Key.statsDays]: "จำนวนวันที่เปิดใช้งาน",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "สไตล์สี",
 	[Key.colorSpec]: "สเปกสี",

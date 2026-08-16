@@ -13,12 +13,13 @@ import type { SidebarConfig } from "@/types/sidebarConfig";
 
 export const sidebarConfig: SidebarConfig = {
 	enable: true,
-	arrangement: "single",
+	arrangement: "dual",
 	side: "left",
 	components: [
 		{ type: "profile", enable: true, slot: "top" },
 		{ type: "announcement", enable: false, slot: "top" },
 		{ type: "categories", enable: true, slot: "sticky" },
-		{ type: "tags", enable: true, slot: "sticky" },
+		{ type: "stats", enable: true, slot: "top", column: "secondary" },
+		{ type: "tags", enable: true, slot: "sticky", column: "secondary" },
 	],
 };

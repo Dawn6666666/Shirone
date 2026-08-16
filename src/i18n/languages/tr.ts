@@ -46,6 +46,11 @@ export const tr: Translation = {
 	[Key.postCount]: "gönderi",
 	[Key.postsCount]: "gönderiler",
 
+	[Key.stats]: "İstatistikler",
+	[Key.statsPosts]: "Yazılar",
+	[Key.statsWords]: "Kelime",
+	[Key.statsDays]: "Aktif gün sayısı",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Renk Stili",
 	[Key.colorSpec]: "Renk Spesifikasyonu",

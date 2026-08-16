@@ -7,6 +7,7 @@
  */
 import Announcement from "@components/molecules/Announcement.astro";
 import Categories from "@components/molecules/Categories.astro";
+import SiteStats from "@components/molecules/SiteStats.astro";
 import Tags from "@components/molecules/Tags.astro";
 import { sidebarConfig } from "@/config/sidebarConfig";
 import type { SidebarColumn, SidebarWidget } from "@/types/sidebarConfig";
@@ -28,6 +29,7 @@ const componentMap = {
 	categories: Categories,
 	tags: Tags,
 	announcement: Announcement,
+	stats: SiteStats,
 } satisfies Record<SidebarWidget["type"], unknown>;
 
 type WidgetRenderer = (props: Record<string, unknown>) => unknown;

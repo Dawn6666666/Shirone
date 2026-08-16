@@ -46,6 +46,11 @@ export const ko: Translation = {
 	[Key.postCount]: "게시물",
 	[Key.postsCount]: "게시물",
 
+	[Key.stats]: "통계",
+	[Key.statsPosts]: "게시글",
+	[Key.statsWords]: "총 글자 수",
+	[Key.statsDays]: "운영 일수",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "색상 스타일",
 	[Key.colorSpec]: "색상 규격",

@@ -296,6 +296,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/layout-mode.ts` | 文章列表布局模式（list/grid）：访客偏好存取、FLIP 切换动效 |
 | `src/utils/masonry.ts` | 瀑布流打包（grid row-span + 最短列分配，无绝对定位） |
 | `src/utils/responsive-utils.ts` | 侧栏响应式布局（single/dual 编排三列 grid 类、主/副栏定位类）+ 页框宽度自动解析（`resolvePageWidth`） |
+| `src/utils/site-stats.ts` | 站点统计汇总（文章/动态/分类/标签/总字数/运行天数，模块级备忘化） |
 
 ---
 

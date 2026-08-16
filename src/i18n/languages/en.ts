@@ -46,6 +46,11 @@ export const en: Translation = {
 	[Key.postCount]: "post",
 	[Key.postsCount]: "posts",
 
+	[Key.stats]: "Stats",
+	[Key.statsPosts]: "Posts",
+	[Key.statsWords]: "Words",
+	[Key.statsDays]: "Uptime",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Color Style",
 	[Key.colorSpec]: "Color Spec",

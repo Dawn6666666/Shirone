@@ -46,6 +46,11 @@ export const zh_TW: Translation = {
 	[Key.postCount]: "篇文章",
 	[Key.postsCount]: "篇文章",
 
+	[Key.stats]: "統計",
+	[Key.statsPosts]: "文章",
+	[Key.statsWords]: "總字數",
+	[Key.statsDays]: "運行天數",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "配色風格",
 	[Key.colorSpec]: "配色規範",

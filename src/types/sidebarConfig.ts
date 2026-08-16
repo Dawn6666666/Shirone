@@ -56,11 +56,20 @@ export interface AnnouncementWidget {
 	column?: SidebarColumn;
 }
 
+/** 站点统计（数据自动汇总：文章/动态/分类/标签/总字数/运行天数） */
+export interface StatsWidget {
+	type: "stats";
+	enable: boolean;
+	slot: SidebarWidgetSlot;
+	column?: SidebarColumn;
+}
+
 export type SidebarWidget =
 	| ProfileWidget
 	| CategoriesWidget
 	| TagsWidget
-	| AnnouncementWidget;
+	| AnnouncementWidget
+	| StatsWidget;
 
 /**
  * 侧栏整体配置。components 渲染顺序 = 数组顺序，top 恒排在 sticky 之前。

@@ -46,6 +46,11 @@ export const id: Translation = {
 	[Key.postCount]: "postingan",
 	[Key.postsCount]: "postingan",
 
+	[Key.stats]: "Statistik",
+	[Key.statsPosts]: "Artikel",
+	[Key.statsWords]: "Kata",
+	[Key.statsDays]: "Hari aktif",
+
 	[Key.themeColor]: "Theme Color",
 	[Key.colorStyle]: "Gaya Warna",
 	[Key.colorSpec]: "Spesifikasi Warna",
