@@ -107,6 +107,19 @@ svelte({
 
 ---
 
+### 1.8 不能从子组件根（class 透传）做后代选择器：父组件 scope 类不在其上
+
+**现象**：`<Card class="anime-section">` 包内容，样式写 `& .anime-list { display: grid }`（编译为 `.anime-section.svelte-父xx .anime-list.svelte-父xx`）——规则静默失效，`display:grid` 从未生效，列表全宽单列堆叠。单类规则（`&__tools` 等）不受影响，只有**从 Card 根出发的后代选择器**失效（番剧页布局 bug 的根因）。
+
+**根因**：class 透传后落在 Card 模板内的根元素上，该元素带的是 **Card 的 scope class**（`svelte-pl9i7u`），不是父组件（AnimeSection）的 `svelte-1ds0vm7`，父样式选择器永远匹配不上。
+
+**解法**：
+- 单类规则（`&__xx`）照常写；
+- 需要后代/子级选择器时，把宿主类放到模板内的真实元素上（如内层 `<div class="anime-section">`），或用 `:global(.宿主类)` 声明跨边界（容器查询宿主即用此法：`:global(.anime-section){container-type:inline-size}`）；
+- 跨组件边界覆盖子组件内部类，统一 `:global(.子类)`，规则集中在布局拥有方（见 AnimeSection 的 list 模式）。
+
+---
+
 ## 2. CSS / Stylus
 
 ### 2.1 Stylus 嵌套同名子元素会拼错类名
