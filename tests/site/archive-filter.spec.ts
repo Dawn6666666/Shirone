@@ -13,6 +13,18 @@ test.describe("archive filter breadcrumb", () => {
 		await expect(crumb.locator(".archive-panel__crumb-count")).toHaveCount(0);
 	});
 
+	test("server-renders archive content before hydration", async ({ request, page }) => {
+		const response = await request.get("/archive/?category=Examples");
+		expect(response.ok()).toBe(true);
+		const html = await response.text();
+		expect(html).toContain("archive-panel");
+		expect(html).toContain("m3-blog-archive__group");
+
+		await page.goto("/archive/?category=Examples");
+		await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toBeVisible();
+		await expect(page.locator(".m3-blog-archive__item")).toHaveCount(5);
+	});
+
 	test("keeps mobile insets and long values inside the archive card", async ({ page }) => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		const value = "A-category-name-that-is-intentionally-long-for-mobile";
