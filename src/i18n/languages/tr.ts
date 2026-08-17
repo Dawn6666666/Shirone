@@ -36,6 +36,11 @@ export const tr: Translation = {
 	[Key.animeStatusOnHold]: "Beklemede",
 	[Key.animeStatusDropped]: "Bırakıldı",
 
+	[Key.compass]: "Pusula",
+	[Key.compassBanner]: "Sık sık döndüğüm siteler — geliştirme araçları, dokümanlar ve tavşan delikleri.",
+	[Key.compassNoResults]: "Aramanızla eşleşen site yok",
+	[Key.compassCounts]: "site",
+
 	[Key.imageViewer]: "Görsel görüntüleyici",
 	[Key.openImage]: "Görseli aç",
 	[Key.previousImage]: "Önceki görsel",

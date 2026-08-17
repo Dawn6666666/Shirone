@@ -36,6 +36,11 @@ export const en: Translation = {
 	[Key.animeStatusOnHold]: "On Hold",
 	[Key.animeStatusDropped]: "Dropped",
 
+	[Key.compass]: "Compass",
+	[Key.compassBanner]: "Handy sites I keep coming back to — dev tools, docs and rabbit holes.",
+	[Key.compassNoResults]: "No sites matched your search",
+	[Key.compassCounts]: "sites",
+
 	[Key.imageViewer]: "Image viewer",
 	[Key.openImage]: "Open image",
 	[Key.previousImage]: "Previous image",

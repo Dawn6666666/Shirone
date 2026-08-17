@@ -34,6 +34,11 @@ enum I18nKey {
 	animeStatusOnHold = "animeStatusOnHold",
 	animeStatusDropped = "animeStatusDropped",
 
+	compass = "compass",
+	compassBanner = "compassBanner",
+	compassNoResults = "compassNoResults",
+	compassCounts = "compassCounts",
+
 	imageViewer = "imageViewer",
 	openImage = "openImage",
 	previousImage = "previousImage",

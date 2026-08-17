@@ -36,6 +36,11 @@ export const ko: Translation = {
 	[Key.animeStatusOnHold]: "보류",
 	[Key.animeStatusDropped]: "중단",
 
+	[Key.compass]: "나침반",
+	[Key.compassBanner]: "자주 찾는 사이트 — 개발 도구, 문서, 그리고 토끼굴 속으로.",
+	[Key.compassNoResults]: "검색어와 일치하는 사이트가 없습니다",
+	[Key.compassCounts]: "개 사이트",
+
 	[Key.imageViewer]: "이미지 뷰어",
 	[Key.openImage]: "이미지 열기",
 	[Key.previousImage]: "이전 이미지",

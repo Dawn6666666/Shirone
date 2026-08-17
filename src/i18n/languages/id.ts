@@ -36,6 +36,11 @@ export const id: Translation = {
 	[Key.animeStatusOnHold]: "Ditunda",
 	[Key.animeStatusDropped]: "Ditinggalkan",
 
+	[Key.compass]: "Kompas",
+	[Key.compassBanner]: "Situs yang sering saya kunjungi — alat pengembangan, dokumentasi, dan lubang kelinci.",
+	[Key.compassNoResults]: "Tidak ada situs yang cocok dengan pencarian",
+	[Key.compassCounts]: "situs",
+
 	[Key.imageViewer]: "Penampil gambar",
 	[Key.openImage]: "Buka gambar",
 	[Key.previousImage]: "Gambar sebelumnya",

@@ -36,6 +36,11 @@ export const es: Translation = {
 	[Key.animeStatusOnHold]: "En pausa",
 	[Key.animeStatusDropped]: "Abandonado",
 
+	[Key.compass]: "Brújula",
+	[Key.compassBanner]: "Sitios a los que vuelvo a menudo — herramientas de desarrollo, documentación y madrigueras de conejo.",
+	[Key.compassNoResults]: "Ningún sitio coincide con tu búsqueda",
+	[Key.compassCounts]: "sitios",
+
 	[Key.imageViewer]: "Visor de imágenes",
 	[Key.openImage]: "Abrir imagen",
 	[Key.previousImage]: "Imagen anterior",

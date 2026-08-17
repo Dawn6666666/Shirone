@@ -36,6 +36,11 @@ export const ja: Translation = {
 	[Key.animeStatusOnHold]: "保留中",
 	[Key.animeStatusDropped]: "中止",
 
+	[Key.compass]: "サイト羅針盤",
+	[Key.compassBanner]: "よく使うサイト —— 開発ツール、ドキュメント、そして迷宮の奥へ。",
+	[Key.compassNoResults]: "検索条件に一致するサイトがありません",
+	[Key.compassCounts]: "個のサイト",
+
 	[Key.imageViewer]: "画像ビューアー",
 	[Key.openImage]: "画像を開く",
 	[Key.previousImage]: "前の画像",

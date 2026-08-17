@@ -40,6 +40,12 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		icon: "material-symbols:live-tv-outline-rounded",
 		pageKey: "anime",
 	},
+	Compass: {
+		name: i18n(I18nKey.compass),
+		url: "/compass/",
+		icon: "material-symbols:explore-rounded",
+		pageKey: "compass",
+	},
 	Categories: {
 		name: i18n(I18nKey.categories),
 		url: "/categories/",
@@ -73,6 +79,7 @@ export const navBarConfig: NavBarConfig = {
 		LinkPresets.Friends,
 		LinkPresets.Moments,
 		LinkPresets.Anime,
+		LinkPresets.Compass,
 		{
 			name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",

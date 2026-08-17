@@ -36,6 +36,11 @@ export const zh_TW: Translation = {
 	[Key.animeStatusOnHold]: "擱置",
 	[Key.animeStatusDropped]: "棄番",
 
+	[Key.compass]: "站點羅盤",
+	[Key.compassBanner]: "常去的站點 —— 開發工具、文件與各種兔子洞。",
+	[Key.compassNoResults]: "沒有符合條件的站點",
+	[Key.compassCounts]: "個站點",
+
 	[Key.imageViewer]: "圖片檢視器",
 	[Key.openImage]: "開啟圖片",
 	[Key.previousImage]: "上一張",

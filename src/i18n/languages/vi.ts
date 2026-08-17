@@ -36,6 +36,11 @@ export const vi: Translation = {
 	[Key.animeStatusOnHold]: "Tạm dừng",
 	[Key.animeStatusDropped]: "Đã bỏ",
 
+	[Key.compass]: "La bàn",
+	[Key.compassBanner]: "Các trang tôi hay ghé — công cụ lập trình, tài liệu và những hố thỏ.",
+	[Key.compassNoResults]: "Không có trang nào khớp với tìm kiếm",
+	[Key.compassCounts]: "trang",
+
 	[Key.imageViewer]: "Trình xem ảnh",
 	[Key.openImage]: "Mở ảnh",
 	[Key.previousImage]: "Ảnh trước",

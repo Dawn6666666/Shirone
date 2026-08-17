@@ -36,6 +36,11 @@ export const th: Translation = {
 	[Key.animeStatusOnHold]: "พักไว้",
 	[Key.animeStatusDropped]: "เลิกดู",
 
+	[Key.compass]: "เข็มทิศ",
+	[Key.compassBanner]: "เว็บไซต์ที่ฉันกลับมาใช้บ่อย — เครื่องมือพัฒนา เอกสาร และหลุมกระต่าย",
+	[Key.compassNoResults]: "ไม่พบเว็บไซต์ที่ตรงกับคำค้นหา",
+	[Key.compassCounts]: "เว็บไซต์",
+
 	[Key.imageViewer]: "ตัวดูรูปภาพ",
 	[Key.openImage]: "เปิดรูปภาพ",
 	[Key.previousImage]: "รูปก่อนหน้า",
