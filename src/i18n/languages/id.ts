@@ -5,6 +5,10 @@ export const id: Translation = {
 	[Key.home]: "Beranda",
 	[Key.about]: "Tentang",
 	[Key.archive]: "Arsip",
+	[Key.archiveGroup]: "Kelompokkan arsip",
+	[Key.archiveGroupYear]: "Berdasarkan tahun",
+	[Key.archiveGroupCategory]: "Berdasarkan kategori",
+	[Key.archiveGroupTag]: "Berdasarkan tag",
 	[Key.search]: "Cari",
 	[Key.clear]: "Hapus",
 

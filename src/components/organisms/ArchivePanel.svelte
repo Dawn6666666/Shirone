@@ -1,12 +1,16 @@
 <script lang="ts">
 	/**
-	 * 归档面板：时间轴列表（年份折叠见 ArchiveList 原子）。
-	 * URL 参数（?category= / ?tag= / ?uncategorized）驱动筛选（进入即过滤）。
-	 * 有筛选时顶部显示筛选头（面包屑）：索引页链接 › 当前筛选值，
-	 * 一键回溯到分类/标签索引页；无筛选时保持纯时间轴。
+	 * 归档面板：分组切换（SegmentedButton，按年 / 按分类 / 按标签）+ 时间轴列表（组折叠见 ArchiveList 原子）。
+	 * URL 参数（?category= / ?tag= / ?uncategorized）是定向浏览视图：隐藏分组切换，
+	 * 顶部显示筛选头（面包屑）——索引页链接 › 当前筛选值，一键回溯到分类/标签索引页；
+	 * 无筛选时显示分组切换，可按年 / 按分类 / 按标签切换全量归档的分组。
 	 */
-	import ArchiveList from "@components/atoms/blog/ArchiveList.svelte";
+	import ArchiveList, {
+		type ArchiveGroup,
+		type ArchiveItem,
+	} from "@components/atoms/blog/ArchiveList.svelte";
 	import Card from "@components/atoms/display/Card.svelte";
+	import SegmentedButton from "@components/atoms/selection/SegmentedButton.svelte";
 	import Icon from "@iconify/svelte";
 	import I18nKey from "@i18n/i18nKey";
 	import { i18n } from "@i18n/translation";
@@ -28,18 +32,8 @@
 	let category = $state("");
 	let tag = $state("");
 	let uncategorized = $state(false);
-	let groups = $state<
-		{
-			year: number;
-			items: {
-				title: string;
-				href: string;
-				date: string;
-				category?: string;
-				tags: string[];
-			}[];
-		}[]
-	>([]);
+	/** 分组维度（SegmentedButton 驱动）：year / category / tag，string 以匹配 bind:value */
+	let groupBy = $state<string>("year");
 
 	/** 筛选头数据：类别（决定索引链接）+ 展示值；无筛选为 null */
 	const filterCrumb = $derived.by(() => {
@@ -67,66 +61,91 @@
 		return null;
 	});
 
+	const groupOptions = [
+		{ value: "year", label: i18n(I18nKey.archiveGroupYear) },
+		{ value: "category", label: i18n(I18nKey.archiveGroupCategory) },
+		{ value: "tag", label: i18n(I18nKey.archiveGroupTag) },
+	];
+
+	/** 筛选后的文章（分组维度与之正交，均在下方消费） */
+	const filtered = $derived(
+		sortedPosts.filter((p) => {
+			if (uncategorized && p.data.category) return false;
+			if (category && p.data.category !== category) return false;
+			if (tag && !p.data.tags.includes(tag)) return false;
+			return true;
+		}),
+	);
+
 	function formatDate(date: Date) {
 		const month = (date.getMonth() + 1).toString().padStart(2, "0");
 		const day = date.getDate().toString().padStart(2, "0");
 		return `${month}-${day}`;
 	}
 
+	function toItem(post: Post): ArchiveItem {
+		return {
+			title: post.data.title,
+			href: getPostUrlBySlug(post.slug),
+			date: formatDate(post.data.published),
+			category: post.data.category ?? undefined,
+			tags: post.data.tags,
+		};
+	}
+
 	function countLabel(count: number) {
 		return `${count} ${i18n(count === 1 ? I18nKey.postCount : I18nKey.postsCount)}`;
 	}
 
-	function buildGroups() {
-		let filtered: Post[] = sortedPosts;
-		if (uncategorized) {
-			filtered = filtered.filter((p) => !p.data.category);
+	/** 按当前分组维度构建组；组内保持筛选后顺序（时间倒序）。 */
+	const groups = $derived.by((): ArchiveGroup[] => {
+		if (filtered.length === 0) return [];
+		const buckets = new Map<string, ArchiveItem[]>();
+		const add = (key: string, item: ArchiveItem) => {
+			const list = buckets.get(key);
+			if (list) list.push(item);
+			else buckets.set(key, [item]);
+		};
+		if (groupBy === "category") {
+			for (const p of filtered) {
+				add(p.data.category ?? i18n(I18nKey.uncategorized), toItem(p));
+			}
+		} else if (groupBy === "tag") {
+			for (const p of filtered) {
+				for (const t of p.data.tags) add(`#${t}`, toItem(p));
+			}
+		} else {
+			for (const p of filtered) {
+				add(String(p.data.published.getFullYear()), toItem(p));
+			}
 		}
-		if (category) {
-			filtered = filtered.filter((p) => p.data.category === category);
+		const list = [...buckets.entries()].map(([id, items]) => ({ id, title: id, items }));
+		if (groupBy === "year") {
+			return list.sort((a, b) => Number(b.title) - Number(a.title));
 		}
-		if (tag) {
-			filtered = filtered.filter((p) => p.data.tags.includes(tag));
-		}
-		const grouped = filtered.reduce(
-			(acc, post) => {
-				const year = post.data.published.getFullYear();
-				if (!acc[year]) {
-					acc[year] = [];
-				}
-				acc[year].push(post);
-				return acc;
-			},
-			{} as Record<number, Post[]>,
-		);
-
-		groups = Object.keys(grouped)
-			.map((yearStr) => {
-				const year = Number.parseInt(yearStr, 10);
-				return {
-					year,
-					items: grouped[year].map((post) => ({
-						title: post.data.title,
-						href: getPostUrlBySlug(post.slug),
-						date: formatDate(post.data.published),
-						category: post.data.category ?? undefined,
-						tags: post.data.tags,
-					})),
-				};
-			})
-			.sort((a, b) => b.year - a.year);
-	}
+		return list.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+	});
 
 	onMount(() => {
 		const params = new URLSearchParams(window.location.search);
 		category = params.get("category") || "";
 		tag = params.get("tag") || "";
 		uncategorized = params.has("uncategorized");
-		buildGroups();
 	});
 </script>
 
 <Card color="var(--card-bg)" radius="l" class="archive-panel px-8 py-6">
+	<!-- 带筛选参数（?category= / ?tag= / ?uncategorized）是定向浏览视图：
+	    隐藏分组切换，只留面包屑 + 筛选后时间轴；无筛选才显示分组切换。 -->
+	{#if !filterCrumb}
+		<div class="archive-panel__group-switch">
+			<SegmentedButton
+				options={groupOptions}
+				bind:value={groupBy}
+				label={i18n(I18nKey.archiveGroup)}
+			/>
+		</div>
+	{/if}
 	{#if filterCrumb}
 		<nav class="archive-panel__crumb" aria-label="Breadcrumb">
 			<ol class="archive-panel__crumb-list">
@@ -148,7 +167,13 @@
 			</ol>
 		</nav>
 	{/if}
-	<ArchiveList {groups} {countLabel} />
+	{#if groups.length > 0}
+		<ArchiveList {groups} {countLabel} />
+	{:else}
+		<div class="archive-panel__empty">
+			<span>{i18n(I18nKey.noData)}</span>
+		</div>
+	{/if}
 </Card>
 
 <style lang="stylus">
@@ -159,6 +184,18 @@
 		padding: 1rem
 
 .archive-panel
+	/* 分组切换（SegmentedButton，站内 pill 语言）与下方时间轴之间的节奏 */
+	:global(&__group-switch)
+		margin-bottom: 1rem
+
+	:global(&__empty)
+		display: flex
+		align-items: center
+		justify-content: center
+		min-height: 11rem
+		color: var(--on-surface-variant)
+		font: var(--m3e-type-body-large)
+
 	:global(&__crumb)
 		min-width: 0
 		padding: 0 0.25rem 0.875rem

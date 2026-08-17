@@ -2,6 +2,11 @@ enum I18nKey {
 	home = "home",
 	about = "about",
 	archive = "archive",
+	/** 归档分组切换（Tabs）：tablist 无障碍名称 */
+	archiveGroup = "archiveGroup",
+	archiveGroupYear = "archiveGroupYear",
+	archiveGroupCategory = "archiveGroupCategory",
+	archiveGroupTag = "archiveGroupTag",
 	search = "search",
 	clear = "clear",
 

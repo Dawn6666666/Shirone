@@ -57,7 +57,7 @@
 		{ "name": "NavigationBar", "file": "navigation/NavigationBar.svelte", "category": "navigation", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
 		{ "name": "NavigationDrawer", "file": "navigation/NavigationDrawer.svelte", "category": "navigation", "tier": "watch", "source": "移植", "landed": false, "note": "移动端替换 SiteNavigationDrawer 评估" },
 		{ "name": "NavigationRail", "file": "navigation/NavigationRail.svelte", "category": "navigation", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
-		{ "name": "Tabs", "file": "navigation/Tabs.svelte", "category": "navigation", "tier": "B", "source": "移植", "landed": false, "note": "归档/友链分区" },
+		{ "name": "Tabs", "file": "navigation/Tabs.svelte", "category": "navigation", "tier": "B", "source": "移植", "landed": false, "note": "归档分组改用 SegmentedButton（站内 pill 风格）" },
 
 		{ "name": "AlertDialog", "file": "overlay/AlertDialog.svelte", "category": "overlay", "tier": "B", "source": "移植", "landed": false, "note": "破坏性操作确认" },
 		{ "name": "Banner", "file": "overlay/Banner.svelte", "category": "overlay", "tier": "B", "source": "移植", "landed": false, "note": "公告 widget，P2" },

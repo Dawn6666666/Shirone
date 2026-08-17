@@ -5,6 +5,10 @@ export const zh_TW: Translation = {
 	[Key.home]: "首頁",
 	[Key.about]: "關於",
 	[Key.archive]: "彙整",
+	[Key.archiveGroup]: "彙整分組",
+	[Key.archiveGroupYear]: "依年份",
+	[Key.archiveGroupCategory]: "依分類",
+	[Key.archiveGroupTag]: "依標籤",
 	[Key.search]: "搜尋",
 	[Key.clear]: "清除",
 

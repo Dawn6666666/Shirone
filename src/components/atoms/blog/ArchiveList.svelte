@@ -1,8 +1,8 @@
 <script lang="ts">
 	/**
-	 * M3E 博客原子 — ArchiveList 归档时间轴（按年份分组）。
-	 * 数据驱动：groups 为 { year, items: { title, href, date, tags? } }[]；
-	 * 年份头可折叠（chevron 旋转，m3-state-layer），时间轴节点行，
+	 * M3E 博客原子 — ArchiveList 归档时间轴（分组可折叠，组标题数据驱动）。
+	 * 数据驱动：groups 为 { id, title, items: { title, href, date, tags? } }[]；
+	 * 组头可折叠（chevron 旋转，m3-state-layer），时间轴节点行，
 	 * hover 标题变 primary 右移、节点放大；分类以 primary 小徽标前置。
 	 * Svelte 实现：ArchivePanel（Svelte）与 Astro 演示页均可复用。
 	 */
@@ -18,7 +18,10 @@
 		tags?: string[];
 	}
 	export interface ArchiveGroup {
-		year: number;
+		/** 折叠状态键（组内唯一）：年份 / 分类名 / 标签名 */
+		id: string;
+		/** 头部主文本：年份数字 / 分类名 / #标签名 */
+		title: string;
 		items: ArchiveItem[];
 	}
 
@@ -36,35 +39,35 @@
 		class?: string;
 	} = $props();
 
-	let collapsed = $state<Record<number, boolean>>({});
+	let collapsed = $state<Record<string, boolean>>({});
 
 	// groups 变化时按规则重建折叠状态
 	$effect(() => {
 		const collapseAllButFirst =
 			collapsedByDefault === "firstExpanded" && groups.length > 1;
-		const next: Record<number, boolean> = {};
+		const next: Record<string, boolean> = {};
 		groups.forEach((g, index) => {
-			next[g.year] = collapseAllButFirst && index > 0;
+			next[g.id] = collapseAllButFirst && index > 0;
 		});
 		collapsed = next;
 	});
 </script>
 
 <div class="m3-blog-archive {className}">
-	{#each groups as g (g.year)}
+	{#each groups as g (g.id)}
 		<section class="m3-blog-archive__group">
 			<button
 				type="button"
 				class="m3-blog-archive__header m3-state-layer"
-				aria-expanded={!collapsed[g.year]}
-				onclick={() => (collapsed[g.year] = !collapsed[g.year])}
+				aria-expanded={!collapsed[g.id]}
+				onclick={() => (collapsed[g.id] = !collapsed[g.id])}
 			>
-				<span class="m3-blog-archive__year">{g.year}</span>
+				<span class="m3-blog-archive__group-title">{g.title}</span>
 				<span class="m3-blog-archive__dot" aria-hidden="true"></span>
 				<span class="m3-blog-archive__count">{countLabel(g.items.length)}</span>
 				<span
 					class="m3-blog-archive__chevron"
-					class:m3-blog-archive__chevron--open={!collapsed[g.year]}
+					class:m3-blog-archive__chevron--open={!collapsed[g.id]}
 					aria-hidden="true"
 				>
 					<Icon icon="material-symbols:keyboard-arrow-down" />
@@ -72,7 +75,7 @@
 			</button>
 			<div
 				class="m3-blog-archive__body"
-				use:collapse={{ open: !collapsed[g.year] }}
+				use:collapse={{ open: !collapsed[g.id] }}
 			>
 				<ul class="m3-blog-archive__list">
 					{#each g.items as it (it.href)}
@@ -140,12 +143,16 @@
 		&:focus-within:not(:focus-visible)::before
 			opacity: 0
 
-	&__year
+	&__group-title
+		flex: 1 1 auto
 		min-width: 3.5rem
-		text-align: right
+		text-align: left
 		font: var(--m3e-type-title-large)
 		font-weight: 700
 		color: var(--on-surface)
+		white-space: nowrap
+		overflow: hidden
+		text-overflow: ellipsis
 
 	&__dot
 		flex-shrink: 0
@@ -285,7 +292,7 @@
 		&__header
 			gap: 0.75rem
 			padding-right: 0.5rem
-		&__year
+		&__group-title
 			min-width: 3.25rem
 		&__item
 			gap: 0.5rem

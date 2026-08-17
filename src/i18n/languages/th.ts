@@ -5,6 +5,10 @@ export const th: Translation = {
 	[Key.home]: "หน้าแรก",
 	[Key.about]: "เกี่ยวกับ",
 	[Key.archive]: "คลัง",
+	[Key.archiveGroup]: "จัดกลุ่มคลัง",
+	[Key.archiveGroupYear]: "ตามปี",
+	[Key.archiveGroupCategory]: "ตามหมวดหมู่",
+	[Key.archiveGroupTag]: "ตามแท็ก",
 	[Key.search]: "ค้นหา",
 	[Key.clear]: "ล้าง",
 
