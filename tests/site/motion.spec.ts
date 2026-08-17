@@ -191,6 +191,72 @@ test.describe("Site motion", () => {
 	});
 });
 
+test.describe("layout shift motion primitive", () => {
+	test("animates a target displaced by source resizing", async ({ page }) => {
+		await page.goto("/archive/");
+		const result = await page.evaluate(async () => {
+			const { observeLayoutShifts } = await import("/src/utils/motion.ts");
+			const host = document.createElement("div");
+			const source = document.createElement("div");
+			const target = document.createElement("div");
+			source.style.height = "40px";
+			target.style.height = "20px";
+			host.append(source, target);
+			document.body.append(host);
+			const beforeLayout = target.offsetTop;
+			const beforeVisual = target.getBoundingClientRect().top;
+			const stop = observeLayoutShifts(target, source, 1000);
+			await new Promise(requestAnimationFrame);
+			source.style.height = "180px";
+			await new Promise<void>((resolve) => setTimeout(resolve, 50));
+			const animation = target.getAnimations()[0];
+			const frames = animation?.effect instanceof KeyframeEffect
+				? animation.effect.getKeyframes()
+				: [];
+			const afterLayout = target.offsetTop;
+			const afterVisual = target.getBoundingClientRect().top;
+			stop();
+			host.remove();
+			return {
+				layoutDelta: afterLayout - beforeLayout,
+				visualDelta: afterVisual - beforeVisual,
+				animationCount: animation ? 1 : 0,
+				fromTransform: String(frames[0]?.transform),
+			};
+		});
+
+		expect(result.layoutDelta).toBeGreaterThan(100);
+		expect(result.visualDelta).toBeLessThan(20);
+		expect(result.animationCount).toBe(1);
+		expect(result.fromTransform).toContain("translate(0px, -140px)");
+	});
+
+	test("snaps without animation when motion is reduced", async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: "reduce" });
+		await page.goto("/archive/");
+		const animationCount = await page.evaluate(async () => {
+			const { observeLayoutShifts } = await import("/src/utils/motion.ts");
+			const host = document.createElement("div");
+			const source = document.createElement("div");
+			const target = document.createElement("div");
+			source.style.height = "40px";
+			target.style.height = "20px";
+			host.append(source, target);
+			document.body.append(host);
+			const stop = observeLayoutShifts(target, source, 1000);
+			await new Promise(requestAnimationFrame);
+			source.style.height = "180px";
+			await new Promise<void>((resolve) => setTimeout(resolve, 50));
+			const count = target.getAnimations().length;
+			stop();
+			host.remove();
+			return count;
+		});
+
+		expect(animationCount).toBe(0);
+	});
+});
+
 /**
  * 侧栏 pages 过滤（swup 导航同步 + 集合变更原语）：
  * 站点配置 stats 仅 home/archive 可见，首页↔文章页导航会触发退场/入场。

@@ -151,6 +151,7 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 	import {
 		fadeOutThenHide,
 		flipFromRect,
+		observeLayoutShifts,
 		prefersReducedMotion,
 		revealIn,
 	} from "@utils/motion";
@@ -252,11 +253,34 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 		void syncSidebarPages();
 	}
 
+	let stopLayoutShiftObserver: (() => void) | undefined;
+	function startMobileLayoutTransition(): void {
+		stopLayoutShiftObserver?.();
+		stopLayoutShiftObserver = undefined;
+		if (!window.matchMedia("(max-width: 1023px)").matches) return;
+		const sidebar = document.getElementById("sidebar");
+		const mainContent = document.getElementById("main-content-column");
+		if (sidebar && mainContent) {
+			stopLayoutShiftObserver = observeLayoutShifts(sidebar, mainContent);
+		}
+	}
+
+	function stopMobileLayoutTransition(): void {
+		window.setTimeout(() => {
+			stopLayoutShiftObserver?.();
+			stopLayoutShiftObserver = undefined;
+		}, 350);
+	}
+
 	if (window.swup?.hooks) {
+		window.swup.hooks.on("visit:start", startMobileLayoutTransition);
 		window.swup.hooks.on("content:replace", onSwupReplace);
+		window.swup.hooks.on("visit:end", stopMobileLayoutTransition);
 	} else {
 		document.addEventListener("swup:enable", () => {
+			window.swup?.hooks.on("visit:start", startMobileLayoutTransition);
 			window.swup?.hooks.on("content:replace", onSwupReplace);
+			window.swup?.hooks.on("visit:end", stopMobileLayoutTransition);
 		});
 	}
 </script>

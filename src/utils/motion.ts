@@ -8,6 +8,7 @@
  * - 集合变更原语（revealIn / fadeOutThenHide / flipFromRect）：
  *   非 Svelte 场景（如 SideBar 的 pages 过滤）按需组合的元素级函数，
  *   与上面 action 同一套曲线与降级约定。
+ * - observeLayoutShifts：短生命周期布局变化的通用 FLIP 观察器。
  */
 
 /** 是否应降级动效：系统 prefers-reduced-motion 或站点手动开关（html.motion-reduced） */
@@ -157,7 +158,7 @@ export function reveal(node: HTMLElement, params: RevealParams = {}) {
 }
 
 /* ============================================================
-   集合变更原语（非 Svelte 场景的元素级函数）
+   集合与布局变更原语（非 Svelte 场景的元素级函数）
    典型消费方：SideBar 的 pages 过滤（swup 导航后组件显隐 + 兄弟位移）。
    约定：WAAPI 驱动、只动 transform/opacity、时长对齐动效令牌、
    prefersReducedMotion() 命中时直接到位。
@@ -238,4 +239,59 @@ export function flipFromRect(
 		],
 		{ duration, easing: EASING_EMPHASIZED },
 	);
+}
+
+/**
+ * 在短生命周期布局更新期间平滑元素的位置变化。
+ * ResizeObserver 只负责发现 sizeSource 的尺寸变化；目标元素用 FLIP transform
+ * 从上一个文档坐标过渡到新坐标，不改变布局。返回清理函数供导航结束时调用。
+ */
+export function observeLayoutShifts(
+	el: HTMLElement,
+	sizeSource: HTMLElement,
+	duration = 250,
+): () => void {
+	let animation: Animation | null = null;
+	const documentRect = () => {
+		const rect = el.getBoundingClientRect();
+		return {
+			left: rect.left + window.scrollX,
+			top: rect.top + window.scrollY,
+		};
+	};
+	let previous = documentRect();
+
+	const observer = new ResizeObserver(() => {
+		if (prefersReducedMotion()) {
+			animation?.cancel();
+			animation = null;
+			previous = documentRect();
+			return;
+		}
+
+		const visual = animation ? documentRect() : previous;
+		animation?.cancel();
+		const next = documentRect();
+		const dx = visual.left - next.left;
+		const dy = visual.top - next.top;
+		previous = next;
+		if (!dx && !dy) return;
+
+		animation = el.animate(
+			[
+				{ transform: `translate(${dx}px, ${dy}px)` },
+				{ transform: "translate(0, 0)" },
+			],
+			{ duration, easing: EASING_EMPHASIZED },
+		);
+		animation.onfinish = () => {
+			animation = null;
+		};
+	});
+
+	observer.observe(sizeSource);
+	return () => {
+		observer.disconnect();
+		animation?.cancel();
+	};
 }
