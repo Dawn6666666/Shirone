@@ -34,6 +34,7 @@
 		{ "name": "DataTable", "file": "display/DataTable.svelte", "category": "display", "tier": "C", "source": "移植", "landed": false, "note": "企业感，无博客场景" },
 		{ "name": "Divider", "file": "display/Divider.svelte", "category": "display", "tier": "B", "source": "移植", "landed": false },
 		{ "name": "ListItem", "file": "display/ListItem.svelte", "category": "display", "tier": "B", "source": "移植", "landed": false, "note": "友链/动态，P1" },
+		{ "name": "PageHeader", "file": "display/PageHeader.astro", "category": "display", "tier": "A", "source": "原创", "landed": true, "note": "SSR 静态页页内大标题（astro-icon 内联，区别于 molecules 版）" },
 		{ "name": "PanelStack", "file": "display/PanelStack.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true, "note": "安卓设置风格分段堆叠面板（段间透明间隙），Theme Color 弹窗已落地" },
 		{ "name": "Skeleton", "file": "display/Skeleton.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true },
 
