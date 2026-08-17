@@ -26,6 +26,16 @@ export const tr: Translation = {
 	[Key.pinned]: "Sabitlenen",
 	[Key.loadMore]: "Daha fazla yükle",
 
+	[Key.anime]: "Anime",
+	[Key.animeBanner]: "İzleme listem — izlediklerim, bitirdiklerim ve sırada bekleyenler.",
+	[Key.animeNoResults]: "Filtrenize uyan anime yok",
+	[Key.animeCounts]: "anime",
+	[Key.animeStatusWatching]: "İzliyorum",
+	[Key.animeStatusCompleted]: "Tamamlandı",
+	[Key.animeStatusPlanned]: "Planlandı",
+	[Key.animeStatusOnHold]: "Beklemede",
+	[Key.animeStatusDropped]: "Bırakıldı",
+
 	[Key.imageViewer]: "Görsel görüntüleyici",
 	[Key.openImage]: "Görseli aç",
 	[Key.previousImage]: "Önceki görsel",

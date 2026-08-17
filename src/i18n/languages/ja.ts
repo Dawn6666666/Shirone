@@ -26,6 +26,16 @@ export const ja: Translation = {
 	[Key.pinned]: "ピン留め",
 	[Key.loadMore]: "もっと見る",
 
+	[Key.anime]: "アニメ",
+	[Key.animeBanner]: "視聴リスト — 視聴中の作品、見終えた作品、そして次の予定。",
+	[Key.animeNoResults]: "条件に合うアニメがありません",
+	[Key.animeCounts]: "作品",
+	[Key.animeStatusWatching]: "視聴中",
+	[Key.animeStatusCompleted]: "視聴済み",
+	[Key.animeStatusPlanned]: "未視聴",
+	[Key.animeStatusOnHold]: "保留中",
+	[Key.animeStatusDropped]: "中止",
+
 	[Key.imageViewer]: "画像ビューアー",
 	[Key.openImage]: "画像を開く",
 	[Key.previousImage]: "前の画像",

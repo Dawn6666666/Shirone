@@ -26,6 +26,16 @@ export const zh_CN: Translation = {
 	[Key.pinned]: "置顶",
 	[Key.loadMore]: "加载更多",
 
+	[Key.anime]: "番剧",
+	[Key.animeBanner]: "我的追番清单 —— 正在看的、看完的、排队的。",
+	[Key.animeNoResults]: "没有符合条件的番剧",
+	[Key.animeCounts]: "部番剧",
+	[Key.animeStatusWatching]: "在看",
+	[Key.animeStatusCompleted]: "看完",
+	[Key.animeStatusPlanned]: "想看",
+	[Key.animeStatusOnHold]: "搁置",
+	[Key.animeStatusDropped]: "弃番",
+
 	[Key.imageViewer]: "图片查看器",
 	[Key.openImage]: "打开图片",
 	[Key.previousImage]: "上一张",

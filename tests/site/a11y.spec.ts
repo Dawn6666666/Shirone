@@ -18,6 +18,7 @@ const pages = [
 	{ name: "归档", path: "/archive/" },
 	{ name: "友链", path: "/friends/" },
 	{ name: "动态", path: "/moments/" },
+	{ name: "番剧", path: "/anime/" },
 	{ name: "关于", path: "/about/" },
 	{ name: "文章页", path: "/posts/guide/" },
 	{ name: "分类索引", path: "/categories/" },

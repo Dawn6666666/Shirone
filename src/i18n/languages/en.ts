@@ -26,6 +26,16 @@ export const en: Translation = {
 	[Key.pinned]: "Pinned",
 	[Key.loadMore]: "Load more",
 
+	[Key.anime]: "Anime",
+	[Key.animeBanner]: "My watchlist — watching, finished, and what's queued up next.",
+	[Key.animeNoResults]: "No anime matched your filter",
+	[Key.animeCounts]: "anime",
+	[Key.animeStatusWatching]: "Watching",
+	[Key.animeStatusCompleted]: "Completed",
+	[Key.animeStatusPlanned]: "Planned",
+	[Key.animeStatusOnHold]: "On Hold",
+	[Key.animeStatusDropped]: "Dropped",
+
 	[Key.imageViewer]: "Image viewer",
 	[Key.openImage]: "Open image",
 	[Key.previousImage]: "Previous image",

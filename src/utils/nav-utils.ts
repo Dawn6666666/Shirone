@@ -26,6 +26,7 @@ export function resolvePageKey(
 	if (pathname === "/archive") return "archive";
 	if (pathname === "/friends") return "friends";
 	if (pathname === "/moments") return "moments";
+	if (pathname === "/anime") return "anime";
 	if (pathname === "/about") return "about";
 	return "";
 }

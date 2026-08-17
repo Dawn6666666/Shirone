@@ -26,6 +26,16 @@ export const vi: Translation = {
 	[Key.pinned]: "Ghim",
 	[Key.loadMore]: "Tải thêm",
 
+	[Key.anime]: "Anime",
+	[Key.animeBanner]: "Danh sách anime của tôi — đang xem, đã xem xong và dự định xem.",
+	[Key.animeNoResults]: "Không có anime nào khớp bộ lọc",
+	[Key.animeCounts]: "bộ anime",
+	[Key.animeStatusWatching]: "Đang xem",
+	[Key.animeStatusCompleted]: "Đã xem xong",
+	[Key.animeStatusPlanned]: "Dự định xem",
+	[Key.animeStatusOnHold]: "Tạm dừng",
+	[Key.animeStatusDropped]: "Đã bỏ",
+
 	[Key.imageViewer]: "Trình xem ảnh",
 	[Key.openImage]: "Mở ảnh",
 	[Key.previousImage]: "Ảnh trước",

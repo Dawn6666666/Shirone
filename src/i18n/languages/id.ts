@@ -26,6 +26,16 @@ export const id: Translation = {
 	[Key.pinned]: "Disematkan",
 	[Key.loadMore]: "Muat lainnya",
 
+	[Key.anime]: "Anime",
+	[Key.animeBanner]: "Daftar tontonan saya — sedang ditonton, selesai, dan antrean berikutnya.",
+	[Key.animeNoResults]: "Tidak ada anime yang cocok dengan filter",
+	[Key.animeCounts]: "anime",
+	[Key.animeStatusWatching]: "Menonton",
+	[Key.animeStatusCompleted]: "Selesai",
+	[Key.animeStatusPlanned]: "Direncanakan",
+	[Key.animeStatusOnHold]: "Ditunda",
+	[Key.animeStatusDropped]: "Ditinggalkan",
+
 	[Key.imageViewer]: "Penampil gambar",
 	[Key.openImage]: "Buka gambar",
 	[Key.previousImage]: "Gambar sebelumnya",

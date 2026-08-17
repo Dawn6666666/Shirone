@@ -24,6 +24,16 @@ enum I18nKey {
 	pinned = "pinned",
 	loadMore = "loadMore",
 
+	anime = "anime",
+	animeBanner = "animeBanner",
+	animeNoResults = "animeNoResults",
+	animeCounts = "animeCounts",
+	animeStatusWatching = "animeStatusWatching",
+	animeStatusCompleted = "animeStatusCompleted",
+	animeStatusPlanned = "animeStatusPlanned",
+	animeStatusOnHold = "animeStatusOnHold",
+	animeStatusDropped = "animeStatusDropped",
+
 	imageViewer = "imageViewer",
 	openImage = "openImage",
 	previousImage = "previousImage",

@@ -34,6 +34,12 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		icon: "material-symbols:auto-awesome-outline-rounded",
 		pageKey: "moments",
 	},
+	Anime: {
+		name: i18n(I18nKey.anime),
+		url: "/anime/",
+		icon: "material-symbols:live-tv-outline-rounded",
+		pageKey: "anime",
+	},
 	Categories: {
 		name: i18n(I18nKey.categories),
 		url: "/categories/",
@@ -66,6 +72,7 @@ export const navBarConfig: NavBarConfig = {
 		LinkPresets.Archive,
 		LinkPresets.Friends,
 		LinkPresets.Moments,
+		LinkPresets.Anime,
 		{
 			name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",

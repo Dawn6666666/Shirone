@@ -26,6 +26,16 @@ export const th: Translation = {
 	[Key.pinned]: "ปักหมุด",
 	[Key.loadMore]: "โหลดเพิ่ม",
 
+	[Key.anime]: "อนิเมะ",
+	[Key.animeBanner]: "รายการดูของฉัน — กำลังดู ดูจบแล้ว และคิวถัดไป",
+	[Key.animeNoResults]: "ไม่มีอนิเมะที่ตรงกับตัวกรอง",
+	[Key.animeCounts]: "เรื่อง",
+	[Key.animeStatusWatching]: "กำลังดู",
+	[Key.animeStatusCompleted]: "ดูจบแล้ว",
+	[Key.animeStatusPlanned]: "วางแผนจะดู",
+	[Key.animeStatusOnHold]: "พักไว้",
+	[Key.animeStatusDropped]: "เลิกดู",
+
 	[Key.imageViewer]: "ตัวดูรูปภาพ",
 	[Key.openImage]: "เปิดรูปภาพ",
 	[Key.previousImage]: "รูปก่อนหน้า",

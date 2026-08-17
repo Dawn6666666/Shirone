@@ -26,6 +26,16 @@ export const ko: Translation = {
 	[Key.pinned]: "고정됨",
 	[Key.loadMore]: "더 보기",
 
+	[Key.anime]: "애니메이션",
+	[Key.animeBanner]: "내 시청 목록 — 보고 있는 작품, 다 본 작품, 그리고 다음 예정.",
+	[Key.animeNoResults]: "조건에 맞는 애니메이션이 없습니다",
+	[Key.animeCounts]: "편",
+	[Key.animeStatusWatching]: "시청 중",
+	[Key.animeStatusCompleted]: "완료",
+	[Key.animeStatusPlanned]: "시청 예정",
+	[Key.animeStatusOnHold]: "보류",
+	[Key.animeStatusDropped]: "중단",
+
 	[Key.imageViewer]: "이미지 뷰어",
 	[Key.openImage]: "이미지 열기",
 	[Key.previousImage]: "이전 이미지",
