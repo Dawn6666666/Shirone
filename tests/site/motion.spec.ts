@@ -51,6 +51,106 @@ test.describe("Site motion", () => {
 		).toHaveCount(2);
 	});
 
+	test("does not collapse animate on initial render or grouping changes", async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			const originalAnimate = HTMLElement.prototype.animate;
+			Object.defineProperty(window, "__archiveCollapseAnimations", {
+				value: 0,
+				writable: true,
+			});
+			HTMLElement.prototype.animate = function (...args) {
+				if (this.classList.contains("m3-blog-archive__body")) {
+					(window as typeof window & { __archiveCollapseAnimations: number })
+						.__archiveCollapseAnimations += 1;
+				}
+				return originalAnimate.apply(this, args);
+			};
+		});
+
+		await openArchive(page);
+		expect(
+			await page.evaluate(
+				() =>
+					(window as typeof window & { __archiveCollapseAnimations: number })
+						.__archiveCollapseAnimations,
+			),
+		).toBe(0);
+
+		await page
+			.getByRole("group", { name: "Group archive by" })
+			.getByText("By Category", { exact: true })
+			.click();
+		await expect(page.locator(".m3-blog-archive__group-title")).toHaveText([
+			"Examples",
+			"Guides",
+		]);
+		expect(
+			await page.evaluate(
+				() =>
+					(window as typeof window & { __archiveCollapseAnimations: number })
+						.__archiveCollapseAnimations,
+			),
+		).toBe(0);
+
+		await page
+			.locator(".m3-blog-archive__group:nth-child(2) .m3-blog-archive__header")
+			.click();
+		expect(
+			await page.evaluate(
+				() =>
+					(window as typeof window & { __archiveCollapseAnimations: number })
+						.__archiveCollapseAnimations,
+			),
+		).toBe(1);
+	});
+
+	test("restores manually expanded groups without replaying collapse motion", async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			const originalAnimate = HTMLElement.prototype.animate;
+			Object.defineProperty(window, "__archiveCollapseAnimations", {
+				value: 0,
+				writable: true,
+			});
+			HTMLElement.prototype.animate = function (...args) {
+				if (this.classList.contains("m3-blog-archive__body")) {
+					(window as typeof window & { __archiveCollapseAnimations: number })
+						.__archiveCollapseAnimations += 1;
+				}
+				return originalAnimate.apply(this, args);
+			};
+		});
+
+		await openArchive(page);
+		const secondHeader = page.locator(
+			".m3-blog-archive__group:nth-child(2) .m3-blog-archive__header",
+		);
+		await secondHeader.click();
+		await expect(secondHeader).toHaveAttribute("aria-expanded", "true");
+		await page.waitForTimeout(300);
+		expect(
+			await page.evaluate(
+				() =>
+					(window as typeof window & { __archiveCollapseAnimations: number })
+						.__archiveCollapseAnimations,
+			),
+		).toBe(1);
+
+		await page.reload({ waitUntil: "networkidle" });
+		await expect(secondHeader).toHaveAttribute("aria-expanded", "true");
+		expect(await bodyHeight(page, 1)).toBeGreaterThan(0);
+		expect(
+			await page.evaluate(
+				() =>
+					(window as typeof window & { __archiveCollapseAnimations: number })
+						.__archiveCollapseAnimations,
+			),
+		).toBe(0);
+	});
+
 	test("reduced motion lands instantly without transition", async ({
 		page,
 	}) => {

@@ -22,6 +22,10 @@ export function prefersReducedMotion(): boolean {
 export interface CollapseParams {
 	/** 目标状态：true 展开 / false 收起 */
 	open: boolean;
+	/** 是否播放过渡；初始化或数据重组时可直接落到终态 */
+	animate?: boolean;
+	/** 数据版本变化时直接同步终态，不把重组误判为交互 */
+	resetKey?: unknown;
 	/** 动画时长 ms（默认 240，M3 emphasized） */
 	duration?: number;
 }
@@ -45,6 +49,7 @@ const COLLAPSE_EASING = EASING_EMPHASIZED; // M3 emphasized-decelerate
 export function collapse(node: HTMLElement, params: CollapseParams) {
 	let anim: Animation | null = null;
 	let current = params.open;
+	let resetKey = params.resetKey;
 
 	node.style.overflow = "hidden";
 	node.style.height = current ? "auto" : "0px";
@@ -53,9 +58,9 @@ export function collapse(node: HTMLElement, params: CollapseParams) {
 		node.style.height = open ? "auto" : "0px";
 	}
 
-	function play(open: boolean) {
+	function play(open: boolean, shouldAnimate = true) {
 		anim?.cancel();
-		if (prefersReducedMotion()) {
+		if (!shouldAnimate || prefersReducedMotion()) {
 			settle(open);
 			return;
 		}
@@ -80,9 +85,16 @@ export function collapse(node: HTMLElement, params: CollapseParams) {
 	return {
 		update(next: CollapseParams) {
 			params = next;
+			if (next.resetKey !== resetKey) {
+				resetKey = next.resetKey;
+				current = next.open;
+				anim?.cancel();
+				settle(current);
+				return;
+			}
 			if (next.open === current) return;
 			current = next.open;
-			play(current);
+			play(current, next.animate !== false);
 		},
 		destroy() {
 			anim?.cancel();

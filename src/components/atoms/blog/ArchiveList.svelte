@@ -31,26 +31,56 @@
 		countLabel = (count: number) => `${count} 篇`,
 		/** none 全部展开 / firstExpanded 多于一排时仅首年展开 */
 		collapsedByDefault = "firstExpanded" as "none" | "firstExpanded",
+		/** 由上层持久化后恢复的折叠状态 */
+		restoredCollapsed = undefined as Record<string, boolean> | undefined,
+		onCollapsedChange = undefined as
+			| ((collapsed: Record<string, boolean>) => void)
+			| undefined,
 		class: className = "",
 	}: {
 		groups?: ArchiveGroup[];
 		countLabel?: (count: number) => string;
 		collapsedByDefault?: "none" | "firstExpanded";
+		restoredCollapsed?: Record<string, boolean>;
+		onCollapsedChange?: (collapsed: Record<string, boolean>) => void;
 		class?: string;
 	} = $props();
 
-	let collapsed = $state<Record<string, boolean>>({});
-
-	// groups 变化时按规则重建折叠状态
-	$effect(() => {
+	function createCollapsedState(nextGroups: ArchiveGroup[]) {
 		const collapseAllButFirst =
-			collapsedByDefault === "firstExpanded" && groups.length > 1;
+			collapsedByDefault === "firstExpanded" && nextGroups.length > 1;
 		const next: Record<string, boolean> = {};
-		groups.forEach((g, index) => {
-			next[g.id] = collapseAllButFirst && index > 0;
+		nextGroups.forEach((group, index) => {
+			next[group.id] =
+				restoredCollapsed?.[group.id] ?? (collapseAllButFirst && index > 0);
 		});
-		collapsed = next;
+		return next;
+	}
+
+	let collapsed = $state<Record<string, boolean>>(createCollapsedState(groups));
+	let previousGroups = groups;
+	let previousRestoredCollapsed = restoredCollapsed;
+	let animatedGroupId = $state<string | null>(null);
+
+	// 数据重组或持久状态恢复时直接落到终态；只有用户点击的组播放动画。
+	$effect(() => {
+		if (
+			groups === previousGroups &&
+			restoredCollapsed === previousRestoredCollapsed
+		) {
+			return;
+		}
+		previousGroups = groups;
+		previousRestoredCollapsed = restoredCollapsed;
+		animatedGroupId = null;
+		collapsed = createCollapsedState(groups);
 	});
+
+	function toggleGroup(id: string) {
+		animatedGroupId = id;
+		collapsed[id] = !collapsed[id];
+		onCollapsedChange?.({ ...collapsed });
+	}
 </script>
 
 <div class="m3-blog-archive {className}">
@@ -60,7 +90,7 @@
 				type="button"
 				class="m3-blog-archive__header m3-state-layer"
 				aria-expanded={!collapsed[g.id]}
-				onclick={() => (collapsed[g.id] = !collapsed[g.id])}
+				onclick={() => toggleGroup(g.id)}
 			>
 				<span class="m3-blog-archive__group-title">{g.title}</span>
 				<span class="m3-blog-archive__dot" aria-hidden="true"></span>
@@ -75,7 +105,11 @@
 			</button>
 			<div
 				class="m3-blog-archive__body"
-				use:collapse={{ open: !collapsed[g.id] }}
+				use:collapse={{
+					open: !collapsed[g.id],
+					animate: animatedGroupId === g.id,
+					resetKey: groups,
+				}}
 			>
 				<ul class="m3-blog-archive__list">
 					{#each g.items as it (it.href)}

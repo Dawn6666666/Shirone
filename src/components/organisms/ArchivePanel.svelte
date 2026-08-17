@@ -34,6 +34,39 @@
 	let uncategorized = $state(false);
 	/** 分组维度（SegmentedButton 驱动）：year / category / tag，string 以匹配 bind:value */
 	let groupBy = $state<string>("year");
+	let restoredCollapsed = $state<Record<string, boolean> | undefined>(undefined);
+
+	const COLLAPSED_STORAGE_KEY = "shirone:archive-collapsed";
+
+	function collapsedViewKey() {
+		if (uncategorized) return `${groupBy}:uncategorized`;
+		if (category) return `${groupBy}:category:${category}`;
+		if (tag) return `${groupBy}:tag:${tag}`;
+		return groupBy;
+	}
+
+	function readCollapsedState() {
+		try {
+			const stored = JSON.parse(
+				localStorage.getItem(COLLAPSED_STORAGE_KEY) ?? "{}",
+			) as Record<string, Record<string, boolean>>;
+			restoredCollapsed = stored[collapsedViewKey()];
+		} catch {
+			restoredCollapsed = undefined;
+		}
+	}
+
+	function persistCollapsedState(next: Record<string, boolean>) {
+		try {
+			const stored = JSON.parse(
+				localStorage.getItem(COLLAPSED_STORAGE_KEY) ?? "{}",
+			) as Record<string, Record<string, boolean>>;
+			stored[collapsedViewKey()] = next;
+			localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(stored));
+		} catch {
+			// Storage can be unavailable in privacy-restricted contexts.
+		}
+	}
 
 	/** 筛选头数据：类别（决定索引链接）+ 展示值；无筛选为 null */
 	const filterCrumb = $derived.by(() => {
@@ -131,6 +164,15 @@
 		category = params.get("category") || "";
 		tag = params.get("tag") || "";
 		uncategorized = params.has("uncategorized");
+		readCollapsedState();
+	});
+
+	$effect(() => {
+		groupBy;
+		category;
+		tag;
+		uncategorized;
+		if (typeof window !== "undefined") readCollapsedState();
 	});
 </script>
 
@@ -168,7 +210,12 @@
 		</nav>
 	{/if}
 	{#if groups.length > 0}
-		<ArchiveList {groups} {countLabel} />
+		<ArchiveList
+			{groups}
+			{countLabel}
+			{restoredCollapsed}
+			onCollapsedChange={persistCollapsedState}
+		/>
 	{:else}
 		<div class="archive-panel__empty">
 			<span>{i18n(I18nKey.noData)}</span>
