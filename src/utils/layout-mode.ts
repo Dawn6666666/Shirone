@@ -16,6 +16,9 @@ import { packMasonry, setupMasonry } from "./masonry";
 
 const MODE_KEY = "post-list-mode";
 
+/** 布局偏好变更广播事件：DisplaySettings 派发，番剧页等消费方监听（detail.layout: PostListMode） */
+export const LAYOUT_MODE_CHANGE_EVENT = "layout-mode-change";
+
 const MODE_CLASS: Record<PostListMode, string> = {
 	list: "m3e-post-list--list",
 	grid: "m3e-post-list--grid",

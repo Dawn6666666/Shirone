@@ -26,6 +26,7 @@ import {
 	defaultMode,
 	flipToMode,
 	getStoredMode,
+	LAYOUT_MODE_CHANGE_EVENT,
 	storeMode,
 } from "@utils/layout-mode";
 import type { PostListMode } from "@/types/postListConfig";
@@ -97,7 +98,13 @@ $effect(() => {
 	if (postListMode === lastAppliedMode) return;
 	lastAppliedMode = postListMode;
 	storeMode(postListMode);
-	// 首页才有 #post-list；其它页面仅存储偏好，下次进首页生效
+	// 全局广播：番剧页等其它消费方（.anime-list）跟随切换并各自 FLIP
+	window.dispatchEvent(
+		new CustomEvent(LAYOUT_MODE_CHANGE_EVENT, {
+			detail: { layout: postListMode },
+		}),
+	);
+	// 首页才有 #post-list；其它页面仅存储偏好 + 事件同步，下次进首页生效
 	const container = document.getElementById("post-list");
 	if (container) flipToMode(container, postListMode);
 });
