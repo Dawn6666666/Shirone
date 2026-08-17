@@ -188,12 +188,11 @@
 @import "../../styles/breakpoints.styl"
 
 /* 卡片容器（Card 原子根）移动端收窄内边距（同 anime/moment 风格） */
-:global(.compass-section)
-	@media (max-width: bp-sm - 1px)
-		padding: 1rem 0.75rem
-
 .compass-section
 	display: block
+
+	@media (max-width: bp-sm - 1px)
+		padding: 1rem 0.75rem
 
 	&__tools
 		display: flex

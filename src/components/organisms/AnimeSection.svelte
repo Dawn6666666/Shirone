@@ -188,12 +188,18 @@
 @import "../../styles/breakpoints.styl"
 
 /* 卡片容器作为容器查询宿主：网格列数按可用宽度自适应。
-   主栏宽度受左右侧栏挤压（1280 视口下仅 ~600px），视口断点不可靠；
-   注意 `.anime-section` 落在 Card 原子根上（无本组件 scope），必须 :global。 */
-:global(.anime-section)
+   主栏宽度受左右侧栏挤压（1280 视口下仅 ~600px），视口断点不可靠。 */
+.anime-section
 	container-type: inline-size
 
-.anime-section
+	@media (max-width: bp-sm - 1px)
+		/* 卡片容器（Card 原子根）移动端收窄内边距 */
+		padding: 1rem 0.75rem
+
+		.anime-list--grid, .anime-list--list
+			padding-top: 1.25rem
+			gap: 0.75rem
+
 	&__tools
 		display: flex
 		flex-direction: column
@@ -286,15 +292,6 @@
 
 	:global(.anime-card__desc)
 		-webkit-line-clamp: 3
-
-@media (max-width: bp-sm - 1px)
-	/* 卡片容器（Card 原子根）移动端收窄内边距 */
-	:global(.anime-section)
-		padding: 1rem 0.75rem
-
-	.anime-list--grid, .anime-list--list
-		padding-top: 1.25rem
-		gap: 0.75rem
 
 /* 指示器退场：淡出 + 轻微收拢（reduced-motion 由全局规则压至终态） */
 @keyframes anime-loading-out
