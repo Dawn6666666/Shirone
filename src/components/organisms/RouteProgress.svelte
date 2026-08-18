@@ -1,6 +1,7 @@
 <script lang="ts">
 	/**
-	 * 页面切换进度条：仅在 Swup 过渡期间于顶栏下沿显示 indeterminate 细条，
+	 * 页面切换进度条：仅在 Swup 过渡期间显示 indeterminate 细条。
+	 * 顶栏覆盖 Banner 时贴住视口上沿，否则显示在顶栏下沿；
 	 * 渲染完成后淡出（类似浏览器标签加载指示，不常驻，避免干扰观感）。
 	 * 样式预设由 siteConfig.progressIndicator.style 控制：
 	 * dual 双向扫描（官方默认双线）/ single 单向扫描（单线）。
@@ -48,9 +49,15 @@
 	z-index: 65
 	opacity: 0
 	pointer-events: none
-	transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+	transition:
+		top var(--m3e-duration-short) var(--m3e-easing-standard),
+		opacity var(--m3e-duration-short) var(--m3e-easing-standard)
 	overflow: hidden
 
 	&--visible
 		opacity: 1
+
+:global(body[data-banner-visible="true"][data-banner-scrolled="false"]) .route-progress
+	top: 0
+
 </style>

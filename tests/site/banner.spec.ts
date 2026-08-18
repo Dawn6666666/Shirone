@@ -12,6 +12,18 @@ async function waitForBannerState(
 	);
 }
 
+async function expectRouteProgressAtAppBarBottom(
+	page: import("@playwright/test").Page,
+) {
+	const rootSize = await page.evaluate(() =>
+		Number.parseFloat(getComputedStyle(document.documentElement).fontSize),
+	);
+	await expect(page.locator(".route-progress")).toHaveCSS(
+		"top",
+		`${rootSize * 4}px`,
+	);
+}
+
 async function expectCompactTop(page: import("@playwright/test").Page) {
 	const rootSize = await page.evaluate(() =>
 		Number.parseFloat(getComputedStyle(document.documentElement).fontSize),
@@ -40,6 +52,7 @@ test.describe("banner wallpaper", () => {
 		await expect(page.locator("#navbar")).toHaveClass(
 			/top-app-bar--transparent/,
 		);
+		await expect(page.locator(".route-progress")).toHaveCSS("top", "0px");
 		await expect(page.locator("#main-layout")).toHaveCSS(
 			"top",
 			/^[4-9]\d{2}(\.\d+)?px$/,
@@ -50,6 +63,23 @@ test.describe("banner wallpaper", () => {
 		expect(requests.some((request) => request.includes("/mobile/"))).toBe(
 			false,
 		);
+	});
+
+	test("desktop progress moves below the app bar after leaving the Banner", async ({
+		page,
+	}) => {
+		await page.goto("/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		await expect(page.locator(".route-progress")).toHaveCSS("top", "0px");
+
+		await page.evaluate(() => window.scrollTo(0, window.innerHeight));
+		await page.waitForFunction(
+			() => document.body.dataset.bannerScrolled === "true",
+		);
+		await expect(page.locator("#navbar")).not.toHaveClass(
+			/top-app-bar--transparent/,
+		);
+		await expectRouteProgressAtAppBarBottom(page);
 	});
 
 	test("mobile post hides wallpaper and keeps compact content geometry", async ({
@@ -68,6 +98,7 @@ test.describe("banner wallpaper", () => {
 		await expect(page.locator("#navbar")).not.toHaveClass(
 			/top-app-bar--transparent/,
 		);
+		await expectRouteProgressAtAppBarBottom(page);
 		expect(requests).toEqual([]);
 	});
 
