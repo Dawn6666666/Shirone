@@ -12,6 +12,17 @@ async function waitForBannerState(
 	);
 }
 
+async function expectSubtitleTyping(page: import("@playwright/test").Page) {
+	const subtitle = page.locator("#banner-wrapper .banner-stage__copy p");
+	const expected = "A Material 3 anime blog";
+	await expect(subtitle).toHaveAttribute("data-subtitle-state", "typing");
+	const typingText = await subtitle.textContent();
+	expect(typingText).toBeTruthy();
+	expect(expected.startsWith(typingText ?? "")).toBe(true);
+	await expect(subtitle).toHaveText(expected, { timeout: 5_000 });
+	await expect(subtitle).toHaveAttribute("data-subtitle-state", "complete");
+}
+
 async function expectBannerOverlap(page: import("@playwright/test").Page) {
 	const geometry = await page.evaluate(() => {
 		const banner = document.getElementById("banner-wrapper");
@@ -107,7 +118,32 @@ async function expectCompactTop(page: import("@playwright/test").Page) {
 }
 
 test.describe("banner wallpaper", () => {
-	test("desktop loads only desktop images and renders home copy", async ({
+	test("server response keeps the complete home subtitle", async ({
+		request,
+	}) => {
+		const response = await request.get("/");
+		expect(response.ok()).toBe(true);
+		expect(await response.text()).toContain("A Material 3 anime blog");
+	});
+
+	test("desktop exposes subtitle typewriter controls", async ({ page }) => {
+		await page.goto("/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+			"data-subtitle-typewriter-enabled",
+			"true",
+		);
+		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+			"data-subtitle-typewriter-speed",
+			"120",
+		);
+		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+			"data-subtitle-typewriter-loop",
+			"true",
+		);
+	});
+
+	test("desktop loads only desktop images and types home subtitle", async ({
 		page,
 	}) => {
 		const requests: string[] = [];
@@ -118,9 +154,7 @@ test.describe("banner wallpaper", () => {
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, true);
 		await expect(page.locator("#banner-wrapper h1")).toHaveText("Shirone");
-		await expect(page.locator("#banner-wrapper p")).toHaveText(
-			"A Material 3 anime blog",
-		);
+		await expectSubtitleTyping(page);
 		await expect(page.locator("#navbar")).toHaveClass(
 			/top-app-bar--transparent/,
 		);
@@ -283,6 +317,12 @@ test.describe("banner wallpaper", () => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, true);
+		await expect(
+			page.locator("#banner-wrapper .banner-stage__copy p"),
+		).toHaveText("A Material 3 anime blog");
+		await expect(
+			page.locator("#banner-wrapper .banner-stage__copy p"),
+		).toHaveAttribute("data-subtitle-state", "complete");
 		await expectWavesAnimated(page, false);
 		const before = await page
 			.locator(".banner-stage__image--active")
@@ -302,6 +342,12 @@ test.describe("banner wallpaper", () => {
 		);
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, true);
+		await expect(
+			page.locator("#banner-wrapper .banner-stage__copy p"),
+		).toHaveText("A Material 3 anime blog");
+		await expect(
+			page.locator("#banner-wrapper .banner-stage__copy p"),
+		).toHaveAttribute("data-subtitle-state", "complete");
 		await expect(page.locator("html")).toHaveClass(/motion-reduced/);
 		await expectWavesAnimated(page, false);
 	});

@@ -41,6 +41,11 @@ export type SiteConfig = {
 			enable: boolean;
 			title: string;
 			subtitle: string;
+			typewriter: {
+				enable: boolean;
+				speed: number;
+				loop: boolean;
+			};
 		};
 		carousel: {
 			enable: boolean;

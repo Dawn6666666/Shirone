@@ -23,11 +23,14 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 	class="banner-stage"
 	aria-label={siteConfig.banner.homeText.title}
 	data-desktop-images={JSON.stringify(desktopImages)}
-	data-mobile-images={JSON.stringify(mobileImages)}
-	data-carousel-enabled={String(siteConfig.banner.carousel.enable)}
-	data-carousel-interval={String(Math.max(siteConfig.banner.carousel.interval, 3000))}
-	data-position={siteConfig.banner.position ?? "center"}
->
+			data-mobile-images={JSON.stringify(mobileImages)}
+			data-carousel-enabled={String(siteConfig.banner.carousel.enable)}
+			data-carousel-interval={String(Math.max(siteConfig.banner.carousel.interval, 3000))}
+			data-position={siteConfig.banner.position ?? "center"}
+			data-subtitle-typewriter-enabled={String(siteConfig.banner.homeText.typewriter.enable)}
+			data-subtitle-typewriter-loop={String(siteConfig.banner.homeText.typewriter.loop)}
+			data-subtitle-typewriter-speed={String(Math.max(siteConfig.banner.homeText.typewriter.speed, 1))}
+	>
 	<div class="banner-stage__media" aria-hidden="true">
 		<img class="banner-stage__image banner-stage__image--front" alt="" />
 		<img class="banner-stage__image banner-stage__image--back" alt="" />
@@ -38,7 +41,12 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 	{siteConfig.banner.homeText.enable && (
 		<div class="banner-stage__copy">
 			<h1>{siteConfig.banner.homeText.title}</h1>
-			<p>{siteConfig.banner.homeText.subtitle}</p>
+			<p
+				aria-label={siteConfig.banner.homeText.subtitle}
+				data-subtitle-state="complete"
+			>
+				{siteConfig.banner.homeText.subtitle}
+			</p>
 		</div>
 	)}
 	{siteConfig.banner.waves.enable && <BannerWaves />}
@@ -57,6 +65,10 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		activeLayer: 0 | 1;
 		images: Record<BannerViewport, string[]>;
 		preloaded: HTMLImageElement | null;
+		subtitleGeneration: number;
+		subtitlePage: SidebarPage | null;
+		subtitleTimer: number | null;
+		subtitleVisible: boolean;
 		timer: number | null;
 	}
 
@@ -70,6 +82,10 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 	const layers = stage
 		? [...stage.querySelectorAll<HTMLImageElement>(".banner-stage__image")]
 		: [];
+	const subtitle = stage?.querySelector<HTMLParagraphElement>(
+		".banner-stage__copy p",
+	);
+	const subtitleText = subtitle?.textContent || "";
 	const runtime: BannerRuntime = {
 		activeGroup: null,
 		activeIndex: 0,
@@ -79,6 +95,10 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			mobile: parseImages(stage?.dataset.mobileImages),
 		},
 		preloaded: null,
+		subtitleGeneration: 0,
+		subtitlePage: null,
+		subtitleTimer: null,
+		subtitleVisible: false,
 		timer: null,
 	};
 
@@ -109,6 +129,112 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 	function stopRotation() {
 		if (runtime.timer !== null) window.clearTimeout(runtime.timer);
 		runtime.timer = null;
+	}
+
+	function subtitleSegments(value: string): string[] {
+		if (typeof Intl.Segmenter === "function") {
+			const segmenter = new Intl.Segmenter(undefined, {
+				granularity: "grapheme",
+			});
+			return [...segmenter.segment(value)].map(({ segment }) => segment);
+		}
+		return Array.from(value);
+	}
+
+	function stopSubtitleTyping() {
+		runtime.subtitleGeneration += 1;
+		if (runtime.subtitleTimer !== null) {
+			window.clearTimeout(runtime.subtitleTimer);
+		}
+		runtime.subtitleTimer = null;
+		runtime.subtitleVisible = false;
+		if (subtitle) {
+			subtitle.textContent = subtitleText;
+			subtitle.dataset.subtitleState = "complete";
+		}
+	}
+
+	function showSubtitleImmediately() {
+		stopSubtitleTyping();
+		runtime.subtitleVisible = true;
+		if (subtitle) subtitle.dataset.subtitleState = "complete";
+	}
+
+	function readMotionDuration(property: string, fallback: number): number {
+		const value = Number.parseFloat(
+			getComputedStyle(document.documentElement).getPropertyValue(property),
+		);
+		return Number.isFinite(value) && value > 0 ? value : fallback;
+	}
+
+	function startSubtitleTyping(page: SidebarPage | undefined) {
+		if (!subtitle || !page || page !== "home") {
+			stopSubtitleTyping();
+			runtime.subtitlePage = page ?? null;
+			return;
+		}
+
+		if (
+			runtime.subtitlePage === page &&
+			runtime.subtitleVisible &&
+			!(prefersReducedMotion() && subtitle.dataset.subtitleState === "typing")
+		)
+			return;
+		runtime.subtitlePage = page;
+		if (
+			stage?.dataset.subtitleTypewriterEnabled !== "true" ||
+			prefersReducedMotion()
+		) {
+			showSubtitleImmediately();
+			return;
+		}
+
+		stopSubtitleTyping();
+		runtime.subtitleVisible = true;
+		const segments = subtitleSegments(subtitleText);
+		const loop = stage?.dataset.subtitleTypewriterLoop === "true";
+		const configuredSpeed = Number.parseFloat(
+			stage?.dataset.subtitleTypewriterSpeed || "150",
+		);
+		const speed = Number.isFinite(configuredSpeed)
+			? Math.max(configuredSpeed, 1)
+			: 150;
+		const loopPause = readMotionDuration("--m3e-duration-long", 400);
+		let index = 0;
+		const generation = runtime.subtitleGeneration;
+		subtitle.textContent = "";
+		subtitle.dataset.subtitleState = "typing";
+
+		const revealNext = () => {
+			if (generation !== runtime.subtitleGeneration || !subtitle) return;
+			index += 1;
+			subtitle.textContent = segments.slice(0, index).join("");
+			if (index >= segments.length) {
+				if (!loop) {
+					runtime.subtitleTimer = null;
+					subtitle.dataset.subtitleState = "complete";
+					return;
+				}
+				subtitle.dataset.subtitleState = "complete";
+				runtime.subtitleTimer = window.setTimeout(() => {
+					if (generation !== runtime.subtitleGeneration || !subtitle) return;
+					index = 0;
+					subtitle.textContent = "";
+					subtitle.dataset.subtitleState = "typing";
+					revealNext();
+				}, loopPause);
+				return;
+			}
+			runtime.subtitleTimer = window.setTimeout(revealNext, speed);
+		};
+
+		if (!segments.length) {
+			runtime.subtitleTimer = null;
+			subtitle.textContent = subtitleText;
+			subtitle.dataset.subtitleState = "complete";
+			return;
+		}
+		revealNext();
 	}
 
 	function preloadNext(images: string[], index: number) {
@@ -165,6 +291,8 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		document.body.dataset.bannerTopAppBar = String(state.transparentTopAppBar);
 		stage.hidden = !state.visible;
 		stage.dataset.showHomeText = String(state.showHomeText);
+		if (state.showHomeText) startSubtitleTyping(page);
+		else stopSubtitleTyping();
 
 		if (!state.visible || !state.assetGroup) {
 			stopRotation();
@@ -197,7 +325,10 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			window.__shironeBannerBound = true;
 			window.addEventListener(WALLPAPER_MODE_CHANGE_EVENT, () => syncBanner());
 			window.matchMedia("(min-width: 1024px)").addEventListener("change", () => syncBanner());
-			window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => syncBanner());
+				window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => {
+					syncBanner();
+					if (prefersReducedMotion()) showSubtitleImmediately();
+				});
 			document.addEventListener("visibilitychange", () => syncBanner());
 			document.addEventListener("swup:visit:start", ((event: CustomEvent) => {
 				const url = event.detail?.visit?.to?.url || event.detail?.to?.url;
@@ -266,6 +397,16 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			margin-top: 0.75rem
 			font: var(--m3e-type-headline-small)
 
+			&[data-subtitle-state="typing"]::after
+				content: ""
+				display: inline-block
+				width: 0.08em
+				height: 1em
+				margin-inline-start: 0.12em
+				vertical-align: -0.12em
+				background: currentColor
+				animation: banner-subtitle-caret var(--m3e-duration-long) steps(1, end) infinite
+
 		.banner-stage[data-show-home-text="true"] .banner-stage__copy
 			display: flex
 
@@ -284,10 +425,22 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			&__copy p
 				font-size: 1.125rem
 
-	:global(html.motion-reduced) .banner-stage__image
+	@keyframes banner-subtitle-caret
+		0%,
+		49%
+			opacity: 1
+		50%,
+		100%
+			opacity: 0
+
+	:global(html.motion-reduced) .banner-stage__image,
+	:global(html.motion-reduced) .banner-stage__copy p[data-subtitle-state="typing"]::after
 		transition: none
+		animation: none
 
 	@media (prefers-reduced-motion: reduce)
-		.banner-stage__image
+		.banner-stage__image,
+		.banner-stage__copy p[data-subtitle-state="typing"]::after
 			transition: none
+			animation: none
 </style>

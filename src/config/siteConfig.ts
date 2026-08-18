@@ -42,6 +42,14 @@ export const siteConfig: SiteConfig = {
 			enable: true,
 			title: "Shirone",
 			subtitle: "A Material 3 anime blog",
+			typewriter: {
+				// 副标题逐字显示；关闭后直接显示完整副标题。
+				enable: true,
+				// 每个字符（grapheme）的显示间隔，单位为毫秒。
+				speed: 120,
+				// 完成后是否从头循环播放；关闭表示只播放一次。
+				loop: true,
+			},
 		},
 		carousel: {
 			// 多张图片时自动交叉淡入；interval 单位为毫秒，运行时最小值为 3000。
