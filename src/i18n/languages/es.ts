@@ -14,7 +14,8 @@ export const es: Translation = {
 
 	[Key.friends]: "Amigos",
 	[Key.friendsNoResults]: "Ningún amigo coincide con los filtros",
-	[Key.friendsBanner]: "Se aceptan intercambios de enlaces; consulta la página Acerca de.",
+	[Key.friendsBanner]:
+		"Se aceptan intercambios de enlaces; consulta la página Acerca de.",
 	[Key.friendsCount]: "amigo",
 	[Key.friendsCounts]: "amigos",
 
@@ -27,7 +28,8 @@ export const es: Translation = {
 	[Key.loadMore]: "Cargar más",
 
 	[Key.anime]: "Anime",
-	[Key.animeBanner]: "Mi lista de anime: lo que veo, lo que terminé y lo que sigue en cola.",
+	[Key.animeBanner]:
+		"Mi lista de anime: lo que veo, lo que terminé y lo que sigue en cola.",
 	[Key.animeNoResults]: "Ningún anime coincide con tu filtro",
 	[Key.animeCounts]: "animes",
 	[Key.animeStatusWatching]: "Viendo",
@@ -37,7 +39,8 @@ export const es: Translation = {
 	[Key.animeStatusDropped]: "Abandonado",
 
 	[Key.compass]: "Brújula",
-	[Key.compassBanner]: "Sitios a los que vuelvo a menudo — herramientas de desarrollo, documentación y madrigueras de conejo.",
+	[Key.compassBanner]:
+		"Sitios a los que vuelvo a menudo — herramientas de desarrollo, documentación y madrigueras de conejo.",
 	[Key.compassNoResults]: "Ningún sitio coincide con tu búsqueda",
 	[Key.compassCounts]: "sitios",
 
@@ -122,6 +125,9 @@ export const es: Translation = {
 	[Key.copyLink]: "Copiar enlace",
 
 	[Key.reduceMotion]: "Reducir movimiento",
+	[Key.wallpaperMode]: "Fondo de página",
+	[Key.wallpaperModeBanner]: "Banner",
+	[Key.wallpaperModeNone]: "Color sólido",
 	[Key.layoutMode]: "Diseño",
 	[Key.layoutList]: "Lista",
 	[Key.layoutGrid]: "Cuadrícula",

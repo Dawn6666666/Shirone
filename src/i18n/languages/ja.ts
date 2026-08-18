@@ -14,20 +14,23 @@ export const ja: Translation = {
 
 	[Key.friends]: "フレンド",
 	[Key.friendsNoResults]: "条件に合うフレンドが見つかりません",
-	[Key.friendsBanner]: "リンクの交換を歓迎します。申請方法は About ページをご覧ください。",
+	[Key.friendsBanner]:
+		"リンクの交換を歓迎します。申請方法は About ページをご覧ください。",
 	[Key.friendsCount]: "件の友達リンク",
 	[Key.friendsCounts]: "件の友達リンク",
 
 	[Key.moments]: "モーメンツ",
 	[Key.momentsNoResults]: "条件に一致するモーメンツはありません",
-	[Key.momentsBanner]: "ふとした瞬間を気軽に記録 —— 日々、制作、そして小さな幸せ。",
+	[Key.momentsBanner]:
+		"ふとした瞬間を気軽に記録 —— 日々、制作、そして小さな幸せ。",
 	[Key.momentsCount]: "件",
 	[Key.momentsCounts]: "件",
 	[Key.pinned]: "ピン留め",
 	[Key.loadMore]: "もっと見る",
 
 	[Key.anime]: "アニメ",
-	[Key.animeBanner]: "視聴リスト — 視聴中の作品、見終えた作品、そして次の予定。",
+	[Key.animeBanner]:
+		"視聴リスト — 視聴中の作品、見終えた作品、そして次の予定。",
 	[Key.animeNoResults]: "条件に合うアニメがありません",
 	[Key.animeCounts]: "作品",
 	[Key.animeStatusWatching]: "視聴中",
@@ -37,7 +40,8 @@ export const ja: Translation = {
 	[Key.animeStatusDropped]: "中止",
 
 	[Key.compass]: "サイト羅針盤",
-	[Key.compassBanner]: "よく使うサイト —— 開発ツール、ドキュメント、そして迷宮の奥へ。",
+	[Key.compassBanner]:
+		"よく使うサイト —— 開発ツール、ドキュメント、そして迷宮の奥へ。",
 	[Key.compassNoResults]: "検索条件に一致するサイトがありません",
 	[Key.compassCounts]: "個のサイト",
 
@@ -122,6 +126,9 @@ export const ja: Translation = {
 	[Key.copyLink]: "リンクをコピー",
 
 	[Key.reduceMotion]: "動きを減らす",
+	[Key.wallpaperMode]: "ページ背景",
+	[Key.wallpaperModeBanner]: "バナー",
+	[Key.wallpaperModeNone]: "単色",
 	[Key.layoutMode]: "レイアウト",
 	[Key.layoutList]: "リスト",
 	[Key.layoutGrid]: "グリッド",

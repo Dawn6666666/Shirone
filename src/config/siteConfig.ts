@@ -17,14 +17,36 @@ export const siteConfig: SiteConfig = {
 		// 差异仅在调色板派生（库的 colorSpec 静态为 2025 委托）
 		spec: "2025",
 	},
+	// 默认页面背景模式："banner" 使用壁纸横幅，"none" 使用主题纯色。
+	// 访客在“显示设置”中的选择会保存在浏览器中，并覆盖这里的默认值。
+	wallpaperMode: {
+		defaultMode: "banner",
+	},
 	banner: {
-		enable: false,
-		src: "assets/images/demo-banner.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-		position: "center", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
-		credit: {
-			enable: false, // Display the credit text of the banner image
-			text: "", // Credit text to be displayed
-			url: "", // (Optional) URL link to the original artwork or artist's page
+		// 将图片放入 public 目录，并填写以 "/" 开头的站点路径。
+		// desktop 用于 >= 1024px；mobile 仅用于 < 1024px 的首页，手机非首页不显示壁纸。
+		// 数组顺序就是轮播顺序；只需要静态 Banner 时，每组保留一张图片即可。
+		src: {
+			desktop: ["/assets/banner/desktop/1.webp"],
+			mobile: ["/assets/banner/mobile/1.webp"],
+		},
+		// 图片裁切焦点："top"、"center" 或 "bottom"。
+		position: "center",
+		dim: {
+			// 在图片上覆盖黑色遮罩以提高标题和顶部栏的对比度；opacity 范围为 0-1。
+			enable: true,
+			opacity: 0.24,
+		},
+		homeText: {
+			// 仅在首页 Banner 中显示，标题与副标题会上下居中排列。
+			enable: true,
+			title: "Shirone",
+			subtitle: "A Material 3 anime blog",
+		},
+		carousel: {
+			// 多张图片时自动交叉淡入；interval 单位为毫秒，运行时最小值为 3000。
+			enable: true,
+			interval: 6000,
 		},
 	},
 	toc: {

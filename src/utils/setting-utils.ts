@@ -3,10 +3,35 @@ import {
 	DARK_MODE,
 	DEFAULT_THEME,
 	LIGHT_MODE,
+	WALLPAPER_MODE_CHANGE_EVENT,
+	WALLPAPER_MODE_KEY,
 } from "@constants/constants.ts";
 import { applyCurrentScheme } from "@utils/theme-utils";
 import { expressiveCodeConfig } from "@/config";
-import type { LIGHT_DARK_MODE } from "@/types/config";
+import type { LIGHT_DARK_MODE, WallpaperMode } from "@/types/config";
+
+export function isWallpaperMode(value: unknown): value is WallpaperMode {
+	return value === "banner" || value === "none";
+}
+
+export function getDefaultWallpaperMode(): WallpaperMode {
+	const value =
+		document.getElementById("config-carrier")?.dataset.wallpaperMode;
+	return isWallpaperMode(value) ? value : "none";
+}
+
+export function getStoredWallpaperMode(): WallpaperMode {
+	const value = localStorage.getItem(WALLPAPER_MODE_KEY);
+	return isWallpaperMode(value) ? value : getDefaultWallpaperMode();
+}
+
+export function setWallpaperMode(mode: WallpaperMode): void {
+	localStorage.setItem(WALLPAPER_MODE_KEY, mode);
+	document.documentElement.dataset.wallpaperMode = mode;
+	window.dispatchEvent(
+		new CustomEvent(WALLPAPER_MODE_CHANGE_EVENT, { detail: { mode } }),
+	);
+}
 
 export function getDefaultHue(): number {
 	const fallback = "250";

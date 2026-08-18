@@ -122,6 +122,9 @@ export const th: Translation = {
 	[Key.copyLink]: "คัดลอกลิงก์",
 
 	[Key.reduceMotion]: "ลดการเคลื่อนไหว",
+	[Key.wallpaperMode]: "พื้นหลังหน้า",
+	[Key.wallpaperModeBanner]: "แบนเนอร์",
+	[Key.wallpaperModeNone]: "สีพื้น",
 	[Key.layoutMode]: "เลย์เอาต์",
 	[Key.layoutList]: "รายการ",
 	[Key.layoutGrid]: "กริด",

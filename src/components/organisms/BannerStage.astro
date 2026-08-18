@@ -1,0 +1,291 @@
+---
+import { siteConfig } from "@/config";
+import { resolveAsset } from "@utils/asset-utils";
+import { url } from "@utils/url-utils";
+
+const resolveBannerUrl = async (src: string) => {
+	const resolved = await resolveAsset(src);
+	return resolved.startsWith("/") ? url(resolved) : resolved;
+};
+
+const desktopImages = await Promise.all(
+	siteConfig.banner.src.desktop.map(resolveBannerUrl),
+);
+const mobileImages = await Promise.all(
+	siteConfig.banner.src.mobile.map(resolveBannerUrl),
+);
+const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
+---
+
+<section
+	id="banner-wrapper"
+	class="banner-stage"
+	aria-label={siteConfig.banner.homeText.title}
+	data-desktop-images={JSON.stringify(desktopImages)}
+	data-mobile-images={JSON.stringify(mobileImages)}
+	data-carousel-enabled={String(siteConfig.banner.carousel.enable)}
+	data-carousel-interval={String(Math.max(siteConfig.banner.carousel.interval, 3000))}
+	data-position={siteConfig.banner.position ?? "center"}
+>
+	<div class="banner-stage__media" aria-hidden="true">
+		<img class="banner-stage__image banner-stage__image--front" alt="" />
+		<img class="banner-stage__image banner-stage__image--back" alt="" />
+	</div>
+	{siteConfig.banner.dim.enable && (
+		<div class="banner-stage__scrim" style={`--banner-dim-opacity: ${dimOpacity}`}></div>
+	)}
+	{siteConfig.banner.homeText.enable && (
+		<div class="banner-stage__copy">
+			<h1>{siteConfig.banner.homeText.title}</h1>
+			<p>{siteConfig.banner.homeText.subtitle}</p>
+		</div>
+	)}
+</section>
+
+<script>
+	import { resolveBannerState, type BannerViewport } from "@utils/banner-state";
+	import { prefersReducedMotion } from "@utils/motion";
+	import { getStoredWallpaperMode } from "@utils/setting-utils";
+	import { WALLPAPER_MODE_CHANGE_EVENT } from "@constants/constants";
+	import type { SidebarPage } from "@/types/sidebarConfig";
+
+	interface BannerRuntime {
+		activeGroup: BannerViewport | null;
+		activeIndex: number;
+		activeLayer: 0 | 1;
+		images: Record<BannerViewport, string[]>;
+		preloaded: HTMLImageElement | null;
+		timer: number | null;
+	}
+
+	declare global {
+		interface Window {
+			__shironeBannerBound?: boolean;
+		}
+	}
+
+	const stage = document.getElementById("banner-wrapper") as HTMLElement | null;
+	const layers = stage
+		? [...stage.querySelectorAll<HTMLImageElement>(".banner-stage__image")]
+		: [];
+	const runtime: BannerRuntime = {
+		activeGroup: null,
+		activeIndex: 0,
+		activeLayer: 0,
+		images: {
+			desktop: parseImages(stage?.dataset.desktopImages),
+			mobile: parseImages(stage?.dataset.mobileImages),
+		},
+		preloaded: null,
+		timer: null,
+	};
+
+	function parseImages(value: string | undefined): string[] {
+		if (!value) return [];
+		try {
+			const parsed = JSON.parse(value);
+			return Array.isArray(parsed)
+				? parsed.filter((item): item is string => typeof item === "string")
+				: [];
+		} catch {
+			return [];
+		}
+	}
+
+	function currentPage(): SidebarPage | undefined {
+		return document.getElementById("swup-container")?.dataset.currentPage as
+			| SidebarPage
+			| undefined;
+	}
+
+	function currentViewport(): BannerViewport {
+		return window.matchMedia("(min-width: 1024px)").matches
+			? "desktop"
+			: "mobile";
+	}
+
+	function stopRotation() {
+		if (runtime.timer !== null) window.clearTimeout(runtime.timer);
+		runtime.timer = null;
+	}
+
+	function preloadNext(images: string[], index: number) {
+		if (images.length < 2) return;
+		runtime.preloaded = new Image();
+		runtime.preloaded.src = images[(index + 1) % images.length];
+	}
+
+	function showImage(src: string, immediate: boolean) {
+		if (!layers.length) return;
+		const nextLayer = immediate ? runtime.activeLayer : runtime.activeLayer === 0 ? 1 : 0;
+		const next = layers[nextLayer];
+		const previous = layers[runtime.activeLayer];
+		if (next.src !== new URL(src, window.location.href).href) next.src = src;
+		next.style.objectPosition = stage?.dataset.position || "center";
+		if (immediate || prefersReducedMotion()) {
+			for (const layer of layers) layer.classList.remove("banner-stage__image--active");
+			next.classList.add("banner-stage__image--active");
+		} else {
+			next.classList.add("banner-stage__image--active");
+			previous.classList.remove("banner-stage__image--active");
+		}
+		runtime.activeLayer = nextLayer;
+	}
+
+	function scheduleRotation(images: string[]) {
+		stopRotation();
+		const delay = Number.parseInt(stage?.dataset.carouselInterval || "6000", 10);
+		runtime.timer = window.setTimeout(() => {
+			runtime.activeIndex = (runtime.activeIndex + 1) % images.length;
+			showImage(images[runtime.activeIndex], false);
+			preloadNext(images, runtime.activeIndex);
+			syncBanner();
+		}, delay);
+	}
+
+	function syncBanner(pageOverride?: SidebarPage) {
+		if (!stage) return;
+		const viewport = currentViewport();
+		const images = runtime.images[viewport];
+		const page = pageOverride ?? currentPage();
+		const state = resolveBannerState({
+			mode: getStoredWallpaperMode(),
+			page,
+			viewport,
+			imageCount: images.length,
+			carouselEnabled: stage.dataset.carouselEnabled === "true",
+			reducedMotion: prefersReducedMotion(),
+		});
+
+		document.body.dataset.currentPage = page || "";
+		document.body.dataset.bannerVisible = String(state.visible);
+		document.body.dataset.bannerLayout = state.contentLayout;
+		document.body.dataset.bannerTopAppBar = String(state.transparentTopAppBar);
+		stage.hidden = !state.visible;
+		stage.dataset.showHomeText = String(state.showHomeText);
+
+		if (!state.visible || !state.assetGroup) {
+			stopRotation();
+			return;
+		}
+
+		if (runtime.activeGroup !== state.assetGroup) {
+			runtime.activeGroup = state.assetGroup;
+			runtime.activeIndex = 0;
+			showImage(images[0], true);
+			layers[runtime.activeLayer]?.setAttribute("fetchpriority", "high");
+			preloadNext(images, 0);
+		}
+
+		if (state.rotate && !document.hidden) scheduleRotation(images);
+		else stopRotation();
+	}
+
+	function pageFromUrl(rawUrl: string): SidebarPage | undefined {
+		const target = new URL(rawUrl, window.location.href);
+		const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+		const path = target.pathname.slice(base.length).replace(/^\/|\/$/g, "");
+		if (path === "" || /^\d+$/.test(path)) return "home";
+		return "post";
+	}
+
+	if (stage) {
+		syncBanner();
+		if (!window.__shironeBannerBound) {
+			window.__shironeBannerBound = true;
+			window.addEventListener(WALLPAPER_MODE_CHANGE_EVENT, () => syncBanner());
+			window.matchMedia("(min-width: 1024px)").addEventListener("change", () => syncBanner());
+			window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => syncBanner());
+			document.addEventListener("visibilitychange", () => syncBanner());
+			document.addEventListener("swup:visit:start", ((event: CustomEvent) => {
+				const url = event.detail?.visit?.to?.url || event.detail?.to?.url;
+				if (url) syncBanner(pageFromUrl(url));
+			}) as EventListener);
+			document.addEventListener("swup:content:replace", () => syncBanner());
+			document.addEventListener("swup:page:view", () => syncBanner());
+		}
+	}
+</script>
+
+<style lang="stylus">
+		.banner-stage
+			position: absolute
+			inset: 0 0 auto
+			height: var(--banner-stage-height)
+			overflow: hidden
+			background: var(--surface-container-lowest)
+
+			&[hidden]
+				display: none
+
+		.banner-stage__media,
+		.banner-stage__scrim,
+		.banner-stage__copy
+			position: absolute
+			inset: 0
+
+		.banner-stage__image
+			position: absolute
+			inset: 0
+			width: 100%
+			height: 100%
+			object-fit: cover
+			opacity: 0
+			transition: opacity var(--m3e-duration-long) var(--m3e-easing-standard)
+
+		.banner-stage__image--active
+			opacity: 1
+
+		.banner-stage__scrim
+			z-index: 1
+			background: unquote("rgb(0 0 0 / var(--banner-dim-opacity))")
+			pointer-events: none
+
+		.banner-stage__copy
+			z-index: 2
+			display: none
+			flex-direction: column
+			align-items: center
+			justify-content: center
+			padding: 4rem 1.5rem 2rem
+			color: white
+			text-align: center
+			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.48)
+			pointer-events: none
+
+		.banner-stage__copy h1
+			font: var(--m3e-type-headline-medium)
+			font-size: clamp(2.5rem, 5rem, 5rem)
+			font-weight: 700
+			letter-spacing: 0
+			line-height: 1.1
+
+		.banner-stage__copy p
+			margin-top: 0.75rem
+			font: var(--m3e-type-headline-small)
+
+		.banner-stage[data-show-home-text="true"] .banner-stage__copy
+			display: flex
+
+
+	:global(html[data-wallpaper-mode="none"]) .banner-stage
+		display: none
+
+	@media (max-width: 1023.98px)
+		:global(body:not([data-current-page="home"])) .banner-stage
+			display: none
+
+		.banner-stage
+			&__copy h1
+				font-size: 2.75rem
+
+			&__copy p
+				font-size: 1.125rem
+
+	:global(html.motion-reduced) .banner-stage__image
+		transition: none
+
+	@media (prefers-reduced-motion: reduce)
+		.banner-stage__image
+			transition: none
+</style>

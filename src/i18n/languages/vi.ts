@@ -14,20 +14,23 @@ export const vi: Translation = {
 
 	[Key.friends]: "Bạn bè",
 	[Key.friendsNoResults]: "Không có bạn bè nào khớp bộ lọc",
-	[Key.friendsBanner]: "Chào đón trao đổi liên kết — xem trang Giới thiệu để biết cách đăng ký.",
+	[Key.friendsBanner]:
+		"Chào đón trao đổi liên kết — xem trang Giới thiệu để biết cách đăng ký.",
 	[Key.friendsCount]: "liên kết bạn bè",
 	[Key.friendsCounts]: "liên kết bạn bè",
 
 	[Key.moments]: "Khoảnh khắc",
 	[Key.momentsNoResults]: "Không có khoảnh khắc nào khớp bộ lọc",
-	[Key.momentsBanner]: "Ghi chú ngắn — cuộc sống, công việc và những niềm vui nhỏ.",
+	[Key.momentsBanner]:
+		"Ghi chú ngắn — cuộc sống, công việc và những niềm vui nhỏ.",
 	[Key.momentsCount]: "khoảnh khắc",
 	[Key.momentsCounts]: "khoảnh khắc",
 	[Key.pinned]: "Ghim",
 	[Key.loadMore]: "Tải thêm",
 
 	[Key.anime]: "Anime",
-	[Key.animeBanner]: "Danh sách anime của tôi — đang xem, đã xem xong và dự định xem.",
+	[Key.animeBanner]:
+		"Danh sách anime của tôi — đang xem, đã xem xong và dự định xem.",
 	[Key.animeNoResults]: "Không có anime nào khớp bộ lọc",
 	[Key.animeCounts]: "bộ anime",
 	[Key.animeStatusWatching]: "Đang xem",
@@ -37,7 +40,8 @@ export const vi: Translation = {
 	[Key.animeStatusDropped]: "Đã bỏ",
 
 	[Key.compass]: "La bàn",
-	[Key.compassBanner]: "Các trang tôi hay ghé — công cụ lập trình, tài liệu và những hố thỏ.",
+	[Key.compassBanner]:
+		"Các trang tôi hay ghé — công cụ lập trình, tài liệu và những hố thỏ.",
 	[Key.compassNoResults]: "Không có trang nào khớp với tìm kiếm",
 	[Key.compassCounts]: "trang",
 
@@ -122,6 +126,9 @@ export const vi: Translation = {
 	[Key.copyLink]: "Sao chép liên kết",
 
 	[Key.reduceMotion]: "Giảm chuyển động",
+	[Key.wallpaperMode]: "Nền trang",
+	[Key.wallpaperModeBanner]: "Biểu ngữ",
+	[Key.wallpaperModeNone]: "Màu trơn",
 	[Key.layoutMode]: "Bố cục",
 	[Key.layoutList]: "Danh sách",
 	[Key.layoutGrid]: "Lưới",

@@ -107,6 +107,10 @@ enum I18nKey {
 
 	reduceMotion = "reduceMotion",
 
+	wallpaperMode = "wallpaperMode",
+	wallpaperModeBanner = "wallpaperModeBanner",
+	wallpaperModeNone = "wallpaperModeNone",
+
 	layoutMode = "layoutMode",
 	layoutList = "layoutList",
 	layoutGrid = "layoutGrid",

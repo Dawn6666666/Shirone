@@ -34,7 +34,7 @@ function isActive(link: (typeof links)[number]): boolean {
 <div
 	id="navbar"
 	class:list={[
-		"fixed top-0 left-0 right-0 z-50 onload-animation bg-[color-mix(in_oklab,var(--surface-container-low)_94%,transparent)] shadow-[var(--m3e-elevation-1)] backdrop-blur-md transition",
+		"top-app-bar fixed top-0 left-0 right-0 z-50 onload-animation bg-[color-mix(in_oklab,var(--surface-container-low)_94%,transparent)] shadow-[var(--m3e-elevation-1)] backdrop-blur-md transition",
 		className,
 	]}
 >
@@ -218,6 +218,54 @@ if (document.readyState === 'loading') {
 </script>}
 
 <style>
+	.top-app-bar {
+		transition:
+			background-color var(--m3e-duration-medium) var(--m3e-easing-standard),
+			box-shadow var(--m3e-duration-medium) var(--m3e-easing-standard),
+			color var(--m3e-duration-short) var(--m3e-easing-standard);
+	}
+
+		.top-app-bar--transparent {
+			background: transparent;
+			box-shadow: none;
+			backdrop-filter: none;
+			color: white;
+			--on-surface: white;
+			--on-surface-variant: rgba(255, 255, 255, 0.9);
+			--primary: white;
+		}
+
+			:global(.top-app-bar--transparent .top-app-bar__search-shell--expanded) {
+				--on-surface: var(--mc-on-surface);
+				--on-surface-variant: var(--mc-on-surface-variant);
+				--primary: var(--mc-primary);
+				color: var(--mc-on-surface);
+			}
+
+			:global(.top-app-bar--transparent .top-app-bar__search-shell--expanded input) {
+				color: var(--mc-on-surface) !important;
+				caret-color: var(--mc-primary) !important;
+			}
+
+			:global(.top-app-bar--transparent .top-app-bar__search-shell--expanded svg) {
+				color: var(--mc-on-surface-variant) !important;
+			}
+
+			/* Floating surfaces keep their theme foreground instead of inheriting
+		 * the white chrome used by the transparent app bar. */
+		:global(.top-app-bar--transparent .float-panel),
+		:global(.top-app-bar--transparent .m3-menu),
+		:global(.top-app-bar--transparent .top-app-bar__submenu) {
+			--on-surface: var(--mc-on-surface);
+			--on-surface-variant: var(--mc-on-surface-variant);
+			--primary: var(--mc-primary);
+			color: var(--mc-on-surface);
+		}
+
+		.top-app-bar--transparent .top-app-bar__nav-link--active::after {
+		background: white;
+	}
+
 	.top-app-bar__nav-link--active {
 		color: var(--primary);
 	}

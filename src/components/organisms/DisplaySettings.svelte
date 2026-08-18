@@ -18,8 +18,10 @@ import {
 	getDefaultHue,
 	getHue,
 	getMotionPreference,
+	getStoredWallpaperMode,
 	setHue,
 	setMotionPreference,
+	setWallpaperMode,
 } from "@utils/setting-utils";
 import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
 import {
@@ -31,7 +33,8 @@ import {
 } from "@utils/layout-mode";
 import type { PostListMode } from "@/types/postListConfig";
 import { onMount } from "svelte";
-import { getDefaultSpec, getDefaultStyle } from "@/config";
+import { getDefaultSpec, getDefaultStyle, siteConfig } from "@/config";
+import type { WallpaperMode } from "@/types/config";
 
 let { class: className = "" }: { class?: string } = $props();
 
@@ -52,6 +55,9 @@ let motionReduced = $state(false);
 const defaultLayoutMode = defaultMode();
 let postListMode = $state<PostListMode>(getStoredMode());
 let lastAppliedMode = postListMode;
+const defaultWallpaperMode = siteConfig.wallpaperMode.defaultMode;
+let wallpaperMode = $state<WallpaperMode>(getStoredWallpaperMode());
+let lastAppliedWallpaperMode = wallpaperMode;
 
 // 明暗切换时重算色卡（LightDarkSwitch 改 <html> 的 class）
 onMount(() => {
@@ -72,6 +78,7 @@ function confirmReset() {
 	style = defaultStyle;
 	spec = defaultSpec;
 	postListMode = defaultLayoutMode;
+	wallpaperMode = defaultWallpaperMode;
 }
 
 /** 是否有可重置的偏离（控制 Reset 按钮可见性） */
@@ -79,7 +86,8 @@ const isDirty = $derived(
 	hue !== defaultHue ||
 		style !== defaultStyle ||
 		spec !== defaultSpec ||
-		postListMode !== defaultLayoutMode,
+		postListMode !== defaultLayoutMode ||
+		wallpaperMode !== defaultWallpaperMode,
 );
 
 $effect(() => {
@@ -93,6 +101,11 @@ $effect(() => {
 });
 $effect(() => {
 	setMotionPreference(motionReduced);
+});
+$effect(() => {
+	if (wallpaperMode === lastAppliedWallpaperMode) return;
+	lastAppliedWallpaperMode = wallpaperMode;
+	setWallpaperMode(wallpaperMode);
 });
 $effect(() => {
 	if (postListMode === lastAppliedMode) return;
@@ -228,8 +241,20 @@ const stylePreviews = $derived(
                 <Switch bind:checked={motionReduced} label={i18n(I18nKey.reduceMotion)} icons />
             </div>
 
-            <div class="flex flex-col gap-1.5">
-                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.layoutMode)}</span>
+			<div class="flex flex-col gap-1.5">
+				<span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.wallpaperMode)}</span>
+				<SegmentedButton
+					options={[
+						{ value: "none", label: i18n(I18nKey.wallpaperModeNone) },
+						{ value: "banner", label: i18n(I18nKey.wallpaperModeBanner) },
+					]}
+					bind:value={wallpaperMode}
+					label={i18n(I18nKey.wallpaperMode)}
+				/>
+			</div>
+
+			<div class="flex flex-col gap-1.5">
+				<span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.layoutMode)}</span>
                 <SegmentedButton
                     options={[
                         { value: "list", label: i18n(I18nKey.layoutList) },

@@ -14,20 +14,23 @@ export const id: Translation = {
 
 	[Key.friends]: "Teman",
 	[Key.friendsNoResults]: "Tidak ada teman yang cocok dengan filter",
-	[Key.friendsBanner]: "Tukar tautan dipersilakan — lihat halaman Tentang untuk cara mendaftar.",
+	[Key.friendsBanner]:
+		"Tukar tautan dipersilakan — lihat halaman Tentang untuk cara mendaftar.",
 	[Key.friendsCount]: "teman",
 	[Key.friendsCounts]: "teman",
 
 	[Key.moments]: "Momen",
 	[Key.momentsNoResults]: "Tidak ada momen yang cocok dengan filter",
-	[Key.momentsBanner]: "Catatan singkat — kehidupan, karya, dan kebahagiaan kecil.",
+	[Key.momentsBanner]:
+		"Catatan singkat — kehidupan, karya, dan kebahagiaan kecil.",
 	[Key.momentsCount]: "momen",
 	[Key.momentsCounts]: "momen",
 	[Key.pinned]: "Disematkan",
 	[Key.loadMore]: "Muat lainnya",
 
 	[Key.anime]: "Anime",
-	[Key.animeBanner]: "Daftar tontonan saya — sedang ditonton, selesai, dan antrean berikutnya.",
+	[Key.animeBanner]:
+		"Daftar tontonan saya — sedang ditonton, selesai, dan antrean berikutnya.",
 	[Key.animeNoResults]: "Tidak ada anime yang cocok dengan filter",
 	[Key.animeCounts]: "anime",
 	[Key.animeStatusWatching]: "Menonton",
@@ -37,7 +40,8 @@ export const id: Translation = {
 	[Key.animeStatusDropped]: "Ditinggalkan",
 
 	[Key.compass]: "Kompas",
-	[Key.compassBanner]: "Situs yang sering saya kunjungi — alat pengembangan, dokumentasi, dan lubang kelinci.",
+	[Key.compassBanner]:
+		"Situs yang sering saya kunjungi — alat pengembangan, dokumentasi, dan lubang kelinci.",
 	[Key.compassNoResults]: "Tidak ada situs yang cocok dengan pencarian",
 	[Key.compassCounts]: "situs",
 
@@ -122,6 +126,9 @@ export const id: Translation = {
 	[Key.copyLink]: "Salin tautan",
 
 	[Key.reduceMotion]: "Kurangi animasi",
+	[Key.wallpaperMode]: "Latar halaman",
+	[Key.wallpaperModeBanner]: "Banner",
+	[Key.wallpaperModeNone]: "Warna solid",
 	[Key.layoutMode]: "Tata letak",
 	[Key.layoutList]: "Daftar",
 	[Key.layoutGrid]: "Kisi",

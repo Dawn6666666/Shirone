@@ -3,6 +3,10 @@ export const LIGHT_MODE = "light",
 	AUTO_MODE = "auto";
 export const DEFAULT_THEME = AUTO_MODE;
 
+export const WALLPAPER_MODE_KEY = "wallpaper-mode";
+export const WALLPAPER_MODE_CHANGE_EVENT = "wallpaper-mode:change";
+export const WALLPAPER_MODE_OPTIONS = ["none", "banner"] as const;
+
 // Banner height unit: vh
 export const BANNER_HEIGHT = 35;
 export const BANNER_HEIGHT_EXTEND = 30;

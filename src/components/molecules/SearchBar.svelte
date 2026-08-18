@@ -47,13 +47,12 @@ const handleFocus = (): void => {
 	clearTimeout(blurTimer);
 	onfocus();
 };
-
 </script>
 
 <div class="hidden lg:block relative w-10 h-10 shrink-0">
     <div
-        class="m3-state-layer absolute right-0 top-0 flex items-center overflow-hidden rounded-full transition-all duration-300 h-10
-               {expanded ? 'w-48 bg-(--surface-container-high)' : 'w-10 bg-transparent'}"
+        class="m3-state-layer absolute right-0 top-0 flex items-center overflow-hidden rounded-full transition-all duration-300 h-10 top-app-bar__search-shell
+               {expanded ? 'top-app-bar__search-shell--expanded w-48 bg-(--surface-container-high)' : 'w-10 bg-transparent'}"
         onclick={() => {
             if (!expanded) expand();
         }}

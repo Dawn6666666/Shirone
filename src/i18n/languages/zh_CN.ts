@@ -122,6 +122,9 @@ export const zh_CN: Translation = {
 	[Key.copyLink]: "复制链接",
 
 	[Key.reduceMotion]: "减少动态效果",
+	[Key.wallpaperMode]: "页面背景",
+	[Key.wallpaperModeBanner]: "横幅",
+	[Key.wallpaperModeNone]: "纯色",
 	[Key.layoutMode]: "布局",
 	[Key.layoutList]: "列表",
 	[Key.layoutGrid]: "网格",

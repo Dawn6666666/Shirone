@@ -14,7 +14,8 @@ export const ko: Translation = {
 
 	[Key.friends]: "친구",
 	[Key.friendsNoResults]: "조건에 맞는 친구가 없습니다",
-	[Key.friendsBanner]: "링크 교환을 환영합니다. 신청 방법은 소개 페이지를 참고하세요.",
+	[Key.friendsBanner]:
+		"링크 교환을 환영합니다. 신청 방법은 소개 페이지를 참고하세요.",
 	[Key.friendsCount]: "개의 친구 링크",
 	[Key.friendsCounts]: "개의 친구 링크",
 
@@ -27,7 +28,8 @@ export const ko: Translation = {
 	[Key.loadMore]: "더 보기",
 
 	[Key.anime]: "애니메이션",
-	[Key.animeBanner]: "내 시청 목록 — 보고 있는 작품, 다 본 작품, 그리고 다음 예정.",
+	[Key.animeBanner]:
+		"내 시청 목록 — 보고 있는 작품, 다 본 작품, 그리고 다음 예정.",
 	[Key.animeNoResults]: "조건에 맞는 애니메이션이 없습니다",
 	[Key.animeCounts]: "편",
 	[Key.animeStatusWatching]: "시청 중",
@@ -37,7 +39,8 @@ export const ko: Translation = {
 	[Key.animeStatusDropped]: "중단",
 
 	[Key.compass]: "나침반",
-	[Key.compassBanner]: "자주 찾는 사이트 — 개발 도구, 문서, 그리고 토끼굴 속으로.",
+	[Key.compassBanner]:
+		"자주 찾는 사이트 — 개발 도구, 문서, 그리고 토끼굴 속으로.",
 	[Key.compassNoResults]: "검색어와 일치하는 사이트가 없습니다",
 	[Key.compassCounts]: "개 사이트",
 
@@ -122,6 +125,9 @@ export const ko: Translation = {
 	[Key.copyLink]: "링크 복사",
 
 	[Key.reduceMotion]: "동작 줄이기",
+	[Key.wallpaperMode]: "페이지 배경",
+	[Key.wallpaperModeBanner]: "배너",
+	[Key.wallpaperModeNone]: "단색",
 	[Key.layoutMode]: "레이아웃",
 	[Key.layoutList]: "목록",
 	[Key.layoutGrid]: "그리드",

@@ -14,7 +14,8 @@ export const tr: Translation = {
 
 	[Key.friends]: "Arkadaşlar",
 	[Key.friendsNoResults]: "Filtrelerle eşleşen arkadaş yok",
-	[Key.friendsBanner]: "Bağlantı takası yapabilirsiniz — ayrıntılar için Hakkında sayfasına bakın.",
+	[Key.friendsBanner]:
+		"Bağlantı takası yapabilirsiniz — ayrıntılar için Hakkında sayfasına bakın.",
 	[Key.friendsCount]: "arkadaş",
 	[Key.friendsCounts]: "arkadaş",
 
@@ -27,7 +28,8 @@ export const tr: Translation = {
 	[Key.loadMore]: "Daha fazla yükle",
 
 	[Key.anime]: "Anime",
-	[Key.animeBanner]: "İzleme listem — izlediklerim, bitirdiklerim ve sırada bekleyenler.",
+	[Key.animeBanner]:
+		"İzleme listem — izlediklerim, bitirdiklerim ve sırada bekleyenler.",
 	[Key.animeNoResults]: "Filtrenize uyan anime yok",
 	[Key.animeCounts]: "anime",
 	[Key.animeStatusWatching]: "İzliyorum",
@@ -37,7 +39,8 @@ export const tr: Translation = {
 	[Key.animeStatusDropped]: "Bırakıldı",
 
 	[Key.compass]: "Pusula",
-	[Key.compassBanner]: "Sık sık döndüğüm siteler — geliştirme araçları, dokümanlar ve tavşan delikleri.",
+	[Key.compassBanner]:
+		"Sık sık döndüğüm siteler — geliştirme araçları, dokümanlar ve tavşan delikleri.",
 	[Key.compassNoResults]: "Aramanızla eşleşen site yok",
 	[Key.compassCounts]: "site",
 
@@ -122,6 +125,9 @@ export const tr: Translation = {
 	[Key.copyLink]: "Bağlantıyı kopyala",
 
 	[Key.reduceMotion]: "Hareketi azalt",
+	[Key.wallpaperMode]: "Sayfa arka planı",
+	[Key.wallpaperModeBanner]: "Afiş",
+	[Key.wallpaperModeNone]: "Düz renk",
 	[Key.layoutMode]: "Düzen",
 	[Key.layoutList]: "Liste",
 	[Key.layoutGrid]: "Izgara",

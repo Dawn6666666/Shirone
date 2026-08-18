@@ -1,5 +1,7 @@
 import type { AUTO_MODE, DARK_MODE, LIGHT_MODE } from "@constants/constants";
 
+export type WallpaperMode = "banner" | "none";
+
 export type SiteConfig = {
 	title: string;
 	subtitle: string;
@@ -22,14 +24,27 @@ export type SiteConfig = {
 		style: string;
 		spec: string;
 	};
+	wallpaperMode: {
+		defaultMode: WallpaperMode;
+	};
 	banner: {
-		enable: boolean;
-		src: string;
+		src: {
+			desktop: string[];
+			mobile: string[];
+		};
 		position?: "top" | "center" | "bottom";
-		credit: {
+		dim: {
 			enable: boolean;
-			text: string;
-			url?: string;
+			opacity: number;
+		};
+		homeText: {
+			enable: boolean;
+			title: string;
+			subtitle: string;
+		};
+		carousel: {
+			enable: boolean;
+			interval: number;
 		};
 	};
 	toc: {
