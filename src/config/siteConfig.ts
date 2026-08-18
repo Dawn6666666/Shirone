@@ -48,6 +48,10 @@ export const siteConfig: SiteConfig = {
 			enable: true,
 			interval: 6000,
 		},
+		waves: {
+			// 在 Banner 底部渲染页面背景色水波纹；关闭后不输出波浪 DOM。
+			enable: true,
+		},
 	},
 	toc: {
 		enable: true, // Display the table of contents on the right side of the post

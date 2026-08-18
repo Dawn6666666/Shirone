@@ -6,6 +6,7 @@ import "@fontsource/roboto/700.css";
 import Snackbar from "@components/atoms/overlay/Snackbar.svelte";
 import ConfigCarrier from "@components/system/ConfigCarrier.astro";
 import { expressiveCodeConfig, profileConfig, siteConfig } from "@/config";
+import type { SidebarPage } from "@/types/sidebarConfig";
 import {
 	AUTO_MODE,
 	BANNER_HEIGHT,
@@ -14,10 +15,10 @@ import {
 	DARK_MODE,
 	DEFAULT_THEME,
 	LIGHT_MODE,
+	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import { defaultFavicons } from "../constants/icon";
 import type { Favicon } from "../types/config";
-import type { SidebarPage } from "@/types/sidebarConfig";
 import { resolvePageWidth } from "../utils/responsive-utils";
 import { pathsEqual, url } from "../utils/url-utils";
 import "katex/dist/katex.css";
@@ -45,6 +46,8 @@ const lightTheme =
 	expressiveCodeConfig.lightTheme ?? expressiveCodeConfig.theme;
 const darkTheme = expressiveCodeConfig.darkTheme ?? expressiveCodeConfig.theme;
 const defaultWallpaperMode = siteConfig.wallpaperMode.defaultMode;
+const hasDesktopBanner = siteConfig.banner.src.desktop.length > 0;
+const hasMobileBanner = siteConfig.banner.src.mobile.length > 0;
 
 let pageTitle: string;
 if (title) {
@@ -167,6 +170,8 @@ const siteLang = lang.replace("_", "-");
 			data-banner-visible="false"
 			data-banner-layout="compact"
 			data-banner-top-app-bar="false"
+			data-banner-has-desktop={String(hasDesktopBanner)}
+			data-banner-has-mobile={String(hasMobileBanner)}
 			data-overlayscrollbars-initialize
 		>
 		<ConfigCarrier></ConfigCarrier>
@@ -185,66 +190,72 @@ const siteLang = lang.replace("_", "-");
 <style is:global define:vars={{
 	'banner-height-home': `${BANNER_HEIGHT_HOME}vh`,
 	'banner-height': `${BANNER_HEIGHT}vh`,
+	'banner-panel-overlap': `${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem`,
 }}>
 @reference "../styles/main.css";
-	@layer components {
-		:root {
-			--banner-stage-height: var(--banner-height-home);
-			--banner-content-top: calc(var(--banner-height-home) - 3.5rem);
-		}
+		@layer components {
+			:root {
+				--banner-stage-height: var(--banner-height-home);
+				--banner-content-top: calc(var(--banner-stage-height) - var(--banner-panel-overlap));
+			}
 
-		#main-layout {
-			top: 5.5rem;
-			transition: top var(--m3e-duration-long) var(--m3e-easing-standard);
-		}
+			#main-layout {
+				top: 5.5rem;
+				transition: top var(--m3e-duration-long) var(--m3e-easing-standard);
+			}
 
-		html[data-wallpaper-mode="banner"] body[data-current-page="home"] #main-layout,
-		body[data-banner-layout="banner"] #main-layout {
-			top: var(--banner-content-top);
-		}
-
-		body[data-banner-layout="banner"] #top-row {
-			height: calc(var(--banner-height-home) - 4.5rem);
-		}
-
-		html[data-wallpaper-mode="banner"] body[data-current-page="home"] #sidebar-sticky,
-		html[data-wallpaper-mode="banner"] body[data-current-page="home"] #sidebar-secondary-sticky,
-		body[data-banner-layout="banner"] #sidebar-sticky,
-		body[data-banner-layout="banner"] #sidebar-secondary-sticky {
-			top: calc(1rem - var(--banner-height-extend));
-		}
-
-		.navbar-hidden {
-			opacity: 0;
-			transform: translateY(-4rem);
-		}
-	}
-
-		@media (min-width: 1024px) {
-			html[data-wallpaper-mode="banner"] #main-layout {
+			body[data-banner-layout="banner"] #main-layout {
 				top: var(--banner-content-top);
 			}
 
-			html[data-wallpaper-mode="banner"] #top-row {
-				height: calc(var(--banner-height-home) - 4.5rem);
+			body[data-banner-layout="banner"] #top-row {
+				height: calc(var(--banner-stage-height) - 4.5rem);
 			}
 
-			html[data-wallpaper-mode="banner"] #sidebar-sticky,
-			html[data-wallpaper-mode="banner"] #sidebar-secondary-sticky {
+			body[data-banner-layout="banner"] #sidebar-sticky,
+			body[data-banner-layout="banner"] #sidebar-secondary-sticky {
+				top: calc(1rem - var(--banner-height-extend));
+			}
+
+			.navbar-hidden {
+				opacity: 0;
+				transform: translateY(-4rem);
+			}
+		}
+
+		@media (min-width: 1024px) {
+			html[data-wallpaper-mode="banner"] body[data-banner-has-desktop="true"] #main-layout {
+				top: var(--banner-content-top);
+			}
+
+			html[data-wallpaper-mode="banner"] body[data-banner-has-desktop="true"] #top-row {
+				height: calc(var(--banner-stage-height) - 4.5rem);
+			}
+
+			html[data-wallpaper-mode="banner"] body[data-banner-has-desktop="true"] #sidebar-sticky,
+			html[data-wallpaper-mode="banner"] body[data-banner-has-desktop="true"] #sidebar-secondary-sticky {
 				top: calc(1rem - var(--banner-height-extend));
 			}
 		}
 
 		@media (max-width: 1023.98px) {
-		:root {
-			--banner-stage-height: max(70vh, 28rem);
-			--banner-content-top: var(--banner-stage-height);
+			:root {
+				--banner-stage-height: max(70vh, 28rem);
+			}
+
+			html[data-wallpaper-mode="banner"] body[data-current-page="home"][data-banner-has-mobile="true"] #main-layout {
+				top: var(--banner-content-top);
+			}
+
+			html[data-wallpaper-mode="banner"] body[data-current-page="home"][data-banner-has-mobile="true"] #top-row {
+				height: calc(var(--banner-stage-height) - 4.5rem);
+			}
+
+			body[data-banner-layout="compact"] #top-row {
+				height: auto;
+			}
 		}
 
-		body[data-banner-layout="compact"] #top-row {
-			height: auto;
-		}
-	}
 
 	@media (min-width: 480px) and (max-width: 767.98px) {
 		:root {

@@ -12,6 +12,39 @@ async function waitForBannerState(
 	);
 }
 
+async function expectBannerOverlap(page: import("@playwright/test").Page) {
+	const geometry = await page.evaluate(() => {
+		const banner = document.getElementById("banner-wrapper");
+		const categoryBar = document.getElementById("category-bar-region");
+		if (!banner || !categoryBar) return null;
+		const rootStyle = getComputedStyle(document.documentElement);
+		const overlap = rootStyle.getPropertyValue("--banner-panel-overlap").trim();
+		const overlapValue = Number.parseFloat(overlap);
+		return {
+			actual:
+				banner.getBoundingClientRect().bottom -
+				categoryBar.getBoundingClientRect().top,
+			expected: overlap.endsWith("rem")
+				? overlapValue * Number.parseFloat(rootStyle.fontSize)
+				: overlapValue,
+		};
+	});
+
+	expect(geometry).not.toBeNull();
+	expect(geometry?.actual).toBeCloseTo(geometry?.expected ?? 0, 0);
+}
+
+async function expectWavesAnimated(
+	page: import("@playwright/test").Page,
+	animated: boolean,
+) {
+	await expect(page.locator(".banner-waves")).toBeVisible();
+	const animationCount = await page
+		.locator(".banner-waves")
+		.evaluate((waves) => waves.getAnimations({ subtree: true }).length);
+	expect(animationCount > 0).toBe(animated);
+}
+
 async function expectRouteProgressAtAppBarBottom(
 	page: import("@playwright/test").Page,
 ) {
@@ -53,6 +86,9 @@ test.describe("banner wallpaper", () => {
 			/top-app-bar--transparent/,
 		);
 		await expect(page.locator(".route-progress")).toHaveCSS("top", "0px");
+		await expect(page.locator(".banner-waves__layer")).toHaveCount(4);
+		await expectWavesAnimated(page, true);
+		await expectBannerOverlap(page);
 		await expect(page.locator("#main-layout")).toHaveCSS(
 			"top",
 			/^[4-9]\d{2}(\.\d+)?px$/,
@@ -94,6 +130,7 @@ test.describe("banner wallpaper", () => {
 		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, false);
 		await expect(page.locator("#banner-wrapper")).toBeHidden();
+		await expect(page.locator(".banner-waves")).toBeHidden();
 		await expectCompactTop(page);
 		await expect(page.locator("#navbar")).not.toHaveClass(
 			/top-app-bar--transparent/,
@@ -111,6 +148,8 @@ test.describe("banner wallpaper", () => {
 
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, true);
+		await expectWavesAnimated(page, true);
+		await expectBannerOverlap(page);
 		expect(requests.some((request) => request.includes("/mobile/"))).toBe(true);
 		expect(requests.some((request) => request.includes("/desktop/"))).toBe(
 			false,
@@ -131,6 +170,7 @@ test.describe("banner wallpaper", () => {
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, false);
 		await expect(page.locator("#banner-wrapper")).toBeHidden();
+		await expect(page.locator(".banner-waves")).toBeHidden();
 		await expectCompactTop(page);
 		expect(requests).toEqual([]);
 	});
@@ -191,6 +231,7 @@ test.describe("banner wallpaper", () => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, true);
+		await expectWavesAnimated(page, false);
 		const before = await page
 			.locator(".banner-stage__image--active")
 			.getAttribute("src");
@@ -201,12 +242,25 @@ test.describe("banner wallpaper", () => {
 		expect(after).toBe(before);
 	});
 
+	test("manual reduced motion keeps the wave boundary static", async ({
+		page,
+	}) => {
+		await page.addInitScript(() =>
+			localStorage.setItem("mc-motion", "reduced"),
+		);
+		await page.goto("/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		await expect(page.locator("html")).toHaveClass(/motion-reduced/);
+		await expectWavesAnimated(page, false);
+	});
+
 	test("Swup home to post removes mobile wallpaper without leaving a gap", async ({
 		page,
 	}) => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.goto("/", { waitUntil: "networkidle" });
 		await waitForBannerState(page, true);
+		await expect(page.locator(".banner-waves")).toHaveCount(1);
 
 		await page.evaluate(() => {
 			(
@@ -221,6 +275,8 @@ test.describe("banner wallpaper", () => {
 				"post",
 		);
 		await waitForBannerState(page, false);
+		await expect(page.locator(".banner-waves")).toHaveCount(1);
+		await expect(page.locator(".banner-waves")).toBeHidden();
 		await expectCompactTop(page);
 	});
 });

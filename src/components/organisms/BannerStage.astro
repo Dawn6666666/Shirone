@@ -1,7 +1,8 @@
 ---
-import { siteConfig } from "@/config";
+import BannerWaves from "@components/molecules/BannerWaves.astro";
 import { resolveAsset } from "@utils/asset-utils";
 import { url } from "@utils/url-utils";
+import { siteConfig } from "@/config";
 
 const resolveBannerUrl = async (src: string) => {
 	const resolved = await resolveAsset(src);
@@ -40,6 +41,7 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			<p>{siteConfig.banner.homeText.subtitle}</p>
 		</div>
 	)}
+	{siteConfig.banner.waves.enable && <BannerWaves />}
 </section>
 
 <script>

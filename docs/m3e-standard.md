@@ -94,6 +94,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | 令牌 | 值 |
 |---|---|
 | `--m3e-duration-short / medium / long` | 150ms / 250ms / 400ms |
+| `--m3e-duration-ambient-short / medium / long / extra-long` | 7s / 10s / 13s / 18s（仅持续环境装饰，不用于交互反馈） |
 | `--m3e-easing-standard` | `cubic-bezier(0.2, 0, 0, 1)` |
 | `--m3e-easing-emphasized` | `cubic-bezier(0.2, 0, 0, 1)` |
 | `--m3e-easing-emphasized-decelerate` | `cubic-bezier(0.05, 0.7, 0.1, 1)` |

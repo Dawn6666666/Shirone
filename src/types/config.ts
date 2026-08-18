@@ -46,6 +46,9 @@ export type SiteConfig = {
 			enable: boolean;
 			interval: number;
 		};
+		waves: {
+			enable: boolean;
+		};
 	};
 	toc: {
 		enable: boolean;
