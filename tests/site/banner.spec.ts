@@ -17,21 +17,60 @@ async function expectBannerOverlap(page: import("@playwright/test").Page) {
 		const banner = document.getElementById("banner-wrapper");
 		const categoryBar = document.getElementById("category-bar-region");
 		if (!banner || !categoryBar) return null;
+
 		const rootStyle = getComputedStyle(document.documentElement);
-		const overlap = rootStyle.getPropertyValue("--banner-panel-overlap").trim();
-		const overlapValue = Number.parseFloat(overlap);
+		const resolveLength = (property: string): number => {
+			let value = rootStyle.getPropertyValue(property).trim();
+			const variable = value.match(/^var\((--[^,)]+)/);
+			if (variable) value = rootStyle.getPropertyValue(variable[1]).trim();
+			const numericValue = Number.parseFloat(value);
+			return value.endsWith("rem")
+				? numericValue * Number.parseFloat(rootStyle.fontSize)
+				: numericValue;
+		};
+
 		return {
 			actual:
 				banner.getBoundingClientRect().bottom -
 				categoryBar.getBoundingClientRect().top,
-			expected: overlap.endsWith("rem")
-				? overlapValue * Number.parseFloat(rootStyle.fontSize)
-				: overlapValue,
+			expected: resolveLength("--banner-panel-overlap"),
 		};
 	});
 
 	expect(geometry).not.toBeNull();
 	expect(geometry?.actual).toBeCloseTo(geometry?.expected ?? 0, 0);
+}
+
+async function expectWaveGeometry(
+	page: import("@playwright/test").Page,
+	expectedScale: string,
+) {
+	const geometry = await page.locator(".banner-waves").evaluate((waves) => {
+		const rootStyle = getComputedStyle(document.documentElement);
+		const layer = waves.querySelector<HTMLElement>(".banner-waves__layer");
+		if (!layer) return null;
+		const overlapProperty = rootStyle
+			.getPropertyValue("--banner-panel-overlap")
+			.trim();
+		const overlapVariable = overlapProperty.match(/^var\((--[^,)]+)/);
+		const overlapValue = overlapVariable
+			? rootStyle.getPropertyValue(overlapVariable[1]).trim()
+			: overlapProperty;
+		const overlap = Number.parseFloat(overlapValue);
+		return {
+			height: waves.getBoundingClientRect().height,
+			overlap: overlapValue.endsWith("rem")
+				? overlap * Number.parseFloat(rootStyle.fontSize)
+				: overlap,
+			scale: getComputedStyle(layer)
+				.getPropertyValue("--banner-wave-scale-y")
+				.trim(),
+		};
+	});
+
+	expect(geometry).not.toBeNull();
+	expect(geometry?.height).toBeGreaterThan(geometry?.overlap ?? 0);
+	expect(Number(geometry?.scale)).toBe(Number(expectedScale));
 }
 
 async function expectWavesAnimated(
@@ -89,6 +128,7 @@ test.describe("banner wallpaper", () => {
 		await expect(page.locator(".banner-waves__layer")).toHaveCount(4);
 		await expectWavesAnimated(page, true);
 		await expectBannerOverlap(page);
+		await expectWaveGeometry(page, "1");
 		await expect(page.locator("#main-layout")).toHaveCSS(
 			"top",
 			/^[4-9]\d{2}(\.\d+)?px$/,
@@ -150,10 +190,22 @@ test.describe("banner wallpaper", () => {
 		await waitForBannerState(page, true);
 		await expectWavesAnimated(page, true);
 		await expectBannerOverlap(page);
+		await expectWaveGeometry(page, "0.72");
 		expect(requests.some((request) => request.includes("/mobile/"))).toBe(true);
 		expect(requests.some((request) => request.includes("/desktop/"))).toBe(
 			false,
 		);
+	});
+
+	test("tablet home keeps the full wave geometry at the desktop breakpoint", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 768, height: 900 });
+		await page.goto("/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		await expectWavesAnimated(page, true);
+		await expectBannerOverlap(page);
+		await expectWaveGeometry(page, "1");
 	});
 
 	test("solid preference persists and avoids all banner requests", async ({

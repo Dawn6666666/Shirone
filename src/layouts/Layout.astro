@@ -239,9 +239,21 @@ const siteLang = lang.replace("_", "-");
 		}
 
 		@media (max-width: 1023.98px) {
-			:root {
-				--banner-stage-height: max(70vh, 28rem);
-			}
+				:root {
+					--banner-stage-height: max(70vh, 28rem);
+				}
+
+				@media (max-width: 479.98px) {
+					:root {
+						--banner-panel-overlap: var(--m3e-space-8);
+					}
+				}
+
+				@media (min-width: 480px) and (max-width: 767.98px) {
+					:root {
+						--banner-panel-overlap: var(--m3e-space-10);
+					}
+				}
 
 			html[data-wallpaper-mode="banner"] body[data-current-page="home"][data-banner-has-mobile="true"] #main-layout {
 				top: var(--banner-content-top);
