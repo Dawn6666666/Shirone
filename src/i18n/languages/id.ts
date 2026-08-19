@@ -45,6 +45,16 @@ export const id: Translation = {
 	[Key.compassNoResults]: "Tidak ada situs yang cocok dengan pencarian",
 	[Key.compassCounts]: "situs",
 
+	[Key.skills]: "Keahlian",
+	[Key.skillsBanner]: "Teknologi dan alat untuk mengubah ide menjadi produk yang mudah dipelihara.",
+	[Key.skillsCounts]: "keahlian",
+	[Key.skillCategories]: "Kategori keahlian",
+	[Key.skillLevel]: "Kemahiran",
+	[Key.skillLevelBeginner]: "Pemula",
+	[Key.skillLevelIntermediate]: "Menengah",
+	[Key.skillLevelAdvanced]: "Mahir",
+	[Key.skillLevelExpert]: "Ahli",
+
 	[Key.albums]: "Album",
 	[Key.albumsBanner]: "Arsip visual tempat, orang, dan momen yang berlalu.",
 	[Key.albumsNoResults]: "Tidak ada album yang cocok dengan filter",

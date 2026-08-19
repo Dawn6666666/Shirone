@@ -44,6 +44,16 @@ export const ko: Translation = {
 	[Key.compassNoResults]: "검색어와 일치하는 사이트가 없습니다",
 	[Key.compassCounts]: "개 사이트",
 
+	[Key.skills]: "기술",
+	[Key.skillsBanner]: "아이디어를 유지보수 가능한 제품으로 만드는 기술과 도구입니다.",
+	[Key.skillsCounts]: "개 기술",
+	[Key.skillCategories]: "기술 카테고리",
+	[Key.skillLevel]: "숙련도",
+	[Key.skillLevelBeginner]: "초급",
+	[Key.skillLevelIntermediate]: "중급",
+	[Key.skillLevelAdvanced]: "고급",
+	[Key.skillLevelExpert]: "전문가",
+
 	[Key.albums]: "앨범",
 	[Key.albumsBanner]: "장소와 사람, 스쳐 가는 순간을 담은 시각 아카이브입니다.",
 	[Key.albumsNoResults]: "조건에 맞는 앨범이 없습니다",

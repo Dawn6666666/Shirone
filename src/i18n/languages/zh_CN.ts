@@ -41,6 +41,16 @@ export const zh_CN: Translation = {
 	[Key.compassNoResults]: "没有符合条件的站点",
 	[Key.compassCounts]: "个站点",
 
+	[Key.skills]: "技能",
+	[Key.skillsBanner]: "用来把想法落地为可维护产品的技术与工具。",
+	[Key.skillsCounts]: "项技能",
+	[Key.skillCategories]: "技能分类",
+	[Key.skillLevel]: "熟练度",
+	[Key.skillLevelBeginner]: "入门",
+	[Key.skillLevelIntermediate]: "熟悉",
+	[Key.skillLevelAdvanced]: "熟练",
+	[Key.skillLevelExpert]: "精通",
+
 	[Key.albums]: "相册",
 	[Key.albumsBanner]: "记录地点、人物与流转瞬间的视觉档案。",
 	[Key.albumsNoResults]: "没有符合条件的相册",

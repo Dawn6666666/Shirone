@@ -44,6 +44,16 @@ export const tr: Translation = {
 	[Key.compassNoResults]: "Aramanızla eşleşen site yok",
 	[Key.compassCounts]: "site",
 
+	[Key.skills]: "Beceriler",
+	[Key.skillsBanner]: "Fikirleri sürdürülebilir ürünlere dönüştürmek için kullandığım teknolojiler ve araçlar.",
+	[Key.skillsCounts]: "beceri",
+	[Key.skillCategories]: "Beceri kategorileri",
+	[Key.skillLevel]: "Yetkinlik",
+	[Key.skillLevelBeginner]: "Başlangıç",
+	[Key.skillLevelIntermediate]: "Orta",
+	[Key.skillLevelAdvanced]: "İleri",
+	[Key.skillLevelExpert]: "Uzman",
+
 	[Key.albums]: "Albümler",
 	[Key.albumsBanner]: "Yerlerin, insanların ve geçen anların görsel arşivi.",
 	[Key.albumsNoResults]: "Filtrelerle eşleşen albüm yok",

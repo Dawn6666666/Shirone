@@ -39,6 +39,16 @@ enum I18nKey {
 	compassNoResults = "compassNoResults",
 	compassCounts = "compassCounts",
 
+	skills = "skills",
+	skillsBanner = "skillsBanner",
+	skillsCounts = "skillsCounts",
+	skillCategories = "skillCategories",
+	skillLevel = "skillLevel",
+	skillLevelBeginner = "skillLevelBeginner",
+	skillLevelIntermediate = "skillLevelIntermediate",
+	skillLevelAdvanced = "skillLevelAdvanced",
+	skillLevelExpert = "skillLevelExpert",
+
 	albums = "albums",
 	albumsBanner = "albumsBanner",
 	albumsNoResults = "albumsNoResults",

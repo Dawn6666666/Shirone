@@ -33,6 +33,7 @@ export type SidebarPage =
 	| "moments" // 动态
 	| "anime" // 番剧收藏
 	| "compass" // 站点罗盘
+	| "skills" // 技能
 	| "albums" // 相册
 	| "about" // 关于
 	| "categories" // 分类索引

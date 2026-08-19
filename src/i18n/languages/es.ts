@@ -44,6 +44,16 @@ export const es: Translation = {
 	[Key.compassNoResults]: "Ningún sitio coincide con tu búsqueda",
 	[Key.compassCounts]: "sitios",
 
+	[Key.skills]: "Habilidades",
+	[Key.skillsBanner]: "Tecnologías y herramientas para convertir ideas en productos mantenibles.",
+	[Key.skillsCounts]: "habilidades",
+	[Key.skillCategories]: "Categorías de habilidades",
+	[Key.skillLevel]: "Dominio",
+	[Key.skillLevelBeginner]: "Principiante",
+	[Key.skillLevelIntermediate]: "Intermedio",
+	[Key.skillLevelAdvanced]: "Avanzado",
+	[Key.skillLevelExpert]: "Experto",
+
 	[Key.albums]: "Álbumes",
 	[Key.albumsBanner]: "Un archivo visual de lugares, personas y momentos.",
 	[Key.albumsNoResults]: "Ningún álbum coincide con tus filtros",

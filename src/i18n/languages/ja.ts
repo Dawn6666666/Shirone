@@ -45,6 +45,16 @@ export const ja: Translation = {
 	[Key.compassNoResults]: "検索条件に一致するサイトがありません",
 	[Key.compassCounts]: "個のサイト",
 
+	[Key.skills]: "スキル",
+	[Key.skillsBanner]: "アイデアを保守しやすいプロダクトにするための技術とツール。",
+	[Key.skillsCounts]: "個のスキル",
+	[Key.skillCategories]: "スキルカテゴリ",
+	[Key.skillLevel]: "習熟度",
+	[Key.skillLevelBeginner]: "初級",
+	[Key.skillLevelIntermediate]: "中級",
+	[Key.skillLevelAdvanced]: "上級",
+	[Key.skillLevelExpert]: "エキスパート",
+
 	[Key.albums]: "アルバム",
 	[Key.albumsBanner]: "場所、人、過ぎゆく瞬間を集めたビジュアルアーカイブ。",
 	[Key.albumsNoResults]: "条件に合うアルバムがありません",

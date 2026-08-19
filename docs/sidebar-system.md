@@ -62,6 +62,10 @@ widget 的专属配置（如分类的折叠阈值 `collapseAfter`）只存在于
 | `"archive"` | 归档页（`archive.astro`） |
 | `"friends"` | 友链页（`friends.astro`） |
 | `"moments"` | 动态页（`moments.astro`） |
+| `"anime"` | 番剧页（`anime.astro`） |
+| `"compass"` | 站点罗盘页（`compass.astro`） |
+| `"skills"` | 技能页（`skills.astro`） |
+| `"albums"` | 相册索引与详情页（`albums.astro`、`albums/[id]/index.astro`） |
 | `"about"` | 关于页（`about.astro`） |
 | `"categories"` | 分类索引页（`categories.astro`） |
 | `"tags"` | 标签索引页（`tags.astro`） |

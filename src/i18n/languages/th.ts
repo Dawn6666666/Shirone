@@ -41,6 +41,16 @@ export const th: Translation = {
 	[Key.compassNoResults]: "ไม่พบเว็บไซต์ที่ตรงกับคำค้นหา",
 	[Key.compassCounts]: "เว็บไซต์",
 
+	[Key.skills]: "ทักษะ",
+	[Key.skillsBanner]: "เทคโนโลยีและเครื่องมือที่ใช้เปลี่ยนแนวคิดให้เป็นผลิตภัณฑ์ที่ดูแลรักษาได้",
+	[Key.skillsCounts]: "ทักษะ",
+	[Key.skillCategories]: "หมวดหมู่ทักษะ",
+	[Key.skillLevel]: "ระดับความชำนาญ",
+	[Key.skillLevelBeginner]: "เริ่มต้น",
+	[Key.skillLevelIntermediate]: "ปานกลาง",
+	[Key.skillLevelAdvanced]: "ขั้นสูง",
+	[Key.skillLevelExpert]: "เชี่ยวชาญ",
+
 	[Key.albums]: "อัลบั้ม",
 	[Key.albumsBanner]: "คลังภาพของสถานที่ ผู้คน และช่วงเวลาที่ผ่านไป",
 	[Key.albumsNoResults]: "ไม่พบอัลบั้มที่ตรงกับตัวกรอง",

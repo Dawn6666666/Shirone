@@ -45,6 +45,16 @@ export const vi: Translation = {
 	[Key.compassNoResults]: "Không có trang nào khớp với tìm kiếm",
 	[Key.compassCounts]: "trang",
 
+	[Key.skills]: "Kỹ năng",
+	[Key.skillsBanner]: "Công nghệ và công cụ để biến ý tưởng thành sản phẩm dễ bảo trì.",
+	[Key.skillsCounts]: "kỹ năng",
+	[Key.skillCategories]: "Danh mục kỹ năng",
+	[Key.skillLevel]: "Mức độ thành thạo",
+	[Key.skillLevelBeginner]: "Mới bắt đầu",
+	[Key.skillLevelIntermediate]: "Trung cấp",
+	[Key.skillLevelAdvanced]: "Nâng cao",
+	[Key.skillLevelExpert]: "Chuyên gia",
+
 	[Key.albums]: "Album",
 	[Key.albumsBanner]: "Kho lưu trữ hình ảnh về địa điểm, con người và những khoảnh khắc đã qua.",
 	[Key.albumsNoResults]: "Không có album nào khớp bộ lọc",

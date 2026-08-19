@@ -45,6 +45,16 @@ export const en: Translation = {
 	[Key.compassNoResults]: "No sites matched your search",
 	[Key.compassCounts]: "sites",
 
+	[Key.skills]: "Skills",
+	[Key.skillsBanner]: "Technologies and tools I use to turn ideas into maintainable products.",
+	[Key.skillsCounts]: "skills",
+	[Key.skillCategories]: "Skill categories",
+	[Key.skillLevel]: "Proficiency",
+	[Key.skillLevelBeginner]: "Beginner",
+	[Key.skillLevelIntermediate]: "Intermediate",
+	[Key.skillLevelAdvanced]: "Advanced",
+	[Key.skillLevelExpert]: "Expert",
+
 	[Key.albums]: "Albums",
 	[Key.albumsBanner]: "A visual archive of places, people and passing moments.",
 	[Key.albumsNoResults]: "No albums matched your filters",

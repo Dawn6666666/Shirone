@@ -1,5 +1,6 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { skillsConfig } from "@/config/skillsConfig";
 import type { NavBarConfig, NavBarLink } from "@/types/navBarConfig";
 
 /**
@@ -41,11 +42,17 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		pageKey: "anime",
 	},
 	Compass: {
-			name: i18n(I18nKey.compass),
-			url: "/compass/",
-			icon: "material-symbols:explore-rounded",
-			pageKey: "compass",
-		},
+		name: i18n(I18nKey.compass),
+		url: "/compass/",
+		icon: "material-symbols:explore-rounded",
+		pageKey: "compass",
+	},
+	Skills: {
+		name: i18n(I18nKey.skills),
+		url: "/skills/",
+		icon: "material-symbols:workspaces-outline-rounded",
+		pageKey: "skills",
+	},
 	Albums: {
 			name: i18n(I18nKey.albums),
 			url: "/albums/",
@@ -91,6 +98,7 @@ export const navBarConfig: NavBarConfig = {
 				name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",
 			children: [
+				...(skillsConfig.enable ? [LinkPresets.Skills] : []),
 				// 分类/标签入口不进导航菜单（避免菜单项过多），预设已登记指向独立页面，
 				// 需要时取消注释即可
 				// LinkPresets.Categories,
