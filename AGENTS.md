@@ -2,38 +2,41 @@
 
 ## Summary
 
-Shirone is a blog theme built with Astro 7 + Svelte 5 (runes) + Tailwind 4 + Stylus + pnpm, forked from Fuwari and refactored into an M3E (Material 3 Extended) atom component library with data-driven orchestration. In-site navigation uses Swup (SPA-style). Development happens on Windows; always use the `.cmd` suffix for commands (`pnpm.cmd` / `npx.cmd`).
+Shirone is a blog theme built with Astro 7, Svelte 5, Tailwind 4, Stylus, and pnpm. It is refactored into an M3E (Material 3 Extended) component library with data-driven orchestration. In-site navigation uses Swup, so the persistent shell and the replaceable page container have different lifecycles. Development happens on Windows; use the `.cmd` suffix for package commands (`pnpm.cmd`, `npx.cmd`, `npm.cmd`).
 
 ## Must-follow rules
 
-- Run `npx.cmd astro check` before committing — must be 0 errors. Split commits by feature stage with conventional prefixes (`feat/fix/style/docs/chore(scope)`).
-- Never hard-code component copy: use i18n (`src/i18n/i18nKey.ts` + `languages/` ×10 locales; parameterized strings use `{xxx}` placeholders replaced by the consumer).
-- Colors / radii / durations / typography must use design tokens (`--shape-corner-*`, `--m3e-type-*`, `--m3e-duration-*`, `--m3e-easing-*`, `--surface-container-*`); no hard-coded values (exception: fixed black/white overlays on images).
-- Layering rules: atoms must not import components (tokens only); molecules must not import organisms; data fetching / localStorage belongs to organisms only. See `docs/atomic-structure.md`.
-- Svelte components in Astro: pure SSR has no interactivity; add `client:load` / `client:only="svelte"` for interactivity. On pure SSR pages (no hydration), icons must use astro-icon (`@iconify/svelte` renders empty in SSR).
-- Svelte style classes: use template-literal class (`class={`...${cond ? " x" : ""}`}`) and stylus `&`-joined selectors (`&--mod`); literal class-name selectors get stripped by unused-CSS analysis, and nesting `&__el` inside `&--mod` merges into a single class name.
-- Keep designs original and differentiated: do not copy schemas / names / defaults from the reference themes in `research/`.
-- Run the relevant fragment after changes (`tests/site/*.spec.ts`); `a11y.spec.ts` is the default safety net after page/component changes.
+- Read the relevant files in `rules/` and `docs/` before changing architecture, components, routing, or content pipelines. Run `npx.cmd astro check` before committing; it must report 0 errors. Use conventional commits in the form `type(scope): subject` (`feat`, `fix`, `test`, `docs`, `refactor`, `chore`, or another justified type).
+- Never hard-code user-visible component copy. Use `src/i18n/i18nKey.ts` and all ten locale modules; parameterized strings keep the same `{placeholder}` names in every locale and are replaced by the consumer.
+- Semantic colors, radii, typography, and motion must use the project design tokens (`--shape-corner-*`, `--m3e-type-*`, `--m3e-duration-*`, `--m3e-easing-*`, and surface/on-surface tokens). Fixed black/white values are allowed only for image-overlay readability or another documented content-specific exception. Official-spec geometry or motion constants need a clear local justification.
+- Component dependencies follow the documented direction: atoms may compose atoms, molecules may compose atoms and suitable same-layer molecules, organisms may compose lower layers and explicitly owned smaller organisms, templates compose components, and pages compose templates/components. Lower layers must not import higher layers; avoid cycles and use `@components/<layer>/<file>` aliases for cross-layer imports.
+- Atoms and molecules must not directly query Astro collections or own browser persistence. Build-time data adapters already used by a domain molecule may remain there; route state, `localStorage`, and persistent-shell synchronization belong in organisms or dedicated utilities with an explicit runtime contract.
+- In Astro, SSR-only output must remain usable without hydration. Add `client:load`, `client:visible`, or `client:only="svelte"` only when interactivity requires it. On pure SSR paths, use `astro-icon`; `@iconify/svelte` does not render icons during SSR.
+- In Svelte, follow the syntax already used by the file (runes or legacy) and never mix the two modes in one component. Use template-literal classes when conditional class names interact with scoped unused-CSS analysis; preserve valid `class:` directives elsewhere. In Stylus, keep modifier and element selectors as separate selectors where `&` would concatenate them incorrectly.
+- Keep designs original and differentiated. `research/` is reference material only: do not copy its schemas, names, defaults, algorithms, component compositions, or visual layouts. Do not edit, install, build, format, or commit inside research checkouts; descendant `AGENTS.md` files there are upstream artifacts, not Shirone instructions.
+- Persistent shell elements outside `#swup-container` are not rerendered by Swup. Logic that reacts to route changes must use the appropriate Swup lifecycle hook (`content:replace`, `page:view`, or event delegation) and must be tested for both direct load and client navigation.
 
-## Must-read documents
+## Required documents
 
-- `rules/pitfalls.md` — pitfall log (required: Svelte/Astro integration, stylus, dev cache, testing)
-- `rules/project-rules.md` — project rules
-- `docs/atomic-structure.md` — component layering spec
-- `docs/m3e-standard.md` — M3E component standard
-- `docs/sidebar-system.md` — sidebar orchestration / page filtering / Swup sync
+- `rules/pitfalls.md` — Svelte/Astro integration, Stylus, cache, and testing pitfalls.
+- `rules/project-rules.md` — project conventions and commit policy.
+- `docs/atomic-structure.md` — component layering and ownership.
+- `docs/m3e-standard.md` — M3E tokens and component standard.
+- `docs/sidebar-system.md` — sidebar orchestration, page filtering, and Swup synchronization.
+- `src/config/README.md` — required before changing configuration types or values.
+- The nearest nested `AGENTS.md` — local rules are additive and narrower than this file.
 
-## Agent guidelines
+## Validation
 
-- Common commands: `pnpm.cmd astro dev --port 4321` (dev), `npx.cmd astro check` (type gate), `npx.cmd playwright test tests/site/<spec>.spec.ts` (fragment tests), `pnpm.cmd build` (production build).
-- Stylus / Svelte style hot-reload is unreliable in dev: if changes don't apply, clear `node_modules/.vite` + `.astro` and restart the dev server (pitfalls 6.4).
-- rehype/remark plugin changes don't hot-reload: clear `.astro/data-store.json` and restart (pitfalls 4.1).
-- Wait for onload-animation convergence and theme init (`--mc-primary` written) before asserting styles in tests (pitfalls 5.1).
-- The sidebar / top bar render statically outside the Swup container and are not re-rendered after navigation — logic that must react to page changes should hook `content:replace` or use event delegation.
+- Common commands: `pnpm.cmd astro dev --port 4321`, `npx.cmd astro check`, `npx.cmd playwright test tests/site/<spec>.spec.ts`, `pnpm.cmd check:manifest`, `pnpm.cmd exec biome ci ./src`, `pnpm.cmd type-check`, and `pnpm.cmd build`.
+- `pnpm.cmd lint` and `pnpm.cmd format` include `--write`; do not use them as read-only review checks. Use `pnpm.cmd exec biome ci ./src` when validation must not modify files.
+- Run the smallest relevant Playwright fragment plus `tests/site/a11y.spec.ts` for page/component changes. Run album, icon, or motion fragments when those domains change. The visual suite uses local snapshots that are ignored by Git; update them only after confirming every difference is intentional, and do not absorb unrelated page-height or environment drift.
+- If Stylus/Svelte changes appear stale in dev, clear `node_modules/.vite` and `.astro` and restart. If a Markdown/rehype/remark change appears stale, clear `.astro/data-store.json` and restart.
+- Wait for theme initialization (`--mc-primary`) and `onload-animation` convergence before asserting computed styles or running accessibility checks.
 
-## Context
+## Repository context
 
-- The sidebar is data-driven: `src/config/sidebarConfig.ts` (discriminated union) → `componentMap` registry in `SideBar.astro` → `WidgetLayout` rendering; the widget `pages` tag filters by `data-current-page` on `#swup-container` (SSR + client share `utils/sidebar-page.ts`).
-- Motion primitives live in `utils/motion.ts` (fadeOutThenHide / flipFromRect / revealIn / collapse); reduced-motion always snaps.
-- Category/tag index pages exist (`src/pages/categories.astro`, `tags.astro`); `SidebarPage` already includes `"categories" | "tags"`.
-- 60+ M3E atoms are ported under `src/components/atoms/`; unused atoms and landing evaluations are covered in `docs/sidebar-widgets.md` and `docs/common-components.md`.
+- Sidebar configuration flows from `src/config/sidebarConfig.ts` through the `componentMap` registry in `src/components/organisms/SideBar.astro` to widget rendering. `SidebarPage` in `src/types/sidebarConfig.ts` is authoritative for page identifiers (`home`, `archive`, `friends`, `moments`, `anime`, `compass`, `albums`, `about`, `categories`, `tags`, `post`). The `pages` filter reads `data-current-page` from `#swup-container` on SSR and after Swup replacement.
+- Motion primitives live in `src/utils/motion.ts` (`fadeOutThenHide`, `flipFromRect`, `revealIn`, `collapse`); `prefersReducedMotion()` must be honored.
+- Atom inventory and count are authoritative only in `src/components/atoms/manifest.json`; do not maintain a second hard-coded count in instructions or prose.
+- Canonical page templates are under `src/layouts/`; `src/components/layout/` is not a parallel template layer.
