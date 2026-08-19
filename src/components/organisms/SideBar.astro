@@ -12,15 +12,19 @@
  */
 import Announcement from "@components/molecules/Announcement.astro";
 import Calendar from "@components/molecules/Calendar.astro";
-import SidebarTOC from "@components/molecules/SidebarTOC.astro";
 import Categories from "@components/molecules/Categories.astro";
+import SidebarTOC from "@components/molecules/SidebarTOC.astro";
 import SiteStats from "@components/molecules/SiteStats.astro";
 import Tags from "@components/molecules/Tags.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import { sidebarConfig } from "@/config/sidebarConfig";
-import type { SidebarColumn, SidebarPage, SidebarWidget } from "@/types/sidebarConfig";
 import { isWidgetVisibleOnPage, pagesToAttribute } from "@utils/sidebar-page";
+import { sidebarConfig } from "@/config/sidebarConfig";
+import type {
+	SidebarColumn,
+	SidebarPage,
+	SidebarWidget,
+} from "@/types/sidebarConfig";
 import Profile from "./Profile.astro";
 
 interface Props {
@@ -66,8 +70,7 @@ type WidgetRenderer = (props: Record<string, unknown>) => unknown;
 // 被隐藏的 widget），页面可见性仅体现在包装层的 hidden 标记上
 const widgets = sidebarConfig.enable
 	? sidebarConfig.components.filter(
-			(widget) =>
-				widget.enable && (widget.column ?? "primary") === column,
+			(widget) => widget.enable && (widget.column ?? "primary") === column,
 		)
 	: [];
 const topWidgets = widgets.filter((widget) => widget.slot === "top");
@@ -154,6 +157,7 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 		observeLayoutShifts,
 		prefersReducedMotion,
 		revealIn,
+		waitForLayoutTransitions,
 	} from "@utils/motion";
 	import { attributeToPages, isWidgetVisibleOnPage } from "@utils/sidebar-page";
 
@@ -249,12 +253,10 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 
 	void syncSidebarPages();
 
-	function onSwupReplace(): void {
-		void syncSidebarPages();
-	}
-
 	let stopLayoutShiftObserver: (() => void) | undefined;
+	let stopLayoutShiftTimer: number | undefined;
 	function startMobileLayoutTransition(): void {
+		window.clearTimeout(stopLayoutShiftTimer);
 		stopLayoutShiftObserver?.();
 		stopLayoutShiftObserver = undefined;
 		if (!window.matchMedia("(max-width: 1023px)").matches) return;
@@ -266,21 +268,81 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 	}
 
 	function stopMobileLayoutTransition(): void {
-		window.setTimeout(() => {
+		window.clearTimeout(stopLayoutShiftTimer);
+		stopLayoutShiftTimer = window.setTimeout(() => {
 			stopLayoutShiftObserver?.();
 			stopLayoutShiftObserver = undefined;
 		}, 350);
 	}
 
-	if (window.swup?.hooks) {
-		window.swup.hooks.on("visit:start", startMobileLayoutTransition);
-		window.swup.hooks.on("content:replace", onSwupReplace);
-		window.swup.hooks.on("visit:end", stopMobileLayoutTransition);
-	} else {
-		document.addEventListener("swup:enable", () => {
-			window.swup?.hooks.on("visit:start", startMobileLayoutTransition);
-			window.swup?.hooks.on("content:replace", onSwupReplace);
-			window.swup?.hooks.on("visit:end", stopMobileLayoutTransition);
-		});
+	let navigationGeneration = 0;
+	let navigationActive = false;
+	let scrollStarted = false;
+	let sidebarSyncPending = false;
+
+	function resetPersistentSidebars(): void {
+		document
+			.querySelectorAll<HTMLElement>("#sidebar, #sidebar-secondary")
+			.forEach((sidebar) => {
+				sidebar.scrollTop = 0;
+				sidebar
+					.querySelectorAll<HTMLElement>("[data-sidebar-pages]")
+					.forEach((widget) =>
+						widget.getAnimations().forEach((animation) => animation.cancel()),
+					);
+			});
 	}
+
+	function onVisitStart(): void {
+		navigationGeneration += 1;
+		generation += 1;
+		navigationActive = true;
+		scrollStarted = false;
+		sidebarSyncPending = false;
+		resetPersistentSidebars();
+		startMobileLayoutTransition();
+	}
+
+	function onSwupReplace(): void {
+		sidebarSyncPending = true;
+	}
+
+	async function finishNavigation(): Promise<void> {
+		if (!navigationActive || !sidebarSyncPending) return;
+		const currentGeneration = navigationGeneration;
+		navigationActive = false;
+		await waitForLayoutTransitions(document.getElementById("main-layout"));
+		if (currentGeneration !== navigationGeneration) return;
+		sidebarSyncPending = false;
+		await syncSidebarPages();
+		if (currentGeneration === navigationGeneration) stopMobileLayoutTransition();
+	}
+
+	function onVisitAbort(): void {
+		navigationGeneration += 1;
+		navigationActive = false;
+		sidebarSyncPending = false;
+		stopMobileLayoutTransition();
+	}
+
+	function bindSwupHooks(): void {
+		const swup = window.swup;
+		if (!swup || window.__shironeSidebarBound) return;
+		window.__shironeSidebarBound = true;
+		swup.hooks.on("visit:start", onVisitStart);
+		swup.hooks.on("content:replace", onSwupReplace);
+		swup.hooks.on("visit:end", () => {
+			if (!scrollStarted) void finishNavigation();
+		});
+		swup.hooks.on("visit:abort", onVisitAbort);
+		if (swup.hooks.exists("scroll:end")) {
+			swup.hooks.on("scroll:start", () => {
+				if (navigationActive) scrollStarted = true;
+			});
+			swup.hooks.on("scroll:end", () => void finishNavigation());
+		}
+	}
+
+	bindSwupHooks();
+	document.addEventListener("swup:enable", bindSwupHooks, { once: true });
 </script>

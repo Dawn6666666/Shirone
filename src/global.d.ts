@@ -1,9 +1,11 @@
-import type { AstroIntegration } from "@swup/astro";
+import type Swup from "swup";
+import "@swup/scroll-plugin";
 
 declare global {
 	interface Window {
-		// type from '@swup/astro' is incorrect
-		swup: AstroIntegration;
+		swup?: Swup;
+		__shironeNavigationBound?: boolean;
+		__shironeSidebarBound?: boolean;
 		pagefind: {
 			search: (query: string) => Promise<{
 				results: Array<{

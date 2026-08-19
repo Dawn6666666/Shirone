@@ -427,62 +427,52 @@ init();
 initLastUpdatedNotices();
 
 const setup = () => {
-	// TODO: temp solution to change the height of the banner
-/*
-	window.swup.hooks.on('animation:out:start', () => {
-		const path = window.location.pathname
-		const body = document.querySelector('body')
-		if (path[path.length - 1] === '/' && !body.classList.contains('is-home')) {
-			body.classList.add('is-home')
-		} else if (path[path.length - 1] !== '/' && body.classList.contains('is-home')) {
-			body.classList.remove('is-home')
-		}
-	})
-*/
-	window.swup.hooks.on('link:click', () => {
+	if (!window.swup || window.__shironeNavigationBound) return;
+	window.__shironeNavigationBound = true;
+	let scrollStarted = false;
+	let visitActive = false;
+	let finishTimer: number | undefined;
+
+	function finishVisit() {
+		if (!visitActive) return;
+		visitActive = false;
+		window.clearTimeout(finishTimer);
+		finishTimer = window.setTimeout(() => {
+			document.getElementById('page-height-extend')?.classList.add('hidden');
+			document.getElementById('toc-wrapper')?.classList.remove('toc-not-ready');
+		}, 200);
+	}
+
+	window.swup?.hooks.on('link:click', () => {
 		// Remove the delay for the first time page load
 		document.documentElement.style.setProperty('--content-delay', '0ms')
 	})
-	window.swup.hooks.on('content:replace', initCustomScrollbar)
-	window.swup.hooks.on('visit:start', () => {
-		// increase the page height during page transition to prevent the scrolling animation from jumping
-		const heightExtend = document.getElementById('page-height-extend')
-		if (heightExtend) {
-			heightExtend.classList.remove('hidden')
-		}
+	window.swup?.hooks.on('content:replace', initCustomScrollbar)
+	window.swup?.hooks.on('visit:start', () => {
+		window.clearTimeout(finishTimer);
+		visitActive = true;
+		scrollStarted = false;
 
-		// Hide the TOC while scrolling back to top
-		let toc = document.getElementById('toc-wrapper');
-		if (toc) {
-			toc.classList.add('toc-not-ready')
-		}
+		// Keep enough document height until Swup's scroll animation has ended.
+		document.getElementById('page-height-extend')?.classList.remove('hidden');
+		document.getElementById('toc-wrapper')?.classList.add('toc-not-ready');
 	});
-	window.swup.hooks.on('page:view', () => {
-		// hide the temp high element when the transition is done
-		const heightExtend = document.getElementById('page-height-extend')
-		if (heightExtend) {
-			heightExtend.classList.remove('hidden')
-		}
+	window.swup?.hooks.on('visit:end', () => {
+		// scroll:start/end are skipped when the page is already at its target position.
+		if (!scrollStarted) finishVisit();
 	});
-	window.swup.hooks.on('visit:end', (_visit: {to: {url: string}}) => {
-		setTimeout(() => {
-			const heightExtend = document.getElementById('page-height-extend')
-			if (heightExtend) {
-				heightExtend.classList.add('hidden')
-			}
-
-            // Just make the transition looks better
-            const toc = document.getElementById('toc-wrapper');
-            if (toc) {
-                toc.classList.remove('toc-not-ready')
-            }
-        }, 200)
-	});
+	window.swup?.hooks.on('visit:abort', finishVisit);
+	if (window.swup?.hooks.exists('scroll:end')) {
+		window.swup.hooks.on('scroll:start', () => {
+			if (visitActive) scrollStarted = true;
+		});
+		window.swup.hooks.on('scroll:end', finishVisit);
+	}
 }
-if (window?.swup?.hooks) {
+if (window.swup?.hooks) {
 	setup()
 } else {
-	document.addEventListener('swup:enable', setup)
+	document.addEventListener('swup:enable', setup, { once: true })
 }
 
 let backToTopBtn = document.getElementById('back-to-top-btn');

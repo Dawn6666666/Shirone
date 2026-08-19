@@ -22,7 +22,9 @@ test.describe("Site motion", () => {
 			const body = document.querySelectorAll<HTMLElement>(
 				".m3-blog-archive__body",
 			)[i];
-			return body ? parseFloat(getComputedStyle(body).height) : NaN;
+			return body
+				? Number.parseFloat(getComputedStyle(body).height)
+				: Number.NaN;
 		}, index);
 	}
 
@@ -62,8 +64,9 @@ test.describe("Site motion", () => {
 			});
 			HTMLElement.prototype.animate = function (...args) {
 				if (this.classList.contains("m3-blog-archive__body")) {
-					(window as typeof window & { __archiveCollapseAnimations: number })
-						.__archiveCollapseAnimations += 1;
+					(
+						window as typeof window & { __archiveCollapseAnimations: number }
+					).__archiveCollapseAnimations += 1;
 				}
 				return originalAnimate.apply(this, args);
 			};
@@ -117,8 +120,9 @@ test.describe("Site motion", () => {
 			});
 			HTMLElement.prototype.animate = function (...args) {
 				if (this.classList.contains("m3-blog-archive__body")) {
-					(window as typeof window & { __archiveCollapseAnimations: number })
-						.__archiveCollapseAnimations += 1;
+					(
+						window as typeof window & { __archiveCollapseAnimations: number }
+					).__archiveCollapseAnimations += 1;
 				}
 				return originalAnimate.apply(this, args);
 			};
@@ -210,9 +214,10 @@ test.describe("layout shift motion primitive", () => {
 			source.style.height = "180px";
 			await new Promise<void>((resolve) => setTimeout(resolve, 50));
 			const animation = target.getAnimations()[0];
-			const frames = animation?.effect instanceof KeyframeEffect
-				? animation.effect.getKeyframes()
-				: [];
+			const frames =
+				animation?.effect instanceof KeyframeEffect
+					? animation.effect.getKeyframes()
+					: [];
 			const afterLayout = target.offsetTop;
 			const afterVisual = target.getBoundingClientRect().top;
 			stop();
@@ -378,6 +383,110 @@ test.describe("sidebar pages filter (swup sync)", () => {
 		await clickLink(page, '#top-row a[href="/archive/"]');
 		await waitCurrentPage(page, "archive");
 		await waitStatsHidden(page, false);
+		expect(await statsTagIconHasInlinePath(page)).toBe(true);
+	});
+
+	test("resets persistent sidebar scrolling before a scrolled Banner navigation", async ({
+		page,
+	}) => {
+		await page.goto("/posts/guide/", { waitUntil: "networkidle" });
+		const sidebar = page.locator("#sidebar");
+		const secondary = page.locator("#sidebar-secondary");
+
+		await page.evaluate(() => {
+			window.scrollTo(0, 1200);
+			for (const id of ["sidebar", "sidebar-secondary"]) {
+				const element = document.getElementById(id);
+				if (element) element.scrollTop = element.scrollHeight;
+			}
+		});
+		expect(
+			await sidebar.evaluate((element) => element.scrollTop),
+		).toBeGreaterThan(0);
+
+		await clickLink(page, '#top-row a[href="/archive/"]');
+		await waitCurrentPage(page, "archive");
+		await page.waitForFunction(
+			() =>
+				document
+					.getElementById("page-height-extend")
+					?.classList.contains("hidden") &&
+				!document
+					.getElementById("main-layout")
+					?.getAnimations()
+					.some((animation) => animation.playState === "running"),
+			undefined,
+			{ timeout: 5000 },
+		);
+
+		await page.waitForFunction(
+			() =>
+				[
+					...document.querySelectorAll<HTMLElement>("[data-sidebar-pages]"),
+				].every((widget) =>
+					widget
+						.getAnimations()
+						.every((animation) => animation.playState !== "running"),
+				),
+			undefined,
+			{ timeout: 5000 },
+		);
+
+		for (const locator of [sidebar, secondary]) {
+			const state = await locator.evaluate((element) => {
+				const rect = element.getBoundingClientRect();
+				return {
+					scrollTop: element.scrollTop,
+					top: rect.top,
+					widgetAnimations: [
+						...element.querySelectorAll<HTMLElement>("[data-sidebar-pages]"),
+					].reduce(
+						(count, widget) =>
+							count +
+							widget
+								.getAnimations()
+								.filter((animation) => animation.playState === "running")
+								.length,
+						0,
+					),
+				};
+			});
+			expect(state.scrollTop).toBe(0);
+			expect(state.top).toBeGreaterThanOrEqual(0);
+			expect(state.widgetAnimations).toBe(0);
+		}
+	});
+
+	test("rapid navigation keeps only the final page widgets visible", async ({
+		page,
+	}) => {
+		await page.goto("/", { waitUntil: "networkidle" });
+		expect(await statsWrapperHidden(page)).toBe(false);
+
+		await clickLink(page, '#swup-container a[href^="/posts/"]');
+		await waitCurrentPage(page, "post");
+		await page.waitForFunction(() => {
+			const wrapper = document
+				.querySelector('widget-layout[data-id="site-stats"]')
+				?.closest<HTMLElement>("[data-sidebar-pages]");
+			return wrapper
+				?.getAnimations()
+				.some((animation) => animation.playState === "running");
+		});
+
+		await clickLink(page, '#top-row a[href="/archive/"]');
+		await waitCurrentPage(page, "archive");
+		await waitStatsHidden(page, false);
+		await page.waitForFunction(() =>
+			[...document.querySelectorAll<HTMLElement>("[data-sidebar-pages]")].every(
+				(widget) =>
+					widget
+						.getAnimations()
+						.every((animation) => animation.playState !== "running"),
+			),
+		);
+
+		expect(await statsWrapperHidden(page)).toBe(false);
 		expect(await statsTagIconHasInlinePath(page)).toBe(true);
 	});
 

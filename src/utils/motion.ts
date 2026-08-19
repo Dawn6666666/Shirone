@@ -20,6 +20,18 @@ export function prefersReducedMotion(): boolean {
 	);
 }
 
+/** Wait for layout-affecting CSS transitions on an element to settle. */
+export async function waitForLayoutTransitions(
+	el: HTMLElement | null,
+): Promise<void> {
+	if (!el || prefersReducedMotion()) return;
+	const transitions = el
+		.getAnimations()
+		.filter((animation) => animation instanceof CSSTransition);
+	if (transitions.length === 0) return;
+	await Promise.allSettled(transitions.map((animation) => animation.finished));
+}
+
 export interface CollapseParams {
 	/** 目标状态：true 展开 / false 收起 */
 	open: boolean;
@@ -49,8 +61,9 @@ const COLLAPSE_EASING = EASING_EMPHASIZED; // M3 emphasized-decelerate
  */
 export function collapse(node: HTMLElement, params: CollapseParams) {
 	let anim: Animation | null = null;
-	let current = params.open;
-	let resetKey = params.resetKey;
+	let currentParams = params;
+	let current = currentParams.open;
+	let resetKey = currentParams.resetKey;
 
 	node.style.overflow = "hidden";
 	node.style.height = current ? "auto" : "0px";
@@ -72,20 +85,17 @@ export function collapse(node: HTMLElement, params: CollapseParams) {
 			return;
 		}
 		node.style.height = `${from}px`;
-		anim = node.animate(
-			[{ height: `${from}px` }, { height: `${to}px` }],
-			{
-				duration: params.duration ?? 240,
-				easing: COLLAPSE_EASING,
-			},
-		);
+		anim = node.animate([{ height: `${from}px` }, { height: `${to}px` }], {
+			duration: currentParams.duration ?? 240,
+			easing: COLLAPSE_EASING,
+		});
 		anim.onfinish = () => settle(open);
 		anim.oncancel = () => settle(current);
 	}
 
 	return {
 		update(next: CollapseParams) {
-			params = next;
+			currentParams = next;
 			if (next.resetKey !== resetKey) {
 				resetKey = next.resetKey;
 				current = next.open;
@@ -122,6 +132,7 @@ const REVEAL_EASING = EASING_DECELERATE;
  */
 export function reveal(node: HTMLElement, params: RevealParams = {}) {
 	let anim: Animation | null = null;
+	let currentParams = params;
 
 	function play() {
 		anim?.cancel();
@@ -136,8 +147,8 @@ export function reveal(node: HTMLElement, params: RevealParams = {}) {
 				{ opacity: 1, transform: "translateY(0)" },
 			],
 			{
-				duration: params.duration ?? 250,
-				delay: params.delay ?? 0,
+				duration: currentParams.duration ?? 250,
+				delay: currentParams.delay ?? 0,
 				easing: REVEAL_EASING,
 				fill: "both",
 			},
@@ -148,7 +159,7 @@ export function reveal(node: HTMLElement, params: RevealParams = {}) {
 
 	return {
 		update(next: RevealParams) {
-			params = next;
+			currentParams = next;
 			play();
 		},
 		destroy() {
@@ -212,7 +223,8 @@ export async function fadeOutThenHide(
 	try {
 		await anim.finished;
 	} catch {
-		// 被后续导航取消：直接落到隐藏态，不播放位移
+		// Ownership passed to a newer collection sync; leave visibility unchanged.
+		return;
 	}
 	el.classList.add("hidden");
 	anim.cancel();
