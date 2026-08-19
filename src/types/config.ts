@@ -2,9 +2,15 @@ import type { AUTO_MODE, DARK_MODE, LIGHT_MODE } from "@constants/constants";
 
 export type WallpaperMode = "banner" | "none";
 
+export type TopAppBarContentAlign = "left" | "center";
+
 export type SiteConfig = {
 	title: string;
 	subtitle: string;
+	topAppBar: {
+		/** 桌面端标题与导航内容组的对齐方式。 */
+		contentAlign: TopAppBarContentAlign;
+	};
 
 	lang:
 		| "en"

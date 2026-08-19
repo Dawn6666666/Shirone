@@ -31,7 +31,7 @@ const {
 	labels = { prev: "Previous", next: "Next", page: "Page {page}", jump: "Jump" },
 	class: className,
 	style,
-} = Astro.props;
+} = Astro.props as Props;
 
 const HIDDEN = -1;
 const VISIBLE = adjacent * 2 + 1;

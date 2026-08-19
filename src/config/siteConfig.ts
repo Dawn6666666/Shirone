@@ -7,6 +7,10 @@ import type { SiteConfig } from "@/types/config";
 export const siteConfig: SiteConfig = {
 	title: "Shirone",
 	subtitle: "A Material 3 anime blog",
+	// 电脑端顶栏标题与导航内容区域："left" 左对齐，"center" 居中。
+	topAppBar: {
+		contentAlign: "center",
+	},
 	lang: "en", // Language code, e.g. 'en', 'zh_CN', 'ja', etc.
 	themeColor: {
 		hue: 315, // Default hue 0-360. ★ 站点设计默认粉紫（偏二次元）；262 紫 / 345 粉 也可选
