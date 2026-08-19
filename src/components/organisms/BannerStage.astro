@@ -1,8 +1,30 @@
 ---
 import BannerWaves from "@components/molecules/BannerWaves.astro";
+import { Icon } from "astro-icon/components";
 import { resolveAsset } from "@utils/asset-utils";
 import { url } from "@utils/url-utils";
 import { siteConfig } from "@/config";
+import type { SidebarPage } from "@/types/sidebarConfig";
+
+interface Props {
+	page?: SidebarPage;
+	title?: string;
+	description?: string;
+	date?: string;
+}
+
+const { page, title = "", description = "", date = "" } = Astro.props;
+const normalizedTitle = title.trim();
+const normalizedDescription = description.trim();
+const initialSupportingText =
+	normalizedDescription !== normalizedTitle ? normalizedDescription : "";
+const initialDate = date.trim();
+const initialCopyMode =
+	page === "home" ? "home" : page && normalizedTitle ? "context" : "none";
+const initialLabel =
+	initialCopyMode === "context"
+		? normalizedTitle
+		: siteConfig.banner.homeText.title;
 
 const resolveBannerUrl = async (src: string) => {
 	const resolved = await resolveAsset(src);
@@ -21,16 +43,18 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 <section
 	id="banner-wrapper"
 	class="banner-stage"
-	aria-label={siteConfig.banner.homeText.title}
+	aria-label={initialLabel}
+	data-copy-mode={initialCopyMode}
 	data-desktop-images={JSON.stringify(desktopImages)}
-			data-mobile-images={JSON.stringify(mobileImages)}
-			data-carousel-enabled={String(siteConfig.banner.carousel.enable)}
-			data-carousel-interval={String(Math.max(siteConfig.banner.carousel.interval, 3000))}
-			data-position={siteConfig.banner.position ?? "center"}
-			data-subtitle-typewriter-enabled={String(siteConfig.banner.homeText.typewriter.enable)}
-			data-subtitle-typewriter-loop={String(siteConfig.banner.homeText.typewriter.loop)}
-			data-subtitle-typewriter-speed={String(Math.max(siteConfig.banner.homeText.typewriter.speed, 1))}
-	>
+	data-mobile-images={JSON.stringify(mobileImages)}
+	data-carousel-enabled={String(siteConfig.banner.carousel.enable)}
+	data-carousel-interval={String(Math.max(siteConfig.banner.carousel.interval, 3000))}
+	data-position={siteConfig.banner.position ?? "center"}
+	data-home-title={siteConfig.banner.homeText.title}
+	data-subtitle-typewriter-enabled={String(siteConfig.banner.homeText.typewriter.enable)}
+	data-subtitle-typewriter-loop={String(siteConfig.banner.homeText.typewriter.loop)}
+	data-subtitle-typewriter-speed={String(Math.max(siteConfig.banner.homeText.typewriter.speed, 1))}
+>
 	<div class="banner-stage__media" aria-hidden="true">
 		<img class="banner-stage__image banner-stage__image--front" alt="" />
 		<img class="banner-stage__image banner-stage__image--back" alt="" />
@@ -39,7 +63,7 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		<div class="banner-stage__scrim" style={`--banner-dim-opacity: ${dimOpacity}`}></div>
 	)}
 	{siteConfig.banner.homeText.enable && (
-		<div class="banner-stage__copy">
+		<div class="banner-stage__copy banner-stage__copy--home" data-banner-home-copy>
 			<h1>{siteConfig.banner.homeText.title}</h1>
 			<p
 				aria-label={siteConfig.banner.homeText.subtitle}
@@ -49,6 +73,25 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			</p>
 		</div>
 	)}
+	<div class="banner-stage__copy banner-stage__copy--context" data-banner-context>
+		<div class="banner-stage__context-title" data-banner-context-title>
+			{normalizedTitle}
+		</div>
+		<div
+			class="banner-stage__context-details"
+			data-banner-context-details
+			hidden={!initialSupportingText && !initialDate}
+		>
+			<span class="banner-stage__context-divider" aria-hidden="true"></span>
+			<p data-banner-context-description hidden={!initialSupportingText}>
+				{initialSupportingText}
+			</p>
+			<div class="banner-stage__context-meta" data-banner-context-meta hidden={!initialDate}>
+				<Icon name="material-symbols:calendar-today-rounded" aria-hidden="true" />
+				<time data-banner-context-date datetime={initialDate}>{initialDate}</time>
+			</div>
+		</div>
+	</div>
 	{siteConfig.banner.waves.enable && <BannerWaves />}
 </section>
 
@@ -69,6 +112,7 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		subtitlePage: SidebarPage | null;
 		subtitleTimer: number | null;
 		subtitleVisible: boolean;
+		titleFitFrame: number | null;
 		timer: number | null;
 	}
 
@@ -83,7 +127,22 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		? [...stage.querySelectorAll<HTMLImageElement>(".banner-stage__image")]
 		: [];
 	const subtitle = stage?.querySelector<HTMLParagraphElement>(
-		".banner-stage__copy p",
+		"[data-banner-home-copy] p",
+	);
+	const contextTitle = stage?.querySelector<HTMLElement>(
+		"[data-banner-context-title]",
+	);
+	const contextDescription = stage?.querySelector<HTMLElement>(
+		"[data-banner-context-description]",
+	);
+	const contextDetails = stage?.querySelector<HTMLElement>(
+		"[data-banner-context-details]",
+	);
+	const contextMeta = stage?.querySelector<HTMLElement>(
+		"[data-banner-context-meta]",
+	);
+	const contextDate = stage?.querySelector<HTMLTimeElement>(
+		"[data-banner-context-date]",
 	);
 	const subtitleText = subtitle?.textContent || "";
 	const runtime: BannerRuntime = {
@@ -99,6 +158,7 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		subtitlePage: null,
 		subtitleTimer: null,
 		subtitleVisible: false,
+		titleFitFrame: null,
 		timer: null,
 	};
 
@@ -271,7 +331,86 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		}, delay);
 	}
 
-	function syncBanner(pageOverride?: SidebarPage) {
+	function fitContextTitle() {
+		if (!contextTitle || !stage || stage.dataset.copyMode !== "context") return;
+		contextTitle.style.removeProperty("font-size");
+		contextTitle.dataset.titleFit = "full";
+		if (contextTitle.scrollWidth <= contextTitle.clientWidth) return;
+
+		const rootFontSize = Number.parseFloat(
+			getComputedStyle(document.documentElement).fontSize,
+		);
+		const maximum = Number.parseFloat(getComputedStyle(contextTitle).fontSize);
+		const minimum = Number.isFinite(rootFontSize) ? rootFontSize * 2.25 : 36;
+		let lower = Math.min(minimum, maximum);
+		let upper = maximum;
+
+		contextTitle.dataset.titleFit = "scaled";
+		for (let step = 0; step < 8; step += 1) {
+			const candidate = (lower + upper) / 2;
+			contextTitle.style.fontSize = `${candidate}px`;
+			if (contextTitle.scrollWidth <= contextTitle.clientWidth) lower = candidate;
+			else upper = candidate;
+		}
+		contextTitle.style.fontSize = `${lower}px`;
+		if (contextTitle.scrollWidth > contextTitle.clientWidth) {
+			contextTitle.style.removeProperty("font-size");
+			contextTitle.dataset.titleFit = "wrapped";
+		}
+	}
+
+	function scheduleContextTitleFit() {
+		if (runtime.titleFitFrame !== null) {
+			window.cancelAnimationFrame(runtime.titleFitFrame);
+		}
+		runtime.titleFitFrame = window.requestAnimationFrame(() => {
+			runtime.titleFitFrame = null;
+			fitContextTitle();
+		});
+	}
+
+	interface BannerContext {
+		title: string;
+		description: string;
+		date: string;
+	}
+
+	function readContext(): BannerContext {
+		const container = document.getElementById("swup-container");
+		return {
+			title: container?.dataset.bannerTitle?.trim() || "",
+			description: container?.dataset.bannerDescription?.trim() || "",
+			date: container?.dataset.bannerDate?.trim() || "",
+		};
+	}
+
+	function syncContext(context: BannerContext) {
+		if (
+			!stage ||
+			!contextTitle ||
+			!contextDescription ||
+			!contextDetails ||
+			!contextMeta ||
+			!contextDate
+		)
+			return false;
+		const title = context.title;
+		const description = context.description !== title ? context.description : "";
+		const date = context.date;
+		contextTitle.style.removeProperty("font-size");
+		contextTitle.dataset.titleFit = "full";
+		contextTitle.textContent = title;
+		contextDescription.textContent = description;
+		contextDescription.hidden = !description;
+		contextDate.textContent = date;
+		contextDate.dateTime = date;
+		contextMeta.hidden = !date;
+		contextDetails.hidden = !description && !date;
+		scheduleContextTitleFit();
+		return Boolean(title);
+	}
+
+	function syncBanner(pageOverride?: SidebarPage, contextOverride?: BannerContext) {
 		if (!stage) return;
 		const viewport = currentViewport();
 		const images = runtime.images[viewport];
@@ -290,8 +429,17 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		document.body.dataset.bannerLayout = state.contentLayout;
 		document.body.dataset.bannerTopAppBar = String(state.transparentTopAppBar);
 		stage.hidden = !state.visible;
-		stage.dataset.showHomeText = String(state.showHomeText);
-		if (state.showHomeText) startSubtitleTyping(page);
+		const hasContext =
+			state.copyMode === "context" && syncContext(contextOverride ?? readContext());
+		const copyMode = state.copyMode === "home" ? "home" : hasContext ? "context" : "none";
+		stage.dataset.copyMode = copyMode;
+		stage.setAttribute(
+			"aria-label",
+			copyMode === "context"
+				? contextTitle?.textContent || ""
+				: stage.dataset.homeTitle || "",
+		);
+		if (copyMode === "home") startSubtitleTyping(page);
 		else stopSubtitleTyping();
 
 		if (!state.visible || !state.assetGroup) {
@@ -324,6 +472,7 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		if (!window.__shironeBannerBound) {
 			window.__shironeBannerBound = true;
 			window.addEventListener(WALLPAPER_MODE_CHANGE_EVENT, () => syncBanner());
+			window.addEventListener("resize", scheduleContextTitleFit);
 			window.matchMedia("(min-width: 1024px)").addEventListener("change", () => syncBanner());
 				window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => {
 					syncBanner();
@@ -332,10 +481,15 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			document.addEventListener("visibilitychange", () => syncBanner());
 			document.addEventListener("swup:visit:start", ((event: CustomEvent) => {
 				const url = event.detail?.visit?.to?.url || event.detail?.to?.url;
-				if (url) syncBanner(pageFromUrl(url));
+				if (url) {
+					const nextPage = pageFromUrl(url);
+					const emptyContext = { title: "", description: "", date: "" };
+					syncBanner(nextPage, nextPage === "home" ? undefined : emptyContext);
+				}
 			}) as EventListener);
 			document.addEventListener("swup:content:replace", () => syncBanner());
 			document.addEventListener("swup:page:view", () => syncBanner());
+			document.fonts?.ready.then(scheduleContextTitleFit);
 		}
 	}
 </script>
@@ -386,12 +540,17 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.48)
 			pointer-events: none
 
-		.banner-stage__copy h1
+		.banner-stage__copy h1,
+		.banner-stage__context-title
+			margin: 0
 			font: var(--m3e-type-headline-medium)
-			font-size: clamp(2.5rem, 5rem, 5rem)
 			font-weight: 700
 			letter-spacing: 0
 			line-height: 1.1
+
+		.banner-stage__copy h1,
+		.banner-stage__context-title
+			font-size: clamp(2.5rem, 5rem, 5rem)
 
 		.banner-stage__copy p
 			margin-top: 0.75rem
@@ -407,7 +566,69 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 				background: currentColor
 				animation: banner-subtitle-caret var(--m3e-duration-long) steps(1, end) infinite
 
-		.banner-stage[data-show-home-text="true"] .banner-stage__copy
+		.banner-stage__copy--context
+			inset: 50% auto auto 50%
+			width: min(calc(100% - var(--m3e-space-12)), 64rem)
+			min-height: calc(var(--m3e-space-12) * 2)
+			padding: var(--m3e-space-6) var(--m3e-space-8)
+			align-items: center
+			justify-content: center
+			text-align: center
+			transform: translate(-50%, -50%)
+
+		.banner-stage__context-title,
+		.banner-stage__context-details
+			max-width: 100%
+
+		.banner-stage__context-title
+			width: 100%
+			overflow-wrap: normal
+			white-space: nowrap
+
+			&[data-title-fit="wrapped"]
+				overflow-wrap: anywhere
+				white-space: normal
+				text-wrap: balance
+
+		.banner-stage__context-details
+			display: flex
+			flex-direction: column
+			align-items: center
+			width: min(100%, 48rem)
+			margin-top: var(--m3e-space-5)
+
+		.banner-stage__context-divider
+			width: var(--m3e-space-12)
+			height: 1px
+			background: rgba(255, 255, 255, 0.72)
+
+		.banner-stage__copy--context p
+			margin: var(--m3e-space-4) 0 0
+			font: var(--m3e-type-headline-small)
+			line-height: 1.5
+			opacity: 0.9
+			overflow-wrap: anywhere
+			text-wrap: pretty
+
+		.banner-stage__context-meta
+			display: flex
+			align-items: center
+			justify-content: center
+			gap: var(--m3e-space-2)
+			margin-top: var(--m3e-space-3)
+			font: var(--m3e-type-label-large)
+			font-variant-numeric: tabular-nums
+			opacity: 0.8
+
+			> :global(svg)
+				width: var(--m3e-space-5)
+				height: var(--m3e-space-5)
+
+		.banner-stage__copy--context [hidden]
+			display: none
+
+		.banner-stage[data-copy-mode="home"] .banner-stage__copy--home,
+		.banner-stage[data-copy-mode="context"] .banner-stage__copy--context
 			display: flex
 
 

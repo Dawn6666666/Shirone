@@ -6,6 +6,6 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getFriendsList } from "../data/friends";
 ---
 
-<MainGridLayout title={i18n(I18nKey.friends)} page="friends">
+<MainGridLayout title={i18n(I18nKey.friends)} description={i18n(I18nKey.friendsBanner)} page="friends">
     <FriendSection friends={getFriendsList()} client:only="svelte"></FriendSection>
 </MainGridLayout>

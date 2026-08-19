@@ -15,6 +15,6 @@ const author = {
 };
 ---
 
-<MainGridLayout title={i18n(I18nKey.moments)} page="moments">
+<MainGridLayout title={i18n(I18nKey.moments)} description={i18n(I18nKey.momentsBanner)} page="moments">
     <MomentSection {moments} {author} client:only="svelte"></MomentSection>
 </MainGridLayout>

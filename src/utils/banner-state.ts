@@ -4,6 +4,8 @@ import type { SidebarPage } from "@/types/sidebarConfig";
 export type BannerViewport = "desktop" | "mobile";
 export type BannerContentLayout = "banner" | "compact";
 
+export type BannerCopyMode = "home" | "context" | null;
+
 export interface BannerStateInput {
 	mode: WallpaperMode;
 	page: SidebarPage | undefined;
@@ -16,7 +18,7 @@ export interface BannerStateInput {
 export interface BannerState {
 	visible: boolean;
 	assetGroup: BannerViewport | null;
-	showHomeText: boolean;
+	copyMode: BannerCopyMode;
 	rotate: boolean;
 	transparentTopAppBar: boolean;
 	contentLayout: BannerContentLayout;
@@ -29,10 +31,12 @@ export function resolveBannerState(input: BannerStateInput): BannerState {
 		input.imageCount > 0 &&
 		(input.viewport === "desktop" || isHome);
 
+	const copyMode: BannerCopyMode = !visible ? null : isHome ? "home" : "context";
+
 	return {
 		visible,
 		assetGroup: visible ? input.viewport : null,
-		showHomeText: visible && isHome,
+		copyMode,
 		rotate:
 			visible &&
 			input.carouselEnabled &&

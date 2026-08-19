@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { resolveBannerState } from "../../src/utils/banner-state";
 
 const BANNER_ASSET = /\/assets\/banner\//;
 
@@ -13,14 +14,16 @@ async function waitForBannerState(
 }
 
 async function expectSubtitleTyping(page: import("@playwright/test").Page) {
-	const subtitle = page.locator("#banner-wrapper .banner-stage__copy p");
+	const subtitle = page.locator("#banner-wrapper [data-banner-home-copy] p");
 	const expected = "A Material 3 anime blog";
 	await expect(subtitle).toHaveAttribute("data-subtitle-state", "typing");
 	const typingText = await subtitle.textContent();
 	expect(typingText).toBeTruthy();
 	expect(expected.startsWith(typingText ?? "")).toBe(true);
-	await expect(subtitle).toHaveText(expected, { timeout: 5_000 });
-	await expect(subtitle).toHaveAttribute("data-subtitle-state", "complete");
+	await expect(subtitle).toHaveAttribute("data-subtitle-state", "complete", {
+		timeout: 7_500,
+	});
+	await expect(subtitle).toHaveText(expected);
 }
 
 async function expectBannerOverlap(page: import("@playwright/test").Page) {
@@ -118,6 +121,159 @@ async function expectCompactTop(page: import("@playwright/test").Page) {
 }
 
 test.describe("banner wallpaper", () => {
+	test("uses mutually exclusive home and contextual copy modes", () => {
+		const base = {
+			mode: "banner" as const,
+			viewport: "desktop" as const,
+			imageCount: 1,
+			carouselEnabled: false,
+			reducedMotion: false,
+		};
+		expect(resolveBannerState({ ...base, page: "home" }).copyMode).toBe("home");
+		expect(resolveBannerState({ ...base, page: "post" }).copyMode).toBe(
+			"context",
+		);
+		expect(
+			resolveBannerState({ ...base, viewport: "mobile", page: "post" }).copyMode,
+		).toBeNull();
+	});
+
+	test("server response includes article banner context", async ({ request }) => {
+		const response = await request.get("/posts/guide/");
+		expect(response.ok()).toBe(true);
+		const html = await response.text();
+		expect(html).toContain("data-banner-context-title");
+		expect(html).toContain("Simple Guides for Fuwari");
+		expect(html).toContain("How to use this blog template.");
+		expect(html).toContain('datetime="2024-04-01"');
+	});
+
+	test("centers article context in a bounded box with home-scale type", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 1440, height: 1000 });
+		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		const stage = page.locator("#banner-wrapper");
+		const context = stage.locator("[data-banner-context]");
+		await expect(stage).toHaveAttribute("data-copy-mode", "context");
+		await expect(context).toBeVisible();
+		await expect(context.locator("[data-banner-context-title]")).toHaveText(
+			"Simple Guides for Fuwari",
+		);
+		await expect(
+			context.locator("[data-banner-context-description]"),
+		).toHaveText("How to use this blog template.");
+		await expect(context.locator("time")).toHaveAttribute(
+			"datetime",
+			"2024-04-01",
+		);
+
+		const layout = await context.evaluate((element) => {
+			const stage = document.getElementById("banner-wrapper");
+			const homeTitle = document.querySelector<HTMLElement>(
+				"[data-banner-home-copy] h1",
+			);
+			const title = element.querySelector<HTMLElement>(
+				"[data-banner-context-title]",
+			);
+			if (!stage || !homeTitle || !title) return null;
+			const stageRect = stage.getBoundingClientRect();
+			const boxRect = element.getBoundingClientRect();
+			return {
+				centerX: Math.abs(
+					boxRect.left + boxRect.width / 2 -
+						(stageRect.left + stageRect.width / 2),
+				),
+				centerY: Math.abs(
+					boxRect.top + boxRect.height / 2 -
+						(stageRect.top + stageRect.height / 2),
+				),
+				boxWidth: boxRect.width,
+				maxWidth: Number.parseFloat(getComputedStyle(element).maxWidth),
+				titleSize: getComputedStyle(title).fontSize,
+				homeTitleSize: getComputedStyle(homeTitle).fontSize,
+				textAlign: getComputedStyle(element).textAlign,
+				overflows:
+					element.scrollWidth > element.clientWidth ||
+					element.scrollHeight > element.clientHeight,
+			};
+		});
+		expect(layout).not.toBeNull();
+		expect(layout?.centerX).toBeLessThan(1);
+		expect(layout?.centerY).toBeLessThan(1);
+		expect(layout?.boxWidth).toBeLessThanOrEqual(1024);
+		expect(layout?.titleSize).toBe(layout?.homeTitleSize);
+		expect(layout?.textAlign).toBe("center");
+		expect(layout?.overflows).toBe(false);
+	});
+
+	test("fits long contextual titles onto one line at desktop widths", async ({
+		page,
+	}) => {
+		for (const width of [1440, 1024]) {
+			await page.setViewportSize({ width, height: 1000 });
+			await page.goto("/posts/markdown-extended/", {
+				waitUntil: "domcontentloaded",
+			});
+			await waitForBannerState(page, true);
+			const title = page.locator("[data-banner-context-title]");
+			await expect(title).toHaveAttribute("data-title-fit", "scaled");
+			const layout = await title.evaluate((element) => {
+				const style = getComputedStyle(element);
+				return {
+					fontSize: Number.parseFloat(style.fontSize),
+					lineHeight: Number.parseFloat(style.lineHeight),
+					height: element.getBoundingClientRect().height,
+					overflows: element.scrollWidth > element.clientWidth,
+					whiteSpace: style.whiteSpace,
+				};
+			});
+			expect(layout.overflows).toBe(false);
+			expect(layout.whiteSpace).toBe("nowrap");
+			expect(layout.height).toBeLessThanOrEqual(layout.lineHeight + 1);
+			expect(layout.fontSize).toBeGreaterThanOrEqual(36);
+			expect(layout.fontSize).toBeLessThan(80);
+		}
+	});
+
+	test("shows localized context on a non-post page", async ({ page }) => {
+		await page.goto("/friends/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		const context = page.locator("[data-banner-context]");
+		await expect(context.locator("[data-banner-context-title]")).toHaveText(
+			"Friends",
+		);
+		await expect(
+			context.locator("[data-banner-context-description]"),
+		).toHaveText(
+			"Link exchange is welcome — see the About page for how to apply.",
+		);
+		await expect(context.locator("[data-banner-context-meta]")).toBeHidden();
+	});
+
+	test("shows collection context and omits duplicate supporting text", async ({
+		page,
+	}) => {
+		await page.goto("/archive/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		await expect(page.locator("[data-banner-context-title]")).toHaveText(
+			"Archive",
+		);
+		await expect(
+			page.locator("[data-banner-context-description]"),
+		).toHaveText(/^\d+ posts$/);
+
+		await page.goto("/about/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		await expect(page.locator("[data-banner-context-title]")).toHaveText(
+			"About",
+		);
+		await expect(
+			page.locator("[data-banner-context-details]"),
+		).toBeHidden();
+	});
+
 	test("server response keeps the complete home subtitle", async ({
 		request,
 	}) => {
@@ -318,10 +474,10 @@ test.describe("banner wallpaper", () => {
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, true);
 		await expect(
-			page.locator("#banner-wrapper .banner-stage__copy p"),
+			page.locator("#banner-wrapper [data-banner-home-copy] p"),
 		).toHaveText("A Material 3 anime blog");
 		await expect(
-			page.locator("#banner-wrapper .banner-stage__copy p"),
+			page.locator("#banner-wrapper [data-banner-home-copy] p"),
 		).toHaveAttribute("data-subtitle-state", "complete");
 		await expectWavesAnimated(page, false);
 		const before = await page
@@ -343,13 +499,75 @@ test.describe("banner wallpaper", () => {
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, true);
 		await expect(
-			page.locator("#banner-wrapper .banner-stage__copy p"),
+			page.locator("#banner-wrapper [data-banner-home-copy] p"),
 		).toHaveText("A Material 3 anime blog");
 		await expect(
-			page.locator("#banner-wrapper .banner-stage__copy p"),
+			page.locator("#banner-wrapper [data-banner-home-copy] p"),
 		).toHaveAttribute("data-subtitle-state", "complete");
 		await expect(page.locator("html")).toHaveClass(/motion-reduced/);
 		await expectWavesAnimated(page, false);
+	});
+
+	test("Swup replaces contextual copy without retaining the previous page", async ({
+		page,
+	}) => {
+		await page.goto("/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+			"data-copy-mode",
+			"home",
+		);
+		await page.waitForFunction(() => Boolean(window.swup?.hooks));
+
+		await page.evaluate(() => {
+			(window as typeof window & { __swupPersistenceProbe?: string }).__swupPersistenceProbe =
+				"preserved";
+		});
+		await page
+			.locator('#swup-container a.m3-blog-postcard__title[href="/posts/guide/"]')
+			.click();
+		await page.waitForFunction(
+			() =>
+				document.getElementById("swup-container")?.dataset.currentPage ===
+				"post",
+		);
+		await expect(
+			page.locator("[data-banner-context-title]"),
+		).toHaveText("Simple Guides for Fuwari");
+		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+			"aria-label",
+			"Simple Guides for Fuwari",
+		);
+		expect(
+			await page.evaluate(
+				() =>
+					(window as typeof window & { __swupPersistenceProbe?: string })
+						.__swupPersistenceProbe,
+			),
+		).toBe("preserved");
+
+		await page.locator('#navbar a[href="/friends/"]').click();
+		await page.waitForFunction(
+			() =>
+				document.getElementById("swup-container")?.dataset.currentPage ===
+				"friends",
+		);
+		await expect(
+			page.locator("[data-banner-context-title]"),
+		).toHaveText("Friends");
+		await expect(
+			page.locator("[data-banner-context-description]"),
+		).toHaveText(
+			"Link exchange is welcome — see the About page for how to apply.",
+		);
+		await expect(page.locator("[data-banner-context-meta]")).toBeHidden();
+		expect(
+			await page.evaluate(
+				() =>
+					(window as typeof window & { __swupPersistenceProbe?: string })
+						.__swupPersistenceProbe,
+			),
+		).toBe("preserved");
 	});
 
 	test("Swup home to post removes mobile wallpaper without leaving a gap", async ({

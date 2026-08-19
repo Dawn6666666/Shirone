@@ -8,6 +8,6 @@ import { scanVisibleAlbums, toAlbumIndexItem } from "@utils/album-scanner";
 const albums = scanVisibleAlbums().map(toAlbumIndexItem);
 ---
 
-<MainGridLayout title={i18n(I18nKey.albums)} page="albums">
+<MainGridLayout title={i18n(I18nKey.albums)} description={i18n(I18nKey.albumsBanner)} page="albums">
 	<AlbumSection {albums} client:load />
 </MainGridLayout>

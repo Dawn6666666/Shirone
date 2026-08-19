@@ -23,6 +23,8 @@ interface Props {
 	title?: string;
 	banner?: string;
 	description?: string;
+	/** Banner 可选日期，使用 YYYY-MM-DD 等可直接写入 time[datetime] 的值。 */
+	bannerDate?: string;
 	lang?: string;
 	setOGTypeArticle?: boolean;
 	headings?: MarkdownHeading[];
@@ -38,6 +40,7 @@ const {
 	title,
 	banner,
 	description,
+	bannerDate,
 	lang,
 	setOGTypeArticle,
 	headings = [],
@@ -65,7 +68,7 @@ const mainContentClasses = generateMainContentClasses(sidebarResponsive);
 </header>
 
 <!-- Banner -->
-<BannerStage />
+<BannerStage page={page} title={title} description={description} date={bannerDate} />
 
 <!-- Main content -->
 <div id="main-layout" class="absolute w-full z-30 pointer-events-none">
@@ -85,6 +88,9 @@ const mainContentClasses = generateMainContentClasses(sidebarResponsive);
                     id="swup-container"
                     data-current-post-category={postCategory || ""}
                     data-current-page={page}
+                    data-banner-title={title || ""}
+                    data-banner-description={description || ""}
+                    data-banner-date={bannerDate || ""}
                     class="transition-swup-fade"
                 >
                     <div id="content-wrapper" class="onload-animation">

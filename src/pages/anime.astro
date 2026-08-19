@@ -10,6 +10,6 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getAnimeList } from "../utils/anime-data";
 ---
 
-<MainGridLayout title={i18n(I18nKey.anime)} page="anime">
+<MainGridLayout title={i18n(I18nKey.anime)} description={i18n(I18nKey.animeBanner)} page="anime">
     <AnimeSection animes={getAnimeList()} client:only="svelte"></AnimeSection>
 </MainGridLayout>
