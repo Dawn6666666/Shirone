@@ -4,7 +4,7 @@
  * variant: filled（默认，surface-container-high + 底部下划线 focus 亮起）/
  *          outlined（surface + outline-variant 1px 边框 + focus primary 2px）。
  * error：错误态（下划线/边框变 error 色 + 可选错误提示）。
- * label 浮动（focus/有值时上浮顶部），leading 图标用命名插槽。
+ * label 浮动（focus/有值时上浮顶部），leading/trailing 图标或操作用命名插槽。
  * hideLabel：label 只作为 aria-label（无障碍名），不渲染可见浮动标签。
  */
 let {
@@ -18,6 +18,8 @@ let {
 	hideLabel = false,
 	variant = "filled",
 	error = "",
+	disabled = false,
+	autocomplete = "",
 	onfocus = () => {},
 	oninput = () => {},
 	onblur = () => {},
@@ -34,6 +36,8 @@ let {
 	variant?: "filled" | "outlined";
 	/** 错误提示（非空时错误态：error 色下划线/边框 + 提示文字） */
 	error?: string;
+	disabled?: boolean;
+	autocomplete?: string;
 	onfocus?: () => void;
 	oninput?: () => void;
 	onblur?: () => void;
@@ -57,6 +61,10 @@ let focused = $state(false);
             bind:value
             placeholder={hideLabel ? placeholder : focused ? placeholder : undefined}
             aria-label={label || placeholder}
+            aria-invalid={error ? "true" : undefined}
+            aria-describedby={error && id ? `${id}-error` : undefined}
+            {disabled}
+            autocomplete={autocomplete || undefined}
             onfocus={() => {
                 focused = true;
                 onfocus();
@@ -76,9 +84,10 @@ let focused = $state(false);
             </span>
         {/if}
     </div>
+    <span class="m3-text-field__trailing"><slot name="trailing" /></span>
     <span class="m3-text-field__underline" aria-hidden="true"></span>
     {#if error}
-        <span class="m3-text-field__error" aria-live="polite">{error}</span>
+        <span id={id ? `${id}-error` : undefined} class="m3-text-field__error" aria-live="polite">{error}</span>
     {/if}
 </div>
 
@@ -128,13 +137,18 @@ let focused = $state(false);
         &:hover
             border-color: var(--error)
 
-    &__icon
+    &__icon,
+    &__trailing
         display: flex
         align-items: center
         flex: none
         color: var(--on-surface-variant)
         font-size: 1.25rem
         line-height: 1
+
+    &__icon:empty,
+    &__trailing:empty
+        display: none
 
     &__field
         position: relative
@@ -155,6 +169,12 @@ let focused = $state(false);
         font: inherit
         &::placeholder
             color: var(--on-surface-variant)
+        &:disabled
+            cursor: not-allowed
+
+    &:has(input:disabled)
+        opacity: 0.38
+        pointer-events: none
 
     /* 浮动 label：focus/有值时上浮顶部（M3 标准） */
     &__label

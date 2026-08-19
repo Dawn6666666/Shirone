@@ -115,8 +115,8 @@
 | 层 | 组件 |
 |---|---|
 | atoms/ | 63 个原子组件（Button、Chip、IconButton、FAB、FABMenu、Slider、SegmentedButton、TextField、Switch、Checkbox、RadioButton、Dialog、Menu、Badge、Divider、Snackbar、Tabs、Select、DataTable、SearchView、Autocomplete、SheetSide、Carousel、PullToRefresh、DatePicker、TimePicker、Chips、Banner、Tooltip、Card、AppBar、NavigationBar/Rail/Drawer、ExposedDropdownMenu、ListItem、LoadingIndicator、ProgressIndicator、AlertDialog、BadgedBox、SplitButton、ToggleButton、ButtonGroup、SearchBar、DateInput、FloatingToolbar、BottomSheet 等；完整清单与 tier 见 `atoms/manifest.json`） |
-| molecules/ | PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、Announcement、SiteStats、Calendar、PostMeta、SearchBar、TOC、WidgetLayout、ImageWrapper、License、Pagination、FriendCard、MomentCard、MomentGallery（19） |
-| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、FriendSection、MomentSection（16） |
+| molecules/ | PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、Announcement、SiteStats、Calendar、PostMeta、SearchBar、TOC、WidgetLayout、ImageWrapper、License、Pagination、FriendCard、MomentCard、MomentGallery、AlbumCard（20） |
+| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、FriendSection、MomentSection、AlbumSection、AlbumGallery、PasswordGate、ProtectedAlbum（20） |
 | system/ | ConfigCarrier、GlobalStyles（2） |
 | content/ | Markdown（1） |
 | layouts/ | Layout、MainGridLayout（2） |

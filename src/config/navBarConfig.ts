@@ -41,11 +41,17 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		pageKey: "anime",
 	},
 	Compass: {
-		name: i18n(I18nKey.compass),
-		url: "/compass/",
-		icon: "material-symbols:explore-rounded",
-		pageKey: "compass",
-	},
+			name: i18n(I18nKey.compass),
+			url: "/compass/",
+			icon: "material-symbols:explore-rounded",
+			pageKey: "compass",
+		},
+	Albums: {
+			name: i18n(I18nKey.albums),
+			url: "/albums/",
+			icon: "material-symbols:photo-library-outline-rounded",
+			pageKey: "albums",
+		},
 	Categories: {
 		name: i18n(I18nKey.categories),
 		url: "/categories/",
@@ -78,10 +84,11 @@ export const navBarConfig: NavBarConfig = {
 		LinkPresets.Archive,
 		LinkPresets.Friends,
 		LinkPresets.Moments,
-		LinkPresets.Anime,
-		LinkPresets.Compass,
-		{
-			name: i18n(I18nKey.more),
+			LinkPresets.Anime,
+			LinkPresets.Compass,
+			LinkPresets.Albums,
+			{
+				name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",
 			children: [
 				// 分类/标签入口不进导航菜单（避免菜单项过多），预设已登记指向独立页面，
