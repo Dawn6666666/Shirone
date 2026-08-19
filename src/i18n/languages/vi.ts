@@ -140,6 +140,11 @@ export const vi: Translation = {
 	[Key.lastUpdatedNotice]: "Cập nhật lần cuối vào {date}, cách đây {days} ngày",
 	[Key.lastUpdatedWarning]: "Một số nội dung có thể đã lỗi thời",
 	[Key.license]: "Giấy phép bản quyền",
+	[Key.continueReading]: "Đọc tiếp",
+	[Key.relatedReading]: "Bài viết liên quan",
+	[Key.relatedReadingSubtitle]: "Dựa trên thẻ và danh mục chung",
+	[Key.randomReading]: "Đổi hướng khám phá",
+	[Key.randomReadingSubtitle]: "Một lựa chọn ổn định từ các bài viết khác",
 	[Key.copySuccess]: "Đã sao chép vào bộ nhớ tạm",
 	[Key.copyLink]: "Sao chép liên kết",
 

@@ -140,6 +140,11 @@ export const ja: Translation = {
 	[Key.lastUpdatedNotice]: "最終更新日: {date}（{days}日前）",
 	[Key.lastUpdatedWarning]: "一部の内容は古くなっている可能性があります",
 	[Key.license]: "ライセンス",
+	[Key.continueReading]: "続きを読む",
+	[Key.relatedReading]: "関連記事",
+	[Key.relatedReadingSubtitle]: "共通するタグとカテゴリから",
+	[Key.randomReading]: "別のルートへ",
+	[Key.randomReadingSubtitle]: "ほかの記事から一貫した基準で選出",
 	[Key.copySuccess]: "クリップボードにコピーしました",
 	[Key.copyLink]: "リンクをコピー",
 

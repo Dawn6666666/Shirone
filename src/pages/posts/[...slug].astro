@@ -12,6 +12,8 @@ import PostMetadata from "@components/molecules/PostMeta.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import ArticleDiscovery from "@components/organisms/ArticleDiscovery.astro";
+import { discoverArticles } from "@utils/article-discovery";
 import { getSortedPosts } from "@utils/content-utils";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
@@ -20,19 +22,41 @@ import {
 	articleConfig,
 	licenseConfig,
 	profileConfig,
+	resolveArticleDiscoveryOptions,
 	resolveLastUpdatedNoticeOptions,
 	siteConfig,
 } from "@/config";
 
 export async function getStaticPaths() {
 	const blogEntries = await getSortedPosts();
-	return blogEntries.map((entry) => ({
-		params: { slug: entry.id },
-		props: { entry },
+	const discoveryCandidates = blogEntries.map((entry) => ({
+		slug: entry.id,
+		data: entry.data,
 	}));
+	const discoveryOptions = resolveArticleDiscoveryOptions(articleConfig);
+
+	return blogEntries.map((entry) => {
+		const current = discoveryCandidates.find(
+			(candidate) => candidate.slug === entry.id,
+		);
+		const discovery =
+			discoveryOptions && current
+				? discoverArticles(
+						current,
+						discoveryCandidates,
+						discoveryOptions.relatedCount,
+						discoveryOptions.randomCount,
+					)
+				: { related: [], random: [] };
+
+		return {
+			params: { slug: entry.id },
+			props: { entry, discovery },
+		};
+	});
 }
 
-const { entry } = Astro.props;
+const { entry, discovery } = Astro.props;
 const { Content, headings } = await render(entry);
 
 const { remarkPluginFrontmatter } = await render(entry);
@@ -127,9 +151,15 @@ const jsonLd = {
                 <Content />
             </Markdown>
 
-            {licenseConfig.enable && <License title={entry.data.title} slug={entry.id} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
+			{licenseConfig.enable && <License title={entry.data.title} slug={entry.id} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
 
-        </Card>
+			<ArticleDiscovery
+				related={discovery.related}
+				random={discovery.random}
+				class="onload-animation"
+			/>
+
+		</Card>
     </div>
 
     {lastUpdatedNotice && (

@@ -150,6 +150,11 @@ enum I18nKey {
 	lastUpdatedNotice = "lastUpdatedNotice",
 	lastUpdatedWarning = "lastUpdatedWarning",
 	license = "license",
+	continueReading = "continueReading",
+	relatedReading = "relatedReading",
+	relatedReadingSubtitle = "relatedReadingSubtitle",
+	randomReading = "randomReading",
+	randomReadingSubtitle = "randomReadingSubtitle",
 
 	copySuccess = "copySuccess",
 	copyLink = "copyLink",

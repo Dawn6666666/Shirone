@@ -141,6 +141,11 @@ export const id: Translation = {
 		"Terakhir diperbarui pada {date}, {days} hari yang lalu",
 	[Key.lastUpdatedWarning]: "Sebagian konten mungkin sudah tidak berlaku",
 	[Key.license]: "Lisensi",
+	[Key.continueReading]: "Lanjut membaca",
+	[Key.relatedReading]: "Bacaan terkait",
+	[Key.relatedReadingSubtitle]: "Berdasarkan tag dan kategori yang sama",
+	[Key.randomReading]: "Coba jalur lain",
+	[Key.randomReadingSubtitle]: "Pilihan konsisten dari artikel lain",
 	[Key.copySuccess]: "Disalin ke papan klip",
 	[Key.copyLink]: "Salin tautan",
 

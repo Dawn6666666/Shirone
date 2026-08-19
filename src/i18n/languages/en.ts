@@ -140,6 +140,11 @@ export const en: Translation = {
 	[Key.lastUpdatedNotice]: "Last updated on {date}, {days} days ago",
 	[Key.lastUpdatedWarning]: "Some content may be outdated",
 	[Key.license]: "License",
+	[Key.continueReading]: "Continue reading",
+	[Key.relatedReading]: "Related reading",
+	[Key.relatedReadingSubtitle]: "Based on shared tags and categories",
+	[Key.randomReading]: "Take another route",
+	[Key.randomReadingSubtitle]: "A consistent pick from other articles",
 	[Key.copySuccess]: "Copied to clipboard",
 	[Key.copyLink]: "Copy link",
 

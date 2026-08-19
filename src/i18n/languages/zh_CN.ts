@@ -136,6 +136,11 @@ export const zh_CN: Translation = {
 	[Key.lastUpdatedNotice]: "最后更新于 {date}，距今已过 {days} 天",
 	[Key.lastUpdatedWarning]: "部分内容可能已过时",
 	[Key.license]: "许可协议",
+	[Key.continueReading]: "继续阅读",
+	[Key.relatedReading]: "沿着主题读",
+	[Key.relatedReadingSubtitle]: "基于共同的标签与分类",
+	[Key.randomReading]: "换条路线",
+	[Key.randomReadingSubtitle]: "从其他文章中稳定抽取",
 	[Key.copySuccess]: "已复制到剪贴板",
 	[Key.copyLink]: "复制链接",
 

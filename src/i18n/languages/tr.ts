@@ -139,6 +139,11 @@ export const tr: Translation = {
 	[Key.lastUpdatedNotice]: "Son güncelleme: {date}, {days} gün önce",
 	[Key.lastUpdatedWarning]: "Bazı içerikler güncelliğini yitirmiş olabilir",
 	[Key.license]: "Lisans",
+	[Key.continueReading]: "Okumaya devam et",
+	[Key.relatedReading]: "İlgili yazılar",
+	[Key.relatedReadingSubtitle]: "Ortak etiketlere ve kategorilere göre",
+	[Key.randomReading]: "Başka bir rotaya geç",
+	[Key.randomReadingSubtitle]: "Diğer yazılardan tutarlı bir seçim",
 	[Key.copySuccess]: "Panoya kopyalandı",
 	[Key.copyLink]: "Bağlantıyı kopyala",
 

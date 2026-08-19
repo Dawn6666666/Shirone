@@ -16,5 +16,7 @@ export { announcementConfig } from "./announcementConfig";
 export { postListConfig, POST_CARD_MIN_WIDTH } from "./postListConfig";
 export {
 	articleConfig,
+	normalizeDiscoveryCount,
+	resolveArticleDiscoveryOptions,
 	resolveLastUpdatedNoticeOptions,
 } from "./articleConfig";

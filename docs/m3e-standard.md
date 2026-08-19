@@ -293,6 +293,8 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/components/molecules/MomentGallery.svelte` | 动态图片画廊（网格 + 内联查看器两段式，编程式 Fancybox 灯箱） |
 | `src/components/molecules/Announcement.astro` | 公告侧栏 widget（Banner round，内容源 `announcementConfig`），见 `docs/common-components.md` §3.1 |
 | `src/components/molecules/LastUpdatedNotice.astro` | 文章最后更新提示（SSR 语义化日期 + UTC 日历天数），由 `src/utils/last-updated-notice.ts` 在首屏及 Swup 换页后校正 |
+| `src/components/molecules/ArticleDiscoveryItem.astro` | 文章内部延伸阅读链接行：使用 AccentBar、SSR 图标与整行状态层，按主题关联/稳定随机轨道映射 primary/tertiary 语义角色，无嵌套 Card、无客户端水合 |
+| `src/components/organisms/ArticleDiscovery.astro` | 文章主 Card 内的延伸阅读编排：接收页面构建期选好的相关文章与随机文章，以分隔线和语义列表承接正文，随 Swup 主内容整体替换 |
 | `src/components/organisms/MomentSection.svelte` | 动态页主体（搜索/标签筛选/加载更多 + Fancybox 接线） |
 | `src/components/molecules/AlbumCard.astro` / `AlbumCard.svelte` | 相册索引卡片（静态 SSR / 交互增强版本） |
 | `src/components/organisms/AlbumSection.svelte` | 相册索引页编排（筛选、排序与卡片列表） |

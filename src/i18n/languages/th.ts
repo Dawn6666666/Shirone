@@ -136,6 +136,11 @@ export const th: Translation = {
 	[Key.lastUpdatedNotice]: "อัปเดตล่าสุดเมื่อ {date} ผ่านมาแล้ว {days} วัน",
 	[Key.lastUpdatedWarning]: "เนื้อหาบางส่วนอาจล้าสมัย",
 	[Key.license]: "สัญญาอนุญาต",
+	[Key.continueReading]: "อ่านต่อ",
+	[Key.relatedReading]: "บทความที่เกี่ยวข้อง",
+	[Key.relatedReadingSubtitle]: "อิงจากแท็กและหมวดหมู่ร่วมกัน",
+	[Key.randomReading]: "ลองเส้นทางอื่น",
+	[Key.randomReadingSubtitle]: "คัดเลือกจากบทความอื่นด้วยเกณฑ์ที่คงที่",
 	[Key.copySuccess]: "คัดลอกไปยังคลิปบอร์ดแล้ว",
 	[Key.copyLink]: "คัดลอกลิงก์",
 

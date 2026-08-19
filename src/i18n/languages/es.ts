@@ -139,6 +139,11 @@ export const es: Translation = {
 	[Key.lastUpdatedNotice]: "Última actualización el {date}, hace {days} días",
 	[Key.lastUpdatedWarning]: "Parte del contenido puede estar desactualizado",
 	[Key.license]: "Licencia",
+	[Key.continueReading]: "Seguir leyendo",
+	[Key.relatedReading]: "Lecturas relacionadas",
+	[Key.relatedReadingSubtitle]: "Basadas en etiquetas y categorías compartidas",
+	[Key.randomReading]: "Cambiar de rumbo",
+	[Key.randomReadingSubtitle]: "Una selección estable de otros artículos",
 	[Key.copySuccess]: "Copiado al portapapeles",
 	[Key.copyLink]: "Copiar enlace",
 
