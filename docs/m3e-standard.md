@@ -292,6 +292,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/components/molecules/MomentCard.svelte` | 动态卡片（正文 + 画廊挂载点），见 `docs/common-components.md` |
 | `src/components/molecules/MomentGallery.svelte` | 动态图片画廊（网格 + 内联查看器两段式，编程式 Fancybox 灯箱） |
 | `src/components/molecules/Announcement.astro` | 公告侧栏 widget（Banner round，内容源 `announcementConfig`），见 `docs/common-components.md` §3.1 |
+| `src/components/molecules/LastUpdatedNotice.astro` | 文章最后更新提示（SSR 语义化日期 + UTC 日历天数），由 `src/utils/last-updated-notice.ts` 在首屏及 Swup 换页后校正 |
 | `src/components/organisms/MomentSection.svelte` | 动态页主体（搜索/标签筛选/加载更多 + Fancybox 接线） |
 | `src/components/molecules/AlbumCard.astro` / `AlbumCard.svelte` | 相册索引卡片（静态 SSR / 交互增强版本） |
 | `src/components/organisms/AlbumSection.svelte` | 相册索引页编排（筛选、排序与卡片列表） |

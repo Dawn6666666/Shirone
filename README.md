@@ -55,6 +55,7 @@ A static blog template built with [Astro](https://astro.build).
 ---
 title: My First Blog Post
 published: 2023-09-09
+updated: 2023-10-12 # Optional; drives the last-updated notice
 description: This is the first post of my new Astro blog.
 image: ./cover.jpg
 tags: [Foo, Bar]

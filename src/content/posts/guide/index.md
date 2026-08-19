@@ -18,6 +18,7 @@ This blog template is built with [Astro](https://astro.build/). For the things t
 ---
 title: My First Blog Post
 published: 2023-09-09
+updated: 2023-10-12
 description: This is the first post of my new Astro blog.
 image: ./cover.jpg
 tags: [Foo, Bar]
@@ -30,6 +31,7 @@ draft: false
 |---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `title`       | The title of the post.                                                                                                                                                                                      |
 | `published`   | The date the post was published.                                                                                                                                                                            |
+| `updated`     | Optional date of the latest content update. The article notice uses this date and falls back to `published` when omitted.                                                                                  |
 | `description` | A short description of the post. Displayed on index page.                                                                                                                                                   |
 | `image`       | The cover image path of the post.<br/>1. Start with `http://` or `https://`: Use web image<br/>2. Start with `/`: For image in `public` dir<br/>3. With none of the prefixes: Relative to the markdown file |
 | `tags`        | The tags of the post.                                                                                                                                                                                       |

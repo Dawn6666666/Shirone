@@ -42,6 +42,7 @@
 | `sidebarConfig.ts` | 侧栏编排与 widget 清单（`arrangement` 单/双栏、`side` 主栏物理侧、widget `column` 分栏标签；判别联合类型见 `types/sidebarConfig.ts`；编排指导见 `docs/sidebar-system.md`，组件文档见 `docs/sidebar-widgets.md`，新增 widget checklist 见 `docs/common-components.md` §3.1） |
 | `announcementConfig.ts` | 公告内容（侧栏 announcement widget 消费，text 为空不渲染） |
 | `postListConfig.ts` | 文章列表：分页大小 + 布局（list/grid 模式、封面位置、grid 卡片宽度档位） |
+| `articleConfig.ts` | 文章详情：最后更新提示开关与显示天数阈值 |
 
 ## 侧栏编排与页框宽度
 
