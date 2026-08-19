@@ -45,6 +45,7 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 	class="banner-stage"
 	aria-label={initialLabel}
 	data-copy-mode={initialCopyMode}
+	data-context-motion="idle"
 	data-desktop-images={JSON.stringify(desktopImages)}
 	data-mobile-images={JSON.stringify(mobileImages)}
 	data-carousel-enabled={String(siteConfig.banner.carousel.enable)}
@@ -97,7 +98,11 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 
 <script>
 	import { resolveBannerState, type BannerViewport } from "@utils/banner-state";
-	import { prefersReducedMotion } from "@utils/motion";
+	import {
+		EASING_ACCELERATE,
+		EASING_DECELERATE,
+		prefersReducedMotion,
+	} from "@utils/motion";
 	import { getStoredWallpaperMode } from "@utils/setting-utils";
 	import { WALLPAPER_MODE_CHANGE_EVENT } from "@constants/constants";
 	import type { SidebarPage } from "@/types/sidebarConfig";
@@ -112,6 +117,8 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		subtitlePage: SidebarPage | null;
 		subtitleTimer: number | null;
 		subtitleVisible: boolean;
+		contextAnimation: Animation | null;
+		contextTransitionPending: boolean;
 		titleFitFrame: number | null;
 		timer: number | null;
 	}
@@ -158,6 +165,8 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		subtitlePage: null,
 		subtitleTimer: null,
 		subtitleVisible: false,
+		contextAnimation: null,
+		contextTransitionPending: false,
 		titleFitFrame: null,
 		timer: null,
 	};
@@ -331,6 +340,73 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		}, delay);
 	}
 
+	function canAnimateBannerContext(): boolean {
+		return (
+			currentViewport() === "desktop" &&
+			stage?.hidden === false &&
+			!prefersReducedMotion()
+		);
+	}
+
+	function settleContextAnimation() {
+		runtime.contextAnimation?.cancel();
+		runtime.contextAnimation = null;
+		if (!stage) return;
+		stage.dataset.contextMotion = "idle";
+	}
+
+	function animateContextOut() {
+		runtime.contextTransitionPending = canAnimateBannerContext();
+		settleContextAnimation();
+		if (
+			!runtime.contextTransitionPending ||
+			stage?.dataset.copyMode !== "context" ||
+			!contextTitle
+		)
+			return;
+		const copy = contextTitle.closest<HTMLElement>("[data-banner-context]");
+		if (!copy) return;
+		stage!.dataset.contextMotion = "out";
+		runtime.contextAnimation = copy.animate(
+			[
+				{ opacity: 1, transform: "translate(-50%, -50%) translateY(0)" },
+				{ opacity: 0, transform: "translate(-50%, -50%) translateY(-0.25rem)" },
+			],
+			{
+				duration: readMotionDuration("--m3e-duration-short", 150),
+				easing: EASING_ACCELERATE,
+				fill: "forwards",
+			},
+		);
+	}
+
+	function animateContextIn() {
+		const shouldAnimate =
+			runtime.contextTransitionPending &&
+			canAnimateBannerContext() &&
+			stage?.dataset.copyMode === "context";
+		runtime.contextTransitionPending = false;
+		settleContextAnimation();
+		if (!shouldAnimate || !contextTitle) return;
+		const copy = contextTitle.closest<HTMLElement>("[data-banner-context]");
+		if (!copy) return;
+		stage!.dataset.contextMotion = "in";
+		runtime.contextAnimation = copy.animate(
+			[
+				{ opacity: 0, transform: "translate(-50%, -50%) translateY(0.25rem)" },
+				{ opacity: 1, transform: "translate(-50%, -50%) translateY(0)" },
+			],
+			{
+				duration: readMotionDuration("--m3e-duration-medium", 250),
+				easing: EASING_DECELERATE,
+			},
+		);
+		runtime.contextAnimation.onfinish = settleContextAnimation;
+		runtime.contextAnimation.oncancel = () => {
+			runtime.contextAnimation = null;
+		};
+	}
+
 	function fitContextTitle() {
 		if (!contextTitle || !stage || stage.dataset.copyMode !== "context") return;
 		contextTitle.style.removeProperty("font-size");
@@ -459,35 +535,29 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		else stopRotation();
 	}
 
-	function pageFromUrl(rawUrl: string): SidebarPage | undefined {
-		const target = new URL(rawUrl, window.location.href);
-		const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-		const path = target.pathname.slice(base.length).replace(/^\/|\/$/g, "");
-		if (path === "" || /^\d+$/.test(path)) return "home";
-		return "post";
-	}
-
 	if (stage) {
 		syncBanner();
 		if (!window.__shironeBannerBound) {
 			window.__shironeBannerBound = true;
 			window.addEventListener(WALLPAPER_MODE_CHANGE_EVENT, () => syncBanner());
-			window.addEventListener("resize", scheduleContextTitleFit);
+			window.addEventListener("resize", () => {
+				if (currentViewport() === "desktop" && stage?.hidden === false) {
+					scheduleContextTitleFit();
+				}
+			});
 			window.matchMedia("(min-width: 1024px)").addEventListener("change", () => syncBanner());
 				window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => {
 					syncBanner();
 					if (prefersReducedMotion()) showSubtitleImmediately();
 				});
 			document.addEventListener("visibilitychange", () => syncBanner());
-			document.addEventListener("swup:visit:start", ((event: CustomEvent) => {
-				const url = event.detail?.visit?.to?.url || event.detail?.to?.url;
-				if (url) {
-					const nextPage = pageFromUrl(url);
-					const emptyContext = { title: "", description: "", date: "" };
-					syncBanner(nextPage, nextPage === "home" ? undefined : emptyContext);
-				}
-			}) as EventListener);
-			document.addEventListener("swup:content:replace", () => syncBanner());
+			document.addEventListener("swup:visit:start", () => {
+				animateContextOut();
+			});
+			document.addEventListener("swup:content:replace", () => {
+				syncBanner();
+				animateContextIn();
+			});
 			document.addEventListener("swup:page:view", () => syncBanner());
 			document.fonts?.ready.then(scheduleContextTitleFit);
 		}

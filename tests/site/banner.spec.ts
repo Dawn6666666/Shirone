@@ -570,6 +570,83 @@ test.describe("banner wallpaper", () => {
 		).toBe("preserved");
 	});
 
+	test("animates contextual copy only on motion-enabled desktop navigation", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 1440, height: 1000 });
+		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
+		await waitForBannerState(page, true);
+		await page.waitForFunction(() => Boolean(window.swup?.hooks));
+		await page.evaluate(() => {
+			const stage = document.getElementById("banner-wrapper");
+			if (!stage) return;
+			const states: string[] = [];
+			new MutationObserver(() => {
+				states.push(stage.dataset.contextMotion || "");
+			}).observe(stage, {
+				attributes: true,
+				attributeFilter: ["data-context-motion"],
+			});
+			(window as typeof window & { __bannerMotionStates?: string[] })
+				.__bannerMotionStates = states;
+		});
+
+		await page.locator('#navbar a[href="/friends/"]').click();
+		await page.waitForFunction(
+			() =>
+				document.getElementById("swup-container")?.dataset.currentPage ===
+					"friends",
+		);
+		await page.waitForFunction(() => {
+			const states =
+				(window as typeof window & { __bannerMotionStates?: string[] })
+					.__bannerMotionStates || [];
+			return (
+				states.includes("in") &&
+				document.getElementById("banner-wrapper")?.dataset.contextMotion ===
+					"idle"
+			);
+		});
+		const states = await page.evaluate(
+			() =>
+				(window as typeof window & { __bannerMotionStates?: string[] })
+					.__bannerMotionStates || [],
+		);
+		expect(states).toContain("out");
+		expect(states).toContain("in");
+		expect(states.at(-1)).toBe("idle");
+	});
+
+	test("skips contextual copy animation on mobile and reduced motion", async ({
+		page,
+	}) => {
+		for (const setup of [
+			async () => page.setViewportSize({ width: 390, height: 844 }),
+			async () => {
+				await page.setViewportSize({ width: 1440, height: 1000 });
+				await page.emulateMedia({ reducedMotion: "reduce" });
+			},
+		]) {
+			await setup();
+			await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
+			await page.waitForFunction(() => Boolean(window.swup?.hooks));
+			await page.evaluate(() => {
+				(window.swup as typeof window.swup & { navigate: (url: string) => void }).navigate(
+					"/friends/",
+				);
+			});
+			await page.waitForFunction(
+				() =>
+					document.getElementById("swup-container")?.dataset.currentPage ===
+						"friends",
+			);
+			await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+				"data-context-motion",
+				"idle",
+			);
+		}
+	});
+
 	test("Swup home to post removes mobile wallpaper without leaving a gap", async ({
 		page,
 	}) => {
