@@ -282,6 +282,7 @@ const siteLang = lang.replace("_", "-");
 
 <script>
 import "../utils/code-collapse";
+import { initLastUpdatedNotices } from "../utils/last-updated-notice";
 import {
 	OverlayScrollbars,
 	// ScrollbarsHidingPlugin,
@@ -423,6 +424,7 @@ function init() {
 
 /* Load settings when entering the site */
 init();
+initLastUpdatedNotices();
 
 const setup = () => {
 	// TODO: temp solution to change the height of the banner

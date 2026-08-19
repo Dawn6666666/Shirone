@@ -1,21 +1,28 @@
 ---
 import { render } from "astro:content";
 import path from "node:path";
-import Markdown from "@components/content/Markdown.astro";
 import IconButton from "@components/atoms/action/IconButton.svelte";
-import ImageWrapper from "@components/molecules/ImageWrapper.astro";
-import License from "@components/molecules/License.astro";
-import PostMetadata from "@components/molecules/PostMeta.astro";
 import AccentBar from "@components/atoms/display/AccentBar.svelte";
 import Card from "@components/atoms/display/Card.svelte";
+import Markdown from "@components/content/Markdown.astro";
+import ImageWrapper from "@components/molecules/ImageWrapper.astro";
+import LastUpdatedNotice from "@components/molecules/LastUpdatedNotice.astro";
+import License from "@components/molecules/License.astro";
+import PostMetadata from "@components/molecules/PostMeta.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
-import { licenseConfig, profileConfig, siteConfig } from "@/config";
-import { formatDateToYYYYMMDD } from "../../utils/date-utils";
+import {
+	articleConfig,
+	licenseConfig,
+	profileConfig,
+	resolveLastUpdatedNoticeOptions,
+	siteConfig,
+} from "@/config";
 
 export async function getStaticPaths() {
 	const blogEntries = await getSortedPosts();
@@ -32,6 +39,8 @@ const { remarkPluginFrontmatter } = await render(entry);
 const imageBasePath = entry.filePath
 	? path.relative(path.resolve("src"), path.dirname(entry.filePath))
 	: path.join("content/posts/", getDir(entry.id));
+const effectiveUpdatedDate = entry.data.updated ?? entry.data.published;
+const lastUpdatedNotice = resolveLastUpdatedNoticeOptions(articleConfig);
 
 const jsonLd = {
 	"@context": "https://schema.org",
@@ -45,6 +54,7 @@ const jsonLd = {
 		url: Astro.site,
 	},
 	datePublished: formatDateToYYYYMMDD(entry.data.published),
+	dateModified: formatDateToYYYYMMDD(effectiveUpdatedDate),
 	inLanguage: entry.data.lang
 		? entry.data.lang.replace("_", "-")
 		: siteConfig.lang.replace("_", "-"),
@@ -113,7 +123,6 @@ const jsonLd = {
                 <ImageWrapper id="post-cover" src={entry.data.image} basePath={imageBasePath} class="mb-8 rounded-xl banner-container onload-animation"/>
             }
 
-
             <Markdown class="mb-6 markdown-content onload-animation">
                 <Content />
             </Markdown>
@@ -122,6 +131,14 @@ const jsonLd = {
 
         </Card>
     </div>
+
+    {lastUpdatedNotice && (
+        <LastUpdatedNotice
+            date={effectiveUpdatedDate}
+            minimumAgeDays={lastUpdatedNotice.minimumAgeDays}
+            class="mb-4 onload-animation"
+        />
+    )}
 
     <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full">
         {entry.data.nextSlug ? (

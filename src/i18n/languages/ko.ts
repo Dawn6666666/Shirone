@@ -136,6 +136,8 @@ export const ko: Translation = {
 
 	[Key.author]: "저자",
 	[Key.publishedAt]: "게시일",
+	[Key.lastUpdatedNotice]: "마지막 업데이트: {date} ({days}일 전)",
+	[Key.lastUpdatedWarning]: "일부 내용이 오래되었을 수 있습니다",
 	[Key.license]: "라이선스",
 	[Key.copySuccess]: "클립보드에 복사되었습니다",
 	[Key.copyLink]: "링크 복사",

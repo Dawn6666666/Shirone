@@ -137,6 +137,9 @@ export const id: Translation = {
 
 	[Key.author]: "Penulis",
 	[Key.publishedAt]: "Diterbitkan pada",
+	[Key.lastUpdatedNotice]:
+		"Terakhir diperbarui pada {date}, {days} hari yang lalu",
+	[Key.lastUpdatedWarning]: "Sebagian konten mungkin sudah tidak berlaku",
 	[Key.license]: "Lisensi",
 	[Key.copySuccess]: "Disalin ke papan klip",
 	[Key.copyLink]: "Salin tautan",

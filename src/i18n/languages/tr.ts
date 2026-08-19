@@ -136,6 +136,8 @@ export const tr: Translation = {
 
 	[Key.author]: "Yazar",
 	[Key.publishedAt]: "Yayınlanma:",
+	[Key.lastUpdatedNotice]: "Son güncelleme: {date}, {days} gün önce",
+	[Key.lastUpdatedWarning]: "Bazı içerikler güncelliğini yitirmiş olabilir",
 	[Key.license]: "Lisans",
 	[Key.copySuccess]: "Panoya kopyalandı",
 	[Key.copyLink]: "Bağlantıyı kopyala",

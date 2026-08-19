@@ -136,6 +136,8 @@ export const es: Translation = {
 
 	[Key.author]: "Autor",
 	[Key.publishedAt]: "Publicado el",
+	[Key.lastUpdatedNotice]: "Última actualización el {date}, hace {days} días",
+	[Key.lastUpdatedWarning]: "Parte del contenido puede estar desactualizado",
 	[Key.license]: "Licencia",
 	[Key.copySuccess]: "Copiado al portapapeles",
 	[Key.copyLink]: "Copiar enlace",

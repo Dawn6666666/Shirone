@@ -147,6 +147,8 @@ enum I18nKey {
 
 	author = "author",
 	publishedAt = "publishedAt",
+	lastUpdatedNotice = "lastUpdatedNotice",
+	lastUpdatedWarning = "lastUpdatedWarning",
 	license = "license",
 
 	copySuccess = "copySuccess",

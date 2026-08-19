@@ -133,6 +133,8 @@ export const th: Translation = {
 
 	[Key.author]: "ผู้เขียน",
 	[Key.publishedAt]: "เผยแพร่เมื่อ",
+	[Key.lastUpdatedNotice]: "อัปเดตล่าสุดเมื่อ {date} ผ่านมาแล้ว {days} วัน",
+	[Key.lastUpdatedWarning]: "เนื้อหาบางส่วนอาจล้าสมัย",
 	[Key.license]: "สัญญาอนุญาต",
 	[Key.copySuccess]: "คัดลอกไปยังคลิปบอร์ดแล้ว",
 	[Key.copyLink]: "คัดลอกลิงก์",

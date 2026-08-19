@@ -133,6 +133,8 @@ export const zh_TW: Translation = {
 
 	[Key.author]: "作者",
 	[Key.publishedAt]: "發佈於",
+	[Key.lastUpdatedNotice]: "最後更新於 {date}，距今已過 {days} 天",
+	[Key.lastUpdatedWarning]: "部分內容可能已過時",
 	[Key.license]: "許可協議",
 	[Key.copySuccess]: "已複製到剪貼簿",
 	[Key.copyLink]: "複製連結",

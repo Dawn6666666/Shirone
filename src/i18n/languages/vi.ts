@@ -137,6 +137,8 @@ export const vi: Translation = {
 
 	[Key.author]: "Tác giả",
 	[Key.publishedAt]: "Đăng vào lúc",
+	[Key.lastUpdatedNotice]: "Cập nhật lần cuối vào {date}, cách đây {days} ngày",
+	[Key.lastUpdatedWarning]: "Một số nội dung có thể đã lỗi thời",
 	[Key.license]: "Giấy phép bản quyền",
 	[Key.copySuccess]: "Đã sao chép vào bộ nhớ tạm",
 	[Key.copyLink]: "Sao chép liên kết",

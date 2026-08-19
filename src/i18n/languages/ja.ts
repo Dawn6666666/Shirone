@@ -137,6 +137,8 @@ export const ja: Translation = {
 
 	[Key.author]: "作者",
 	[Key.publishedAt]: "公開日",
+	[Key.lastUpdatedNotice]: "最終更新日: {date}（{days}日前）",
+	[Key.lastUpdatedWarning]: "一部の内容は古くなっている可能性があります",
 	[Key.license]: "ライセンス",
 	[Key.copySuccess]: "クリップボードにコピーしました",
 	[Key.copyLink]: "リンクをコピー",
