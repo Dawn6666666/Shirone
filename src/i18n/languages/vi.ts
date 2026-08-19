@@ -46,7 +46,8 @@ export const vi: Translation = {
 	[Key.compassCounts]: "trang",
 
 	[Key.skills]: "Kỹ năng",
-	[Key.skillsBanner]: "Công nghệ và công cụ để biến ý tưởng thành sản phẩm dễ bảo trì.",
+	[Key.skillsBanner]:
+		"Công nghệ và công cụ để biến ý tưởng thành sản phẩm dễ bảo trì.",
 	[Key.skillsCounts]: "kỹ năng",
 	[Key.skillCategories]: "Danh mục kỹ năng",
 	[Key.skillLevel]: "Mức độ thành thạo",
@@ -55,8 +56,22 @@ export const vi: Translation = {
 	[Key.skillLevelAdvanced]: "Nâng cao",
 	[Key.skillLevelExpert]: "Chuyên gia",
 
+	[Key.projects]: "Dự án",
+	[Key.projectsBanner]:
+		"Những sản phẩm, thử nghiệm và hệ thống được chọn lọc để sử dụng bền lâu.",
+	[Key.projectsCounts]: "dự án",
+	[Key.projectCategories]: "Danh mục dự án",
+	[Key.projectPhaseShipped]: "Đã phát hành",
+	[Key.projectPhaseBuilding]: "Đang xây dựng",
+	[Key.projectPhaseExploring]: "Đang khám phá",
+	[Key.projectVisit]: "Truy cập dự án",
+	[Key.projectSource]: "Xem mã nguồn",
+	[Key.projectTechnologies]: "Công nghệ",
+	[Key.projectsNoResults]: "Không có dự án nào trong danh mục này",
+
 	[Key.albums]: "Album",
-	[Key.albumsBanner]: "Kho lưu trữ hình ảnh về địa điểm, con người và những khoảnh khắc đã qua.",
+	[Key.albumsBanner]:
+		"Kho lưu trữ hình ảnh về địa điểm, con người và những khoảnh khắc đã qua.",
 	[Key.albumsNoResults]: "Không có album nào khớp bộ lọc",
 	[Key.albumsCounts]: "album",
 	[Key.albumsBack]: "Quay lại album",

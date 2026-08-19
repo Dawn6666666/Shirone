@@ -34,6 +34,7 @@ export type SidebarPage =
 	| "anime" // 番剧收藏
 	| "compass" // 站点罗盘
 	| "skills" // 技能
+	| "projects" // 项目
 	| "albums" // 相册
 	| "about" // 关于
 	| "categories" // 分类索引

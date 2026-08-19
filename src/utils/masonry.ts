@@ -18,28 +18,50 @@ export function packMasonry(container: HTMLElement): void {
 	const cards = Array.from(container.children) as HTMLElement[];
 	if (cards.length === 0) return;
 
+	for (const card of cards) {
+		card.style.gridColumnStart = "";
+		card.style.gridColumnEnd = "";
+		card.style.gridRowEnd = "";
+	}
+
 	const colCount = getComputedStyle(container)
 		.gridTemplateColumns.split(" ")
 		.filter(Boolean).length;
 
-	if (colCount <= 1) {
-		for (const card of cards) {
-			card.style.gridColumnStart = "";
-			card.style.gridRowEnd = "";
-		}
-		return;
-	}
+	if (colCount <= 1) return;
 
 	const columnHeights = new Array<number>(colCount).fill(0);
 	for (const card of cards) {
 		const height = card.offsetHeight; // align-items:start → 自然高度
+		const gridColumnEnd = getComputedStyle(card).gridColumnEnd;
+		const spanMatch = gridColumnEnd.match(/span\s+(\d+)/);
+		const dataSpan = Number.parseInt(card.dataset.masonrySpan ?? "", 10);
+		const span = Math.min(
+			Math.max(
+				Number.isFinite(dataSpan)
+					? dataSpan
+					: spanMatch
+						? Number.parseInt(spanMatch[1], 10)
+						: 1,
+				1,
+			),
+			colCount,
+		);
 		let shortest = 0;
-		for (let col = 1; col < colCount; col++) {
-			if (columnHeights[col] < columnHeights[shortest]) shortest = col;
+		let shortestHeight = Number.POSITIVE_INFINITY;
+		for (let col = 0; col <= colCount - span; col++) {
+			const candidateHeight = Math.max(...columnHeights.slice(col, col + span));
+			if (candidateHeight < shortestHeight) {
+				shortest = col;
+				shortestHeight = candidateHeight;
+			}
 		}
 		card.style.gridColumnStart = String(shortest + 1);
+		card.style.gridColumnEnd = `span ${span}`;
 		card.style.gridRowEnd = `span ${Math.ceil((height + ROW_GAP) / ROW_UNIT)}`;
-		columnHeights[shortest] += height + ROW_GAP;
+		for (let col = shortest; col < shortest + span; col++) {
+			columnHeights[col] = shortestHeight + height + ROW_GAP;
+		}
 	}
 }
 

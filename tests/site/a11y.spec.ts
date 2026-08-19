@@ -21,6 +21,7 @@ const pages = [
 	{ name: "番剧", path: "/anime/" },
 	{ name: "站点罗盘", path: "/compass/" },
 	{ name: "技能", path: "/skills/" },
+	{ name: "项目", path: "/projects/" },
 	{ name: "受保护相册", path: "/albums/EncryptedExample/" },
 	{ name: "关于", path: "/about/" },
 	{ name: "文章页", path: "/posts/guide/" },
@@ -48,7 +49,12 @@ const GITHUB_MOCK = {
 	license: { spdx_id: "MIT" },
 };
 
-async function openSitePage(page: import("@playwright/test").Page, path: string, theme: string, layout?: string) {
+async function openSitePage(
+	page: import("@playwright/test").Page,
+	path: string,
+	theme: string,
+	layout?: string,
+) {
 	await page.addInitScript(
 		(entries) => {
 			for (const [key, value] of Object.entries(entries))
@@ -94,7 +100,9 @@ for (const mode of modes) {
 				const isDark = await page.evaluate(() =>
 					document.documentElement.classList.contains("dark"),
 				);
-				expect(isDark, `${p.name} theme should be ${mode.name}`).toBe(mode.dark);
+				expect(isDark, `${p.name} theme should be ${mode.name}`).toBe(
+					mode.dark,
+				);
 				const results = await new AxeBuilder({ page })
 					.disableRules(DISABLED_RULES)
 					.analyze();

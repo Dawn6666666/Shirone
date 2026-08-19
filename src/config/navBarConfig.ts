@@ -1,5 +1,6 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { projectsConfig } from "@/config/projectsConfig";
 import { skillsConfig } from "@/config/skillsConfig";
 import type { NavBarConfig, NavBarLink } from "@/types/navBarConfig";
 
@@ -53,12 +54,18 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		icon: "material-symbols:workspaces-outline-rounded",
 		pageKey: "skills",
 	},
+	Projects: {
+		name: i18n(I18nKey.projects),
+		url: "/projects/",
+		icon: "material-symbols:deployed-code-outline-rounded",
+		pageKey: "projects",
+	},
 	Albums: {
-			name: i18n(I18nKey.albums),
-			url: "/albums/",
-			icon: "material-symbols:photo-library-outline-rounded",
-			pageKey: "albums",
-		},
+		name: i18n(I18nKey.albums),
+		url: "/albums/",
+		icon: "material-symbols:photo-library-outline-rounded",
+		pageKey: "albums",
+	},
 	Categories: {
 		name: i18n(I18nKey.categories),
 		url: "/categories/",
@@ -70,7 +77,8 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		url: "/tags/",
 		icon: "material-symbols:tag-rounded",
 		pageKey: "tags",
-	},	About: {
+	},
+	About: {
 		name: i18n(I18nKey.about),
 		url: "/about/",
 		icon: "material-symbols:info-outline-rounded",
@@ -91,13 +99,14 @@ export const navBarConfig: NavBarConfig = {
 		LinkPresets.Archive,
 		LinkPresets.Friends,
 		LinkPresets.Moments,
-			LinkPresets.Anime,
-			LinkPresets.Compass,
-			LinkPresets.Albums,
-			{
-				name: i18n(I18nKey.more),
+		LinkPresets.Anime,
+		LinkPresets.Compass,
+		LinkPresets.Albums,
+		{
+			name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",
 			children: [
+				...(projectsConfig.enable ? [LinkPresets.Projects] : []),
 				...(skillsConfig.enable ? [LinkPresets.Skills] : []),
 				// 分类/标签入口不进导航菜单（避免菜单项过多），预设已登记指向独立页面，
 				// 需要时取消注释即可

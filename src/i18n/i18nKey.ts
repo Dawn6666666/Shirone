@@ -49,6 +49,18 @@ enum I18nKey {
 	skillLevelAdvanced = "skillLevelAdvanced",
 	skillLevelExpert = "skillLevelExpert",
 
+	projects = "projects",
+	projectsBanner = "projectsBanner",
+	projectsCounts = "projectsCounts",
+	projectCategories = "projectCategories",
+	projectPhaseShipped = "projectPhaseShipped",
+	projectPhaseBuilding = "projectPhaseBuilding",
+	projectPhaseExploring = "projectPhaseExploring",
+	projectVisit = "projectVisit",
+	projectSource = "projectSource",
+	projectTechnologies = "projectTechnologies",
+	projectsNoResults = "projectsNoResults",
+
 	albums = "albums",
 	albumsBanner = "albumsBanner",
 	albumsNoResults = "albumsNoResults",

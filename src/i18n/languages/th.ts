@@ -51,6 +51,18 @@ export const th: Translation = {
 	[Key.skillLevelAdvanced]: "ขั้นสูง",
 	[Key.skillLevelExpert]: "เชี่ยวชาญ",
 
+	[Key.projects]: "โปรเจกต์",
+	[Key.projectsBanner]: "ผลงาน การทดลอง และระบบที่คัดสรรและสร้างขึ้นให้ใช้งานได้ยาวนาน",
+	[Key.projectsCounts]: "โปรเจกต์",
+	[Key.projectCategories]: "หมวดหมู่โปรเจกต์",
+	[Key.projectPhaseShipped]: "เผยแพร่แล้ว",
+	[Key.projectPhaseBuilding]: "กำลังพัฒนา",
+	[Key.projectPhaseExploring]: "กำลังสำรวจ",
+	[Key.projectVisit]: "เยี่ยมชมโปรเจกต์",
+	[Key.projectSource]: "ดูซอร์สโค้ด",
+	[Key.projectTechnologies]: "เทคโนโลยี",
+	[Key.projectsNoResults]: "ไม่พบโปรเจกต์ในหมวดหมู่นี้",
+
 	[Key.albums]: "อัลบั้ม",
 	[Key.albumsBanner]: "คลังภาพของสถานที่ ผู้คน และช่วงเวลาที่ผ่านไป",
 	[Key.albumsNoResults]: "ไม่พบอัลบั้มที่ตรงกับตัวกรอง",

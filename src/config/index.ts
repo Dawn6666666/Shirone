@@ -6,18 +6,20 @@
  * - 存在反向依赖的模块（如 i18n/translation.ts 依赖 siteConfig）只允许从
  *   具体文件导入（`@/config/siteConfig`），禁止走本 barrel，避免循环依赖。
  */
-export { siteConfig, getDefaultSpec, getDefaultStyle } from "./siteConfig";
-export { profileConfig } from "./profileConfig";
-export { licenseConfig } from "./licenseConfig";
-export { expressiveCodeConfig } from "./expressiveCodeConfig";
-export { LinkPresets, navBarConfig } from "./navBarConfig";
-export { sidebarConfig } from "./sidebarConfig";
+
 export { announcementConfig } from "./announcementConfig";
-export { skillsConfig } from "./skillsConfig";
-export { postListConfig, POST_CARD_MIN_WIDTH } from "./postListConfig";
 export {
 	articleConfig,
 	normalizeDiscoveryCount,
 	resolveArticleDiscoveryOptions,
 	resolveLastUpdatedNoticeOptions,
 } from "./articleConfig";
+export { expressiveCodeConfig } from "./expressiveCodeConfig";
+export { licenseConfig } from "./licenseConfig";
+export { LinkPresets, navBarConfig } from "./navBarConfig";
+export { POST_CARD_MIN_WIDTH, postListConfig } from "./postListConfig";
+export { profileConfig } from "./profileConfig";
+export { projectsConfig } from "./projectsConfig";
+export { sidebarConfig } from "./sidebarConfig";
+export { getDefaultSpec, getDefaultStyle, siteConfig } from "./siteConfig";
+export { skillsConfig } from "./skillsConfig";

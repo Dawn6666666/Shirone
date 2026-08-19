@@ -46,7 +46,8 @@ export const id: Translation = {
 	[Key.compassCounts]: "situs",
 
 	[Key.skills]: "Keahlian",
-	[Key.skillsBanner]: "Teknologi dan alat untuk mengubah ide menjadi produk yang mudah dipelihara.",
+	[Key.skillsBanner]:
+		"Teknologi dan alat untuk mengubah ide menjadi produk yang mudah dipelihara.",
 	[Key.skillsCounts]: "keahlian",
 	[Key.skillCategories]: "Kategori keahlian",
 	[Key.skillLevel]: "Kemahiran",
@@ -54,6 +55,19 @@ export const id: Translation = {
 	[Key.skillLevelIntermediate]: "Menengah",
 	[Key.skillLevelAdvanced]: "Mahir",
 	[Key.skillLevelExpert]: "Ahli",
+
+	[Key.projects]: "Proyek",
+	[Key.projectsBanner]:
+		"Karya pilihan, eksperimen, dan sistem yang dibangun untuk bertahan lama.",
+	[Key.projectsCounts]: "proyek",
+	[Key.projectCategories]: "Kategori proyek",
+	[Key.projectPhaseShipped]: "Dirilis",
+	[Key.projectPhaseBuilding]: "Sedang dibuat",
+	[Key.projectPhaseExploring]: "Sedang dieksplorasi",
+	[Key.projectVisit]: "Kunjungi proyek",
+	[Key.projectSource]: "Lihat sumber",
+	[Key.projectTechnologies]: "Teknologi",
+	[Key.projectsNoResults]: "Tidak ada proyek dalam kategori ini",
 
 	[Key.albums]: "Album",
 	[Key.albumsBanner]: "Arsip visual tempat, orang, dan momen yang berlalu.",

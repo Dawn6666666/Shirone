@@ -51,6 +51,18 @@ export const zh_TW: Translation = {
 	[Key.skillLevelAdvanced]: "熟練",
 	[Key.skillLevelExpert]: "精通",
 
+	[Key.projects]: "專案",
+	[Key.projectsBanner]: "持續打磨的作品、實驗與系統。",
+	[Key.projectsCounts]: "個專案",
+	[Key.projectCategories]: "專案分類",
+	[Key.projectPhaseShipped]: "已發佈",
+	[Key.projectPhaseBuilding]: "建置中",
+	[Key.projectPhaseExploring]: "探索中",
+	[Key.projectVisit]: "造訪專案",
+	[Key.projectSource]: "查看原始碼",
+	[Key.projectTechnologies]: "技術棧",
+	[Key.projectsNoResults]: "沒有符合此分類的專案",
+
 	[Key.albums]: "相簿",
 	[Key.albumsBanner]: "記錄地點、人物與流轉瞬間的視覺檔案。",
 	[Key.albumsNoResults]: "沒有符合條件的相簿",

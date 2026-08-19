@@ -45,7 +45,8 @@ export const es: Translation = {
 	[Key.compassCounts]: "sitios",
 
 	[Key.skills]: "Habilidades",
-	[Key.skillsBanner]: "Tecnologías y herramientas para convertir ideas en productos mantenibles.",
+	[Key.skillsBanner]:
+		"Tecnologías y herramientas para convertir ideas en productos mantenibles.",
 	[Key.skillsCounts]: "habilidades",
 	[Key.skillCategories]: "Categorías de habilidades",
 	[Key.skillLevel]: "Dominio",
@@ -54,12 +55,25 @@ export const es: Translation = {
 	[Key.skillLevelAdvanced]: "Avanzado",
 	[Key.skillLevelExpert]: "Experto",
 
+	[Key.projects]: "Proyectos",
+	[Key.projectsBanner]:
+		"Trabajos, experimentos y sistemas seleccionados para perdurar.",
+	[Key.projectsCounts]: "proyectos",
+	[Key.projectCategories]: "Categorías de proyectos",
+	[Key.projectPhaseShipped]: "Publicado",
+	[Key.projectPhaseBuilding]: "En desarrollo",
+	[Key.projectPhaseExploring]: "En exploración",
+	[Key.projectVisit]: "Visitar proyecto",
+	[Key.projectSource]: "Ver código",
+	[Key.projectTechnologies]: "Tecnologías",
+	[Key.projectsNoResults]: "Ningún proyecto coincide con esta categoría",
+
 	[Key.albums]: "Álbumes",
 	[Key.albumsBanner]: "Un archivo visual de lugares, personas y momentos.",
 	[Key.albumsNoResults]: "Ningún álbum coincide con tus filtros",
-		[Key.albumsCounts]: "álbumes",
-		[Key.albumsBack]: "Volver a álbumes",
-		[Key.albumsPhotos]: "fotos",
+	[Key.albumsCounts]: "álbumes",
+	[Key.albumsBack]: "Volver a álbumes",
+	[Key.albumsPhotos]: "fotos",
 	[Key.albumPasswordTitle]: "Este álbum está protegido",
 	[Key.albumPasswordDescription]: "Introduce la contraseña para ver sus fotos.",
 	[Key.albumPasswordLabel]: "Contraseña",

@@ -51,6 +51,18 @@ export const zh_CN: Translation = {
 	[Key.skillLevelAdvanced]: "熟练",
 	[Key.skillLevelExpert]: "精通",
 
+	[Key.projects]: "项目",
+	[Key.projectsBanner]: "持续打磨的作品、实验与系统。",
+	[Key.projectsCounts]: "个项目",
+	[Key.projectCategories]: "项目分类",
+	[Key.projectPhaseShipped]: "已发布",
+	[Key.projectPhaseBuilding]: "构建中",
+	[Key.projectPhaseExploring]: "探索中",
+	[Key.projectVisit]: "访问项目",
+	[Key.projectSource]: "查看源码",
+	[Key.projectTechnologies]: "技术栈",
+	[Key.projectsNoResults]: "没有符合该分类的项目",
+
 	[Key.albums]: "相册",
 	[Key.albumsBanner]: "记录地点、人物与流转瞬间的视觉档案。",
 	[Key.albumsNoResults]: "没有符合条件的相册",

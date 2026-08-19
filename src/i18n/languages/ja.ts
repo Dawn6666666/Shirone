@@ -46,7 +46,8 @@ export const ja: Translation = {
 	[Key.compassCounts]: "個のサイト",
 
 	[Key.skills]: "スキル",
-	[Key.skillsBanner]: "アイデアを保守しやすいプロダクトにするための技術とツール。",
+	[Key.skillsBanner]:
+		"アイデアを保守しやすいプロダクトにするための技術とツール。",
 	[Key.skillsCounts]: "個のスキル",
 	[Key.skillCategories]: "スキルカテゴリ",
 	[Key.skillLevel]: "習熟度",
@@ -55,6 +56,18 @@ export const ja: Translation = {
 	[Key.skillLevelAdvanced]: "上級",
 	[Key.skillLevelExpert]: "エキスパート",
 
+	[Key.projects]: "プロジェクト",
+	[Key.projectsBanner]: "長く使えるように作った作品、実験、システム。",
+	[Key.projectsCounts]: "件のプロジェクト",
+	[Key.projectCategories]: "プロジェクトカテゴリ",
+	[Key.projectPhaseShipped]: "リリース済み",
+	[Key.projectPhaseBuilding]: "開発中",
+	[Key.projectPhaseExploring]: "検討中",
+	[Key.projectVisit]: "プロジェクトを見る",
+	[Key.projectSource]: "ソースを見る",
+	[Key.projectTechnologies]: "使用技術",
+	[Key.projectsNoResults]: "このカテゴリに一致するプロジェクトはありません",
+
 	[Key.albums]: "アルバム",
 	[Key.albumsBanner]: "場所、人、過ぎゆく瞬間を集めたビジュアルアーカイブ。",
 	[Key.albumsNoResults]: "条件に合うアルバムがありません",
@@ -62,7 +75,8 @@ export const ja: Translation = {
 	[Key.albumsBack]: "アルバムに戻る",
 	[Key.albumsPhotos]: "枚",
 	[Key.albumPasswordTitle]: "このアルバムは保護されています",
-	[Key.albumPasswordDescription]: "写真を見るにはパスワードを入力してください。",
+	[Key.albumPasswordDescription]:
+		"写真を見るにはパスワードを入力してください。",
 	[Key.albumPasswordLabel]: "パスワード",
 	[Key.albumPasswordShow]: "パスワードを表示",
 	[Key.albumPasswordHide]: "パスワードを隠す",

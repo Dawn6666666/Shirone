@@ -29,7 +29,9 @@ export function resolvePageKey(
 	if (pathname === "/anime") return "anime";
 	if (pathname === "/compass") return "compass";
 	if (pathname === "/skills") return "skills";
-	if (pathname === "/albums" || pathname.startsWith("/albums/")) return "albums";
+	if (pathname === "/projects") return "projects";
+	if (pathname === "/albums" || pathname.startsWith("/albums/"))
+		return "albums";
 	if (pathname === "/about") return "about";
 	return "";
 }

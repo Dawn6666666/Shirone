@@ -45,7 +45,8 @@ export const tr: Translation = {
 	[Key.compassCounts]: "site",
 
 	[Key.skills]: "Beceriler",
-	[Key.skillsBanner]: "Fikirleri sürdürülebilir ürünlere dönüştürmek için kullandığım teknolojiler ve araçlar.",
+	[Key.skillsBanner]:
+		"Fikirleri sürdürülebilir ürünlere dönüştürmek için kullandığım teknolojiler ve araçlar.",
 	[Key.skillsCounts]: "beceri",
 	[Key.skillCategories]: "Beceri kategorileri",
 	[Key.skillLevel]: "Yetkinlik",
@@ -53,6 +54,19 @@ export const tr: Translation = {
 	[Key.skillLevelIntermediate]: "Orta",
 	[Key.skillLevelAdvanced]: "İleri",
 	[Key.skillLevelExpert]: "Uzman",
+
+	[Key.projects]: "Projeler",
+	[Key.projectsBanner]:
+		"Uzun ömürlü olacak şekilde geliştirilen seçilmiş işler, deneyler ve sistemler.",
+	[Key.projectsCounts]: "proje",
+	[Key.projectCategories]: "Proje kategorileri",
+	[Key.projectPhaseShipped]: "Yayında",
+	[Key.projectPhaseBuilding]: "Geliştiriliyor",
+	[Key.projectPhaseExploring]: "Keşfediliyor",
+	[Key.projectVisit]: "Projeyi ziyaret et",
+	[Key.projectSource]: "Kaynak kodu görüntüle",
+	[Key.projectTechnologies]: "Teknolojiler",
+	[Key.projectsNoResults]: "Bu kategoriyle eşleşen proje yok",
 
 	[Key.albums]: "Albümler",
 	[Key.albumsBanner]: "Yerlerin, insanların ve geçen anların görsel arşivi.",

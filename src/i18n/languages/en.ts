@@ -46,7 +46,8 @@ export const en: Translation = {
 	[Key.compassCounts]: "sites",
 
 	[Key.skills]: "Skills",
-	[Key.skillsBanner]: "Technologies and tools I use to turn ideas into maintainable products.",
+	[Key.skillsBanner]:
+		"Technologies and tools I use to turn ideas into maintainable products.",
 	[Key.skillsCounts]: "skills",
 	[Key.skillCategories]: "Skill categories",
 	[Key.skillLevel]: "Proficiency",
@@ -54,6 +55,19 @@ export const en: Translation = {
 	[Key.skillLevelIntermediate]: "Intermediate",
 	[Key.skillLevelAdvanced]: "Advanced",
 	[Key.skillLevelExpert]: "Expert",
+
+	[Key.projects]: "Projects",
+	[Key.projectsBanner]:
+		"Selected work, experiments, and systems built to last.",
+	[Key.projectsCounts]: "projects",
+	[Key.projectCategories]: "Project categories",
+	[Key.projectPhaseShipped]: "Shipped",
+	[Key.projectPhaseBuilding]: "Building",
+	[Key.projectPhaseExploring]: "Exploring",
+	[Key.projectVisit]: "Visit project",
+	[Key.projectSource]: "View source",
+	[Key.projectTechnologies]: "Technologies",
+	[Key.projectsNoResults]: "No projects matched this category",
 
 	[Key.albums]: "Albums",
 	[Key.albumsBanner]: "A visual archive of places, people and passing moments.",

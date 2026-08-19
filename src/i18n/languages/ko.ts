@@ -45,7 +45,8 @@ export const ko: Translation = {
 	[Key.compassCounts]: "개 사이트",
 
 	[Key.skills]: "기술",
-	[Key.skillsBanner]: "아이디어를 유지보수 가능한 제품으로 만드는 기술과 도구입니다.",
+	[Key.skillsBanner]:
+		"아이디어를 유지보수 가능한 제품으로 만드는 기술과 도구입니다.",
 	[Key.skillsCounts]: "개 기술",
 	[Key.skillCategories]: "기술 카테고리",
 	[Key.skillLevel]: "숙련도",
@@ -53,6 +54,18 @@ export const ko: Translation = {
 	[Key.skillLevelIntermediate]: "중급",
 	[Key.skillLevelAdvanced]: "고급",
 	[Key.skillLevelExpert]: "전문가",
+
+	[Key.projects]: "프로젝트",
+	[Key.projectsBanner]: "오래 사용할 수 있도록 만든 작업, 실험, 시스템입니다.",
+	[Key.projectsCounts]: "개 프로젝트",
+	[Key.projectCategories]: "프로젝트 카테고리",
+	[Key.projectPhaseShipped]: "출시됨",
+	[Key.projectPhaseBuilding]: "개발 중",
+	[Key.projectPhaseExploring]: "탐색 중",
+	[Key.projectVisit]: "프로젝트 방문",
+	[Key.projectSource]: "소스 보기",
+	[Key.projectTechnologies]: "기술",
+	[Key.projectsNoResults]: "이 카테고리에 해당하는 프로젝트가 없습니다",
 
 	[Key.albums]: "앨범",
 	[Key.albumsBanner]: "장소와 사람, 스쳐 가는 순간을 담은 시각 아카이브입니다.",
