@@ -9,9 +9,12 @@
 
 export { announcementConfig } from "./announcementConfig";
 export {
+	type ArticleDiscoveryOptions,
+	type ArticleShareOptions,
 	articleConfig,
 	normalizeDiscoveryCount,
 	resolveArticleDiscoveryOptions,
+	resolveArticleShareOptions,
 	resolveLastUpdatedNoticeOptions,
 } from "./articleConfig";
 export { expressiveCodeConfig } from "./expressiveCodeConfig";

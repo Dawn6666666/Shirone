@@ -74,8 +74,7 @@ export const vi: Translation = {
 		"Hành trình phát triển, các cột mốc và khoảnh khắc đáng nhớ.",
 	[Key.timelineCounts]: "cột mốc",
 	[Key.timelineCategories]: "Danh mục dòng thời gian",
-	[Key.timelineNoResults]:
-		"Không có sự kiện nào phù hợp với danh mục này",
+	[Key.timelineNoResults]: "Không có sự kiện nào phù hợp với danh mục này",
 
 	[Key.albums]: "Album",
 	[Key.albumsBanner]:
@@ -188,6 +187,19 @@ export const vi: Translation = {
 	[Key.randomReadingSubtitle]: "Một lựa chọn ổn định từ các bài viết khác",
 	[Key.copySuccess]: "Đã sao chép vào bộ nhớ tạm",
 	[Key.copyLink]: "Sao chép liên kết",
+	[Key.copyFailed]: "Sao chép liên kết thất bại. Vui lòng sao chép thủ công.",
+
+	[Key.shareArticle]: "Chia sẻ bài viết",
+	[Key.shareArticleDescription]:
+		"Tạo ảnh chia sẻ hoặc sao chép liên kết bài viết.",
+	[Key.generateSharePoster]: "Tạo ảnh chia sẻ",
+	[Key.generatingSharePoster]: "Đang tạo ảnh chia sẻ...",
+	[Key.sharePosterPreviewAlt]: "Xem trước ảnh chia sẻ cho {title}",
+	[Key.downloadSharePoster]: "Tải ảnh về",
+	[Key.sharePosterFailed]: "Tạo ảnh chia sẻ thất bại. Vui lòng thử lại.",
+	[Key.retry]: "Thử lại",
+	[Key.close]: "Đóng",
+	[Key.scanToRead]: "Quét mã để đọc bài viết",
 
 	[Key.reduceMotion]: "Giảm chuyển động",
 	[Key.wallpaperMode]: "Nền trang",

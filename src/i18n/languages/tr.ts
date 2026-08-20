@@ -186,6 +186,20 @@ export const tr: Translation = {
 	[Key.randomReadingSubtitle]: "Diğer yazılardan tutarlı bir seçim",
 	[Key.copySuccess]: "Panoya kopyalandı",
 	[Key.copyLink]: "Bağlantıyı kopyala",
+	[Key.copyFailed]: "Bağlantı kopyalanamadı. Lütfen manuel kopyalayın.",
+
+	[Key.shareArticle]: "Makaleyi Paylaş",
+	[Key.shareArticleDescription]:
+		"Paylaşım görseli oluşturun veya bağlantıyı kopyalayın.",
+	[Key.generateSharePoster]: "Paylaşım Görseli Oluştur",
+	[Key.generatingSharePoster]: "Paylaşım görseli oluşturuluyor...",
+	[Key.sharePosterPreviewAlt]: "{title} için paylaşım görseli önizlemesi",
+	[Key.downloadSharePoster]: "Görseli İndir",
+	[Key.sharePosterFailed]:
+		"Paylaşım görseli oluşturulamadı. Lütfen tekrar deneyin.",
+	[Key.retry]: "Tekrar Dene",
+	[Key.close]: "Kapat",
+	[Key.scanToRead]: "Makaleyi okumak için tara",
 
 	[Key.reduceMotion]: "Hareketi azalt",
 	[Key.wallpaperMode]: "Sayfa arka planı",

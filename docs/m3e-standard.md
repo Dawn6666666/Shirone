@@ -295,6 +295,8 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/components/molecules/LastUpdatedNotice.astro` | 文章最后更新提示（SSR 语义化日期 + UTC 日历天数），由 `src/utils/last-updated-notice.ts` 在首屏及 Swup 换页后校正 |
 | `src/components/molecules/ArticleDiscoveryItem.astro` | 文章内部延伸阅读链接行：使用 AccentBar、SSR 图标与整行状态层，按主题关联/稳定随机轨道映射 primary/tertiary 语义角色，无嵌套 Card、无客户端水合 |
 | `src/components/organisms/ArticleDiscovery.astro` | 文章主 Card 内的延伸阅读编排：接收页面构建期选好的相关文章与随机文章，以分隔线和语义列表承接正文，随 Swup 主内容整体替换 |
+| `src/components/organisms/ArticleShare.svelte` | 文章主 Card 内的分享编排：链接复制、海报生成中状态、预览与下载 |
+| `src/utils/share-poster.ts` | 分享海报生成底层工具：动态按需加载 qrcode、读取当前主题色快照、Canvas 2D 绘制固定宽度、内容高度的海报并输出 PNG Blob |
 | `src/components/organisms/MomentSection.svelte` | 动态页主体（搜索/标签筛选/加载更多 + Fancybox 接线） |
 | `src/components/molecules/SkillCard.svelte` | 技能单项展示：图标、说明、离散等级标签与四段语义化 meter，不使用伪精确百分比 |
 | `src/components/organisms/SkillSection.svelte` | 技能页编排：消费 `skillsConfig` 传入的数据，过滤关闭项并提供分类 chips 筛选 |

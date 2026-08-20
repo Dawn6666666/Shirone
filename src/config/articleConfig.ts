@@ -24,6 +24,12 @@ export const articleConfig: ArticleConfig = {
 			count: 2,
 		},
 	},
+	share: {
+		// 关闭后不渲染文章尾部的分享区块，不引入客户端水合。
+		enable: true,
+		// 生成海报时是否默认包含文章封面（封面不可用时自动降级为无封面排版）。
+		includeCover: true,
+	},
 };
 
 const MAX_DISCOVERY_COUNT = 6;
@@ -31,6 +37,10 @@ const MAX_DISCOVERY_COUNT = 6;
 export interface ArticleDiscoveryOptions {
 	relatedCount: number;
 	randomCount: number;
+}
+
+export interface ArticleShareOptions {
+	includeCover: boolean;
 }
 
 export function normalizeDiscoveryCount(value: number): number {
@@ -54,6 +64,13 @@ export function resolveArticleDiscoveryOptions(
 	return relatedCount > 0 || randomCount > 0
 		? { relatedCount, randomCount }
 		: null;
+}
+
+export function resolveArticleShareOptions(
+	config: Pick<ArticleConfig, "share">,
+): ArticleShareOptions | null {
+	if (!config.share.enable) return null;
+	return { includeCover: config.share.includeCover };
 }
 
 export function resolveLastUpdatedNoticeOptions(

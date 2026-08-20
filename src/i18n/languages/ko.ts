@@ -183,6 +183,19 @@ export const ko: Translation = {
 	[Key.randomReadingSubtitle]: "다른 글에서 일관된 기준으로 선정",
 	[Key.copySuccess]: "클립보드에 복사되었습니다",
 	[Key.copyLink]: "링크 복사",
+	[Key.copyFailed]: "링크 복사에 실패했습니다. 직접 복사해 주세요.",
+
+	[Key.shareArticle]: "게시글 공유",
+	[Key.shareArticleDescription]:
+		"공유 카드를 생성하거나 링크를 복사하여 공유하세요.",
+	[Key.generateSharePoster]: "공유 카드 생성",
+	[Key.generatingSharePoster]: "공유 카드를 생성하는 중...",
+	[Key.sharePosterPreviewAlt]: "「{title}」 공유 카드 미리보기",
+	[Key.downloadSharePoster]: "이미지 다운로드",
+	[Key.sharePosterFailed]: "공유 카드 생성에 실패했습니다. 다시 시도해 주세요.",
+	[Key.retry]: "다시 시도",
+	[Key.close]: "닫기",
+	[Key.scanToRead]: "QR 코드로 글 읽기",
 
 	[Key.reduceMotion]: "동작 줄이기",
 	[Key.wallpaperMode]: "페이지 배경",

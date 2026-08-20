@@ -179,6 +179,18 @@ export const zh_CN: Translation = {
 	[Key.randomReadingSubtitle]: "从其他文章中稳定抽取",
 	[Key.copySuccess]: "已复制到剪贴板",
 	[Key.copyLink]: "复制链接",
+	[Key.copyFailed]: "复制失败，请手动复制",
+
+	[Key.shareArticle]: "分享文章",
+	[Key.shareArticleDescription]: "生成精美分享图或复制链接，与更多人分享本文。",
+	[Key.generateSharePoster]: "生成分享海报",
+	[Key.generatingSharePoster]: "正在生成分享图...",
+	[Key.sharePosterPreviewAlt]: "文章《{title}》的分享海报预览",
+	[Key.downloadSharePoster]: "下载分享图",
+	[Key.sharePosterFailed]: "分享图生成失败，请重试",
+	[Key.retry]: "重试",
+	[Key.close]: "关闭",
+	[Key.scanToRead]: "扫码阅读全文",
 
 	[Key.reduceMotion]: "减少动态效果",
 	[Key.wallpaperMode]: "页面背景",

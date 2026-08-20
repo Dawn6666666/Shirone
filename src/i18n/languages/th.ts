@@ -64,8 +64,7 @@ export const th: Translation = {
 	[Key.projectsNoResults]: "ไม่พบโปรเจกต์ในหมวดหมู่นี้",
 
 	[Key.timeline]: "ไทม์ไลน์",
-	[Key.timelineBanner]:
-		"เส้นทางการเติบโต เหตุการณ์สำคัญ และบันทึกหมุดหมายชีวิต",
+	[Key.timelineBanner]: "เส้นทางการเติบโต เหตุการณ์สำคัญ และบันทึกหมุดหมายชีวิต",
 	[Key.timelineCounts]: "หมุดหมาย",
 	[Key.timelineCategories]: "หมวดหมู่ไทม์ไลน์",
 	[Key.timelineNoResults]: "ไม่พบรายการที่ตรงกับหมวดหมู่นี้",
@@ -180,6 +179,18 @@ export const th: Translation = {
 	[Key.randomReadingSubtitle]: "คัดเลือกจากบทความอื่นด้วยเกณฑ์ที่คงที่",
 	[Key.copySuccess]: "คัดลอกไปยังคลิปบอร์ดแล้ว",
 	[Key.copyLink]: "คัดลอกลิงก์",
+	[Key.copyFailed]: "คัดลอกลิงก์ไม่สำเร็จ โปรดคัดลอกด้วยตนเอง",
+
+	[Key.shareArticle]: "แชร์บทความ",
+	[Key.shareArticleDescription]: "สร้างรูปภาพแชร์หรือคัดลอกลิงก์เพื่อส่งต่อบทความนี้",
+	[Key.generateSharePoster]: "สร้างรูปภาพแชร์",
+	[Key.generatingSharePoster]: "กำลังสร้างรูปภาพแชร์...",
+	[Key.sharePosterPreviewAlt]: "ตัวอย่างรูปภาพแชร์สำหรับ {title}",
+	[Key.downloadSharePoster]: "ดาวน์โหลดรูปภาพ",
+	[Key.sharePosterFailed]: "สร้างรูปภาพแชร์ไม่สำเร็จ โปรดลองอีกครั้ง",
+	[Key.retry]: "ลองอีกครั้ง",
+	[Key.close]: "ปิด",
+	[Key.scanToRead]: "สแกนเพื่ออ่านบทความ",
 
 	[Key.reduceMotion]: "ลดการเคลื่อนไหว",
 	[Key.wallpaperMode]: "พื้นหลังหน้า",

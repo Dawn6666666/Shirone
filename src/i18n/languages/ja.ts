@@ -69,12 +69,10 @@ export const ja: Translation = {
 	[Key.projectsNoResults]: "このカテゴリに一致するプロジェクトはありません",
 
 	[Key.timeline]: "タイムライン",
-	[Key.timelineBanner]:
-		"成長の軌跡、重要な経験、そしてマイルストーンの記録。",
+	[Key.timelineBanner]: "成長の軌跡、重要な経験、そしてマイルストーンの記録。",
 	[Key.timelineCounts]: "件のマイルストーン",
 	[Key.timelineCategories]: "タイムラインカテゴリ",
-	[Key.timelineNoResults]:
-		"このカテゴリに一致するマイルストーンはありません",
+	[Key.timelineNoResults]: "このカテゴリに一致するマイルストーンはありません",
 
 	[Key.albums]: "アルバム",
 	[Key.albumsBanner]: "場所、人、過ぎゆく瞬間を集めたビジュアルアーカイブ。",
@@ -187,6 +185,20 @@ export const ja: Translation = {
 	[Key.randomReadingSubtitle]: "ほかの記事から一貫した基準で選出",
 	[Key.copySuccess]: "クリップボードにコピーしました",
 	[Key.copyLink]: "リンクをコピー",
+	[Key.copyFailed]: "リンクのコピーに失敗しました。手動でコピーしてください。",
+
+	[Key.shareArticle]: "記事をシェア",
+	[Key.shareArticleDescription]:
+		"シェアカードを生成するかリンクをコピーして、みんなと共有しましょう。",
+	[Key.generateSharePoster]: "シェアカードを生成",
+	[Key.generatingSharePoster]: "シェアカードを生成中...",
+	[Key.sharePosterPreviewAlt]: "「{title}」のシェアカードプレビュー",
+	[Key.downloadSharePoster]: "画像を保存",
+	[Key.sharePosterFailed]:
+		"シェアカードの生成に失敗しました。再試行してください。",
+	[Key.retry]: "再試行",
+	[Key.close]: "閉じる",
+	[Key.scanToRead]: "QRコードで続きを読む",
 
 	[Key.reduceMotion]: "動きを減らす",
 	[Key.wallpaperMode]: "ページ背景",

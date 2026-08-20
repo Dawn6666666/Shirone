@@ -185,6 +185,19 @@ export const es: Translation = {
 	[Key.randomReadingSubtitle]: "Una selección estable de otros artículos",
 	[Key.copySuccess]: "Copiado al portapapeles",
 	[Key.copyLink]: "Copiar enlace",
+	[Key.copyFailed]: "Error al copiar el enlace. Cópialo manualmente.",
+
+	[Key.shareArticle]: "Compartir artículo",
+	[Key.shareArticleDescription]:
+		"Genera una tarjeta para compartir o copia el enlace.",
+	[Key.generateSharePoster]: "Generar tarjeta de compartir",
+	[Key.generatingSharePoster]: "Generando tarjeta de compartir...",
+	[Key.sharePosterPreviewAlt]: "Vista previa de la tarjeta para {title}",
+	[Key.downloadSharePoster]: "Descargar imagen",
+	[Key.sharePosterFailed]: "No se pudo generar la tarjeta. Inténtalo de nuevo.",
+	[Key.retry]: "Reintentar",
+	[Key.close]: "Cerrar",
+	[Key.scanToRead]: "Escanear para leer el artículo",
 
 	[Key.reduceMotion]: "Reducir movimiento",
 	[Key.wallpaperMode]: "Fondo de página",

@@ -70,8 +70,7 @@ export const en: Translation = {
 	[Key.projectsNoResults]: "No projects matched this category",
 
 	[Key.timeline]: "Timeline",
-	[Key.timelineBanner]:
-		"Growth trajectory, milestones, and memorable moments.",
+	[Key.timelineBanner]: "Growth trajectory, milestones, and memorable moments.",
 	[Key.timelineCounts]: "milestones",
 	[Key.timelineCategories]: "Timeline categories",
 	[Key.timelineNoResults]: "No timeline events matched this category",
@@ -186,6 +185,19 @@ export const en: Translation = {
 	[Key.randomReadingSubtitle]: "A consistent pick from other articles",
 	[Key.copySuccess]: "Copied to clipboard",
 	[Key.copyLink]: "Copy link",
+	[Key.copyFailed]: "Failed to copy link. Please copy manually.",
+
+	[Key.shareArticle]: "Share Article",
+	[Key.shareArticleDescription]:
+		"Generate a share poster or copy the link to share this article.",
+	[Key.generateSharePoster]: "Generate Share Poster",
+	[Key.generatingSharePoster]: "Generating share poster...",
+	[Key.sharePosterPreviewAlt]: "Share poster preview for {title}",
+	[Key.downloadSharePoster]: "Download Image",
+	[Key.sharePosterFailed]: "Failed to generate share poster. Please retry.",
+	[Key.retry]: "Retry",
+	[Key.close]: "Close",
+	[Key.scanToRead]: "Scan to read article",
 
 	[Key.reduceMotion]: "Reduce motion",
 	[Key.wallpaperMode]: "Page background",

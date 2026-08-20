@@ -42,7 +42,7 @@
 | `sidebarConfig.ts` | 侧栏编排与 widget 清单（`arrangement` 单/双栏、`side` 主栏物理侧、widget `column` 分栏标签；判别联合类型见 `types/sidebarConfig.ts`；编排指导见 `docs/sidebar-system.md`，组件文档见 `docs/sidebar-widgets.md`，新增 widget checklist 见 `docs/common-components.md` §3.1） |
 | `announcementConfig.ts` | 公告内容（侧栏 announcement widget 消费，text 为空不渲染） |
 | `postListConfig.ts` | 文章列表：分页大小 + 布局（list/grid 模式、封面位置、grid 卡片宽度档位） |
-| `articleConfig.ts` | 文章详情：最后更新提示，以及文章尾部延伸阅读的总开关、相关文章/随机文章独立开关与数量；随机文章按当前 slug 稳定抽样，同一构建结果可复现 |
+| `articleConfig.ts` | 文章详情：最后更新提示、延伸阅读（相关/随机文章抽样）、以及文章尾部分享区块（总开关、海报生成与封面配置） |
 | `skillsConfig.ts` | 技能页：页面总开关、分类清单、技能数据、单项开关与离散熟练度；关闭页面时导航入口同步隐藏 |
 | `projectsConfig.ts` | 项目页：页面总开关、分类清单、项目阶段、技术栈、封面（可选，无封面回退图标瓷砖）与外部链接；关闭页面时导航入口同步隐藏 |
 | `timelineConfig.ts` | 时间线页：页面总开关、分类清单、事件/里程碑节点数据、单项开关与重点标记；关闭页面时导航入口同步隐藏 |

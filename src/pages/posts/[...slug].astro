@@ -13,7 +13,9 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import ArticleDiscovery from "@components/organisms/ArticleDiscovery.astro";
+import ArticleShare from "@components/organisms/ArticleShare.svelte";
 import { discoverArticles } from "@utils/article-discovery";
+import { resolveAsset } from "@utils/asset-utils";
 import { getSortedPosts } from "@utils/content-utils";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
@@ -23,6 +25,7 @@ import {
 	licenseConfig,
 	profileConfig,
 	resolveArticleDiscoveryOptions,
+	resolveArticleShareOptions,
 	resolveLastUpdatedNoticeOptions,
 	siteConfig,
 } from "@/config";
@@ -65,6 +68,10 @@ const imageBasePath = entry.filePath
 	: path.join("content/posts/", getDir(entry.id));
 const effectiveUpdatedDate = entry.data.updated ?? entry.data.published;
 const lastUpdatedNotice = resolveLastUpdatedNoticeOptions(articleConfig);
+const shareOptions = resolveArticleShareOptions(articleConfig);
+const authorAvatarUrl = shareOptions
+	? await resolveAsset(profileConfig.avatar ?? "")
+	: "";
 
 const jsonLd = {
 	"@context": "https://schema.org",
@@ -152,6 +159,22 @@ const jsonLd = {
             </Markdown>
 
 			{licenseConfig.enable && <License title={entry.data.title} slug={entry.id} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
+
+			{shareOptions && (
+				<ArticleShare
+					client:visible
+					options={shareOptions}
+					title={entry.data.title}
+					description={entry.data.description || entry.data.title}
+					author={profileConfig.name}
+					published={formatDateToYYYYMMDD(entry.data.published)}
+					siteTitle={siteConfig.title}
+					postPath={getPostUrlBySlug(entry.id)}
+					coverSelector={entry.data.image ? "#post-cover img" : undefined}
+					avatarUrl={authorAvatarUrl}
+					class="mb-6 rounded-xl onload-animation"
+				/>
+			)}
 
 			<ArticleDiscovery
 				related={discovery.related}

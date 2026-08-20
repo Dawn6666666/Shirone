@@ -22,4 +22,10 @@ export interface ArticleConfig {
 			count: number;
 		};
 	};
+	share: {
+		/** 是否启用文章分享与海报生成。 */
+		enable: boolean;
+		/** 分享海报是否默认包含文章封面（封面不可用时自动降级为无封面排版）。 */
+		includeCover: boolean;
+	};
 }

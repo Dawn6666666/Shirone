@@ -4,15 +4,22 @@
  * background inertness, and the browser focus trap.
  */
 import { prefersReducedMotion } from "@utils/motion";
+import Icon from "@iconify/svelte";
 import { tick } from "svelte";
 
 let {
 	open = $bindable(false),
 	title = "",
+	showCloseButton = true,
+	children,
+	actions,
 	class: className = "",
 }: {
 	open?: boolean;
 	title?: string;
+	showCloseButton?: boolean;
+	children?: import("svelte").Snippet;
+	actions?: import("svelte").Snippet;
 	class?: string;
 } = $props();
 
@@ -94,15 +101,33 @@ $effect(() => {
 		onclick={onBackdropClick}
 		onanimationend={onAnimationEnd}
 	>
-		{#if title}
-			<div class="m3-dialog__title">{title}</div>
+		{#if title || showCloseButton}
+			<div class="m3-dialog__header">
+				{#if title}
+					<div class="m3-dialog__title">{title}</div>
+				{/if}
+				{#if showCloseButton}
+					<button
+						type="button"
+						class="m3-dialog__close-btn m3-state-layer"
+						aria-label="Close"
+						onclick={close}
+					>
+						<Icon icon="material-symbols:close-rounded" />
+					</button>
+				{/if}
+			</div>
 		{/if}
-		<div class="m3-dialog__content">
-			<slot />
-		</div>
-		<div class="m3-dialog__actions">
-			<slot name="actions" />
-		</div>
+		{#if children}
+			<div class="m3-dialog__content">
+				{@render children()}
+			</div>
+		{/if}
+		{#if actions}
+			<div class="m3-dialog__actions">
+				{@render actions()}
+			</div>
+		{/if}
 	</dialog>
 {/if}
 
@@ -137,10 +162,40 @@ $effect(() => {
 	&.closing::backdrop
 		animation: m3-dialog-fade-out var(--m3e-duration-medium) var(--m3e-easing-standard) forwards
 
+	&__header
+		display: flex
+		align-items: center
+		justify-content: space-between
+		gap: 1rem
+		margin-bottom: 1rem
+
 	&__title
 		font: var(--m3e-type-headline-small)
 		color: var(--on-surface)
-		margin-bottom: 1rem
+		margin-bottom: 0
+
+	&__close-btn
+		display: inline-flex
+		align-items: center
+		justify-content: center
+		width: 2.25rem
+		height: 2.25rem
+		padding: 0
+		border: none
+		border-radius: var(--shape-corner-full)
+		background: transparent
+		color: var(--on-surface-variant)
+		cursor: pointer
+		flex-shrink: 0
+		margin-left: auto
+		--m3e-state-color: var(--on-surface)
+		transition:
+			background-color var(--m3e-duration-short) var(--m3e-easing-standard),
+			color var(--m3e-duration-short) var(--m3e-easing-standard)
+
+		> :global(svg)
+			width: 1.25rem
+			height: 1.25rem
 
 	&__content
 		font: var(--m3e-type-body-medium)

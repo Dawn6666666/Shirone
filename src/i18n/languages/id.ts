@@ -74,8 +74,7 @@ export const id: Translation = {
 		"Jejak pertumbuhan, tonggak pencapaian, dan momen berharga.",
 	[Key.timelineCounts]: "peristiwa",
 	[Key.timelineCategories]: "Kategori linimasa",
-	[Key.timelineNoResults]:
-		"Tidak ada peristiwa yang cocok dengan kategori ini",
+	[Key.timelineNoResults]: "Tidak ada peristiwa yang cocok dengan kategori ini",
 
 	[Key.albums]: "Album",
 	[Key.albumsBanner]: "Arsip visual tempat, orang, dan momen yang berlalu.",
@@ -188,6 +187,19 @@ export const id: Translation = {
 	[Key.randomReadingSubtitle]: "Pilihan konsisten dari artikel lain",
 	[Key.copySuccess]: "Disalin ke papan klip",
 	[Key.copyLink]: "Salin tautan",
+	[Key.copyFailed]: "Gagal menyalin tautan. Silakan salin manual.",
+
+	[Key.shareArticle]: "Bagikan Artikel",
+	[Key.shareArticleDescription]:
+		"Buat poster berbagi atau salin tautan artikel ini.",
+	[Key.generateSharePoster]: "Buat Poster Berbagi",
+	[Key.generatingSharePoster]: "Membuat poster berbagi...",
+	[Key.sharePosterPreviewAlt]: "Pratinjau poster berbagi untuk {title}",
+	[Key.downloadSharePoster]: "Unduh Gambar",
+	[Key.sharePosterFailed]: "Gagal membuat poster berbagi. Silakan coba lagi.",
+	[Key.retry]: "Coba Lagi",
+	[Key.close]: "Tutup",
+	[Key.scanToRead]: "Pindai untuk membaca artikel",
 
 	[Key.reduceMotion]: "Kurangi animasi",
 	[Key.wallpaperMode]: "Latar halaman",
