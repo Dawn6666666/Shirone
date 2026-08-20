@@ -217,6 +217,7 @@ test.describe("Mermaid diagrams", () => {
 	test("keeps fullscreen modal state across theme renders and restores focus", async ({
 		page,
 	}) => {
+		await page.setViewportSize({ width: 390, height: 640 });
 		await page.goto(POST_PATH, { waitUntil: "domcontentloaded" });
 		const diagram = await waitForViewer(page);
 		await diagram.getByRole("button", { name: "Diagram controls" }).click();
@@ -227,6 +228,27 @@ test.describe("Mermaid diagrams", () => {
 			name: /Fullscreen diagram:/,
 		});
 		await expect(dialog).toBeVisible();
+		const fullscreenLayout = await dialog.evaluate((element) => {
+			const content = element.querySelector<HTMLElement>(".m3-dialog__content");
+			const rect = element.getBoundingClientRect();
+			return {
+				clientHeight: element.clientHeight,
+				scrollHeight: element.scrollHeight,
+				contentClientHeight: content?.clientHeight ?? 0,
+				contentScrollHeight: content?.scrollHeight ?? 0,
+				left: rect.left,
+				right: rect.right,
+				viewportWidth: innerWidth,
+			};
+		});
+		expect(fullscreenLayout.scrollHeight).toBeLessThanOrEqual(
+			fullscreenLayout.clientHeight,
+		);
+		expect(fullscreenLayout.contentScrollHeight).toBeLessThanOrEqual(
+			fullscreenLayout.contentClientHeight,
+		);
+		expect(fullscreenLayout.left).toBeGreaterThan(0);
+		expect(fullscreenLayout.right).toBeLessThan(fullscreenLayout.viewportWidth);
 		await expect(
 			dialog.locator("[data-mermaid-fullscreen-viewport] svg"),
 		).toHaveCount(1);

@@ -242,20 +242,29 @@ $effect(() => {
 	width: 2rem
 	height: 2rem
 
-:global(.mermaid-viewer__dialog)
+:global(.mermaid-viewer__dialog.m3-dialog)
+	display: grid
+	grid-template-rows: auto minmax(0, 1fr)
+	gap: var(--m3e-space-3)
 	box-sizing: border-box
 	width: calc(100vw - (2 * var(--m3e-space-4)))
 	height: calc(100dvh - (2 * var(--m3e-space-4)))
 	max-width: none
+	max-height: none
+	overflow: hidden
 	padding: var(--m3e-space-4)
 
 	:global(.m3-dialog__title)
-		margin-bottom: var(--m3e-space-3)
+		overflow: hidden
+		margin: 0
 		font: var(--m3e-type-title-large)
+		text-overflow: ellipsis
+		white-space: nowrap
 
 	:global(.m3-dialog__content)
-		height: calc(100% - 2.5rem)
+		height: auto
 		min-height: 0
+		overflow: hidden
 
 	:global(.m3-dialog__actions)
 		display: none
