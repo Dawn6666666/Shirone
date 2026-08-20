@@ -3,6 +3,7 @@ import FloatingToolbar from "@components/atoms/action/FloatingToolbar.svelte";
 import IconButton from "@components/atoms/action/IconButton.svelte";
 import Dialog from "@components/atoms/overlay/Dialog.svelte";
 import Tooltip from "@components/atoms/overlay/Tooltip.svelte";
+import Icon from "@iconify/svelte";
 
 interface MermaidViewerLabels {
 	controls: string;
@@ -32,6 +33,43 @@ let {
 
 let fullscreenOpen = $state(false);
 let fullscreenViewport = $state<HTMLElement | undefined>();
+let inlineExpanded = $state(false);
+let inlineToolbarRow = $state<HTMLElement | undefined>();
+
+function closeInlineToolbar() {
+	inlineExpanded = false;
+}
+
+$effect(() => {
+	if (!inlineExpanded) return;
+	const abortController = new AbortController();
+	const { signal } = abortController;
+	document.addEventListener(
+		"pointerdown",
+		(event) => {
+			if (
+				!fullscreenOpen &&
+				event.target instanceof Node &&
+				!inlineToolbarRow?.contains(event.target) &&
+				!(
+					event.target instanceof Element &&
+					event.target.closest(".markdown-mermaid__viewport")
+				)
+			) {
+				closeInlineToolbar();
+			}
+		},
+		{ capture: true, signal },
+	);
+	document.addEventListener(
+		"keydown",
+		(event) => {
+			if (event.key === "Escape" && !fullscreenOpen) closeInlineToolbar();
+		},
+		{ signal },
+	);
+	return () => abortController.abort();
+});
 
 $effect(() => {
 	if (!fullscreenOpen || !fullscreenViewport) return;
@@ -49,12 +87,27 @@ $effect(() => {
 });
 </script>
 
-<div class="mermaid-viewer__toolbar-row" data-mermaid-toolbar>
-	<FloatingToolbar expanded={true} label={labels.controls} class="mermaid-viewer__toolbar">
+<div
+	class="mermaid-viewer__toolbar-row"
+	data-mermaid-toolbar
+	bind:this={inlineToolbarRow}
+>
+	<FloatingToolbar
+		bind:expanded={inlineExpanded}
+		label={labels.controls}
+		expandLabel={labels.controls}
+		class="mermaid-viewer__toolbar"
+	>
+		{#snippet leading()}
+			<span class="mermaid-viewer__controls-icon" aria-hidden="true">
+				<Icon icon="material-symbols:more-horiz" />
+			</span>
+		{/snippet}
 		<Tooltip label={labels.zoomIn} placement="bottom">
 			<IconButton
 				icon="material-symbols:zoom-in-rounded"
 				label={labels.zoomIn}
+				size="xsmall"
 				onclick={onZoomIn}
 			/>
 		</Tooltip>
@@ -62,6 +115,7 @@ $effect(() => {
 			<IconButton
 				icon="material-symbols:zoom-out-rounded"
 				label={labels.zoomOut}
+				size="xsmall"
 				onclick={onZoomOut}
 			/>
 		</Tooltip>
@@ -69,6 +123,7 @@ $effect(() => {
 			<IconButton
 				icon="material-symbols:fit-screen-rounded"
 				label={labels.reset}
+				size="xsmall"
 				onclick={onReset}
 			/>
 		</Tooltip>
@@ -76,6 +131,7 @@ $effect(() => {
 			<IconButton
 				icon="material-symbols:fullscreen-rounded"
 				label={labels.openFullscreen}
+				size="xsmall"
 				onclick={() => (fullscreenOpen = true)}
 			/>
 		</Tooltip>
@@ -136,7 +192,17 @@ $effect(() => {
 	&__toolbar-row
 		display: flex
 		justify-content: flex-end
-		min-height: 3.5rem
+		min-height: 2.5rem
+
+	&__controls-icon
+		display: inline-flex
+		align-items: center
+		justify-content: center
+		pointer-events: none
+
+		:global(svg)
+			width: 1.25rem
+			height: 1.25rem
 
 	&__fullscreen-shell
 		display: grid
@@ -161,6 +227,20 @@ $effect(() => {
 	&__fullscreen-toolbar
 		display: flex
 		justify-content: center
+
+:global(.mermaid-viewer__toolbar.m3-toolbar--expanded)
+	gap: 0
+	padding: 4px
+
+	:global(.m3-toolbar__leading)
+		display: none
+
+:global(.mermaid-viewer__toolbar .m3-toolbar__content)
+	gap: 0
+
+:global(.mermaid-viewer__toolbar .m3-toolbar__toggle)
+	width: 2rem
+	height: 2rem
 
 :global(.mermaid-viewer__dialog)
 	box-sizing: border-box

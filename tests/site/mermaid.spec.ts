@@ -60,6 +60,19 @@ test.describe("Mermaid diagrams", () => {
 		});
 
 		await expect(diagram).toHaveAttribute("data-mermaid-interaction", "ready");
+		const toolbarRow = diagram.locator("[data-mermaid-toolbar]");
+		const controlsButton = diagram.getByRole("button", {
+			name: "Diagram controls",
+		});
+		const toolbarBounds = await toolbarRow.boundingBox();
+		const controlsBounds = await controlsButton.boundingBox();
+		if (!toolbarBounds || !controlsBounds) {
+			throw new Error("Compact Mermaid controls are missing");
+		}
+		expect(toolbarBounds.height).toBeLessThanOrEqual(40);
+		expect(controlsBounds.width).toBeLessThanOrEqual(40);
+		expect(controlsBounds.height).toBeLessThanOrEqual(40);
+		await expect(diagram.getByRole("button", { name: "Zoom in" })).toBeHidden();
 		const bounds = await diagram.evaluate((element) => {
 			const rect = element.getBoundingClientRect();
 			const viewportElement = element.querySelector(
@@ -94,6 +107,12 @@ test.describe("Mermaid diagrams", () => {
 		const diagram = await waitForViewer(page);
 		const viewport = diagram.locator(".markdown-mermaid__viewport");
 		await expect(viewport).toHaveAttribute("data-mermaid-user-zoom", "1.0000");
+		const controlsButton = diagram.getByRole("button", {
+			name: "Diagram controls",
+		});
+		await expect(controlsButton).toBeVisible();
+		await expect(diagram.getByRole("button", { name: "Zoom in" })).toBeHidden();
+		await controlsButton.click();
 
 		await diagram.getByRole("button", { name: "Zoom in" }).click();
 		await expect
@@ -108,6 +127,7 @@ test.describe("Mermaid diagrams", () => {
 				Number(await viewport.getAttribute("data-mermaid-user-zoom")),
 			)
 			.toBeGreaterThan(1);
+		await page.waitForTimeout(260);
 
 		const viewportBox = await viewport.boundingBox();
 		if (!viewportBox) throw new Error("Mermaid viewport is missing");
@@ -189,6 +209,9 @@ test.describe("Mermaid diagrams", () => {
 				Number(await viewport.getAttribute("data-mermaid-user-zoom")),
 			)
 			.toBeGreaterThan(1);
+
+		await page.mouse.click(8, 8);
+		await expect(diagram.getByRole("button", { name: "Zoom in" })).toBeHidden();
 	});
 
 	test("keeps fullscreen modal state across theme renders and restores focus", async ({
@@ -196,6 +219,7 @@ test.describe("Mermaid diagrams", () => {
 	}) => {
 		await page.goto(POST_PATH, { waitUntil: "domcontentloaded" });
 		const diagram = await waitForViewer(page);
+		await diagram.getByRole("button", { name: "Diagram controls" }).click();
 		const openButton = diagram.getByRole("button", { name: "Open fullscreen" });
 		await openButton.click();
 
