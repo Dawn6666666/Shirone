@@ -68,6 +68,14 @@ export const tr: Translation = {
 	[Key.projectTechnologies]: "Teknolojiler",
 	[Key.projectsNoResults]: "Bu kategoriyle eşleşen proje yok",
 
+	[Key.timeline]: "Zaman Çizelgesi",
+	[Key.timelineBanner]:
+		"Büyüme yolculuğu, kilometre taşları ve unutulmaz anlar.",
+	[Key.timelineCounts]: "dönüm noktası",
+	[Key.timelineCategories]: "Zaman çizelgesi kategorileri",
+	[Key.timelineNoResults]:
+		"Bu kategoriyle eşleşen zaman çizelgesi öğesi bulunamadı",
+
 	[Key.albums]: "Albümler",
 	[Key.albumsBanner]: "Yerlerin, insanların ve geçen anların görsel arşivi.",
 	[Key.albumsNoResults]: "Filtrelerle eşleşen albüm yok",

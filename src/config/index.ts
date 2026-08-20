@@ -23,3 +23,4 @@ export { projectsConfig } from "./projectsConfig";
 export { sidebarConfig } from "./sidebarConfig";
 export { getDefaultSpec, getDefaultStyle, siteConfig } from "./siteConfig";
 export { skillsConfig } from "./skillsConfig";
+export { timelineConfig } from "./timelineConfig";

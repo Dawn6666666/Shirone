@@ -68,6 +68,13 @@ export const es: Translation = {
 	[Key.projectTechnologies]: "Tecnologías",
 	[Key.projectsNoResults]: "Ningún proyecto coincide con esta categoría",
 
+	[Key.timeline]: "Línea de tiempo",
+	[Key.timelineBanner]:
+		"Trayectoria de crecimiento, hitos y momentos memorables.",
+	[Key.timelineCounts]: "hitos",
+	[Key.timelineCategories]: "Categorías de la línea de tiempo",
+	[Key.timelineNoResults]: "Ningún evento coincide con esta categoría",
+
 	[Key.albums]: "Álbumes",
 	[Key.albumsBanner]: "Un archivo visual de lugares, personas y momentos.",
 	[Key.albumsNoResults]: "Ningún álbum coincide con tus filtros",

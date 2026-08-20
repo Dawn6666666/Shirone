@@ -2,6 +2,7 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { projectsConfig } from "@/config/projectsConfig";
 import { skillsConfig } from "@/config/skillsConfig";
+import { timelineConfig } from "@/config/timelineConfig";
 import type { NavBarConfig, NavBarLink } from "@/types/navBarConfig";
 
 /**
@@ -60,6 +61,12 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		icon: "material-symbols:deployed-code-outline-rounded",
 		pageKey: "projects",
 	},
+	Timeline: {
+		name: i18n(I18nKey.timeline),
+		url: "/timeline/",
+		icon: "material-symbols:timeline-rounded",
+		pageKey: "timeline",
+	},
 	Albums: {
 		name: i18n(I18nKey.albums),
 		url: "/albums/",
@@ -106,6 +113,7 @@ export const navBarConfig: NavBarConfig = {
 			name: i18n(I18nKey.more),
 			icon: "material-symbols:apps-rounded",
 			children: [
+				...(timelineConfig.enable ? [LinkPresets.Timeline] : []),
 				...(projectsConfig.enable ? [LinkPresets.Projects] : []),
 				...(skillsConfig.enable ? [LinkPresets.Skills] : []),
 				// 分类/标签入口不进导航菜单（避免菜单项过多），预设已登记指向独立页面，

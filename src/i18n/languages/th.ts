@@ -63,6 +63,13 @@ export const th: Translation = {
 	[Key.projectTechnologies]: "เทคโนโลยี",
 	[Key.projectsNoResults]: "ไม่พบโปรเจกต์ในหมวดหมู่นี้",
 
+	[Key.timeline]: "ไทม์ไลน์",
+	[Key.timelineBanner]:
+		"เส้นทางการเติบโต เหตุการณ์สำคัญ และบันทึกหมุดหมายชีวิต",
+	[Key.timelineCounts]: "หมุดหมาย",
+	[Key.timelineCategories]: "หมวดหมู่ไทม์ไลน์",
+	[Key.timelineNoResults]: "ไม่พบรายการที่ตรงกับหมวดหมู่นี้",
+
 	[Key.albums]: "อัลบั้ม",
 	[Key.albumsBanner]: "คลังภาพของสถานที่ ผู้คน และช่วงเวลาที่ผ่านไป",
 	[Key.albumsNoResults]: "ไม่พบอัลบั้มที่ตรงกับตัวกรอง",

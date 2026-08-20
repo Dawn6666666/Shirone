@@ -63,6 +63,12 @@ export const zh_CN: Translation = {
 	[Key.projectTechnologies]: "技术栈",
 	[Key.projectsNoResults]: "没有符合该分类的项目",
 
+	[Key.timeline]: "时间线",
+	[Key.timelineBanner]: "成长轨迹、重要经历与里程碑记录。",
+	[Key.timelineCounts]: "个节点",
+	[Key.timelineCategories]: "时间线分类",
+	[Key.timelineNoResults]: "没有符合该分类的节点",
+
 	[Key.albums]: "相册",
 	[Key.albumsBanner]: "记录地点、人物与流转瞬间的视觉档案。",
 	[Key.albumsNoResults]: "没有符合条件的相册",

@@ -66,6 +66,7 @@ widget 的专属配置（如分类的折叠阈值 `collapseAfter`）只存在于
 | `"compass"` | 站点罗盘页（`compass.astro`） |
 | `"skills"` | 技能页（`skills.astro`） |
 | `"projects"` | 项目页（`projects.astro`） |
+| `"timeline"` | 时间线页（`timeline.astro`） |
 | `"albums"` | 相册索引与详情页（`albums.astro`、`albums/[id]/index.astro`） |
 | `"about"` | 关于页（`about.astro`） |
 | `"categories"` | 分类索引页（`categories.astro`） |

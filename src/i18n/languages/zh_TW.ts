@@ -63,6 +63,12 @@ export const zh_TW: Translation = {
 	[Key.projectTechnologies]: "技術棧",
 	[Key.projectsNoResults]: "沒有符合此分類的專案",
 
+	[Key.timeline]: "時間線",
+	[Key.timelineBanner]: "成長軌跡、重要經歷與里程碑記錄。",
+	[Key.timelineCounts]: "個節點",
+	[Key.timelineCategories]: "時間線分類",
+	[Key.timelineNoResults]: "沒有符合該分類的節點",
+
 	[Key.albums]: "相簿",
 	[Key.albumsBanner]: "記錄地點、人物與流轉瞬間的視覺檔案。",
 	[Key.albumsNoResults]: "沒有符合條件的相簿",

@@ -68,6 +68,14 @@ export const ja: Translation = {
 	[Key.projectTechnologies]: "使用技術",
 	[Key.projectsNoResults]: "このカテゴリに一致するプロジェクトはありません",
 
+	[Key.timeline]: "タイムライン",
+	[Key.timelineBanner]:
+		"成長の軌跡、重要な経験、そしてマイルストーンの記録。",
+	[Key.timelineCounts]: "件のマイルストーン",
+	[Key.timelineCategories]: "タイムラインカテゴリ",
+	[Key.timelineNoResults]:
+		"このカテゴリに一致するマイルストーンはありません",
+
 	[Key.albums]: "アルバム",
 	[Key.albumsBanner]: "場所、人、過ぎゆく瞬間を集めたビジュアルアーカイブ。",
 	[Key.albumsNoResults]: "条件に合うアルバムがありません",

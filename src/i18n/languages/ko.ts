@@ -67,6 +67,12 @@ export const ko: Translation = {
 	[Key.projectTechnologies]: "기술",
 	[Key.projectsNoResults]: "이 카테고리에 해당하는 프로젝트가 없습니다",
 
+	[Key.timeline]: "타임라인",
+	[Key.timelineBanner]: "성장 궤적, 중요한 경험 및 이정표 기록.",
+	[Key.timelineCounts]: "개의 기록",
+	[Key.timelineCategories]: "타임라인 분류",
+	[Key.timelineNoResults]: "이 분류에 해당하는 타임라인 기록이 없습니다",
+
 	[Key.albums]: "앨범",
 	[Key.albumsBanner]: "장소와 사람, 스쳐 가는 순간을 담은 시각 아카이브입니다.",
 	[Key.albumsNoResults]: "조건에 맞는 앨범이 없습니다",

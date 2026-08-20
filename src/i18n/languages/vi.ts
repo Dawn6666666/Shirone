@@ -69,6 +69,14 @@ export const vi: Translation = {
 	[Key.projectTechnologies]: "Công nghệ",
 	[Key.projectsNoResults]: "Không có dự án nào trong danh mục này",
 
+	[Key.timeline]: "Dòng thời gian",
+	[Key.timelineBanner]:
+		"Hành trình phát triển, các cột mốc và khoảnh khắc đáng nhớ.",
+	[Key.timelineCounts]: "cột mốc",
+	[Key.timelineCategories]: "Danh mục dòng thời gian",
+	[Key.timelineNoResults]:
+		"Không có sự kiện nào phù hợp với danh mục này",
+
 	[Key.albums]: "Album",
 	[Key.albumsBanner]:
 		"Kho lưu trữ hình ảnh về địa điểm, con người và những khoảnh khắc đã qua.",

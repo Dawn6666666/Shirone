@@ -69,6 +69,13 @@ export const en: Translation = {
 	[Key.projectTechnologies]: "Technologies",
 	[Key.projectsNoResults]: "No projects matched this category",
 
+	[Key.timeline]: "Timeline",
+	[Key.timelineBanner]:
+		"Growth trajectory, milestones, and memorable moments.",
+	[Key.timelineCounts]: "milestones",
+	[Key.timelineCategories]: "Timeline categories",
+	[Key.timelineNoResults]: "No timeline events matched this category",
+
 	[Key.albums]: "Albums",
 	[Key.albumsBanner]: "A visual archive of places, people and passing moments.",
 	[Key.albumsNoResults]: "No albums matched your filters",

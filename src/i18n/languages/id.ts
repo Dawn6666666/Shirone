@@ -69,6 +69,14 @@ export const id: Translation = {
 	[Key.projectTechnologies]: "Teknologi",
 	[Key.projectsNoResults]: "Tidak ada proyek dalam kategori ini",
 
+	[Key.timeline]: "Linimasa",
+	[Key.timelineBanner]:
+		"Jejak pertumbuhan, tonggak pencapaian, dan momen berharga.",
+	[Key.timelineCounts]: "peristiwa",
+	[Key.timelineCategories]: "Kategori linimasa",
+	[Key.timelineNoResults]:
+		"Tidak ada peristiwa yang cocok dengan kategori ini",
+
 	[Key.albums]: "Album",
 	[Key.albumsBanner]: "Arsip visual tempat, orang, dan momen yang berlalu.",
 	[Key.albumsNoResults]: "Tidak ada album yang cocok dengan filter",

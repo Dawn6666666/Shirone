@@ -61,6 +61,12 @@ enum I18nKey {
 	projectTechnologies = "projectTechnologies",
 	projectsNoResults = "projectsNoResults",
 
+	timeline = "timeline",
+	timelineBanner = "timelineBanner",
+	timelineCounts = "timelineCounts",
+	timelineCategories = "timelineCategories",
+	timelineNoResults = "timelineNoResults",
+
 	albums = "albums",
 	albumsBanner = "albumsBanner",
 	albumsNoResults = "albumsNoResults",
