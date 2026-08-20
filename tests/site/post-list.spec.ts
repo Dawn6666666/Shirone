@@ -17,6 +17,19 @@ function runningCardAnimations(): number {
 }
 
 test.describe("文章列表布局模式", () => {
+	test("置顶文章排在首位并输出 SSR 状态标记", async ({ page }) => {
+		await page.goto("/");
+		const firstCard = page.locator(".m3-blog-postcard").first();
+		await expect(firstCard.locator(".m3-blog-postcard__title")).toContainText(
+			"Simple Guides for Fuwari",
+		);
+		await expect(firstCard.locator(".m3-blog-postcard__pin svg")).toBeVisible();
+		await expect(firstCard.locator(".m3-blog-postcard__title")).toHaveAttribute(
+			"aria-label",
+			/Simple Guides for Fuwari, Pinned/,
+		);
+	});
+
 	test("SSR 输出站点默认 list 容器类", async ({ page }) => {
 		await page.goto("/");
 		await expect(page.locator("#post-list")).toHaveClass(

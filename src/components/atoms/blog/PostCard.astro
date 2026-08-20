@@ -8,6 +8,8 @@
 import { Icon } from "astro-icon/components";
 import AccentBar from "@components/atoms/display/AccentBar.svelte";
 import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
 import PostMeta from "./PostMeta.astro";
 import TagBadge from "./TagBadge.astro";
 import type { BlogMetaLink } from "./PostMeta.astro";
@@ -21,6 +23,7 @@ interface Props {
 	imageAlt?: string;
 	published?: string;
 	updated?: string;
+	pinned?: boolean;
 	category?: BlogMetaLink | null;
 	tags?: BlogMetaLink[];
 	/** 字数展示文本（如 "1426 words"，渲染在分类右侧） */
@@ -37,6 +40,7 @@ const {
 	imageAlt = "",
 	published,
 	updated,
+	pinned = false,
 	category = null,
 	tags = [],
 	wordCount,
@@ -45,6 +49,7 @@ const {
 } = Astro.props;
 
 const hasCover = !!image;
+const pinnedLabel = i18n(I18nKey.pinned);
 ---
 
 <article
@@ -52,8 +57,17 @@ const hasCover = !!image;
 	style={style}
 >
 	<div class="m3-blog-postcard__body">
-		<a class="m3-blog-postcard__title" href={href} aria-label={title}>
+		<a
+			class="m3-blog-postcard__title"
+			href={href}
+			aria-label={pinned ? `${title}, ${pinnedLabel}` : title}
+		>
 			<AccentBar size="medium" />
+			{pinned && (
+				<span class="m3-blog-postcard__pin" aria-hidden="true">
+					<Icon name="material-symbols:keep-rounded" />
+				</span>
+			)}
 			{title}
 			<Icon class="m3-blog-postcard__arrow" name="material-symbols:chevron-right-rounded" />
 		</a>
@@ -149,6 +163,19 @@ const hasCover = !!image;
 		transition: transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
 		.m3-blog-postcard:hover &
 			transform: translateX(0.25rem)
+
+	&__pin
+		display: inline-flex
+		align-items: center
+		justify-content: center
+		flex: 0 0 1.75rem
+		height: 1.75rem
+		border-radius: var(--shape-corner-m)
+		background: var(--primary-container)
+		color: var(--on-primary-container)
+		> :global(svg)
+			width: 1.125rem
+			height: 1.125rem
 
 	/* PostMeta 是 Astro 子组件，需用 global 命中其根节点 */
 	:global(.m3-blog-postcard__meta)

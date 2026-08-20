@@ -19,6 +19,7 @@ interface Props {
 	url: string;
 	published: Date;
 	updated?: Date;
+	pinned: boolean;
 	tags: string[];
 	category: string | null;
 	image: string;
@@ -32,6 +33,7 @@ const {
 	url,
 	published,
 	updated,
+	pinned,
 	tags,
 	category,
 	image,
@@ -91,6 +93,7 @@ const excerpt = description || remarkPluginFrontmatter.excerpt;
 	image={coverUrl}
 	published={formatDateToYYYYMMDD(published)}
 	updated={updated ? formatDateToYYYYMMDD(updated) : undefined}
+	pinned={pinned}
 	category={categoryLink}
 	tags={tagLinks}
 	wordCount={wordCount}
