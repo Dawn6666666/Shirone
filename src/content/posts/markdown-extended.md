@@ -20,6 +20,19 @@ Create a GitHub repository card with the code `::github{repo="<owner>/<repo>"}`.
 ::github{repo="saicaca/fuwari"}
 ```
 
+## Mermaid Diagrams
+
+Fenced `mermaid` blocks are rendered as diagrams and follow the active color scheme.
+
+```mermaid
+flowchart LR
+    accTitle: Markdown rendering pipeline
+    accDescr: Markdown source is transformed into semantic HTML and then enhanced as a themed SVG diagram.
+    A[Markdown source] --> B[Astro content pipeline]
+    B --> C[Semantic HTML]
+    C --> D[Themed diagram]
+```
+
 ## Admonitions
 
 Following types of admonitions are supported: `note` `tip` `important` `warning` `caution`

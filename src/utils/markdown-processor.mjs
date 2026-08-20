@@ -11,6 +11,7 @@ import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs"
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { parseDirectiveNode } from "../plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "../plugins/remark-excerpt.js";
+import { remarkMermaid } from "../plugins/remark-mermaid.mjs";
 import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
 
 /**
@@ -22,6 +23,7 @@ import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
 export const siteMarkdownProcessor = unified({
 	remarkPlugins: [
 		remarkMath,
+		remarkMermaid,
 		remarkReadingTime,
 		remarkExcerpt,
 		remarkGithubAdmonitionsToDirectives,

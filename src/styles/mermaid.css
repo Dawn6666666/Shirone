@@ -1,0 +1,69 @@
+.custom-md .markdown-mermaid {
+	max-width: 100%;
+	margin-block: var(--m3e-space-6);
+}
+
+.custom-md .markdown-mermaid__surface {
+	max-width: 100%;
+	overflow: hidden;
+	padding: var(--m3e-space-4);
+	border: 1px solid var(--outline-variant);
+	border-radius: var(--shape-corner-l);
+	background: var(--surface-container-lowest);
+	color: var(--on-surface);
+}
+
+.custom-md .markdown-mermaid__fallback {
+	max-width: 100%;
+	margin: 0;
+	overflow: auto;
+	padding: var(--m3e-space-4);
+	border-radius: var(--shape-corner-m);
+	background: var(--codeblock-bg);
+	color: var(--on-surface);
+	font-family:
+		"JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Monaco,
+		Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 0.875rem;
+	line-height: 1.5rem;
+	white-space: pre;
+}
+
+.custom-md .markdown-mermaid__diagram {
+	max-width: 100%;
+	overflow-x: auto;
+	overscroll-behavior-inline: contain;
+	outline: none;
+}
+
+.custom-md .markdown-mermaid__diagram:focus-visible {
+	outline: 2px solid var(--primary);
+	outline-offset: 2px;
+	border-radius: var(--shape-corner-s);
+}
+
+.custom-md .markdown-mermaid__diagram svg {
+	display: block;
+	max-width: none;
+	height: auto;
+	margin-inline: auto;
+}
+
+@media (min-width: 48rem) {
+	.custom-md .markdown-mermaid__diagram svg {
+		max-width: 100%;
+	}
+}
+
+.custom-md
+	.markdown-mermaid:not([data-mermaid-state="ready"])
+	.markdown-mermaid__diagram,
+.custom-md
+	.markdown-mermaid[data-mermaid-state="ready"]
+	.markdown-mermaid__fallback,
+.custom-md
+	.markdown-mermaid[data-mermaid-state="ready"]
+	.markdown-mermaid__surface
+	> .expressive-code {
+	display: none;
+}
