@@ -114,19 +114,52 @@ test.describe("番剧页", () => {
 		expect(columns).toBeGreaterThanOrEqual(2);
 	});
 
-	test("侧栏 widget 在番剧页照常渲染（pages 过滤对齐 friends/moments）", async ({
-		page,
-	}) => {
-		await expect(page.locator('widget-layout[data-id="categories"]')).toBeVisible();
-		await expect(page.locator('widget-layout[data-id="tags"]')).toBeVisible();
+	test("实时搜索过滤与清除（URL ?q= 同步）", async ({ page }) => {
+		const searchInput = page.locator(".anime-section__search input");
+		await expect(searchInput).toBeVisible();
+		await searchInput.fill("Lycoris");
+		await expect(page.locator(".anime-card")).toHaveCount(1);
+		await expect(page.locator(".anime-card__title")).toHaveText("Lycoris Recoil");
+		await expect(page).toHaveURL(/[?&]q=Lycoris/);
+
+		// 清除搜索恢复全部
+		const clearBtn = page.locator(".anime-section__search-clear");
+		await clearBtn.click();
+		await expect(page.locator(".anime-card")).toHaveCount(ANIME_COUNT);
+		await expect(page).not.toHaveURL(/q=/);
+	});
+
+	test("工具栏快捷切换布局（List / Grid 互切与独立状态持久化）", async ({ page }) => {
+		const listBtn = page.locator('.anime-section__layout-btn[aria-label="List"]');
+		const gridBtn = page.locator('.anime-section__layout-btn[aria-label="Grid"]');
+
+		// 默认 grid 海报网格
+		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--grid/);
+		await expect(gridBtn).toHaveAttribute("aria-pressed", "true");
+
+		// 切换到 list 横向卡片
+		await listBtn.click();
+		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--list/);
+		await expect(listBtn).toHaveAttribute("aria-pressed", "true");
+		expect(
+			await page.evaluate(() => localStorage.getItem("shirone:anime-layout-mode")),
+		).toBe("list");
+
+		// 切换回 grid 海报网格
+		await gridBtn.click();
+		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--grid/);
+		await expect(gridBtn).toHaveAttribute("aria-pressed", "true");
+		expect(
+			await page.evaluate(() => localStorage.getItem("shirone:anime-layout-mode")),
+		).toBe("grid");
 	});
 });
 
-/* 布局形态跟随全局偏好：以下用例用干净存储（无 grid 预置），验证默认值 / list 形态 / 设置面板广播 */
-test.describe("番剧页布局（全局 list/grid 偏好）", () => {
+/* 番剧页专属布局形态测试：默认 grid 海报网格 / 切换 list 横向卡片 */
+test.describe("番剧页布局形态（独立偏好）", () => {
 	test("list 布局：横向卡片（封面固定宽 + 正文铺开）", async ({ page }) => {
 		await page.addInitScript(() =>
-			localStorage.setItem("post-list-mode", "list"),
+			localStorage.setItem("shirone:anime-layout-mode", "list"),
 		);
 		await page.goto("/anime/");
 		await expect(page.locator(".anime-card")).toHaveCount(ANIME_COUNT);
@@ -142,26 +175,9 @@ test.describe("番剧页布局（全局 list/grid 偏好）", () => {
 		);
 	});
 
-	test("默认布局跟随站点偏好（无存储 = postListConfig 默认 list）", async ({
-		page,
-	}) => {
+	test("默认布局为 grid 海报网格", async ({ page }) => {
 		await page.goto("/anime/");
 		await expect(page.locator(".anime-card")).toHaveCount(ANIME_COUNT);
-		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--list/);
-	});
-
-	test("设置面板切换 list/grid 广播到番剧页（偏好写入 localStorage）", async ({
-		page,
-	}) => {
-		await page.goto("/anime/");
-		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--list/);
-		await page.locator("#display-settings-switch").click();
-		const gridLabel = page.locator("#display-setting").getByText("Grid");
-		await gridLabel.waitFor({ state: "visible", timeout: 10_000 });
-		await gridLabel.click();
 		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--grid/);
-		expect(
-			await page.evaluate(() => localStorage.getItem("post-list-mode")),
-		).toBe("grid");
 	});
 });
