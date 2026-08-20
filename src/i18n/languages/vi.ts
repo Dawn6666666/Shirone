@@ -93,6 +93,21 @@ export const vi: Translation = {
 	[Key.albumPasswordUnlock]: "Mở khóa album",
 	[Key.albumPasswordUnlocking]: "Đang mở khóa…",
 
+	[Key.postPasswordTitle]: "Bài viết được bảo vệ",
+	[Key.postPasswordDescription]:
+		"Bài viết này đã được mã hóa. Nhập mật khẩu để mở khóa.",
+	[Key.postPasswordLabel]: "Mật khẩu",
+	[Key.postPasswordShow]: "Hiện mật khẩu",
+	[Key.postPasswordHide]: "Ẩn mật khẩu",
+	[Key.postPasswordRequired]: "Hãy nhập mật khẩu",
+	[Key.postPasswordInvalid]: "Mật khẩu không chính xác",
+	[Key.postPasswordUnlock]: "Mở khóa bài viết",
+	[Key.postPasswordUnlocking]: "Đang giải mã…",
+	[Key.postEncryptedSummary]: "Bài viết này được bảo vệ bằng mật khẩu.",
+	[Key.postEncryptedBadge]: "Đã bảo vệ",
+	[Key.postRssEncryptedNotice]:
+		"Bài viết đã được mã hóa. Vui lòng truy cập trang web để mở khóa.",
+
 	[Key.imageViewer]: "Trình xem ảnh",
 	[Key.openImage]: "Mở ảnh",
 	[Key.previousImage]: "Ảnh trước",
@@ -104,6 +119,7 @@ export const vi: Translation = {
 	[Key.categories]: "Danh mục",
 	[Key.recentPosts]: "Bài viết mới nhất",
 	[Key.tableOfContents]: "Mục lục",
+	[Key.formulaScrollable]: "Công thức có thể cuộn ngang",
 
 	[Key.comments]: "Bình luận",
 

@@ -107,6 +107,9 @@ export default defineConfig({
 	},
 	vite: {
 		plugins: [tailwindcss()],
+		optimizeDeps: {
+			include: ["mermaid", "@panzoom/panzoom", "overlayscrollbars", "@fancyapps/ui"],
+		},
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {

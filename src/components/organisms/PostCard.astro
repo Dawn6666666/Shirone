@@ -11,6 +11,7 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import { getCategoryUrl, getDir, getTagUrl } from "@utils/url-utils";
+import { isEncryptedPost } from "@utils/post-encryption";
 
 interface Props {
 	class?: string;
@@ -77,11 +78,18 @@ const categoryLink = category
 	: null;
 const tagLinks = tags.map((t) => ({ name: t.trim(), href: getTagUrl(t) }));
 
+const isEncrypted = isEncryptedPost(entry.data);
 const words = remarkPluginFrontmatter.words ?? 0;
-const wordCount = `${words} ${i18n(
-	words === 1 ? I18nKey.wordCount : I18nKey.wordsCount,
-)}`;
-const excerpt = description || remarkPluginFrontmatter.excerpt;
+const wordCount =
+	isEncrypted && entry.data.hideHomeContent
+		? undefined
+		: `${words} ${i18n(
+				words === 1 ? I18nKey.wordCount : I18nKey.wordsCount,
+			)}`;
+const excerpt =
+	isEncrypted && entry.data.hideHomeContent
+		? i18n(I18nKey.postEncryptedSummary)
+		: description || remarkPluginFrontmatter.excerpt;
 ---
 
 <PostCard
@@ -94,6 +102,7 @@ const excerpt = description || remarkPluginFrontmatter.excerpt;
 	published={formatDateToYYYYMMDD(published)}
 	updated={updated ? formatDateToYYYYMMDD(updated) : undefined}
 	pinned={pinned}
+	encrypted={isEncrypted}
 	category={categoryLink}
 	tags={tagLinks}
 	wordCount={wordCount}

@@ -91,6 +91,21 @@ export const es: Translation = {
 	[Key.albumPasswordUnlock]: "Desbloquear álbum",
 	[Key.albumPasswordUnlocking]: "Desbloqueando…",
 
+	[Key.postPasswordTitle]: "Artículo protegido",
+	[Key.postPasswordDescription]:
+		"Este artículo está cifrado. Ingrese la contraseña para desbloquearlo.",
+	[Key.postPasswordLabel]: "Contraseña",
+	[Key.postPasswordShow]: "Mostrar contraseña",
+	[Key.postPasswordHide]: "Ocultar contraseña",
+	[Key.postPasswordRequired]: "Introduce una contraseña",
+	[Key.postPasswordInvalid]: "Contraseña incorrecta",
+	[Key.postPasswordUnlock]: "Desbloquear artículo",
+	[Key.postPasswordUnlocking]: "Descifrando…",
+	[Key.postEncryptedSummary]: "Este artículo está protegido con contraseña.",
+	[Key.postEncryptedBadge]: "Protegido",
+	[Key.postRssEncryptedNotice]:
+		"Este artículo está cifrado. Visite el sitio web para ingresar la contraseña.",
+
 	[Key.imageViewer]: "Visor de imágenes",
 	[Key.openImage]: "Abrir imagen",
 	[Key.previousImage]: "Imagen anterior",
@@ -102,6 +117,7 @@ export const es: Translation = {
 	[Key.categories]: "Categorías",
 	[Key.recentPosts]: "Publicaciones recientes",
 	[Key.tableOfContents]: "Tabla de contenidos",
+	[Key.formulaScrollable]: "Fórmula con desplazamiento horizontal",
 
 	[Key.comments]: "Comentarios",
 

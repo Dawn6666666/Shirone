@@ -83,6 +83,19 @@ enum I18nKey {
 	albumPasswordUnlock = "albumPasswordUnlock",
 	albumPasswordUnlocking = "albumPasswordUnlocking",
 
+	postPasswordTitle = "postPasswordTitle",
+	postPasswordDescription = "postPasswordDescription",
+	postPasswordLabel = "postPasswordLabel",
+	postPasswordShow = "postPasswordShow",
+	postPasswordHide = "postPasswordHide",
+	postPasswordRequired = "postPasswordRequired",
+	postPasswordInvalid = "postPasswordInvalid",
+	postPasswordUnlock = "postPasswordUnlock",
+	postPasswordUnlocking = "postPasswordUnlocking",
+	postEncryptedSummary = "postEncryptedSummary",
+	postEncryptedBadge = "postEncryptedBadge",
+	postRssEncryptedNotice = "postRssEncryptedNotice",
+
 	imageViewer = "imageViewer",
 	openImage = "openImage",
 	previousImage = "previousImage",
@@ -94,6 +107,7 @@ enum I18nKey {
 	categories = "categories",
 	recentPosts = "recentPosts",
 	tableOfContents = "tableOfContents",
+	formulaScrollable = "formulaScrollable",
 
 	comments = "comments",
 

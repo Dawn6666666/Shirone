@@ -16,6 +16,7 @@ export type ProtectedPayload = {
 export type ProtectedSession = {
 	v: 1;
 	scope: string;
+	payloadId: string;
 	expiresAt: number;
 	/** Decrypted content is kept in the page process only. */
 	content: string;

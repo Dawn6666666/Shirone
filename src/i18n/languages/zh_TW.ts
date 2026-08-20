@@ -85,6 +85,21 @@ export const zh_TW: Translation = {
 	[Key.albumPasswordUnlock]: "解鎖相簿",
 	[Key.albumPasswordUnlocking]: "正在解鎖…",
 
+	[Key.postPasswordTitle]: "受保護的文章",
+	[Key.postPasswordDescription]:
+		"該文章已被加密保護，請輸入訪問密碼以解鎖內容。",
+	[Key.postPasswordLabel]: "訪問密碼",
+	[Key.postPasswordShow]: "顯示密碼",
+	[Key.postPasswordHide]: "隱藏密碼",
+	[Key.postPasswordRequired]: "請輸入密碼",
+	[Key.postPasswordInvalid]: "密碼錯誤，請重新輸入",
+	[Key.postPasswordUnlock]: "解鎖文章",
+	[Key.postPasswordUnlocking]: "正在解密…",
+	[Key.postEncryptedSummary]: "該文章內容已加密，請輸入密碼後查看。",
+	[Key.postEncryptedBadge]: "已加密",
+	[Key.postRssEncryptedNotice]:
+		"本文已加密保護，請訪問部落格網站輸入密碼閱讀全文。",
+
 	[Key.imageViewer]: "圖片檢視器",
 	[Key.openImage]: "開啟圖片",
 	[Key.previousImage]: "上一張",
@@ -96,6 +111,7 @@ export const zh_TW: Translation = {
 	[Key.categories]: "分類",
 	[Key.recentPosts]: "最新文章",
 	[Key.tableOfContents]: "文章目錄",
+	[Key.formulaScrollable]: "可橫向捲動的公式",
 
 	[Key.comments]: "評論",
 

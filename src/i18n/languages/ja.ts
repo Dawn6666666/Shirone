@@ -91,6 +91,21 @@ export const ja: Translation = {
 	[Key.albumPasswordUnlock]: "アルバムを開く",
 	[Key.albumPasswordUnlocking]: "確認中…",
 
+	[Key.postPasswordTitle]: "パスワード保護された記事",
+	[Key.postPasswordDescription]:
+		"この記事は暗号化されています。閲覧するにはパスワードを入力してください。",
+	[Key.postPasswordLabel]: "パスワード",
+	[Key.postPasswordShow]: "パスワードを表示",
+	[Key.postPasswordHide]: "パスワードを非表示",
+	[Key.postPasswordRequired]: "パスワードを入力してください",
+	[Key.postPasswordInvalid]: "パスワードが正しくありません",
+	[Key.postPasswordUnlock]: "記事を開く",
+	[Key.postPasswordUnlocking]: "復号中…",
+	[Key.postEncryptedSummary]: "この記事はパスワードで保護されています。",
+	[Key.postEncryptedBadge]: "保護中",
+	[Key.postRssEncryptedNotice]:
+		"この記事は暗号化されています。Webサイトでパスワードを入力してご覧ください。",
+
 	[Key.imageViewer]: "画像ビューアー",
 	[Key.openImage]: "画像を開く",
 	[Key.previousImage]: "前の画像",
@@ -102,6 +117,7 @@ export const ja: Translation = {
 	[Key.categories]: "カテゴリ",
 	[Key.recentPosts]: "最近の投稿",
 	[Key.tableOfContents]: "目次",
+	[Key.formulaScrollable]: "横スクロール可能な数式",
 
 	[Key.comments]: "コメント",
 

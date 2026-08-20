@@ -92,6 +92,21 @@ export const id: Translation = {
 	[Key.albumPasswordUnlock]: "Buka album",
 	[Key.albumPasswordUnlocking]: "Membuka…",
 
+	[Key.postPasswordTitle]: "Artikel Dilindungi Kata Sandi",
+	[Key.postPasswordDescription]:
+		"Artikel ini dienkripsi. Masukkan kata sandi untuk membuka.",
+	[Key.postPasswordLabel]: "Kata sandi",
+	[Key.postPasswordShow]: "Tampilkan kata sandi",
+	[Key.postPasswordHide]: "Sembunyikan kata sandi",
+	[Key.postPasswordRequired]: "Masukkan kata sandi",
+	[Key.postPasswordInvalid]: "Kata sandi salah",
+	[Key.postPasswordUnlock]: "Buka Kunci Artikel",
+	[Key.postPasswordUnlocking]: "Mendekripsi…",
+	[Key.postEncryptedSummary]: "Artikel ini dilindungi dengan kata sandi.",
+	[Key.postEncryptedBadge]: "Terenkripsi",
+	[Key.postRssEncryptedNotice]:
+		"Artikel ini dienkripsi. Silakan kunjungi situs web untuk membaca.",
+
 	[Key.imageViewer]: "Penampil gambar",
 	[Key.openImage]: "Buka gambar",
 	[Key.previousImage]: "Gambar sebelumnya",
@@ -103,6 +118,7 @@ export const id: Translation = {
 	[Key.categories]: "Kategori",
 	[Key.recentPosts]: "Postingan Terbaru",
 	[Key.tableOfContents]: "Daftar Isi",
+	[Key.formulaScrollable]: "Rumus yang dapat digulir secara horizontal",
 
 	[Key.comments]: "Komentar",
 

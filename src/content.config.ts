@@ -16,6 +16,15 @@ const postsCollection = defineCollection({
 		category: z.string().optional().nullable().default(""),
 		lang: z.string().optional().default(""),
 
+		/* Post Encryption */
+		encrypted: z.boolean().optional().default(false),
+		password: z
+			.union([z.string(), z.number()])
+			.transform((v) => String(v))
+			.optional(),
+		passwordHint: z.string().optional().default(""),
+		hideHomeContent: z.boolean().optional().default(true),
+
 		/* For internal use */
 		prevTitle: z.string().default(""),
 		prevSlug: z.string().default(""),

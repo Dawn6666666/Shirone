@@ -26,7 +26,10 @@ function cryptoApi(): Crypto {
 function bytesToBase64Url(bytes: Uint8Array): string {
 	let binary = "";
 	for (const byte of bytes) binary += String.fromCharCode(byte);
-	return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+	return btoa(binary)
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=+$/g, "");
 }
 
 function base64UrlToBytes(value: string): Uint8Array {
@@ -50,8 +53,7 @@ function validatePayload(payload: ProtectedPayload): void {
 		payload.alg !== "AES-GCM" ||
 		payload.kdf !== "PBKDF2" ||
 		payload.hash !== "SHA-256" ||
-		!Number.isInteger(payload.iterations) ||
-		payload.iterations < 100_000 ||
+		payload.iterations !== PROTECTED_ITERATIONS ||
 		!payload.scope ||
 		!payload.salt ||
 		!payload.iv ||
@@ -60,9 +62,25 @@ function validatePayload(payload: ProtectedPayload): void {
 	) {
 		throw new ProtectedContentError("Unsupported protected content payload");
 	}
+
+	try {
+		if (
+			base64UrlToBytes(payload.salt).byteLength !== 16 ||
+			base64UrlToBytes(payload.iv).byteLength !== 12 ||
+			base64UrlToBytes(payload.ciphertext).byteLength < 16
+		) {
+			throw new ProtectedContentError("Invalid protected content payload");
+		}
+	} catch {
+		throw new ProtectedContentError("Invalid protected content payload");
+	}
 }
 
-async function deriveKey(password: string, salt: Uint8Array, iterations: number) {
+async function deriveKey(
+	password: string,
+	salt: Uint8Array,
+	iterations: number,
+) {
 	const crypto = cryptoApi();
 	const material = await crypto.subtle.importKey(
 		"raw",
@@ -72,12 +90,12 @@ async function deriveKey(password: string, salt: Uint8Array, iterations: number)
 		["deriveKey"],
 	);
 	return crypto.subtle.deriveKey(
-			{
-				name: "PBKDF2",
-				salt: bufferSource(salt),
-				iterations,
-				hash: "SHA-256",
-			},
+		{
+			name: "PBKDF2",
+			salt: bufferSource(salt),
+			iterations,
+			hash: "SHA-256",
+		},
 		material,
 		{ name: "AES-GCM", length: 256 },
 		false,
@@ -91,17 +109,19 @@ export async function encryptProtectedContent(
 	scope: string,
 	contentType: ProtectedContentType = "application/json",
 ): Promise<ProtectedPayload> {
-	if (!password || !scope) throw new ProtectedContentError("Password and scope are required");
+	if (!password || !scope) {
+		throw new ProtectedContentError("Password and scope are required");
+	}
 	const crypto = cryptoApi();
 	const salt = crypto.getRandomValues(new Uint8Array(16));
 	const iv = crypto.getRandomValues(new Uint8Array(12));
 	const key = await deriveKey(password, salt, PROTECTED_ITERATIONS);
 	const ciphertext = await crypto.subtle.encrypt(
-			{
-				name: "AES-GCM",
-				iv: bufferSource(iv),
-				additionalData: bufferSource(aadFor(scope, PROTECTED_CONTENT_VERSION)),
-			},
+		{
+			name: "AES-GCM",
+			iv: bufferSource(iv),
+			additionalData: bufferSource(aadFor(scope, PROTECTED_CONTENT_VERSION)),
+		},
 		key,
 		encoder.encode(content),
 	);
@@ -122,7 +142,7 @@ export async function encryptProtectedContent(
 export async function decryptProtectedContent(
 	payload: ProtectedPayload,
 	password: string,
-	expectedScope = payload.scope,
+	expectedScope: string = payload.scope,
 ): Promise<string> {
 	validatePayload(payload);
 	if (!password || payload.scope !== expectedScope) {

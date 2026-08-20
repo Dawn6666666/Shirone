@@ -4,6 +4,9 @@
  * 数据驱动：headings 为 { depth, text, slug }[]；按相对层级缩进，
  * 顶级编号徽标、子级小圆点。激活态由调用方叠加类（配合滚动高亮脚本）。
  */
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+
 interface TocHeading {
 	depth: number;
 	text: string;
@@ -28,7 +31,7 @@ const visible = headings.filter((h) => h.depth < base + maxDepth);
 let counter = 0;
 ---
 
-<nav class:list={["m3-blog-toc", className]} aria-label="目录">
+<nav class:list={["m3-blog-toc", className]} aria-label={i18n(I18nKey.tableOfContents)}>
 	{visible.map((h) => {
 		const rel = h.depth - base;
 		const top = rel === 0;
@@ -50,7 +53,7 @@ let counter = 0;
 	})}
 </nav>
 
-<style lang="stylus">
+<style is:global lang="stylus">
 .m3-blog-toc
 	display: flex
 	flex-direction: column

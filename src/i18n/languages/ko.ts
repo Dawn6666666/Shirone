@@ -89,6 +89,21 @@ export const ko: Translation = {
 	[Key.albumPasswordUnlock]: "앨범 열기",
 	[Key.albumPasswordUnlocking]: "확인 중…",
 
+	[Key.postPasswordTitle]: "비밀번호로 보호된 글",
+	[Key.postPasswordDescription]:
+		"이 글은 암호화되어 있습니다. 내용을 보려면 비밀번호를 입력하세요.",
+	[Key.postPasswordLabel]: "비밀번호",
+	[Key.postPasswordShow]: "비밀번호 표시",
+	[Key.postPasswordHide]: "비밀번호 숨기기",
+	[Key.postPasswordRequired]: "비밀번호를 입력하세요",
+	[Key.postPasswordInvalid]: "비밀번호가 올바르지 않습니다",
+	[Key.postPasswordUnlock]: "글 열기",
+	[Key.postPasswordUnlocking]: "해독 중…",
+	[Key.postEncryptedSummary]: "이 글은 비밀번호로 보호되어 있습니다.",
+	[Key.postEncryptedBadge]: "잠김",
+	[Key.postRssEncryptedNotice]:
+		"이 글은 암호화되었습니다. 웹사이트를 방문하여 비밀번호를 입력해 읽어주세요.",
+
 	[Key.imageViewer]: "이미지 뷰어",
 	[Key.openImage]: "이미지 열기",
 	[Key.previousImage]: "이전 이미지",
@@ -100,6 +115,7 @@ export const ko: Translation = {
 	[Key.categories]: "카테고리",
 	[Key.recentPosts]: "최근 게시물",
 	[Key.tableOfContents]: "목차",
+	[Key.formulaScrollable]: "가로로 스크롤 가능한 수식",
 
 	[Key.comments]: "댓글",
 

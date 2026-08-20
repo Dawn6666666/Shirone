@@ -85,6 +85,21 @@ export const zh_CN: Translation = {
 	[Key.albumPasswordUnlock]: "解锁相册",
 	[Key.albumPasswordUnlocking]: "正在解锁…",
 
+	[Key.postPasswordTitle]: "受保护的文章",
+	[Key.postPasswordDescription]:
+		"该文章已被加密保护，请输入访问密码以解锁内容。",
+	[Key.postPasswordLabel]: "访问密码",
+	[Key.postPasswordShow]: "显示密码",
+	[Key.postPasswordHide]: "隐藏密码",
+	[Key.postPasswordRequired]: "请输入密码",
+	[Key.postPasswordInvalid]: "密码错误，请重新输入",
+	[Key.postPasswordUnlock]: "解锁文章",
+	[Key.postPasswordUnlocking]: "正在解密…",
+	[Key.postEncryptedSummary]: "该文章内容已加密，请输入密码后查看。",
+	[Key.postEncryptedBadge]: "已加密",
+	[Key.postRssEncryptedNotice]:
+		"本文已加密保护，请访问博客网站输入密码阅读全文。",
+
 	[Key.imageViewer]: "图片查看器",
 	[Key.openImage]: "打开图片",
 	[Key.previousImage]: "上一张",
@@ -96,6 +111,7 @@ export const zh_CN: Translation = {
 	[Key.categories]: "分类",
 	[Key.recentPosts]: "最新文章",
 	[Key.tableOfContents]: "文章目录",
+	[Key.formulaScrollable]: "可横向滚动的公式",
 
 	[Key.comments]: "评论",
 

@@ -92,6 +92,21 @@ export const tr: Translation = {
 	[Key.albumPasswordUnlock]: "Albümün kilidini aç",
 	[Key.albumPasswordUnlocking]: "Açılıyor…",
 
+	[Key.postPasswordTitle]: "Parola Korumalı Yazı",
+	[Key.postPasswordDescription]:
+		"Bu yazı şifrelenmiştir. Kilidi açmak için parolayı girin.",
+	[Key.postPasswordLabel]: "Parola",
+	[Key.postPasswordShow]: "Parolayı göster",
+	[Key.postPasswordHide]: "Parolayı gizle",
+	[Key.postPasswordRequired]: "Bir parola girin",
+	[Key.postPasswordInvalid]: "Hatalı parola",
+	[Key.postPasswordUnlock]: "Yazının Kilidini Aç",
+	[Key.postPasswordUnlocking]: "Şifre çözülüyor…",
+	[Key.postEncryptedSummary]: "Bu yazı parola ile korunmaktadır.",
+	[Key.postEncryptedBadge]: "Korumalı",
+	[Key.postRssEncryptedNotice]:
+		"Bu yazı şifrelidir. Tamamını okumak için lütfen siteyi ziyaret edin.",
+
 	[Key.imageViewer]: "Görsel görüntüleyici",
 	[Key.openImage]: "Görseli aç",
 	[Key.previousImage]: "Önceki görsel",
@@ -103,6 +118,7 @@ export const tr: Translation = {
 	[Key.categories]: "Katagoriler",
 	[Key.recentPosts]: "Son Paylaşımlar",
 	[Key.tableOfContents]: "İçindekiler",
+	[Key.formulaScrollable]: "Yatay kaydırılabilir formül",
 
 	[Key.comments]: "Yorumlar",
 

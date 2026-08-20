@@ -1,15 +1,23 @@
-import type { ProtectedSession } from "@/types/protectedContent";
+import type {
+	ProtectedPayload,
+	ProtectedSession,
+} from "@/types/protectedContent";
 
 const SESSION_PREFIX = "shirone:protected:v1:";
 const SESSION_TTL = 30 * 60 * 1000;
 
-type SessionMarker = {
-	v: 1;
-	scope: string;
-	expiresAt: number;
-};
+const MEMORY_KEY = Symbol.for("shirone.protected.sessions.v1");
+const memoryHost = globalThis as typeof globalThis & Record<symbol, unknown>;
+const memory =
+	(memoryHost[MEMORY_KEY] as Map<string, ProtectedSession> | undefined) ??
+	new Map<string, ProtectedSession>();
+memoryHost[MEMORY_KEY] = memory;
 
-const memory = new Map<string, ProtectedSession>();
+export function protectedPayloadId(payload: ProtectedPayload): string {
+	// Salt, IV and ciphertext are intentionally randomized on every dev render.
+	// The authenticated scope and content contract are the stable session identity.
+	return [payload.v, payload.scope, payload.contentType].join(":");
+}
 
 function keyFor(scope: string): string {
 	return `${SESSION_PREFIX}${encodeURIComponent(scope)}`;
@@ -24,33 +32,29 @@ function storage(): Storage | null {
 	}
 }
 
-function validMarker(value: unknown, scope: string): value is SessionMarker {
-	if (!value || typeof value !== "object") return false;
-	const marker = value as Partial<SessionMarker>;
-	return (
-		marker.v === 1 &&
-		marker.scope === scope &&
-		typeof marker.expiresAt === "number" &&
-		marker.expiresAt > Date.now()
-	);
-}
-
-function validMemorySession(
-	value: ProtectedSession | undefined,
+function validSession(
+	value: unknown,
 	scope: string,
+	payloadId: string,
 ): value is ProtectedSession {
+	if (!value || typeof value !== "object") return false;
+	const candidate = value as Partial<ProtectedSession>;
 	return Boolean(
-		value &&
-		value.v === 1 &&
-		value.scope === scope &&
-		value.expiresAt > Date.now() &&
-		typeof value.content === "string",
+		candidate.v === 1 &&
+			candidate.scope === scope &&
+			candidate.payloadId === payloadId &&
+			typeof candidate.expiresAt === "number" &&
+			candidate.expiresAt > Date.now() &&
+			typeof candidate.content === "string",
 	);
 }
 
-export function readProtectedSession(scope: string): ProtectedSession | null {
+export function readProtectedSession(
+	scope: string,
+	payloadId: string,
+): ProtectedSession | null {
 	const cached = memory.get(scope);
-	if (validMemorySession(cached, scope)) return cached;
+	if (validSession(cached, scope, payloadId)) return cached;
 	memory.delete(scope);
 
 	const store = storage();
@@ -59,13 +63,13 @@ export function readProtectedSession(scope: string): ProtectedSession | null {
 		const raw = store.getItem(keyFor(scope));
 		if (!raw) return null;
 		const parsed: unknown = JSON.parse(raw);
-		if (!validMarker(parsed, scope)) {
+		if (!validSession(parsed, scope, payloadId)) {
 			store.removeItem(keyFor(scope));
 			return null;
 		}
-		// A marker cannot restore decrypted content after a reload. Keep no pseudo-session.
-		store.removeItem(keyFor(scope));
-		return null;
+		const session: ProtectedSession = parsed;
+		memory.set(scope, session);
+		return session;
 	} catch {
 		store.removeItem(keyFor(scope));
 		return null;
@@ -74,24 +78,21 @@ export function readProtectedSession(scope: string): ProtectedSession | null {
 
 export function writeProtectedSession(
 	scope: string,
+	payloadId: string,
 	content: string,
 ): ProtectedSession {
 	const session: ProtectedSession = {
 		v: 1,
 		scope,
+		payloadId,
 		content,
 		expiresAt: Date.now() + SESSION_TTL,
 	};
 	memory.set(scope, session);
 
 	const store = storage();
-	const marker: SessionMarker = {
-		v: 1,
-		scope,
-		expiresAt: session.expiresAt,
-	};
 	try {
-		store?.setItem(keyFor(scope), JSON.stringify(marker));
+		store?.setItem(keyFor(scope), JSON.stringify(session));
 	} catch {
 		// Session storage can be unavailable or quota-limited; memory remains usable.
 	}

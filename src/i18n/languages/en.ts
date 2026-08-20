@@ -91,6 +91,21 @@ export const en: Translation = {
 	[Key.albumPasswordUnlock]: "Unlock album",
 	[Key.albumPasswordUnlocking]: "Unlocking…",
 
+	[Key.postPasswordTitle]: "Password Protected",
+	[Key.postPasswordDescription]:
+		"This post is encrypted. Enter the password to unlock its content.",
+	[Key.postPasswordLabel]: "Password",
+	[Key.postPasswordShow]: "Show password",
+	[Key.postPasswordHide]: "Hide password",
+	[Key.postPasswordRequired]: "Enter a password",
+	[Key.postPasswordInvalid]: "Incorrect password",
+	[Key.postPasswordUnlock]: "Unlock Post",
+	[Key.postPasswordUnlocking]: "Decrypting…",
+	[Key.postEncryptedSummary]: "This post is password-protected.",
+	[Key.postEncryptedBadge]: "Protected",
+	[Key.postRssEncryptedNotice]:
+		"This post is encrypted. Please visit the website and enter the password to read the full article.",
+
 	[Key.imageViewer]: "Image viewer",
 	[Key.openImage]: "Open image",
 	[Key.previousImage]: "Previous image",
@@ -102,6 +117,7 @@ export const en: Translation = {
 	[Key.categories]: "Categories",
 	[Key.recentPosts]: "Recent Posts",
 	[Key.tableOfContents]: "Table of Contents",
+	[Key.formulaScrollable]: "Horizontally scrollable formula",
 
 	[Key.comments]: "Comments",
 

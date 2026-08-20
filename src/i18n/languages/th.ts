@@ -85,6 +85,19 @@ export const th: Translation = {
 	[Key.albumPasswordUnlock]: "ปลดล็อกอัลบั้ม",
 	[Key.albumPasswordUnlocking]: "กำลังปลดล็อก…",
 
+	[Key.postPasswordTitle]: "บทความที่ได้รับการป้องกัน",
+	[Key.postPasswordDescription]: "บทความนี้ถูกเข้ารหัส กรุณากรอกรหัสผ่านเพื่อปลดล็อก",
+	[Key.postPasswordLabel]: "รหัสผ่าน",
+	[Key.postPasswordShow]: "แสดงรหัสผ่าน",
+	[Key.postPasswordHide]: "ซ่อนรหัสผ่าน",
+	[Key.postPasswordRequired]: "กรุณากรอกรหัสผ่าน",
+	[Key.postPasswordInvalid]: "รหัสผ่านไม่ถูกต้อง",
+	[Key.postPasswordUnlock]: "ปลดล็อกบทความ",
+	[Key.postPasswordUnlocking]: "กำลังถอดรหัส…",
+	[Key.postEncryptedSummary]: "บทความนี้ได้รับการป้องกันด้วยรหัสผ่าน",
+	[Key.postEncryptedBadge]: "เข้ารหัสแล้ว",
+	[Key.postRssEncryptedNotice]: "บทความนี้ถูกเข้ารหัส กรุณาเข้าสู่เว็บไซต์เพื่อกรอกรหัสผ่าน",
+
 	[Key.imageViewer]: "ตัวดูรูปภาพ",
 	[Key.openImage]: "เปิดรูปภาพ",
 	[Key.previousImage]: "รูปก่อนหน้า",
@@ -96,6 +109,7 @@ export const th: Translation = {
 	[Key.categories]: "หมวดหมู่",
 	[Key.recentPosts]: "โพสต์ล่าสุด",
 	[Key.tableOfContents]: "สารบัญ",
+	[Key.formulaScrollable]: "สูตรที่เลื่อนในแนวนอนได้",
 
 	[Key.comments]: "ความคิดเห็น",
 
