@@ -127,6 +127,14 @@ export const ja: Translation = {
 	[Key.calendarPrevMonth]: "前の月",
 	[Key.calendarNextMonth]: "次の月",
 
+	[Key.mermaidControls]: "図のコントロール",
+	[Key.mermaidZoomIn]: "拡大",
+	[Key.mermaidZoomOut]: "縮小",
+	[Key.mermaidResetView]: "表示をリセット",
+	[Key.mermaidOpenFullscreen]: "全画面表示を開く",
+	[Key.mermaidCloseFullscreen]: "全画面表示を閉じる",
+	[Key.mermaidFullscreenDiagram]: "全画面の図: {diagram}",
+
 	[Key.sidebar]: "サイドバー",
 	[Key.sidebarSecondary]: "サブサイドバー",
 

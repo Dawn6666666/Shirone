@@ -126,6 +126,14 @@ export const es: Translation = {
 	[Key.calendarPrevMonth]: "Mes anterior",
 	[Key.calendarNextMonth]: "Mes siguiente",
 
+	[Key.mermaidControls]: "Controles del diagrama",
+	[Key.mermaidZoomIn]: "Acercar",
+	[Key.mermaidZoomOut]: "Alejar",
+	[Key.mermaidResetView]: "Restablecer vista",
+	[Key.mermaidOpenFullscreen]: "Abrir pantalla completa",
+	[Key.mermaidCloseFullscreen]: "Cerrar pantalla completa",
+	[Key.mermaidFullscreenDiagram]: "Diagrama en pantalla completa: {diagram}",
+
 	[Key.sidebar]: "Barra lateral",
 	[Key.sidebarSecondary]: "Barra lateral secundaria",
 

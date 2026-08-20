@@ -121,6 +121,14 @@ export const th: Translation = {
 	[Key.calendarPrevMonth]: "เดือนก่อน",
 	[Key.calendarNextMonth]: "เดือนถัดไป",
 
+	[Key.mermaidControls]: "ตัวควบคุมแผนภาพ",
+	[Key.mermaidZoomIn]: "ขยาย",
+	[Key.mermaidZoomOut]: "ย่อ",
+	[Key.mermaidResetView]: "รีเซ็ตมุมมอง",
+	[Key.mermaidOpenFullscreen]: "เปิดเต็มหน้าจอ",
+	[Key.mermaidCloseFullscreen]: "ปิดเต็มหน้าจอ",
+	[Key.mermaidFullscreenDiagram]: "แผนภาพเต็มหน้าจอ: {diagram}",
+
 	[Key.sidebar]: "แถบด้านข้าง",
 	[Key.sidebarSecondary]: "แถบด้านข้างรอง",
 

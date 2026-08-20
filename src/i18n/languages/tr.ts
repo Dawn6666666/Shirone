@@ -126,6 +126,14 @@ export const tr: Translation = {
 	[Key.calendarPrevMonth]: "Önceki ay",
 	[Key.calendarNextMonth]: "Sonraki ay",
 
+	[Key.mermaidControls]: "Diyagram denetimleri",
+	[Key.mermaidZoomIn]: "Yakınlaştır",
+	[Key.mermaidZoomOut]: "Uzaklaştır",
+	[Key.mermaidResetView]: "Görünümü sıfırla",
+	[Key.mermaidOpenFullscreen]: "Tam ekran aç",
+	[Key.mermaidCloseFullscreen]: "Tam ekranı kapat",
+	[Key.mermaidFullscreenDiagram]: "Tam ekran diyagramı: {diagram}",
+
 	[Key.sidebar]: "Kenar çubuğu",
 	[Key.sidebarSecondary]: "İkincil kenar çubuğu",
 

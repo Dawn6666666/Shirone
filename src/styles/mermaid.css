@@ -5,7 +5,7 @@
 
 .custom-md .markdown-mermaid__surface {
 	max-width: 100%;
-	overflow: hidden;
+	overflow: visible;
 	padding: var(--m3e-space-4);
 	border: 1px solid var(--outline-variant);
 	border-radius: var(--shape-corner-l);
@@ -36,6 +36,30 @@
 	outline: none;
 }
 
+.custom-md .markdown-mermaid__controls:empty {
+	display: none;
+}
+
+.custom-md .markdown-mermaid__viewport {
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	overflow: hidden;
+	overscroll-behavior: auto;
+	touch-action: pan-y;
+}
+
+.custom-md .markdown-mermaid__viewport[data-mermaid-pannable="true"] {
+	overscroll-behavior: contain;
+	touch-action: none;
+}
+
+.custom-md
+	.markdown-mermaid__viewport[data-mermaid-pannable="true"]:active {
+	cursor: grabbing;
+}
+
 .custom-md .markdown-mermaid__diagram:focus-visible {
 	outline: 2px solid var(--primary);
 	outline-offset: 2px;
@@ -47,6 +71,16 @@
 	max-width: none;
 	height: auto;
 	margin-inline: auto;
+}
+
+.custom-md .markdown-mermaid__transform {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+}
+
+.custom-md .markdown-mermaid__transform svg {
+	position: static;
 }
 
 @media (min-width: 48rem) {

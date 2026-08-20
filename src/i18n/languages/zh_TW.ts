@@ -121,6 +121,14 @@ export const zh_TW: Translation = {
 	[Key.calendarPrevMonth]: "上一月",
 	[Key.calendarNextMonth]: "下一月",
 
+	[Key.mermaidControls]: "圖表控制項",
+	[Key.mermaidZoomIn]: "放大",
+	[Key.mermaidZoomOut]: "縮小",
+	[Key.mermaidResetView]: "重設檢視",
+	[Key.mermaidOpenFullscreen]: "開啟全螢幕",
+	[Key.mermaidCloseFullscreen]: "關閉全螢幕",
+	[Key.mermaidFullscreenDiagram]: "全螢幕圖表：{diagram}",
+
 	[Key.sidebar]: "側欄",
 	[Key.sidebarSecondary]: "次側欄",
 

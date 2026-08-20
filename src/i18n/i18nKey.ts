@@ -119,6 +119,14 @@ enum I18nKey {
 	calendarPrevMonth = "calendarPrevMonth",
 	calendarNextMonth = "calendarNextMonth",
 
+	mermaidControls = "mermaidControls",
+	mermaidZoomIn = "mermaidZoomIn",
+	mermaidZoomOut = "mermaidZoomOut",
+	mermaidResetView = "mermaidResetView",
+	mermaidOpenFullscreen = "mermaidOpenFullscreen",
+	mermaidCloseFullscreen = "mermaidCloseFullscreen",
+	mermaidFullscreenDiagram = "mermaidFullscreenDiagram",
+
 	sidebar = "sidebar",
 	sidebarSecondary = "sidebarSecondary",
 

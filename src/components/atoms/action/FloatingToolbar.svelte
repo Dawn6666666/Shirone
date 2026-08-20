@@ -17,6 +17,8 @@ let {
 	leading,
 	trailing,
 	containerColor,
+	label = "",
+	expandLabel = "",
 	class: className = "",
 	children,
 }: {
@@ -28,6 +30,10 @@ let {
 	trailing?: import("svelte").Snippet;
 	/** 容器色覆盖（默认 primary-container） */
 	containerColor?: string;
+	/** 工具栏的无障碍名称 */
+	label?: string;
+	/** 收起状态切换按钮的无障碍名称 */
+	expandLabel?: string;
 	class?: string;
 	children?: import("svelte").Snippet;
 } = $props();
@@ -39,11 +45,12 @@ let {
     class:m3-toolbar--collapsed={!expanded}
     style={containerColor ? `--m3-toolbar-bg: ${containerColor}` : undefined}
     role="toolbar"
+    aria-label={label || undefined}
 >
     {#if !expanded}
         <button
             class="m3-toolbar__toggle"
-            aria-label="展开工具栏"
+            aria-label={expandLabel || label || undefined}
             onclick={() => (expanded = true)}
         >
             {@render leading?.()}

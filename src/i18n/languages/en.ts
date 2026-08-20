@@ -127,6 +127,14 @@ export const en: Translation = {
 	[Key.calendarPrevMonth]: "Previous month",
 	[Key.calendarNextMonth]: "Next month",
 
+	[Key.mermaidControls]: "Diagram controls",
+	[Key.mermaidZoomIn]: "Zoom in",
+	[Key.mermaidZoomOut]: "Zoom out",
+	[Key.mermaidResetView]: "Reset view",
+	[Key.mermaidOpenFullscreen]: "Open fullscreen",
+	[Key.mermaidCloseFullscreen]: "Close fullscreen",
+	[Key.mermaidFullscreenDiagram]: "Fullscreen diagram: {diagram}",
+
 	[Key.sidebar]: "Sidebar",
 	[Key.sidebarSecondary]: "Secondary sidebar",
 

@@ -4,6 +4,14 @@ import { expect, test } from "@playwright/test";
 const POST_PATH = "/posts/markdown-extended/";
 const DEMO_PATH = "/posts/markdown-mermaid/";
 
+async function waitForViewer(page: import("@playwright/test").Page) {
+	const diagram = page.locator(".markdown-mermaid").first();
+	await expect(diagram).toHaveAttribute("data-mermaid-interaction", "ready", {
+		timeout: 15_000,
+	});
+	return diagram;
+}
+
 test.describe("Mermaid diagrams", () => {
 	test("preserves an SSR fallback and renders a themed SVG", async ({
 		page,
@@ -51,12 +59,195 @@ test.describe("Mermaid diagrams", () => {
 			timeout: 15_000,
 		});
 
+		await expect(diagram).toHaveAttribute("data-mermaid-interaction", "ready");
 		const bounds = await diagram.evaluate((element) => {
 			const rect = element.getBoundingClientRect();
-			return { left: rect.left, right: rect.right, viewport: innerWidth };
+			const viewportElement = element.querySelector(
+				".markdown-mermaid__viewport",
+			);
+			const svgElement = element.querySelector("[data-mermaid-svg]");
+			if (!viewportElement || !svgElement) {
+				throw new Error("Mermaid interaction elements are missing");
+			}
+			const viewport = viewportElement.getBoundingClientRect();
+			const svg = svgElement.getBoundingClientRect();
+			return {
+				left: rect.left,
+				right: rect.right,
+				viewportWidth: innerWidth,
+				fitted:
+					svg.left >= viewport.left - 1 &&
+					svg.right <= viewport.right + 1 &&
+					svg.top >= viewport.top - 1 &&
+					svg.bottom <= viewport.bottom + 1,
+			};
 		});
 		expect(bounds.left).toBeGreaterThanOrEqual(0);
-		expect(bounds.right).toBeLessThanOrEqual(bounds.viewport + 1);
+		expect(bounds.right).toBeLessThanOrEqual(bounds.viewportWidth + 1);
+		expect(bounds.fitted).toBe(true);
+	});
+
+	test("zooms, resets, and leaves ordinary wheel scrolling to the page", async ({
+		page,
+	}) => {
+		await page.goto(POST_PATH, { waitUntil: "domcontentloaded" });
+		const diagram = await waitForViewer(page);
+		const viewport = diagram.locator(".markdown-mermaid__viewport");
+		await expect(viewport).toHaveAttribute("data-mermaid-user-zoom", "1.0000");
+
+		await diagram.getByRole("button", { name: "Zoom in" }).click();
+		await expect
+			.poll(() =>
+				viewport
+					.locator(".markdown-mermaid__transform")
+					.evaluate((element) => getComputedStyle(element).transitionDuration),
+			)
+			.toBe("0.25s");
+		await expect
+			.poll(async () =>
+				Number(await viewport.getAttribute("data-mermaid-user-zoom")),
+			)
+			.toBeGreaterThan(1);
+
+		const viewportBox = await viewport.boundingBox();
+		if (!viewportBox) throw new Error("Mermaid viewport is missing");
+		const svg = viewport.locator("svg");
+		const beforePan = await svg.boundingBox();
+		if (!beforePan) throw new Error("Mermaid SVG is missing");
+		await page.mouse.move(
+			viewportBox.x + viewportBox.width / 2,
+			viewportBox.y + viewportBox.height / 2,
+		);
+		await page.mouse.down();
+		await page.mouse.move(
+			viewportBox.x + viewportBox.width / 2 - 80,
+			viewportBox.y + viewportBox.height / 2,
+			{ steps: 8 },
+		);
+		await page.mouse.up();
+		await expect
+			.poll(async () => (await svg.boundingBox())?.x ?? beforePan.x)
+			.toBeLessThan(beforePan.x - 40);
+
+		const beforeTouchPan = await svg.boundingBox();
+		if (!beforeTouchPan) throw new Error("Mermaid SVG is missing");
+		const touchStart = {
+			x: viewportBox.x + viewportBox.width / 2,
+			y: viewportBox.y + viewportBox.height / 2,
+		};
+		await viewport.dispatchEvent("pointerdown", {
+			bubbles: true,
+			buttons: 1,
+			clientX: touchStart.x,
+			clientY: touchStart.y,
+			isPrimary: true,
+			pointerId: 41,
+			pointerType: "touch",
+		});
+		await page.evaluate(({ x, y }) => {
+			document.dispatchEvent(
+				new PointerEvent("pointermove", {
+					bubbles: true,
+					buttons: 1,
+					clientX: x + 60,
+					clientY: y + 30,
+					isPrimary: true,
+					pointerId: 41,
+					pointerType: "touch",
+				}),
+			);
+			document.dispatchEvent(
+				new PointerEvent("pointerup", {
+					bubbles: true,
+					clientX: x + 60,
+					clientY: y + 30,
+					isPrimary: true,
+					pointerId: 41,
+					pointerType: "touch",
+				}),
+			);
+		}, touchStart);
+		await expect
+			.poll(async () => (await svg.boundingBox())?.x ?? beforeTouchPan.x)
+			.toBeGreaterThan(beforeTouchPan.x + 30);
+
+		await diagram.getByRole("button", { name: "Reset view" }).click();
+		await expect(viewport).toHaveAttribute("data-mermaid-user-zoom", "1.0000");
+
+		await viewport.scrollIntoViewIfNeeded();
+		const beforeScroll = await page.evaluate(() => scrollY);
+		await viewport.hover();
+		await page.mouse.wheel(0, -240);
+		await expect
+			.poll(() => page.evaluate(() => scrollY))
+			.toBeLessThan(beforeScroll);
+		await expect(viewport).toHaveAttribute("data-mermaid-user-zoom", "1.0000");
+
+		await viewport.dispatchEvent("wheel", { ctrlKey: true, deltaY: -120 });
+		await expect
+			.poll(async () =>
+				Number(await viewport.getAttribute("data-mermaid-user-zoom")),
+			)
+			.toBeGreaterThan(1);
+	});
+
+	test("keeps fullscreen modal state across theme renders and restores focus", async ({
+		page,
+	}) => {
+		await page.goto(POST_PATH, { waitUntil: "domcontentloaded" });
+		const diagram = await waitForViewer(page);
+		const openButton = diagram.getByRole("button", { name: "Open fullscreen" });
+		await openButton.click();
+
+		const dialog = page.getByRole("dialog", {
+			name: /Fullscreen diagram:/,
+		});
+		await expect(dialog).toBeVisible();
+		await expect(
+			dialog.locator("[data-mermaid-fullscreen-viewport] svg"),
+		).toHaveCount(1);
+		const fullscreenViewport = dialog.locator(
+			"[data-mermaid-fullscreen-viewport]",
+		);
+		const fullscreenSvg = fullscreenViewport.locator("svg");
+		await expect(fullscreenViewport).toHaveAttribute(
+			"data-mermaid-pannable",
+			"true",
+		);
+		const viewportBox = await fullscreenViewport.boundingBox();
+		const beforePan = await fullscreenSvg.boundingBox();
+		if (!viewportBox || !beforePan) {
+			throw new Error("Fullscreen Mermaid interaction elements are missing");
+		}
+		await page.mouse.move(
+			viewportBox.x + viewportBox.width / 2,
+			viewportBox.y + viewportBox.height / 2,
+		);
+		await page.mouse.down();
+		await page.mouse.move(
+			viewportBox.x + viewportBox.width / 2 + 80,
+			viewportBox.y + viewportBox.height / 2 + 40,
+			{ steps: 8 },
+		);
+		await page.mouse.up();
+		await expect
+			.poll(async () => (await fullscreenSvg.boundingBox())?.x ?? beforePan.x)
+			.toBeGreaterThan(beforePan.x + 40);
+		const firstTheme = await diagram.getAttribute("data-mermaid-theme");
+		await page.evaluate(() =>
+			document.documentElement.classList.toggle("dark"),
+		);
+		await expect
+			.poll(() => diagram.getAttribute("data-mermaid-theme"))
+			.not.toBe(firstTheme);
+		await expect(dialog).toBeVisible();
+		await expect(
+			dialog.locator("[data-mermaid-fullscreen-viewport] svg"),
+		).toHaveCount(1);
+
+		await page.keyboard.press("Escape");
+		await expect(dialog).toBeHidden();
+		await expect(openButton).toBeFocused();
 	});
 
 	test("renders after Swup replaces the article content", async ({ page }) => {
@@ -91,6 +282,7 @@ test.describe("Mermaid diagrams", () => {
 			)
 			.toBe(14);
 		await expect(diagrams.locator("[data-mermaid-svg]")).toHaveCount(14);
+		await expect(diagrams.locator("[data-mermaid-toolbar]")).toHaveCount(14);
 		const regions = diagrams.locator(
 			'.markdown-mermaid__diagram[role="region"]',
 		);

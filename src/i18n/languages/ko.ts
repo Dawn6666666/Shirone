@@ -125,6 +125,14 @@ export const ko: Translation = {
 	[Key.calendarPrevMonth]: "이전 달",
 	[Key.calendarNextMonth]: "다음 달",
 
+	[Key.mermaidControls]: "다이어그램 컨트롤",
+	[Key.mermaidZoomIn]: "확대",
+	[Key.mermaidZoomOut]: "축소",
+	[Key.mermaidResetView]: "보기 재설정",
+	[Key.mermaidOpenFullscreen]: "전체 화면 열기",
+	[Key.mermaidCloseFullscreen]: "전체 화면 닫기",
+	[Key.mermaidFullscreenDiagram]: "전체 화면 다이어그램: {diagram}",
+
 	[Key.sidebar]: "사이드바",
 	[Key.sidebarSecondary]: "보조 사이드바",
 

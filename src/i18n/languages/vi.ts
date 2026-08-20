@@ -128,6 +128,14 @@ export const vi: Translation = {
 	[Key.calendarPrevMonth]: "Tháng trước",
 	[Key.calendarNextMonth]: "Tháng sau",
 
+	[Key.mermaidControls]: "Điều khiển sơ đồ",
+	[Key.mermaidZoomIn]: "Phóng to",
+	[Key.mermaidZoomOut]: "Thu nhỏ",
+	[Key.mermaidResetView]: "Đặt lại chế độ xem",
+	[Key.mermaidOpenFullscreen]: "Mở toàn màn hình",
+	[Key.mermaidCloseFullscreen]: "Đóng toàn màn hình",
+	[Key.mermaidFullscreenDiagram]: "Sơ đồ toàn màn hình: {diagram}",
+
 	[Key.sidebar]: "Thanh bên",
 	[Key.sidebarSecondary]: "Thanh bên phụ",
 

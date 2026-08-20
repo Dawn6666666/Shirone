@@ -35,6 +35,7 @@
     "@iconify-json/material-symbols": "^1.2.88",
     "@iconify/svelte": "^5.2.2",
     "@material/material-color-utilities": "^0.4.0",
+    "@panzoom/panzoom": "4.6.2",
     "@swup/astro": "^1.8.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "4",

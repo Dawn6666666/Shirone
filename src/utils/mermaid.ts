@@ -1,3 +1,5 @@
+import type { MermaidInteractionController } from "./mermaid-interaction";
+
 const DIAGRAM_SELECTOR = ".markdown-mermaid[data-mermaid]";
 const THEME_PROPERTIES = [
 	"--mc-primary",
@@ -24,6 +26,20 @@ let rendering = false;
 let rerenderRequested = false;
 let lastThemeSignature = "";
 let swupBound = false;
+const interactionControllers = new WeakMap<
+	HTMLElement,
+	MermaidInteractionController
+>();
+const interactionHosts = new Set<HTMLElement>();
+
+function cleanupDisconnectedInteractions() {
+	for (const host of interactionHosts) {
+		if (host.isConnected) continue;
+		interactionControllers.get(host)?.destroy();
+		interactionControllers.delete(host);
+		interactionHosts.delete(host);
+	}
+}
 
 function readTheme() {
 	const root = document.documentElement;
@@ -114,6 +130,7 @@ async function renderDiagrams() {
 		return;
 	}
 
+	cleanupDisconnectedInteractions();
 	const diagrams = Array.from(
 		document.querySelectorAll<HTMLElement>(DIAGRAM_SELECTOR),
 	);
@@ -172,10 +189,33 @@ async function renderDiagrams() {
 						output.removeAttribute("aria-label");
 					}
 				}
-				output.querySelector("[data-mermaid-svg]")?.remove();
-				output.append(svgElement);
+				const controller = interactionControllers.get(diagram);
+				if (controller) {
+					controller.replaceSvg(svgElement);
+				} else {
+					output.querySelector("[data-mermaid-svg]")?.remove();
+					output.append(svgElement);
+				}
 				diagram.dataset.mermaidTheme = theme.signature;
 				diagram.dataset.mermaidState = "ready";
+
+				if (!controller) {
+					try {
+						const { attachMermaidInteraction } = await import(
+							"./mermaid-interaction"
+						);
+						if (!diagram.isConnected) continue;
+						const nextController = attachMermaidInteraction(
+							diagram,
+							output,
+							svgElement,
+						);
+						interactionControllers.set(diagram, nextController);
+						interactionHosts.add(diagram);
+					} catch (error) {
+						console.error("Failed to add Mermaid diagram interactions", error);
+					}
+				}
 			} catch (error) {
 				diagram.dataset.mermaidState = "error";
 				console.error("Failed to render Mermaid diagram", error);
@@ -214,7 +254,10 @@ export function initMermaidDiagrams() {
 	const bindSwup = () => {
 		if (!window.swup?.hooks || swupBound) return;
 		swupBound = true;
-		window.swup.hooks.on("content:replace", scheduleMermaidRender);
+		window.swup.hooks.on("content:replace", () => {
+			cleanupDisconnectedInteractions();
+			scheduleMermaidRender();
+		});
 	};
 	if (window.swup?.hooks) {
 		bindSwup();

@@ -127,6 +127,14 @@ export const id: Translation = {
 	[Key.calendarPrevMonth]: "Bulan sebelumnya",
 	[Key.calendarNextMonth]: "Bulan berikutnya",
 
+	[Key.mermaidControls]: "Kontrol diagram",
+	[Key.mermaidZoomIn]: "Perbesar",
+	[Key.mermaidZoomOut]: "Perkecil",
+	[Key.mermaidResetView]: "Atur ulang tampilan",
+	[Key.mermaidOpenFullscreen]: "Buka layar penuh",
+	[Key.mermaidCloseFullscreen]: "Tutup layar penuh",
+	[Key.mermaidFullscreenDiagram]: "Diagram layar penuh: {diagram}",
+
 	[Key.sidebar]: "Bilah samping",
 	[Key.sidebarSecondary]: "Bilah samping sekunder",
 
