@@ -67,8 +67,10 @@ test.describe("项目页", () => {
 		await expect(page.locator('widget-layout[data-id="tags"]')).toBeVisible();
 	});
 
-	test("分类筛选会同步项目数量与可见卡片", async ({ page }) => {
+	test("分类筛选会同步项目数量与可见卡片（含 LoadingIndicator 过渡）", async ({ page }) => {
 		await page.getByRole("button", { name: "Android", exact: true }).click();
+		// 三段过渡的指示器阶段（contained LoadingIndicator 出现在内容区）
+		await expect(page.locator(".projects-section__loading .m3-loading--contained")).toBeVisible();
 		await expect(page.locator(".project-card")).toHaveCount(2);
 		await expect(page.locator(".projects-section__count")).toHaveText(
 			"2 projects",
@@ -76,9 +78,25 @@ test.describe("项目页", () => {
 		await expect(page.locator('[data-project="shirone"]')).toHaveCount(0);
 		await expect(page.locator('[data-project="folkpatch"]')).toBeVisible();
 		await expect(page.locator('[data-project="kernelpatch"]')).toBeVisible();
+		await expect(page.locator(".projects-section__loading")).toHaveCount(0);
 
 		await page.getByRole("button", { name: "Android", exact: true }).click();
 		await expect(page.locator(".project-card")).toHaveCount(PROJECT_COUNT);
+	});
+
+	test("实时搜索过滤与清除（URL ?q= 同步）", async ({ page }) => {
+		const searchInput = page.locator(".projects-section__search input");
+		await expect(searchInput).toBeVisible();
+		await searchInput.fill("Shirone");
+		await expect(page.locator(".project-card")).toHaveCount(1);
+		await expect(page.locator('[data-project="shirone"]')).toBeVisible();
+		await expect(page).toHaveURL(/[?&]q=Shirone/);
+
+		// 清除搜索恢复全部
+		const clearBtn = page.locator(".projects-section__search-clear");
+		await clearBtn.click();
+		await expect(page.locator(".project-card")).toHaveCount(PROJECT_COUNT);
+		await expect(page).not.toHaveURL(/q=/);
 	});
 
 	test("桌面与手机布局之间无刷新切换时重置瀑布流定位", async ({ page }) => {

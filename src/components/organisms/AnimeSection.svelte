@@ -259,17 +259,6 @@
 		<div class="anime-section__empty">
 			<Icon icon="material-symbols:search-off-outline-rounded" aria-hidden="true" />
 			<span>{i18n(I18nKey.animeNoResults)}</span>
-			{#if query || selectedStatus}
-				<Button
-					variant="tonal"
-					icon="material-symbols:restart-alt-rounded"
-					label={i18n(I18nKey.clear)}
-					onclick={() => {
-						query = "";
-						selectedStatus = "";
-					}}
-				/>
-			{/if}
 		</div>
 	{/if}
 </Card>

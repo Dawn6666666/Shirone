@@ -2,15 +2,18 @@
 /**
  * 项目卡片（分子）：统一卡片壳 + 单一骨架，无断点分叉。
  * - 卡片壳对齐站点卡片语言（FriendCard/AnimeCard/SkillCard）：
- *   --card-bg + outline-variant 描边 + corner-l，hover 升级描边与 elevation-1；
+ *   --card-bg + outline-variant 描边 + corner-l，hover 升级描边与 elevation-2；
+ * - 代表项目（featured）：高亮边框渐变 + Featured 徽章；
  * - 有封面：通栏 16/9 媒体区（aspect-ratio 锁高 + object-fit: cover），
  *   任何宽度下图片都不可能撑高卡片，手机端不再被拉伸；
  *   加载前显示主题色渐变占位；封面可点（website）时整图外链；
- * - 无封面：回退为图标瓷砖头（图标 + 标题/阶段并排），不保留空图槽；
+ * - 无封面：回退为精致图标瓷砖头（图标 + 标题/阶段并排），不保留空图槽；
  * - 阶段为 tonal pill：语义色经 inline --project-phase-color 注入
  *   （shipped → tertiary / building → primary / exploring → secondary，
  *   与 ANIME_STATUS_META 的角色映射同源），避免动态 class 触发
  *   Svelte unused-CSS 剥离（见 rules/pitfalls.md 1.6）；
+ * - 技术栈微胶囊（micro-badges）：统一 tonal pill 风格；
+ * - 操作链接：M3 胶囊操作按钮，带图标与交互动效；
  * - 封面加载失败自动回退到图标形态，不破版。
  */
 import I18nKey from "@i18n/i18nKey";
@@ -56,6 +59,13 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 		decoding="async"
 		onerror={() => (coverFailed = true)}
 	/>
+	<span class="project-card__scrim" aria-hidden="true"></span>
+	{#if project.featured}
+		<span class="project-card__featured-badge" aria-hidden="true">
+			<Icon icon="material-symbols:star-rounded" />
+			<span>{i18n(I18nKey.pinned)}</span>
+		</span>
+	{/if}
 {/snippet}
 
 <article
@@ -140,6 +150,7 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 @import "../../styles/breakpoints.styl"
 
 .project-card
+	position: relative
 	display: flex
 	flex-direction: column
 	box-sizing: border-box
@@ -151,12 +162,20 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 	transition:
 		border-color var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
 		box-shadow var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+		transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
 		background-color var(--m3e-duration-medium) var(--m3e-easing-standard)
 
 	&:hover
 		border-color: var(--outline)
-		box-shadow: var(--m3e-elevation-1)
-		background: unquote("color-mix(in oklab, var(--on-surface) 3%, var(--card-bg))")
+		box-shadow: var(--m3e-elevation-2)
+		transform: translateY(-2px)
+		background: unquote("color-mix(in oklab, var(--on-surface) 2%, var(--card-bg))")
+
+	/* 代表项目特色高亮：边框微光 */
+	&--featured
+		border-color: unquote("color-mix(in oklab, var(--primary) 38%, var(--outline-variant))")
+		&:hover
+			border-color: var(--primary)
 
 	/* 封面：16/9 稳定比例锁高，图片永远按 cover 裁切，杜绝纵向拉伸 */
 	&__cover
@@ -183,20 +202,53 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 			transition: transform var(--m3e-duration-long) var(--m3e-easing-emphasized-decelerate)
 
 			.project-card:hover &
-				transform: scale(1.04)
+				transform: scale(1.05)
+
+	&__scrim
+		position: absolute
+		inset: 0
+		pointer-events: none
+		background: linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, transparent 40%, rgba(0, 0, 0, 0.2) 100%)
+		opacity: 0.6
+		transition: opacity var(--m3e-duration-medium) var(--m3e-easing-standard)
+		.project-card:hover &
+			opacity: 0.8
+
+	/* 代表项目封面角标：毛玻璃 + star 图标 */
+	&__featured-badge
+		position: absolute
+		top: 0.625rem
+		left: 0.625rem
+		z-index: 2
+		display: inline-flex
+		align-items: center
+		gap: 0.25rem
+		padding: 0.1875rem 0.5rem
+		border-radius: var(--shape-corner-full)
+		background: unquote("color-mix(in srgb, #000 60%, transparent)")
+		backdrop-filter: blur(0.375rem)
+		-webkit-backdrop-filter: blur(0.375rem)
+		color: #fff
+		font: var(--m3e-type-label-small)
+		font-weight: 700
+		border: 1px solid rgba(255, 255, 255, 0.15)
+		> :global(svg)
+			width: 0.875rem
+			height: 0.875rem
+			color: #facc15
 
 	&__body
 		display: flex
 		flex-direction: column
 		flex: 1
-		gap: 0.625rem
+		gap: 0.75rem
 		min-width: 0
-		padding: 0.875rem 1rem
+		padding: 1rem 1.125rem
 
 	&__header
 		display: flex
 		align-items: center
-		gap: 0.75rem
+		gap: 0.875rem
 		min-width: 0
 
 	/* 无封面紧凑变体：技术栈与源码操作合并一行，纵向节奏与有封面卡片对齐 */
@@ -204,7 +256,7 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 		display: grid
 		grid-template-columns: minmax(0, 1fr) auto
 		gap: 0.75rem 1rem
-		padding: 1rem
+		padding: 1.125rem 1.25rem
 
 	&--without-cover &__header,
 	&--without-cover &__summary
@@ -238,14 +290,19 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 		display: flex
 		align-items: center
 		justify-content: center
-		width: 2.75rem
-		height: 2.75rem
+		width: 2.875rem
+		height: 2.875rem
 		flex-shrink: 0
 		box-sizing: border-box
 		border-radius: var(--shape-corner-m)
-		background: unquote("color-mix(in oklab, var(--primary) 12%, var(--surface-container-highest))")
+		background: linear-gradient(135deg,
+			unquote("color-mix(in oklab, var(--primary) 14%, var(--surface-container-high))"),
+			var(--surface-container-highest))
+		border: 1px solid var(--outline-variant)
 		color: var(--primary)
-		transition: transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
+		transition:
+			transform var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate),
+			box-shadow var(--m3e-duration-medium) var(--m3e-easing-emphasized-decelerate)
 
 		> :global(svg)
 			width: 1.5rem
@@ -253,6 +310,7 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 
 		.project-card:hover &
 			transform: translateY(-0.125rem)
+			box-shadow: var(--m3e-elevation-1)
 
 	&__heading
 		display: flex
@@ -273,8 +331,8 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 		min-width: 0
 		color: var(--on-surface)
 		font: var(--m3e-type-title-small)
-		font-weight: 600
-		line-height: 1.25
+		font-weight: 700
+		line-height: 1.3
 		overflow-wrap: anywhere
 		transition: color var(--m3e-duration-short) var(--m3e-easing-standard)
 
@@ -283,6 +341,9 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 
 	&__year
 		flex-shrink: 0
+		padding: 0.0625rem 0.375rem
+		border-radius: var(--shape-corner-xs)
+		background: var(--surface-container-high)
 		color: var(--on-surface-variant)
 		font: var(--m3e-type-label-small)
 		font-variant-numeric: tabular-nums
@@ -292,14 +353,15 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 		display: inline-flex
 		align-items: center
 		align-self: flex-start
-		gap: 0.25rem
+		gap: 0.3125rem
 		min-width: 0
-		padding: 0.125rem 0.625rem
+		padding: 0.125rem 0.5625rem
 		border-radius: var(--shape-corner-full)
-		background: unquote("color-mix(in oklab, var(--project-phase-color) 14%, transparent)")
+		background: unquote("color-mix(in oklab, var(--project-phase-color) 12%, transparent)")
 		color: var(--project-phase-color)
 		font: var(--m3e-type-label-small)
 		font-weight: 600
+		border: 1px solid unquote("color-mix(in oklab, var(--project-phase-color) 20%, transparent)")
 
 		> :global(svg)
 			width: 0.875rem
@@ -315,41 +377,63 @@ const showCover = $derived(Boolean(project.cover) && !coverFailed);
 		-webkit-box-orient: vertical
 		color: var(--on-surface-variant)
 		font: var(--m3e-type-body-small)
-		line-height: 1.4
+		line-height: 1.5
 
+	/* 技术栈徽标：微胶囊（micro-badges）风格 */
 	&__technologies
 		display: flex
 		flex-wrap: wrap
-		column-gap: 0.375rem
-		row-gap: 0.125rem
+		gap: 0.3125rem
 		margin: 0
 		padding: 0
-		color: var(--on-surface-variant)
-		font: var(--m3e-type-label-small)
 		list-style: none
 
-		li + li::before
-			content: "·"
-			margin-right: 0.375rem
-			color: var(--outline)
+		li
+			display: inline-flex
+			align-items: center
+			padding: 0.125rem 0.5rem
+			border-radius: var(--shape-corner-m)
+			background: var(--surface-container-high)
+			color: var(--on-surface-variant)
+			font: var(--m3e-type-label-small)
+			font-weight: 500
+			transition:
+				background-color var(--m3e-duration-short) var(--m3e-easing-standard),
+				color var(--m3e-duration-short) var(--m3e-easing-standard)
 
+			&:hover
+				background: var(--surface-container-highest)
+				color: var(--on-surface)
+
+	/* 操作按钮：M3 胶囊操作按钮 */
 	&__actions
 		display: flex
 		flex-wrap: wrap
-		gap: 0.75rem
+		gap: 0.5rem
 		margin-top: auto
 		padding-top: 0.25rem
 
 		a
 			display: inline-flex
 			align-items: center
-			gap: 0.25rem
+			gap: 0.3125rem
+			padding: 0.25rem 0.625rem
+			border-radius: var(--shape-corner-m)
+			background: unquote("color-mix(in oklab, var(--primary) 8%, transparent)")
 			color: var(--primary)
 			font: var(--m3e-type-label-medium)
+			font-weight: 600
 			text-decoration: none
+			border: 1px solid unquote("color-mix(in oklab, var(--primary) 16%, transparent)")
+			transition:
+				background-color var(--m3e-duration-short) var(--m3e-easing-standard),
+				box-shadow var(--m3e-duration-short) var(--m3e-easing-standard),
+				transform var(--m3e-duration-short) var(--m3e-easing-standard)
 
 			&:hover
-				text-decoration: underline
+				background: unquote("color-mix(in oklab, var(--primary) 16%, transparent)")
+				box-shadow: var(--m3e-elevation-1)
+				transform: translateY(-1px)
 
 			> :global(svg)
 				width: 1rem
