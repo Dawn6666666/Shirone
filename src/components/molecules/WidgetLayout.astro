@@ -13,9 +13,12 @@ interface Props {
 	collapsedHeight?: string;
 	class?: string;
 	style?: string;
+	/** 固定 max-height 滚动（向后兼容，使用 calc(100dvh - 11rem)） */
 	scrollContent?: boolean;
+	/** flexbox 自适应滚动：子元素 flex-1 min-h-0，由父容器决定可用高度 */
+	flexScroll?: boolean;
 }
-const { id, name, isCollapsed, collapsedHeight, style, scrollContent = false } = Astro.props;
+const { id, name, isCollapsed, collapsedHeight, style, scrollContent = false, flexScroll = false } = Astro.props;
 const className = Astro.props.class;
 ---
 <widget-layout data-id={id} data-is-collapsed={String(isCollapsed)} class={className} style={style}>
@@ -24,7 +27,7 @@ const className = Astro.props.class;
         <AccentBar size="small" class="absolute -left-4 top-[5.5px]" />
         {name}
     </div>
-    <div id={id} class:list={["collapse-wrapper px-4 overflow-hidden", {"collapsed": isCollapsed, "widget-layout__scroll-content": scrollContent}]}>
+    <div id={id} class:list={["collapse-wrapper px-4 overflow-hidden", {"collapsed": isCollapsed, "widget-layout__scroll-content": scrollContent, "widget-layout__flex-scroll": flexScroll}]}>
         <slot></slot>
     </div>
     {isCollapsed && <div class="expand-btn px-4 -mb-2">
@@ -48,6 +51,14 @@ const className = Astro.props.class;
 <style lang="stylus">
 .widget-layout__scroll-content
 	max-height: calc(100dvh - 11rem)
+	overflow-y: auto
+	overflow-x: hidden
+	overscroll-behavior: contain
+	scrollbar-width: thin
+
+.widget-layout__flex-scroll
+	flex: 1
+	min-height: 0
 	overflow-y: auto
 	overflow-x: hidden
 	overscroll-behavior: contain

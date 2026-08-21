@@ -118,6 +118,7 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 			class:list={[
 				"transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4",
 				{ hidden: !hasVisibleSticky },
+				{ "lg:min-h-0 lg:flex-1": column === "secondary" },
 			]}
 		>
 			{stickyWidgets.map((widget, index) => {
