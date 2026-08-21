@@ -27,6 +27,7 @@
 2. 值加入 `src/config/<domain>Config.ts`，保持注释完整——注释是配置的文档；
 3. 新文件在 `src/config/index.ts` barrel 注册导出；
 4. **安全默认与零额外负担**：可选外部服务/重量级特性默认必须为关闭（如 `enable: false`）。在关闭或未配置时，必须满足「零外部请求、零占位 DOM、零性能损耗、零主包膨胀」的零额外负担要求；
+   落地做法与验证方法见 `docs/on-demand-loading.md`；
 5. UI 文案走 `I18nKey` 枚举 + `i18n()`（如 `navBarConfig` 的用法），**不写死字符串**；
    新增 i18n key 必须同步补全 `src/i18n/languages/` 下全部 10 种语言；
 6. 跑 `npx.cmd astro check` 确认 0 错误 0 警告。

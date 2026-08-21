@@ -89,6 +89,8 @@ content/（Markdown 正文，仅 pages 引用）
 3. **零 npm Bundle 膨胀**：可选的第三方依赖与 SDK 严禁打包进主 npm bundle，必须通过按需/运行时动态加载机制（如 script loader）引入；
 4. **存量数据平滑兼容**：Markdown frontmatter 等内容 Schema 必须提供安全默认值（如 `comment: true` 默认继承全局），禁止强制要求批量改写存量文章数据。
 
+> 落地做法与验证方法（含 Astro CSS 提升陷阱）见 `docs/on-demand-loading.md`。
+
 ---
 
 ## 8. 质量闸门
