@@ -1,5 +1,6 @@
 <script lang="ts">
 import IconButton from "@components/atoms/action/IconButton.svelte";
+import ProgressIndicator from "@components/atoms/feedback/ProgressIndicator.svelte";
 import Tooltip from "@components/atoms/overlay/Tooltip.svelte";
 import Icon from "@iconify/svelte";
 import { collapse } from "@utils/motion";
@@ -71,6 +72,7 @@ const modeLabel = $derived(modeLabels[snapshot.mode]);
 const modeIcon = $derived(modeIcons[snapshot.mode]);
 const duration = $derived(Math.max(0, snapshot.duration));
 const progressMax = $derived(duration > 0 ? duration : 1);
+const progressRatio = $derived(duration > 0 ? Math.min(snapshot.currentTime / duration, 1) : 0);
 const displayTime = $derived(formatTime(snapshot.currentTime));
 const displayDuration = $derived(formatTime(duration));
 const progressLabel = $derived(
@@ -152,22 +154,34 @@ function setVolume(event: Event): void {
 			<time class="music-player__time">{displayTime}</time>
 		</div>
 
-		<div class="music-player__progress">
-			<input
-				type="range"
-				min="0"
-				max={progressMax}
-				step="0.1"
-				value={Math.min(snapshot.currentTime, progressMax)}
-				disabled={duration <= 0}
-				aria-label={progressLabel}
-				oninput={seek}
-			/>
-			<div class="music-player__times" aria-hidden="true">
-				<span>{displayTime}</span>
-				<span>{displayDuration}</span>
+			<div class="music-player__progress">
+				<div class="music-player__progress-control">
+					<ProgressIndicator
+						variant="linear"
+						wavy
+						progress={progressRatio}
+						amplitude={playing ? 1 : 0}
+						label={progressLabel}
+						ariaHidden
+						showStop={false}
+						class="music-player__progress-visual"
+					/>
+					<input
+						type="range"
+						min="0"
+						max={progressMax}
+						step="0.1"
+						value={Math.min(snapshot.currentTime, progressMax)}
+						disabled={duration <= 0}
+						aria-label={progressLabel}
+						oninput={seek}
+					/>
+				</div>
+				<div class="music-player__times" aria-hidden="true">
+					<span>{displayTime}</span>
+					<span>{displayDuration}</span>
+				</div>
 			</div>
-		</div>
 
 		<div class="music-player__controls">
 			<Tooltip label={modeLabel} placement="top">

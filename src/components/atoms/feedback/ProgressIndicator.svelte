@@ -43,6 +43,7 @@ let {
 	indeterminate = "dual",
 	color = "var(--primary)",
 	trackColor = "var(--surface-container-highest)",
+	ariaHidden = false,
 	strokeCap = "round",
 	gapSize = 4,
 	size = undefined as number | undefined,
@@ -64,6 +65,8 @@ let {
 	indeterminate?: "dual" | "wave" | "single";
 	/** active 指示器颜色（官方 color 参数） */
 	color?: string;
+	/** 仅作为视觉层时隐藏辅助技术语义，由外层交互控件提供标签。 */
+	ariaHidden?: boolean;
 	/** 轨道颜色（官方 trackColor 参数） */
 	trackColor?: string;
 	/** 线端形状：round 圆头（官方默认）/ butt 平头 */
@@ -241,6 +244,7 @@ const wavyStarD = $derived(
         class:m3-progress--indeterminate={!determinate}
         class:m3-progress--butt={strokeCap === "butt"}
         role="progressbar"
+        aria-hidden={ariaHidden}
         aria-label={label}
         aria-valuenow={determinate ? pct : undefined}
         aria-valuemin={determinate ? 0 : undefined}
@@ -291,6 +295,7 @@ const wavyStarD = $derived(
         class:m3-progress--indeterminate={!determinate}
         style={`--pi-color: ${color}; --pi-track: ${trackColor}; --pi-size: ${resolvedSize}px; --pi-circ-flow-dur: ${wavyCircFlowMs}ms`}
         role="progressbar"
+        aria-hidden={ariaHidden}
         aria-label={label}
         aria-valuenow={determinate ? pct : undefined}
         aria-valuemin={determinate ? 0 : undefined}
@@ -341,6 +346,7 @@ const wavyStarD = $derived(
         class:m3-progress--indeterminate={!determinate}
         class:m3-progress--butt={strokeCap === "butt"}
         role="progressbar"
+        aria-hidden={ariaHidden}
         aria-label={label}
         aria-valuenow={determinate ? pct : undefined}
         aria-valuemin={determinate ? 0 : undefined}
@@ -370,6 +376,7 @@ const wavyStarD = $derived(
         class:m3-progress--indeterminate={!determinate}
         style={`--pi-color: ${color}; --pi-track: ${trackColor}; --pi-circ: ${CIRC}px; --pi-size: ${resolvedSize}px`}
         role="progressbar"
+        aria-hidden={ariaHidden}
         aria-label={label}
         aria-valuenow={determinate ? pct : undefined}
         aria-valuemin={determinate ? 0 : undefined}

@@ -64,14 +64,47 @@ export const musicSidebarStylus = `
 		font-variant-numeric: tabular-nums
 		color: var(--on-surface-variant)
 
-	&__progress
-		display: flex
-		flex-direction: column
-		gap: 0.125rem
+		&__progress
+			display: flex
+			flex-direction: column
+			gap: 0.125rem
 
-	&__times
-		display: flex
-		justify-content: space-between
+		&__progress-control
+			position: relative
+			width: 100%
+			min-height: 1.25rem
+			display: flex
+			align-items: center
+
+			.m3-progress
+				width: 100%
+				max-width: none
+				flex: 1 1 auto
+
+			&--wavy
+				overflow: visible
+
+			input
+				position: absolute
+				inset: 0
+				z-index: 1
+				width: 100%
+				height: 100%
+				margin: 0
+				opacity: 0
+				cursor: pointer
+
+				&:disabled
+					cursor: default
+
+				&:focus-visible
+					outline: 2px solid var(--primary)
+					outline-offset: 2px
+					border-radius: var(--shape-corner-full)
+
+		&__times
+			display: flex
+			justify-content: space-between
 
 	&__controls
 		display: grid
