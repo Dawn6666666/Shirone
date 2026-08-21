@@ -90,6 +90,24 @@ widget 的专属配置（如分类的折叠阈值 `collapseAfter`）只存在于
 > 新增页面时务必在 `SidebarPage` 联合中加分支并传 `page` prop——漏传的页面
 > 上，带 `pages` 限制的 widget 一律不显示（宁可少显示，不显示到错误页面）。
 
+### 2.5 音乐 widget 的启用与加载
+
+音乐是默认关闭的可选 widget，使用独立的全局配置与侧栏条目双重控制。只有
+`musicConfig.enable: true`、`musicConfig.tracks` 至少有一首有效曲目，且
+`sidebarConfig.components` 中 `type: "music"` 的条目也为 `enable: true` 时，
+才允许动态加载并渲染 `MusicSidebar`。music 默认条目必须保持 `enable: false`。
+
+任一条件不满足时必须在导入与渲染前短路：零播放器 DOM / 布局偏移、零音频或封面网络请求、
+零主 bundle 代码/依赖、零共享或提升 CSS。不能静态导入后仅用 CSS 隐藏；动态加载与样式隔离
+遵循 `on-demand-loading.md` 的零额外负担约定。
+
+### 2.6 持久侧栏运行时
+
+侧栏位于 `#swup-container` 外，是持久 shell。启用后的 `MusicSidebar` 作为交互岛只挂载一次，
+当前曲目、播放/暂停状态、播放位置、音量和播放模式均由该持久运行时持有。Swup 导航只替换
+主内容并同步页面过滤，不得在 `content:replace` / `page:view` 时重建音频实例或把播放器重置为
+`musicConfig.defaultVolume` / `musicConfig.defaultMode`；直接加载页面时则正常初始化一次。
+
 ## 3. 响应式行为
 
 断点沿用站点既有 Tailwind 约定：`lg` = 1024px，`xl` = 1280px。
@@ -120,6 +138,7 @@ export const sidebarConfig: SidebarConfig = {
 	components: [
 		{ type: "profile", enable: true, slot: "top" },
 		{ type: "announcement", enable: false, slot: "top" },
+		{ type: "music", enable: false, slot: "top" },
 		{ type: "categories", enable: true, slot: "sticky" },
 		{ type: "tags", enable: true, slot: "sticky" },
 	],
@@ -163,6 +182,8 @@ export const sidebarConfig: SidebarConfig = {
 | `announcement` | `Announcement` | `announcementConfig` | 无（Banner round） | — |
 | `stats` | `SiteStats` | `getSiteStats` | `WidgetLayout` | — |
 | `calendar` | `Calendar` | `getCalendarData` | `WidgetLayout` | `startOfWeek?`（默认 `"mon"`） |
+| `music` | `MusicSidebar`（organisms） | `musicConfig` | `WidgetLayout` | —（内容与初始状态来自全局配置） |
+| `toc` | `SidebarTOC` | 当前文章 headings | `WidgetLayout` | —（通常限定 `pages: ["post"]`） |
 
 逐个文档见 `sidebar-widgets.md`。
 
@@ -172,7 +193,8 @@ export const sidebarConfig: SidebarConfig = {
 没有任何 widget 标 `column: "secondary"`（且 `enable: true`），副栏就不会渲染——这是设计行为，不是 bug。
 
 **想在某页不显示侧栏？**
-当前编排是 site-wide 的，没有按页过滤；可在页面级用布局/模板控制（不在本期范围）。
+给相关 widget 配置 `pages` 白名单；省略或留空表示所有页面。若要整列在某个页面消失，需确保该栏
+的全部已启用 widget 都不匹配该页面，SideBar 会在 SSR 与 Swup 导航后同步收起空组。
 
 **副栏放什么合适？**
 建议放轻量信息型 widget（stats、tags），把交互密集或重要的（profile、categories）留在主栏；副栏 sticky 堆叠不要超过 2–3 个，避免占满视口。

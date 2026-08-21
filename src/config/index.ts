@@ -25,6 +25,12 @@ export {
 export { expressiveCodeConfig } from "./expressiveCodeConfig";
 export { licenseConfig } from "./licenseConfig";
 export { LinkPresets, navBarConfig } from "./navBarConfig";
+export {
+	type ResolvedMusicOptions,
+	clampMusicVolume,
+	musicConfig,
+	resolveMusicOptions,
+} from "./musicConfig";
 export { POST_CARD_MIN_WIDTH, postListConfig } from "./postListConfig";
 export { profileConfig } from "./profileConfig";
 export { projectsConfig } from "./projectsConfig";

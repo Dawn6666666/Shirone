@@ -117,6 +117,16 @@ export interface TocWidget {
 	pages?: SidebarPage[];
 }
 
+/** 持久音乐播放器（内容来自 musicConfig） */
+export interface MusicWidget {
+	type: "music";
+	enable: boolean;
+	slot: SidebarWidgetSlot;
+	column?: SidebarColumn;
+	/** 限定显示的页面，省略或空数组表示所有页面 */
+	pages?: SidebarPage[];
+}
+
 export type SidebarWidget =
 	| ProfileWidget
 	| CategoriesWidget
@@ -124,7 +134,8 @@ export type SidebarWidget =
 	| AnnouncementWidget
 	| StatsWidget
 	| CalendarWidget
-	| TocWidget;
+	| TocWidget
+	| MusicWidget;
 
 /**
  * 侧栏整体配置。components 渲染顺序 = 数组顺序，top 恒排在 sticky 之前。

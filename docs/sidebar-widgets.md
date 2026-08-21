@@ -18,6 +18,8 @@
 | `announcement` | `Announcement` | top | 公告横幅，无标题外壳 |
 | `stats` | `SiteStats` | top | 站点统计规格表 |
 | `calendar` | `Calendar` | sticky | 月度文章历（SSR 直出 + 水合岛） |
+| `music` | `MusicSidebar` | top | 持久音乐播放器（全局配置 + widget 双开关，默认关闭） |
+| `toc` | `SidebarTOC` | sticky | 当前文章目录（通常只在文章页显示） |
 
 ### 1.1 通用字段
 
@@ -30,7 +32,7 @@
 | `column` | `"primary" \| "secondary"` | — | 分栏标签（默认 `"primary"`，仅 `arrangement: "dual"` 时生效） |
 | `pages` | `SidebarPage[]` | — | **页面级过滤**：限定显示的页面，省略或空数组表示所有页面；判定逻辑在 `utils/sidebar-page.ts`，站内导航（Swup）后由 SideBar 脚本按 `#swup-container` 的 `data-current-page` 自动同步 |
 
-页面标识符（`SidebarPage`）：`"home" \| "archive" \| "friends" \| "moments" \| "about" \| "post"`。详见 `sidebar-system.md` §2.4。
+页面标识符（`SidebarPage`）：`"home" | "archive" | "friends" | "moments" | "anime" | "compass" | "skills" | "projects" | "timeline" | "albums" | "about" | "categories" | "tags" | "post"`。详见 `sidebar-system.md` §2.4。
 
 ## 2. WidgetLayout（标题外壳）
 
@@ -110,7 +112,7 @@ export const announcementConfig = {
   时区日界计算，差值恒为整天数）；无文章时显示 `—`；
 - 无专属配置项；停靠建议 `top`（信息密度高，放 sticky 会频繁扫过）。
 
-## 7b. Calendar — 月度文章历
+## 8. Calendar — 月度文章历
 
 - **数据源**：`utils/calendar-data.ts` 的 `getCalendarData()`（模块级备忘化）——聚合全部文章的
   发布日（`dateKey → 当日文章`），**SSR 直出**（侧栏静态渲染在 Swup 容器外，不走 API 端点）；
@@ -126,11 +128,33 @@ export const announcementConfig = {
   再点收起；切月网格 `reveal` 淡入——均走 `motion.ts` 原语，reduced-motion 瞬切；
 - **配置**：`startOfWeek?: "mon" | "sun"`（默认周一），其余走通用 `slot`/`column`/`pages` 标签。
 
-## 8. 新增 widget 的设计约束
+## 9. MusicSidebar — 持久音乐播放器
+
+- **分层与外壳**：`MusicSidebar` 属于 organisms，而不是 molecule。它复用 `WidgetLayout` 作为标题外壳，但自身持有音频实例、播放状态和持久 shell 生命周期；
+- **数据源**：`src/config/musicConfig.ts`。`tracks` 提供曲目，`defaultVolume` 与 `defaultMode` 只用于首次初始化；
+- **三项启用条件**：`musicConfig.enable: true`、至少一首有效 track、`sidebarConfig` 的 music 条目 `enable: true` 缺一不可。全局开关和 widget 开关均默认关闭；
+- **预期信息与控制**：显示当前曲目的必要信息，并提供上一首、播放/暂停、下一首、播放模式切换、播放进度拖动与音量调节。图标按钮必须有本地化可访问名称，状态按钮同步暴露当前状态；
+- **原生 range 语义**：播放进度与音量使用原生 `<input type="range">`，保留各自的 `min` / `max` / `step` / `value` 和可访问名称。不得用只响应指针拖拽的 `div` 模拟；键盘用户应保有浏览器原生的方向键、Page Up / Page Down、Home / End 调节语义。进度范围随媒体时长更新，音量 range 与实际音频音量双向同步；
+- **Swup 持久性**：组件挂在 `#swup-container` 外，只在直接加载时初始化一次。站内导航不重建音频实例，不中断播放，也不丢失当前曲目、位置、音量或模式；页面过滤只改变 widget 可见性，不把 Swup 生命周期当作播放器重置信号；
+- **关闭零负担**：三项启用条件未全部满足时，在动态导入前短路，不输出 DOM/CSS，不请求曲目、封面或其他媒体，不加载播放器模块/依赖进主 bundle。样式不得因 Astro CSS 提升进入共享 CSS。
+
+默认侧栏条目：
+
+```ts
+{ type: "music", enable: false, slot: "top" }
+```
+
+## 10. SidebarTOC — 当前文章目录
+
+- **数据源**：当前文章的 Markdown headings，由页面布局传给 SideBar，再透传给 `SidebarTOC`；
+- **渲染**：`WidgetLayout` + `TOC`，内容区限制为视口内高度并独立滚动；
+- **页面范围**：默认使用 `pages: ["post"]`，侧栏位于 Swup 容器外，目录内容与当前锚点状态由既有 Swup 同步逻辑维护。
+
+## 11. 新增 widget 的设计约束
 
 1. **外观语言**：优先复用既有原子——`MetaIcon`（单图标徽标）、`Chip` / `Button` / `Card`、`WidgetLayout`（标题外壳）、`AccentBar`；不要自创新的徽标/容器风格；
-2. **外壳取舍**：短消息类（如公告）不用 `WidgetLayout`；有明确"分组 + 列表"语义的（分类/标签/统计）用；
+2. **外壳取舍**：短消息类（如公告）不用 `WidgetLayout`；有明确"分组 + 列表"语义的（分类/标签/统计），以及音乐等需要统一侧栏标题的有机体使用；
 3. **取数**：一律走 `utils/content-utils` 或独立 utils（如 `site-stats`），组件内不直接 `getCollection`；多页面共享的重计算（如总字数）要备忘化；
 4. **文案**：标题与标签用 `i18n(I18nKey.*)`，新增 key 必须补全 `src/i18n/languages/` 全部 10 种语言；
 5. **默认关闭**：新 widget 的默认条目 `enable: false`，保证存量站点 DOM 零变化；
-6. **文档同步**：`sidebar-system.md` §7 总览表 + 本文件补一节。
+6. **文档同步**：`sidebar-system.md` §7 总览表 + 本文件补一节；新增 organism 同步更新 `atomic-structure.md` §6 的清单与数量。

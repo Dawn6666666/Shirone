@@ -19,6 +19,7 @@ import Tags from "@components/molecules/Tags.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { isWidgetVisibleOnPage, pagesToAttribute } from "@utils/sidebar-page";
+import { musicConfig, resolveMusicOptions } from "@/config/musicConfig";
 import { sidebarConfig } from "@/config/sidebarConfig";
 import type {
 	SidebarColumn,
@@ -53,6 +54,17 @@ const ariaLabel =
 		? i18n(I18nKey.sidebarSecondary)
 		: i18n(I18nKey.sidebar);
 
+const musicOptions = resolveMusicOptions(musicConfig);
+const hasEnabledMusicWidget =
+	sidebarConfig.enable &&
+	sidebarConfig.components.some(
+		(widget) => widget.type === "music" && widget.enable,
+	);
+const MusicSidebar =
+	musicOptions && hasEnabledMusicWidget
+		? (await import("virtual:shirone-music-sidebar")).default
+		: null;
+
 // widget 类型 → 组件（键必须覆盖 SidebarWidget 的全部 type）
 const componentMap = {
 	profile: Profile,
@@ -62,6 +74,7 @@ const componentMap = {
 	stats: SiteStats,
 	calendar: Calendar,
 	toc: SidebarTOC,
+	music: MusicSidebar,
 } satisfies Record<SidebarWidget["type"], unknown>;
 
 type WidgetRenderer = (props: Record<string, unknown>) => unknown;
@@ -70,7 +83,10 @@ type WidgetRenderer = (props: Record<string, unknown>) => unknown;
 // 被隐藏的 widget），页面可见性仅体现在包装层的 hidden 标记上
 const widgets = sidebarConfig.enable
 	? sidebarConfig.components.filter(
-			(widget) => widget.enable && (widget.column ?? "primary") === column,
+			(widget) =>
+				widget.enable &&
+				(widget.column ?? "primary") === column &&
+				(widget.type !== "music" || MusicSidebar !== null),
 		)
 	: [];
 const topWidgets = widgets.filter((widget) => widget.slot === "top");

@@ -9,9 +9,53 @@ import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
 import { expressiveCodeConfig } from "./src/config/expressiveCodeConfig.ts";
+import {
+	musicConfig,
+	resolveMusicOptions,
+} from "./src/config/musicConfig.ts";
+import { sidebarConfig } from "./src/config/sidebarConfig.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { siteMarkdownProcessor } from "./src/utils/markdown-processor.mjs";
+
+const musicWidgetEnabled =
+	sidebarConfig.enable &&
+	sidebarConfig.components.some(
+		(widget) => widget.type === "music" && widget.enable,
+	);
+const musicFeatureEnabled =
+	resolveMusicOptions(musicConfig) !== null && musicWidgetEnabled;
+const musicSidebarModuleId = "virtual:shirone-music-sidebar";
+const resolvedMusicSidebarModuleId = `\0${musicSidebarModuleId}`;
+
+const optionalMusicSidebarPlugin = {
+	name: "shirone-optional-music-sidebar",
+	enforce: "pre",
+	resolveId(source) {
+		return source === musicSidebarModuleId
+			? resolvedMusicSidebarModuleId
+			: null;
+	},
+	load(id) {
+		if (id !== resolvedMusicSidebarModuleId) return null;
+		return musicFeatureEnabled
+			? 'export { default } from "/src/components/organisms/music/MusicSidebar.astro";'
+			: "export default null;";
+	},
+	generateBundle(_options, bundle) {
+		if (!musicFeatureEnabled) {
+			for (const fileName of Object.keys(bundle)) {
+				if (
+					fileName.includes("MusicSidebarClient") ||
+					fileName.startsWith("_astro/music.") ||
+					fileName.includes("/music.")
+				) {
+					delete bundle[fileName];
+				}
+			}
+		}
+	},
+};
 
 // https://astro.build/config
 export default defineConfig({
@@ -113,7 +157,7 @@ export default defineConfig({
 		processor: siteMarkdownProcessor,
 	},
 	vite: {
-		plugins: [tailwindcss()],
+		plugins: [optionalMusicSidebarPlugin, tailwindcss()],
 		optimizeDeps: {
 			include: [
 				"mermaid",

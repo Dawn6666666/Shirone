@@ -79,6 +79,7 @@
 | `Announcement` | 公告侧栏 widget（Banner 原子 round 形态，无标题外壳；内容源 `announcementConfig`） |
 | `SiteStats` | 站点统计侧栏 widget（规格表行：MetaIcon 徽标 + 点线引导 + 表格数字；数据源 `utils/site-stats` 备忘化汇总） |
 | `Calendar` | 月度文章历侧栏 widget（SSR 直出日期聚合 + CalendarView 水合岛：单月视图、切月 reveal、点击有文日 collapse 展开当日文章） |
+| `SidebarTOC` | 文章目录侧栏 widget（WidgetLayout 外壳 + 当前文章 headings；通常限定 `pages: ["post"]`） |
 
 原子层通用件（`Button` / `Card` / `IconButton` / `Avatar` / `AccentBar` 等）见 `m3e-standard.md` §4。
 
@@ -94,6 +95,12 @@
 4. 在 `sidebarConfig.components` 追加默认条目（新 widget 默认 `enable: false`，保证存量站点 DOM 零变化）；
 5. 若有独立内容源（如 `announcementConfig`），类型放 `src/types/`、值放 `src/config/` 并在 barrel 注册；
 6. 本文件 §3 登记 + `atomic-structure.md` §6 分层清单同步。
+
+### 3.2 有状态侧栏有机体
+
+`MusicSidebar` 是侧栏 widget，但分层属于 organisms：它使用 `WidgetLayout` 作为外壳，同时拥有音频实例、播放状态、原生 range 控制接线和 Swup 持久 shell 生命周期，这些职责不能下沉到 molecule。
+
+音乐配置采用双开关加有效数据守卫：`musicConfig.enable`、`sidebarConfig` 的 music 条目 `enable` 均为 `true`，且 `tracks` 至少有一首有效曲目后，SideBar 才动态加载 `MusicSidebar`。任一条件失败都必须在导入前短路，保证零 DOM、零媒体网络、零主 bundle/依赖和零提升 CSS；music 默认侧栏条目保持关闭。启用后组件在 `#swup-container` 外只挂载一次，Swup 导航不得重建音频实例或重置当前曲目、位置、音量及模式。
 
 widget 编排还带两个通用标签（见 `sidebarConfig.ts` 注释）：
 

@@ -39,7 +39,7 @@
 |---|---|---|---|
 | **原子** | `atoms/` | 单一职责的 UI 元素（60 个，清单单一真源见 `atoms/manifest.json`） | 仅设计令牌（`--mc-*`、`--m3e-*`、语义别名）与 `.m3-state-layer`；**不得 import 任何组件** |
 | **分子** | `molecules/` | 原子的固定组合：PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、PostMeta、SearchBar、TOC、WidgetLayout、ImageWrapper、License、Pagination、ArticleDiscoveryItem | atoms + 同层分子（须同层方向合理） |
-| **有机体** | `organisms/` | 独立业务区块：TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArticleDiscovery、ArticleShare、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop | atoms + molecules + 被组合的**更小** organism |
+| **有机体** | `organisms/` | 独立业务区块：TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArticleDiscovery、ArticleShare、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、MusicSidebar | atoms + molecules + 被组合的**更小** organism |
 | **模板** | `layouts/` | 页面骨架与网格布局：Layout、MainGridLayout | organisms + molecules + system |
 | **页面** | `pages/` | 路由级编排：`[...page].astro`、`about.astro`、`archive.astro`、`posts/[...slug].astro` | layouts + organisms + molecules + content |
 | **系统** | `system/` | 全局基础设施 | 仅令牌与 utils |
@@ -117,7 +117,7 @@
 |---|---|
 | atoms/ | 63 个原子组件（Button、Chip、IconButton、FAB、FABMenu、Slider、SegmentedButton、TextField、Switch、Checkbox、RadioButton、Dialog、Menu、Badge、Divider、Snackbar、Tabs、Select、DataTable、SearchView、Autocomplete、SheetSide、Carousel、PullToRefresh、DatePicker、TimePicker、Chips、Banner、Tooltip、Card、AppBar、NavigationBar/Rail/Drawer、ExposedDropdownMenu、ListItem、LoadingIndicator、ProgressIndicator、AlertDialog、BadgedBox、SplitButton、ToggleButton、ButtonGroup、SearchBar、DateInput、FloatingToolbar、BottomSheet 等；完整清单与 tier 见 `atoms/manifest.json`） |
 | molecules/ | PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、Announcement、SiteStats、Calendar、PostMeta、SearchBar、TOC、WidgetLayout、ImageWrapper、License、Pagination、FriendCard、MomentCard、MomentGallery、AlbumCard、LastUpdatedNotice、ArticleDiscoveryItem、SkillCard、ProjectCard、TimelineCard（25） |
-| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、FriendSection、MomentSection、AlbumSection、AlbumGallery、PasswordGate、ProtectedAlbum、EncryptedContent、ProtectedPost、ArticleDiscovery、ArticleShare、SkillSection、ProjectSection、TimelineSection（27） |
+| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、FriendSection、MomentSection、AlbumSection、AlbumGallery、PasswordGate、ProtectedAlbum、EncryptedContent、ProtectedPost、ArticleDiscovery、ArticleShare、SkillSection、ProjectSection、TimelineSection、MusicSidebar（28） |
 | system/ | ConfigCarrier、GlobalStyles（2） |
 | content/ | Markdown（1） |
 | layouts/ | Layout、MainGridLayout（2） |
