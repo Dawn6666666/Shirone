@@ -17,6 +17,11 @@ export {
 	resolveArticleShareOptions,
 	resolveLastUpdatedNoticeOptions,
 } from "./articleConfig";
+export {
+	type ResolvedCommentOptions,
+	commentConfig,
+	resolveCommentOptions,
+} from "./commentConfig";
 export { expressiveCodeConfig } from "./expressiveCodeConfig";
 export { licenseConfig } from "./licenseConfig";
 export { LinkPresets, navBarConfig } from "./navBarConfig";

@@ -122,6 +122,10 @@ export const vi: Translation = {
 	[Key.formulaScrollable]: "Công thức có thể cuộn ngang",
 
 	[Key.comments]: "Bình luận",
+	[Key.commentsLoading]: "Đang tải bình luận...",
+	[Key.commentsLoadFailed]: "Không thể tải bình luận",
+	[Key.commentsRequiresJavaScript]:
+		"Bình luận yêu cầu JavaScript để hiển thị",
 
 	[Key.untitled]: "Không tiêu đề",
 	[Key.uncategorized]: "Chưa phân loại",

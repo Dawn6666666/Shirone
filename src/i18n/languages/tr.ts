@@ -121,6 +121,10 @@ export const tr: Translation = {
 	[Key.formulaScrollable]: "Yatay kaydırılabilir formül",
 
 	[Key.comments]: "Yorumlar",
+	[Key.commentsLoading]: "Yorumlar yükleniyor...",
+	[Key.commentsLoadFailed]: "Yorumlar yüklenemedi",
+	[Key.commentsRequiresJavaScript]:
+		"Yorumların gösterilmesi için JavaScript etkinleştirilmelidir",
 
 	[Key.untitled]: "Başlıksız",
 	[Key.uncategorized]: "Katagorisiz",

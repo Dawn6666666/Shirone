@@ -114,6 +114,9 @@ export const zh_TW: Translation = {
 	[Key.formulaScrollable]: "可橫向捲動的公式",
 
 	[Key.comments]: "評論",
+	[Key.commentsLoading]: "正在載入評論...",
+	[Key.commentsLoadFailed]: "評論載入失敗",
+	[Key.commentsRequiresJavaScript]: "評論區需要啟用 JavaScript 才能顯示",
 
 	[Key.untitled]: "無標題",
 	[Key.uncategorized]: "未分類",

@@ -120,6 +120,10 @@ export const ja: Translation = {
 	[Key.formulaScrollable]: "横スクロール可能な数式",
 
 	[Key.comments]: "コメント",
+	[Key.commentsLoading]: "コメントを読み込み中...",
+	[Key.commentsLoadFailed]: "コメントの読み込みに失敗しました",
+	[Key.commentsRequiresJavaScript]:
+		"コメントを表示するには JavaScript を有効にしてください",
 
 	[Key.untitled]: "タイトルなし",
 	[Key.uncategorized]: "カテゴリなし",

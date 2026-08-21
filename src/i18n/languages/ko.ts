@@ -118,6 +118,10 @@ export const ko: Translation = {
 	[Key.formulaScrollable]: "가로로 스크롤 가능한 수식",
 
 	[Key.comments]: "댓글",
+	[Key.commentsLoading]: "댓글을 불러오는 중...",
+	[Key.commentsLoadFailed]: "댓글을 불러오지 못했습니다",
+	[Key.commentsRequiresJavaScript]:
+		"댓글을 표시하려면 JavaScript를 활성화해야 합니다",
 
 	[Key.untitled]: "제목 없음",
 	[Key.uncategorized]: "분류되지 않음",

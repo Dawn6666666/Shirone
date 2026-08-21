@@ -44,6 +44,7 @@
 | `announcementConfig.ts` | 公告内容（侧栏 announcement widget 消费，text 为空不渲染） |
 | `postListConfig.ts` | 文章列表：分页大小 + 布局（list/grid 模式、封面位置、grid 卡片宽度档位） |
 | `articleConfig.ts` | 文章详情：最后更新提示、延伸阅读（相关/随机文章抽样）、以及文章尾部分享区块（总开关、海报生成与封面配置） |
+| `commentConfig.ts` | 评论系统：全局开关（默认关闭）、Provider 选择（Twikoo 等）、视口懒加载与服务凭据配置 |
 | `skillsConfig.ts` | 技能页：页面总开关、分类清单、技能数据、单项开关与离散熟练度；关闭页面时导航入口同步隐藏 |
 | `projectsConfig.ts` | 项目页：页面总开关、分类清单、项目阶段、技术栈、封面（可选，无封面回退图标瓷砖）与外部链接；关闭页面时导航入口同步隐藏 |
 | `timelineConfig.ts` | 时间线页：页面总开关、分类清单、事件/里程碑节点数据、单项开关与重点标记；关闭页面时导航入口同步隐藏 |

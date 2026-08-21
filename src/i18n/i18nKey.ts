@@ -110,6 +110,9 @@ enum I18nKey {
 	formulaScrollable = "formulaScrollable",
 
 	comments = "comments",
+	commentsLoading = "commentsLoading",
+	commentsLoadFailed = "commentsLoadFailed",
+	commentsRequiresJavaScript = "commentsRequiresJavaScript",
 
 	untitled = "untitled",
 	uncategorized = "uncategorized",

@@ -21,6 +21,7 @@ export default defineConfig({
 	integrations: [
 		swup({
 			theme: false,
+			ignore: 'a[href="#"]',
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
 			// the default value `transition-` cause transition delay
 			// when the Tailwind class `transition-all` is used

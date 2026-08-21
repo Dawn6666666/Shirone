@@ -120,6 +120,10 @@ export const es: Translation = {
 	[Key.formulaScrollable]: "Fórmula con desplazamiento horizontal",
 
 	[Key.comments]: "Comentarios",
+	[Key.commentsLoading]: "Cargando comentarios...",
+	[Key.commentsLoadFailed]: "Error al cargar comentarios",
+	[Key.commentsRequiresJavaScript]:
+		"Los comentarios requieren JavaScript para mostrarse",
 
 	[Key.untitled]: "Sin título",
 	[Key.uncategorized]: "Sin categoría",

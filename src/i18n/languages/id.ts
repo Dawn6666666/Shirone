@@ -121,6 +121,10 @@ export const id: Translation = {
 	[Key.formulaScrollable]: "Rumus yang dapat digulir secara horizontal",
 
 	[Key.comments]: "Komentar",
+	[Key.commentsLoading]: "Memuat komentar...",
+	[Key.commentsLoadFailed]: "Gagal memuat komentar",
+	[Key.commentsRequiresJavaScript]:
+		"Komentar memerlukan JavaScript untuk ditampilkan",
 
 	[Key.untitled]: "Tanpa Judul",
 	[Key.uncategorized]: "Tanpa Kategori",

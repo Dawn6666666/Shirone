@@ -120,6 +120,10 @@ export const en: Translation = {
 	[Key.formulaScrollable]: "Horizontally scrollable formula",
 
 	[Key.comments]: "Comments",
+	[Key.commentsLoading]: "Loading comments...",
+	[Key.commentsLoadFailed]: "Failed to load comments.",
+	[Key.commentsRequiresJavaScript]:
+		"Comments require JavaScript to be displayed.",
 
 	[Key.untitled]: "Untitled",
 	[Key.uncategorized]: "Uncategorized",

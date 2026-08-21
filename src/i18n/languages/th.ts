@@ -112,6 +112,10 @@ export const th: Translation = {
 	[Key.formulaScrollable]: "สูตรที่เลื่อนในแนวนอนได้",
 
 	[Key.comments]: "ความคิดเห็น",
+	[Key.commentsLoading]: "กำลังโหลดความคิดเห็น...",
+	[Key.commentsLoadFailed]: "โหลดความคิดเห็นไม่สำเร็จ",
+	[Key.commentsRequiresJavaScript]:
+		"ความคิดเห็นจำเป็นต้องเปิดใช้งาน JavaScript เพื่อแสดงผล",
 
 	[Key.untitled]: "ไม่ได้ตั้งชื่อ",
 	[Key.uncategorized]: "ไม่ได้จัดหมวดหมู่",

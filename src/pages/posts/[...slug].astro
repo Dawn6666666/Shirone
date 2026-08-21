@@ -11,6 +11,7 @@ import License from "@components/molecules/License.astro";
 import PostMetadata from "@components/molecules/PostMeta.astro";
 import ArticleDiscovery from "@components/organisms/ArticleDiscovery.astro";
 import ArticleShare from "@components/organisms/ArticleShare.svelte";
+import CommentSection from "@components/organisms/comment/CommentSection.astro";
 import EncryptedContent from "@components/organisms/EncryptedContent.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
@@ -210,6 +211,17 @@ const jsonLd = {
 
 		</Card>
     </div>
+
+    <CommentSection
+        context={{
+            key: `post:${entry.id}`,
+            path: getPostUrlBySlug(entry.id),
+            title: entry.data.title,
+            language: entry.data.lang || siteConfig.lang,
+        }}
+        postCommentEnabled={entry.data.comment}
+        class="onload-animation"
+    />
 
     {lastUpdatedNotice && (
         <LastUpdatedNotice

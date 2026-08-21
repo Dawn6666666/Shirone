@@ -114,6 +114,9 @@ export const zh_CN: Translation = {
 	[Key.formulaScrollable]: "可横向滚动的公式",
 
 	[Key.comments]: "评论",
+	[Key.commentsLoading]: "正在加载评论...",
+	[Key.commentsLoadFailed]: "评论加载失败",
+	[Key.commentsRequiresJavaScript]: "评论区需要启用 JavaScript 才能显示",
 
 	[Key.untitled]: "无标题",
 	[Key.uncategorized]: "未分类",
