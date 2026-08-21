@@ -1,15 +1,16 @@
+import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import swup from "@swup/astro";
 import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
-import { defineConfig } from "astro/config";
 import { expressiveCodeConfig } from "./src/config/expressiveCodeConfig.ts";
-import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
+import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { siteMarkdownProcessor } from "./src/utils/markdown-processor.mjs";
 
 // https://astro.build/config
@@ -54,12 +55,12 @@ export default defineConfig({
 				pluginCollapsibleSections(),
 				pluginLineNumbers(),
 				pluginLanguageBadge(),
-				pluginCustomCopyButton()
+				pluginCustomCopyButton(),
 			],
 			defaultProps: {
 				wrap: true,
 				overridesByLang: {
-					'shellsession': {
+					shellsession: {
 						showLineNumbers: false,
 					},
 				},
@@ -69,7 +70,8 @@ export default defineConfig({
 				borderRadius: "0.75rem",
 				borderColor: "none",
 				codeFontSize: "0.875rem",
-				codeFontFamily: "'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+				codeFontFamily:
+					"'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
 				codeLineHeight: "1.5rem",
 				frames: {
 					editorBackground: "var(--codeblock-bg)",
@@ -80,27 +82,31 @@ export default defineConfig({
 					editorActiveTabIndicatorBottomColor: "var(--primary)",
 					editorActiveTabIndicatorTopColor: "none",
 					editorTabBarBorderBottomColor: "var(--codeblock-topbar-bg)",
-					terminalTitlebarBorderBottomColor: "none"
+					terminalTitlebarBorderBottomColor: "none",
 				},
 				textMarkers: {
 					delHue: 0,
 					insHue: 180,
-					markHue: 250
-				}
+					markHue: 250,
+				},
 			},
 			frames: {
 				showCopyToClipboardButton: false,
-			}
+			},
 		}),
-        svelte({
-            compilerOptions: {
-                // Svelte 默认 cssHash = hash(filename)，组件移动目录后 SSR/客户端
-                // 拿到的 filename 会不一致（scope hash 分裂导致样式丢失）。
-                // 改为基于 CSS 源码哈希，与路径无关，SSR 与客户端恒一致。
-                cssHash: ({ css, hash }) => `svelte-${hash(css)}`,
-            },
-        }),
+		svelte({
+			compilerOptions: {
+				// Svelte 默认 cssHash = hash(filename)，组件移动目录后 SSR/客户端
+				// 拿到的 filename 会不一致（scope hash 分裂导致样式丢失）。
+				// 改为基于 CSS 源码哈希，与路径无关，SSR 与客户端恒一致。
+				cssHash: ({ css, hash }) => `svelte-${hash(css)}`,
+			},
+		}),
 		sitemap(),
+		mdx({
+			syntaxHighlight: false,
+			optimize: true,
+		}),
 	],
 	markdown: {
 		processor: siteMarkdownProcessor,
@@ -108,7 +114,12 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss()],
 		optimizeDeps: {
-			include: ["mermaid", "@panzoom/panzoom", "overlayscrollbars", "@fancyapps/ui"],
+			include: [
+				"mermaid",
+				"@panzoom/panzoom",
+				"overlayscrollbars",
+				"@fancyapps/ui",
+			],
 		},
 		build: {
 			rollupOptions: {

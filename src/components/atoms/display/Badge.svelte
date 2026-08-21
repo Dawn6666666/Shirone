@@ -7,16 +7,24 @@
  * 需锚定到图标时用 <BadgedBox> 包裹。
  */
 let {
-    content = "",
-    disabled = false,
+	content = "",
+	disabled = false,
+	children,
 }: {
-    content?: string;
-    disabled?: boolean;
+	content?: string;
+	disabled?: boolean;
+	children?: import("svelte").Snippet;
 } = $props();
 </script>
 
-<span class="m3-badge" class:m3-badge--dot={!content} class:disabled={disabled}>
-    <span class="m3-badge__label" class:show={!!content}>{content}</span>
+<span class="m3-badge" class:m3-badge--dot={!content && !children} class:disabled={disabled}>
+    <span class="m3-badge__label" class:show={!!content || !!children}>
+        {#if children}
+            {@render children()}
+        {:else}
+            {content}
+        {/if}
+    </span>
 </span>
 
 <style lang="stylus">

@@ -2,14 +2,40 @@ import rss from "@astrojs/rss";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { getSortedPosts } from "@utils/content-utils";
-import { url } from "@utils/url-utils";
 import { isEncryptedPost } from "@utils/post-encryption";
+import { url } from "@utils/url-utils";
 import type { APIContext } from "astro";
 import MarkdownIt from "markdown-it";
 import sanitizeHtml from "sanitize-html";
 import { siteConfig } from "@/config";
 
 const parser = new MarkdownIt();
+
+/**
+ * 清洗 MDX 特有语法，提取适合 RSS 阅读器呈现的 Markdown/HTML 文本
+ */
+function sanitizeMdxForFeed(raw: string): string {
+	return (
+		raw
+			// 移除 import 语句
+			.replace(/^import\s+[\s\S]*?['"][^'"]*['"];?\s*$/gm, "")
+			// 移除 export 声明
+			.replace(
+				/^export\s+(?:const|let|var|function|class|default)\s+[\s\S]*?;/gm,
+				"",
+			)
+			// 移除自闭合 JSX 标签 (如 <Component /> 或 <Icon name="..." />)
+			.replace(/<[A-Z][A-Za-z0-9_]*(\s+[^>]*)?\/>/g, "")
+			// 移除成对 JSX 容器标签但保留其内部子文本 (如 <Card>正文</Card> -> 正文)
+			.replace(
+				/<[A-Z][A-Za-z0-9_]*(\s+[^>]*)?>([\s\S]*?)<\/[A-Z][A-Za-z0-9_]*>/g,
+				"$2",
+			)
+			// 移除 JSX 注释 {/* ... */}
+			.replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+			.trim()
+	);
+}
 
 function stripInvalidXmlChars(str: string): string {
 	return str.replace(
@@ -34,9 +60,14 @@ export async function GET(context: APIContext): Promise<Response> {
 				const notice = i18n(I18nKey.postRssEncryptedNotice);
 				contentHtml = `<p><em>🔒 ${notice}</em></p>`;
 			} else {
-				const content =
+				const isMdx =
+					post.filePath?.endsWith(".mdx") || post.id.endsWith(".mdx");
+				const rawContent =
 					typeof post.body === "string" ? post.body : String(post.body || "");
-				const cleanedContent = stripInvalidXmlChars(content);
+				const contentToRender = isMdx
+					? sanitizeMdxForFeed(rawContent) || post.data.description || ""
+					: rawContent;
+				const cleanedContent = stripInvalidXmlChars(contentToRender);
 				contentHtml = sanitizeHtml(parser.render(cleanedContent), {
 					allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
 				});
