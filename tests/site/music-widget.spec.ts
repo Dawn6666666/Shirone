@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { musicConfig, resolveMusicOptions } from "../../src/config/musicConfig";
 import I18nKey from "../../src/i18n/i18nKey";
 import { en } from "../../src/i18n/languages/en";
 import { es } from "../../src/i18n/languages/es";
@@ -58,7 +59,12 @@ test.describe("music sidebar architecture", () => {
 	test("default-disabled site emits zero music DOM, CSS, JS chunks, and media requests", async ({
 		page,
 	}) => {
+		test.skip(
+			resolveMusicOptions(musicConfig) !== null,
+			"Music feature is enabled in local configuration",
+		);
 		const requests: string[] = [];
+
 		page.on("request", (request) => {
 			const url = request.url();
 			if (

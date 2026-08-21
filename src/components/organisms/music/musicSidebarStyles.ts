@@ -19,7 +19,7 @@ export const musicSidebarStylus = `
 		display: grid
 		place-items: center
 		overflow: hidden
-		border-radius: var(--shape-corner-m)
+		border-radius: var(--shape-corner-full)
 		background: var(--secondary-container)
 		color: var(--on-secondary-container)
 		transform: rotate(0)
@@ -32,6 +32,7 @@ export const musicSidebarStylus = `
 			width: 100%
 			height: 100%
 			object-fit: cover
+			border-radius: var(--shape-corner-full)
 
 		&--playing
 			animation: music-cover-playing var(--m3e-duration-ambient-extra-long) linear infinite

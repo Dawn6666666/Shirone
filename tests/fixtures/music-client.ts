@@ -101,8 +101,33 @@ export async function mountMusicClient(page: Page): Promise<void> {
 			value: TestAudio,
 		});
 
-		const host = document.createElement("section");
-		host.id = "music-client-test-host";
+			const { destroyMusicRuntime } = await import(
+				"/src/utils/music/index.ts"
+			);
+			destroyMusicRuntime();
+
+			document.querySelectorAll(".sidebar-widget").forEach((el) => {
+				if (
+					el.querySelector("[data-music-player]") ||
+					el.querySelector("#sidebar-music-player")
+				) {
+					el.remove();
+				}
+			});
+			document
+				.querySelectorAll('[data-id="sidebar-music-player"]')
+				.forEach((el) => el.remove());
+			document
+				.querySelectorAll("[data-music-player]")
+				.forEach((el) => el.remove());
+			document
+				.querySelectorAll("#sidebar-music-player")
+				.forEach((el) => el.remove());
+
+			const host = document.createElement("section");
+			host.id = "music-client-test-host";
+
+
 		host.style.cssText =
 			"position: fixed; top: 80px; right: 16px; z-index: 2147483647; isolation: isolate; width: 320px; max-height: calc(100vh - 96px); overflow: auto; padding: 16px; background: var(--surface);";
 		document.body.prepend(host);
