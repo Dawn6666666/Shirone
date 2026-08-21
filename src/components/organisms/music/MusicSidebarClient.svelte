@@ -71,9 +71,17 @@ const playing = $derived(snapshot.status === "playing");
 const modeLabel = $derived(modeLabels[snapshot.mode]);
 const modeIcon = $derived(modeIcons[snapshot.mode]);
 const duration = $derived(Math.max(0, snapshot.duration));
+let draggingSeek = $state(false);
+let dragTime = $state<number | null>(null);
+
+const currentEffectiveTime = $derived(
+	draggingSeek && dragTime !== null ? dragTime : snapshot.currentTime,
+);
 const progressMax = $derived(duration > 0 ? duration : 1);
-const progressRatio = $derived(duration > 0 ? Math.min(snapshot.currentTime / duration, 1) : 0);
-const displayTime = $derived(formatTime(snapshot.currentTime));
+const progressRatio = $derived(
+	duration > 0 ? Math.min(Math.max(currentEffectiveTime / duration, 0), 1) : 0,
+);
+const displayTime = $derived(formatTime(currentEffectiveTime));
 const displayDuration = $derived(formatTime(duration));
 const progressLabel = $derived(
 	labels.progress
@@ -121,8 +129,32 @@ function cycleMode(): void {
 	runtime?.setMode(modes[(index + 1) % modes.length]);
 }
 
-function seek(event: Event): void {
-	runtime?.seek(Number((event.currentTarget as HTMLInputElement).value));
+function onProgressPointerDown(): void {
+	draggingSeek = true;
+}
+
+function onProgressInput(event: Event): void {
+	const val = Number((event.currentTarget as HTMLInputElement).value);
+	dragTime = Number.isFinite(val) ? Math.max(0, val) : null;
+}
+
+function onProgressChange(event: Event): void {
+	const val = Number((event.currentTarget as HTMLInputElement).value);
+	draggingSeek = false;
+	dragTime = null;
+	if (Number.isFinite(val)) {
+		runtime?.seek(Math.max(0, val));
+	}
+}
+
+function onProgressPointerUp(event: PointerEvent): void {
+	draggingSeek = false;
+	const input = event.currentTarget as HTMLInputElement;
+	const val = Number(input.value);
+	dragTime = null;
+	if (Number.isFinite(val)) {
+		runtime?.seek(Math.max(0, val));
+	}
 }
 
 function setVolume(event: Event): void {
@@ -154,34 +186,38 @@ function setVolume(event: Event): void {
 			<time class="music-player__time">{displayTime}</time>
 		</div>
 
-			<div class="music-player__progress">
-				<div class="music-player__progress-control">
-					<ProgressIndicator
-						variant="linear"
-						wavy
-						progress={progressRatio}
-						amplitude={playing ? 1 : 0}
-						label={progressLabel}
-						ariaHidden
-						showStop={false}
-						class="music-player__progress-visual"
-					/>
-					<input
-						type="range"
-						min="0"
-						max={progressMax}
-						step="0.1"
-						value={Math.min(snapshot.currentTime, progressMax)}
-						disabled={duration <= 0}
-						aria-label={progressLabel}
-						oninput={seek}
-					/>
+				<div class="music-player__progress">
+					<div class="music-player__progress-control">
+						<ProgressIndicator
+							variant="linear"
+							wavy
+							progress={progressRatio}
+							amplitude={playing ? 1 : 0}
+							label={progressLabel}
+							ariaHidden
+							showStop={false}
+							showThumb
+							class="music-player__progress-visual"
+						/>
+						<input
+							type="range"
+							min="0"
+							max={progressMax}
+							step="0.1"
+							value={Math.min(currentEffectiveTime, progressMax)}
+							disabled={duration <= 0}
+							aria-label={progressLabel}
+							onpointerdown={onProgressPointerDown}
+							onpointerup={onProgressPointerUp}
+							oninput={onProgressInput}
+							onchange={onProgressChange}
+						/>
+					</div>
+					<div class="music-player__times" aria-hidden="true">
+						<span>{displayTime}</span>
+						<span>{displayDuration}</span>
+					</div>
 				</div>
-				<div class="music-player__times" aria-hidden="true">
-					<span>{displayTime}</span>
-					<span>{displayDuration}</span>
-				</div>
-			</div>
 
 		<div class="music-player__controls">
 			<Tooltip label={modeLabel} placement="top">

@@ -134,7 +134,7 @@ export const announcementConfig = {
 - **数据源**：`src/config/musicConfig.ts`。`tracks` 提供曲目，`defaultVolume` 与 `defaultMode` 只用于首次初始化；
 - **三项启用条件**：`musicConfig.enable: true`、至少一首有效 track、`sidebarConfig` 的 music 条目 `enable: true` 缺一不可。全局开关和 widget 开关均默认关闭；
 - **预期信息与控制**：显示当前曲目的必要信息，并提供上一首、播放/暂停、下一首、播放模式切换、播放进度拖动与音量调节。图标按钮必须有本地化可访问名称，状态按钮同步暴露当前状态；
-- **原生 range 语义**：播放进度与音量使用原生 `<input type="range">`，保留各自的 `min` / `max` / `step` / `value` 和可访问名称。不得用只响应指针拖拽的 `div` 模拟；键盘用户应保有浏览器原生的方向键、Page Up / Page Down、Home / End 调节语义。进度范围随媒体时长更新，音量 range 与实际音频音量双向同步；
+- **自适应波浪进度与原生 range 语义**：播放进度采用 M3E 自适应波浪 `ProgressIndicator` 原子，在当前播放位置提供平滑的 `showThumb` 手柄；交互层使用原生 `<input type="range">`，保留各自的 `min` / `max` / `step` / `value` 和可访问名称。不得用只响应指针拖拽的 `div` 模拟；键盘用户保有浏览器原生的方向键、Page Up / Page Down、Home / End 调节语义。进度范围随媒体时长更新，音量 range 与实际音频音量双向同步；
 - **Swup 持久性**：组件挂在 `#swup-container` 外，只在直接加载时初始化一次。站内导航不重建音频实例，不中断播放，也不丢失当前曲目、位置、音量或模式；页面过滤只改变 widget 可见性，不把 Swup 生命周期当作播放器重置信号；
 - **关闭零负担**：三项启用条件未全部满足时，在动态导入前短路，不输出 DOM/CSS，不请求曲目、封面或其他媒体，不加载播放器模块/依赖进主 bundle。样式不得因 Astro CSS 提升进入共享 CSS。
 

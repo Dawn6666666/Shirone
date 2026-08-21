@@ -64,47 +64,92 @@ export const musicSidebarStylus = `
 		font-variant-numeric: tabular-nums
 		color: var(--on-surface-variant)
 
-		&__progress
-			display: flex
-			flex-direction: column
-			gap: 0.125rem
+	&__progress
+		display: flex
+		flex-direction: column
+		gap: 0.125rem
 
-		&__progress-control
+	&__progress-control
+		position: relative
+		width: 100%
+		height: 1.5rem
+		display: flex
+		align-items: center
+		touch-action: pan-y
+
+		.m3-progress
 			position: relative
+			z-index: 0
 			width: 100%
-			min-height: 1.25rem
-			display: flex
-			align-items: center
+			max-width: none
+			pointer-events: none
 
-			.m3-progress
+		.m3-progress--wavy
+			height: 10px
+			overflow: visible
+
+			.m3-progress__wavy-track,
+			.m3-progress__wavy-active,
+			.m3-progress__wavy-wave
 				width: 100%
-				max-width: none
-				flex: 1 1 auto
 
-			&--wavy
-				overflow: visible
+		input
+			appearance: none
+			-webkit-appearance: none
+			position: absolute
+			inset: 0
+			z-index: 2
+			width: 100%
+			height: 100%
+			margin: 0
+			padding: 0
+			border: none
+			background: transparent !important
+			opacity: 0
+			cursor: pointer
+			accent-color: transparent
 
-			input
-				position: absolute
-				inset: 0
-				z-index: 1
-				width: 100%
+			&::-webkit-slider-runnable-track
+				appearance: none
+				-webkit-appearance: none
+				background: transparent !important
+				border: none
 				height: 100%
-				margin: 0
+
+			&::-webkit-slider-thumb
+				appearance: none
+				-webkit-appearance: none
 				opacity: 0
-				cursor: pointer
+				width: 1.5rem
+				height: 1.5rem
+				background: transparent !important
+				border: none
+				box-shadow: none
 
-				&:disabled
-					cursor: default
+			&::-moz-range-track
+				background: transparent !important
+				border: none
+				height: 100%
 
-				&:focus-visible
-					outline: 2px solid var(--primary)
-					outline-offset: 2px
-					border-radius: var(--shape-corner-full)
+			&::-moz-range-thumb
+				opacity: 0
+				width: 1.5rem
+				height: 1.5rem
+				background: transparent !important
+				border: none
+				box-shadow: none
 
-		&__times
-			display: flex
-			justify-content: space-between
+			&:disabled
+				cursor: default
+
+			&:focus-visible
+				outline: 2px solid var(--primary)
+				outline-offset: 2px
+				border-radius: var(--shape-corner-s)
+
+	&__times
+		display: flex
+		justify-content: space-between
 
 	&__controls
 		display: grid
@@ -124,49 +169,49 @@ export const musicSidebarStylus = `
 			height: 1.25rem
 			color: var(--on-surface-variant)
 
-	&__progress input,
-	&__volume input
-		appearance: none
-		width: 100%
-		height: 1.25rem
-		margin: 0
-		background: transparent
-		cursor: pointer
-		accent-color: var(--primary)
-
-		&::-webkit-slider-runnable-track
-			height: 0.25rem
-			border-radius: var(--shape-corner-full)
-			background: var(--surface-container-highest)
-
-		&::-webkit-slider-thumb
+		input
 			appearance: none
-			width: 1rem
-			height: 1rem
-			margin-top: -0.375rem
-			border: none
-			border-radius: var(--shape-corner-full)
-			background: var(--primary)
+			-webkit-appearance: none
+			width: 100%
+			height: 1.25rem
+			margin: 0
+			background: transparent
+			cursor: pointer
+			accent-color: var(--primary)
 
-		&::-moz-range-track
-			height: 0.25rem
-			border-radius: var(--shape-corner-full)
-			background: var(--surface-container-highest)
+			&::-webkit-slider-runnable-track
+				height: 0.25rem
+				border-radius: var(--shape-corner-full)
+				background: var(--surface-container-highest)
 
-		&::-moz-range-thumb
-			width: 1rem
-			height: 1rem
-			border: none
-			border-radius: var(--shape-corner-full)
-			background: var(--primary)
+			&::-webkit-slider-thumb
+				appearance: none
+				width: 1rem
+				height: 1rem
+				margin-top: -0.375rem
+				border: none
+				border-radius: var(--shape-corner-full)
+				background: var(--primary)
 
-		&:focus-visible
-			outline: 2px solid var(--primary)
-			outline-offset: 2px
+			&::-moz-range-track
+				height: 0.25rem
+				border-radius: var(--shape-corner-full)
+				background: var(--surface-container-highest)
 
-		&:disabled
-			cursor: default
-			opacity: 0.38
+			&::-moz-range-thumb
+				width: 1rem
+				height: 1rem
+				border: none
+				border-radius: var(--shape-corner-full)
+				background: var(--primary)
+
+			&:focus-visible
+				outline: 2px solid var(--primary)
+				outline-offset: 2px
+
+			&:disabled
+				cursor: default
+				opacity: 0.38
 
 	&__playlist-toggle
 		width: 100%
