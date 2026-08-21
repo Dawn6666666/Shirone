@@ -230,25 +230,48 @@ test.describe("Mermaid diagrams", () => {
 		await expect(dialog).toBeVisible();
 		const fullscreenLayout = await dialog.evaluate((element) => {
 			const content = element.querySelector<HTMLElement>(".m3-dialog__content");
+			const title = element.querySelector<HTMLElement>(".m3-dialog__title");
+			const toolbar = element.querySelector<HTMLElement>(
+				".mermaid-viewer__fullscreen-toolbar .m3-toolbar",
+			);
 			const rect = element.getBoundingClientRect();
+			const titleRect = title?.getBoundingClientRect();
+			const toolbarRect = toolbar?.getBoundingClientRect();
+			const dialogCenter = (rect.left + rect.right) / 2;
+			const toolbarCenter = toolbarRect
+				? (toolbarRect.left + toolbarRect.right) / 2
+				: 0;
 			return {
 				clientHeight: element.clientHeight,
 				scrollHeight: element.scrollHeight,
+				clientWidth: element.clientWidth,
+				scrollWidth: element.scrollWidth,
+				scrollLeft: element.scrollLeft,
 				contentClientHeight: content?.clientHeight ?? 0,
 				contentScrollHeight: content?.scrollHeight ?? 0,
 				left: rect.left,
 				right: rect.right,
+				titleLeft: titleRect?.left ?? 0,
+				toolbarCenterOffset: Math.abs(toolbarCenter - dialogCenter),
 				viewportWidth: innerWidth,
 			};
 		});
 		expect(fullscreenLayout.scrollHeight).toBeLessThanOrEqual(
 			fullscreenLayout.clientHeight,
 		);
+		expect(fullscreenLayout.scrollWidth).toBeLessThanOrEqual(
+			fullscreenLayout.clientWidth + 1,
+		);
+		expect(fullscreenLayout.scrollLeft).toBe(0);
 		expect(fullscreenLayout.contentScrollHeight).toBeLessThanOrEqual(
 			fullscreenLayout.contentClientHeight,
 		);
 		expect(fullscreenLayout.left).toBeGreaterThan(0);
 		expect(fullscreenLayout.right).toBeLessThan(fullscreenLayout.viewportWidth);
+		expect(fullscreenLayout.titleLeft).toBeGreaterThanOrEqual(
+			fullscreenLayout.left,
+		);
+		expect(fullscreenLayout.toolbarCenterOffset).toBeLessThanOrEqual(2);
 		await expect(
 			dialog.locator("[data-mermaid-fullscreen-viewport] svg"),
 		).toHaveCount(1);
@@ -346,5 +369,62 @@ test.describe("Mermaid diagrams", () => {
 			(await new AxeBuilder({ page }).include(".markdown-mermaid").analyze())
 				.violations,
 		).toEqual([]);
+	});
+
+	test("keeps fullscreen modal and controls centered on compact mobile screens with long diagram titles", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 360, height: 640 });
+		await page.goto(DEMO_PATH, { waitUntil: "domcontentloaded" });
+		const diagram = await waitForViewer(page);
+		await diagram.getByRole("button", { name: "Diagram controls" }).click();
+		await diagram.getByRole("button", { name: "Open fullscreen" }).click();
+
+		const dialog = page.getByRole("dialog", {
+			name: /Fullscreen diagram:/,
+		});
+		await expect(dialog).toBeVisible();
+		const layout = await dialog.evaluate((element) => {
+			const rect = element.getBoundingClientRect();
+			const title = element.querySelector<HTMLElement>(".m3-dialog__title");
+			const closeBtn = element.querySelector<HTMLElement>(
+				".m3-dialog__close-btn",
+			);
+			const toolbar = element.querySelector<HTMLElement>(
+				".mermaid-viewer__fullscreen-toolbar .m3-toolbar",
+			);
+			const titleRect = title?.getBoundingClientRect();
+			const closeRect = closeBtn?.getBoundingClientRect();
+			const toolbarRect = toolbar?.getBoundingClientRect();
+			const dialogCenter = (rect.left + rect.right) / 2;
+			const toolbarCenter = toolbarRect
+				? (toolbarRect.left + toolbarRect.right) / 2
+				: 0;
+			return {
+				clientWidth: element.clientWidth,
+				scrollWidth: element.scrollWidth,
+				scrollLeft: element.scrollLeft,
+				dialogLeft: rect.left,
+				dialogRight: rect.right,
+				titleLeft: titleRect?.left ?? 0,
+				titleRight: titleRect?.right ?? 0,
+				closeLeft: closeRect?.left ?? 0,
+				closeRight: closeRect?.right ?? 0,
+				toolbarCenterOffset: Math.abs(toolbarCenter - dialogCenter),
+				viewportWidth: innerWidth,
+			};
+		});
+
+		expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth + 1);
+		expect(layout.scrollLeft).toBe(0);
+		expect(layout.dialogLeft).toBeGreaterThan(0);
+		expect(layout.dialogRight).toBeLessThan(layout.viewportWidth);
+		expect(layout.titleLeft).toBeGreaterThanOrEqual(layout.dialogLeft);
+		expect(layout.titleRight).toBeLessThanOrEqual(layout.closeLeft);
+		expect(layout.closeRight).toBeLessThanOrEqual(layout.dialogRight);
+		expect(layout.toolbarCenterOffset).toBeLessThanOrEqual(2);
+
+		await page.keyboard.press("Escape");
+		await expect(dialog).toBeHidden();
 	});
 });

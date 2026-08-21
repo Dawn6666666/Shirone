@@ -167,9 +167,11 @@ $effect(() => {
 		align-items: center
 		justify-content: space-between
 		gap: 1rem
+		min-width: 0
 		margin-bottom: 1rem
 
 	&__title
+		min-width: 0
 		font: var(--m3e-type-headline-small)
 		color: var(--on-surface)
 		margin-bottom: 0
@@ -198,6 +200,7 @@ $effect(() => {
 			height: 1.25rem
 
 	&__content
+		min-width: 0
 		font: var(--m3e-type-body-medium)
 		color: var(--on-surface-variant)
 

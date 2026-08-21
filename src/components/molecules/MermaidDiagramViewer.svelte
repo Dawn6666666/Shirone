@@ -206,12 +206,16 @@ $effect(() => {
 
 	&__fullscreen-shell
 		display: grid
+		grid-template-columns: minmax(0, 1fr)
 		grid-template-rows: minmax(0, 1fr) auto
 		gap: var(--m3e-space-3)
+		width: 100%
 		height: 100%
+		min-width: 0
 		min-height: 0
 
 	&__fullscreen-viewport
+		width: 100%
 		min-width: 0
 		min-height: 0
 		overflow: hidden
@@ -227,6 +231,8 @@ $effect(() => {
 	&__fullscreen-toolbar
 		display: flex
 		justify-content: center
+		width: 100%
+		min-width: 0
 
 :global(.mermaid-viewer__toolbar.m3-toolbar--expanded)
 	gap: 0
@@ -244,6 +250,7 @@ $effect(() => {
 
 :global(.mermaid-viewer__dialog.m3-dialog)
 	display: grid
+	grid-template-columns: minmax(0, 1fr)
 	grid-template-rows: auto minmax(0, 1fr)
 	gap: var(--m3e-space-3)
 	box-sizing: border-box
@@ -254,7 +261,12 @@ $effect(() => {
 	overflow: hidden
 	padding: var(--m3e-space-4)
 
+	:global(.m3-dialog__header)
+		min-width: 0
+		margin-bottom: 0
+
 	:global(.m3-dialog__title)
+		min-width: 0
 		overflow: hidden
 		margin: 0
 		font: var(--m3e-type-title-large)
@@ -262,6 +274,7 @@ $effect(() => {
 		white-space: nowrap
 
 	:global(.m3-dialog__content)
+		min-width: 0
 		height: auto
 		min-height: 0
 		overflow: hidden
