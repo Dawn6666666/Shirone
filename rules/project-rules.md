@@ -80,7 +80,18 @@ content/（Markdown 正文，仅 pages 引用）
 
 ---
 
-## 7. 质量闸门
+## 7. 零额外负担原则（Zero Burden / Zero Cost when Disabled）
+
+任何可选特性、侧栏 widget、第三方服务（如评论、统计等）或可配置能力必须遵循「安全默认、关闭零开销」：
+
+1. **零外部网络请求**：在未开启或文章禁用时，严禁产生外部网络请求（不预拉取、不加载任何第三方 script/link/font/iframe）；
+2. **零 DOM 污染与布局偏移**：关闭时完全不输出占位 DOM、空卡片或额外 margin/padding，保持存量页面的 DOM 结构、性能与视觉快照基线 100% 不变；
+3. **零 npm Bundle 膨胀**：可选的第三方依赖与 SDK 严禁打包进主 npm bundle，必须通过按需/运行时动态加载机制（如 script loader）引入；
+4. **存量数据平滑兼容**：Markdown frontmatter 等内容 Schema 必须提供安全默认值（如 `comment: true` 默认继承全局），禁止强制要求批量改写存量文章数据。
+
+---
+
+## 8. 质量闸门
 
 提交前必须全绿：
 
@@ -95,7 +106,7 @@ npx.cmd playwright test      # site 级全量（约 1 分钟，atoms 级测试�
 
 ---
 
-## 8. 环境与命令
+## 9. 环境与命令
 
 - 系统 PowerShell，禁脚本执行：一律用 `npx.cmd` / `npm.cmd` / `pnpm.cmd`。
 - `pnpm.cmd dev` 起 Astro dev（端口 4321）。
@@ -104,7 +115,7 @@ npx.cmd playwright test      # site 级全量（约 1 分钟，atoms 级测试�
 
 ---
 
-## 9. 视觉样式原则（后续接入时）
+## 10. 视觉样式原则（后续接入时）
 
 1. 装饰层与组件层物理隔离（`features/` 层，默认关闭、零开销）；
 2. 装饰必须尊重 `prefers-reduced-motion`；
