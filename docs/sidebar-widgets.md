@@ -131,7 +131,7 @@ export const announcementConfig = {
 ## 9. MusicSidebar — 持久音乐播放器
 
 - **分层与外壳**：`MusicSidebar` 属于 organisms，而不是 molecule。它复用 `WidgetLayout` 作为标题外壳，但自身持有音频实例、播放状态和持久 shell 生命周期；
-- **数据源**：`src/config/musicConfig.ts`。`tracks` 提供曲目，`defaultVolume` 与 `defaultMode` 只用于首次初始化；
+- **数据源**：`src/config/musicConfig.ts`（开关/模式/默认设置）与 `src/data/music.ts`（本地曲目清单）。`defaultVolume` 与 `defaultMode` 只用于首次初始化；
 - **三项启用条件**：`musicConfig.enable: true`、至少一首有效 track、`sidebarConfig` 的 music 条目 `enable: true` 缺一不可。全局开关和 widget 开关均默认关闭；
 - **预期信息与控制**：显示当前曲目的必要信息，并提供上一首、播放/暂停、下一首、播放模式切换、播放进度拖动与音量调节。图标按钮必须有本地化可访问名称，状态按钮同步暴露当前状态；
 - **自适应波浪进度与原生 range 语义**：播放进度采用 M3E 自适应波浪 `ProgressIndicator` 原子，在当前播放位置提供平滑的 `showThumb` 手柄；交互层使用原生 `<input type="range">`，保留各自的 `min` / `max` / `step` / `value` 和可访问名称。不得用只响应指针拖拽的 `div` 模拟；键盘用户保有浏览器原生的方向键、Page Up / Page Down、Home / End 调节语义。进度范围随媒体时长更新，音量 range 与实际音频音量双向同步；

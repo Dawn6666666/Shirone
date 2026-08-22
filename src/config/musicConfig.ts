@@ -1,48 +1,19 @@
+import { musicTracks } from "@/data/music";
 import type {
 	MusicConfig,
+	MusicProvider,
 	PlaybackMode,
 	TrackDescriptor,
 } from "@/types/musicConfig";
 
 /**
- * 侧栏音乐配置单一真源。默认关闭且不附带示例媒体，禁用时不产生额外负担。
+ * 侧栏音乐配置单一真源。
+ * 遵循「零额外负担」原则：本地曲目数据已抽离至 src/data/music.ts，
+ * 此处仅保留全局开关、播放器默认行为及预留的数据源模式切换接口。
  */
 export const musicConfig: MusicConfig = {
 	enable: true,
-	tracks: [
-		{
-			id: "dazbee",
-			title: "口笛で愛は歌えない",
-			artist: "Dazbee",
-			cover: "/assets/music/cover/dazbee.webp",
-			source: "/assets/music/url/dazbee.mp3",
-			duration: 241,
-		},
-		{
-			id: "hitori",
-			title: "ひとり上手",
-			artist: "Kaya",
-			cover: "/assets/music/cover/hitori.webp",
-			source: "/assets/music/url/hitori.mp3",
-			duration: 253,
-		},
-		{
-			id: "xryx",
-			title: "眩耀夜行",
-			artist: "スリーズブーケ",
-			cover: "/assets/music/cover/xryx.webp",
-			source: "/assets/music/url/xryx.mp3",
-			duration: 245,
-		},
-		{
-			id: "cl",
-			title: "春雷の頃",
-			artist: "22/7",
-			cover: "/assets/music/cover/cl.webp",
-			source: "/assets/music/url/cl.mp3",
-			duration: 242,
-		},
-	],
+	provider: "local",
 	defaultVolume: 0.7,
 	defaultMode: "sequence",
 };
@@ -100,8 +71,18 @@ export function resolveMusicOptions(
 ): ResolvedMusicOptions | null {
 	if (!config.enable) return null;
 
+	const provider: MusicProvider = config.provider ?? "local";
+
+	let rawTracks: readonly TrackDescriptor[] = [];
+	if (provider === "local") {
+		rawTracks = config.tracks ?? musicTracks;
+	} else if (provider === "custom" && config.tracks) {
+		rawTracks = config.tracks;
+	}
+	// 预留 meting 等远端 API 接入解析
+
 	const usedIds = new Set<string>();
-	const playlist = config.tracks
+	const playlist = rawTracks
 		.map((track) => normalizeTrack(track, usedIds))
 		.filter((track): track is TrackDescriptor => track !== null);
 	if (playlist.length === 0) return null;

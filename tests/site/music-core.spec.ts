@@ -144,24 +144,36 @@ test.describe("music configuration and playlist helpers", () => {
 		expect(Object.isFrozen(resolved?.playlist)).toBe(true);
 	});
 
-	test("returns null when disabled or when no valid tracks remain", () => {
-		expect(
-			resolveMusicOptions({
-				enable: false,
-				tracks: [{ id: "one", title: "One", source: "/one.mp3" }],
-				defaultVolume: 0.5,
-				defaultMode: "sequence",
-			}),
-		).toBeNull();
-		expect(
-			resolveMusicOptions({
+		test("returns null when disabled or when no valid tracks remain", () => {
+			expect(
+				resolveMusicOptions({
+					enable: false,
+					tracks: [{ id: "one", title: "One", source: "/one.mp3" }],
+					defaultVolume: 0.5,
+					defaultMode: "sequence",
+				}),
+			).toBeNull();
+			expect(
+				resolveMusicOptions({
+					enable: true,
+					tracks: [{ id: "", title: "", source: "" }],
+					defaultVolume: 0.5,
+					defaultMode: "sequence",
+				}),
+			).toBeNull();
+		});
+
+		test("resolves default local data source when tracks is omitted", () => {
+			const resolved = resolveMusicOptions({
 				enable: true,
-				tracks: [{ id: "", title: "", source: "" }],
-				defaultVolume: 0.5,
+				provider: "local",
+				defaultVolume: 0.7,
 				defaultMode: "sequence",
-			}),
-		).toBeNull();
-	});
+			});
+			expect(resolved).not.toBeNull();
+			expect(resolved?.playlist.length).toBeGreaterThan(0);
+			expect(resolved?.playlist[0].id).toBe("dazbee");
+		});
 
 	test("covers empty, single, sequence, repeat, and deterministic shuffle indices", () => {
 		expect(nextTrackIndex(-1, 0, "sequence")).toBe(-1);

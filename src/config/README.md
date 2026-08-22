@@ -43,7 +43,7 @@
 | `navBarConfig.ts` | 导航栏链接（`LinkPresets` 预设表 + 组装） |
 | `sidebarConfig.ts` | 侧栏编排与 widget 清单（`arrangement` 单/双栏、`side` 主栏物理侧、widget `column` 分栏标签；判别联合类型见 `types/sidebarConfig.ts`；编排指导见 `docs/sidebar-system.md`，组件文档见 `docs/sidebar-widgets.md`，新增 widget checklist 见 `docs/common-components.md` §3.1） |
 | `announcementConfig.ts` | 公告内容（侧栏 announcement widget 消费，text 为空不渲染） |
-| `musicConfig.ts` | 侧栏音乐全局配置：总开关（默认关闭）、`tracks` 曲目清单、`defaultVolume` 初始音量与 `defaultMode` 初始播放模式；与 `sidebarConfig` 的 music 条目共同控制 `MusicSidebar`，详见下文与 `docs/sidebar-widgets.md` |
+| `musicConfig.ts` | 侧栏音乐全局配置：总开关（默认关闭）、`provider` 模式切换接口、`defaultVolume` 初始音量与 `defaultMode` 初始播放模式（本地曲目清单维护在 `src/data/music.ts`）；与 `sidebarConfig` 的 music 条目共同控制 `MusicSidebar`，详见下文与 `docs/sidebar-widgets.md` |
 | `postListConfig.ts` | 文章列表：分页大小 + 布局（list/grid 模式、封面位置、grid 卡片宽度档位） |
 | `articleConfig.ts` | 文章详情：最后更新提示、延伸阅读（相关/随机文章抽样）、以及文章尾部分享区块（总开关、海报生成与封面配置） |
 | `commentConfig.ts` | 评论系统：全局开关（默认关闭）、Provider 选择（Twikoo 等）、视口懒加载与服务凭据配置 |
@@ -68,7 +68,7 @@
 侧栏音乐是默认关闭的可选能力，必须同时满足以下三项才加载并渲染：
 
 1. `musicConfig.enable` 为 `true`；
-2. `musicConfig.tracks` 至少包含一首有效曲目；
+2. 对应数据源（如本地 `src/data/music.ts` 或自定义 `tracks`）至少包含一首有效曲目；
 3. `sidebarConfig.components` 中 `type: "music"` 的条目存在且 `enable: true`（默认条目为 `false`）。
 
 任一条件不满足时，音乐功能不得输出 DOM 或样式，不得请求音频/封面等资源，也不得把播放器代码或依赖带入主 bundle。配置消费者应先完成三项校验，再动态加载 `MusicSidebar`；不能用隐藏空卡片代替短路。
