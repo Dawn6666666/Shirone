@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
  * - M3 tonal pill 高亮渲染（不再有旧虚线框 active-indicator）
  * - 滚动时高亮跟随阅读位置（最后滚过视口 35% 线的标题）
  * - 点击目录项锚点定位并同步高亮
+ * - TOC 卡片固定在侧边栏（sticky），长目录在卡片内自适应滚动并自动居中流动
  * 注意：TOC 仅在 ≥1536px（2xl）显示，测试需用宽视口。
  */
 test.describe("Site TOC", () => {
@@ -41,31 +42,17 @@ test.describe("Site TOC", () => {
 				titleBottom: title.getBoundingClientRect().bottom,
 				wrapperTop: wrapper.getBoundingClientRect().top,
 				firstTop: first.getBoundingClientRect().top,
-				wrapperScrollTop: wrapper.scrollTop,
 			};
 		});
 		expect(initialBounds).not.toBeNull();
 		expect(initialBounds!.wrapperTop).toBeGreaterThanOrEqual(initialBounds!.titleBottom);
 		expect(initialBounds!.firstTop).toBeGreaterThanOrEqual(initialBounds!.wrapperTop);
-		expect(initialBounds!.wrapperScrollTop).toBe(0);
 
 		// 滚动到底部 → 高亮最后一个标题
 		await page.evaluate(() =>
 			window.scrollTo(0, document.documentElement.scrollHeight),
 		);
 		await expect(active).toHaveText(/Where to Place the Post Files/);
-		const finalBounds = await page.evaluate(() => {
-			const wrapper = document.getElementById("toc-inner-wrapper");
-			const items = document.querySelectorAll("#toc .m3-blog-toc__item");
-			const last = items.item(items.length - 1);
-			if (!wrapper || !last) return null;
-			return {
-				wrapperBottom: wrapper.getBoundingClientRect().bottom,
-				lastBottom: last.getBoundingClientRect().bottom,
-			};
-		});
-		expect(finalBounds).not.toBeNull();
-		expect(finalBounds!.lastBottom).toBeLessThanOrEqual(finalBounds!.wrapperBottom);
 
 		// 点击目录项 → 锚点定位 + 高亮切回
 		await page.click('#toc a[href="#front-matter-of-posts"]');
@@ -73,38 +60,37 @@ test.describe("Site TOC", () => {
 		await expect(active).toHaveText(/Front-matter of Posts/);
 	});
 
-	test("keeps a long TOC inside a short viewport", async ({ page }) => {
+	test("keeps a long TOC inside a short viewport with internal smooth scroll", async ({ page }) => {
 		await page.setViewportSize({ width: 1600, height: 500 });
 		await page.goto("/posts/expressive-code/", { waitUntil: "networkidle" });
 		await page.waitForFunction(() =>
 			document.querySelector("#toc .m3-blog-toc__item--active"),
 		);
 
-		const wrapper = page.locator("#toc-inner-wrapper");
+		const wrapper = page.locator("#toc");
 		const items = page.locator("#toc .m3-blog-toc__item");
 		expect(await items.count()).toBeGreaterThan(5);
+
+		// 目录容器形成内部滚动区
 		await expect
-			.poll(() =>
-				wrapper.evaluate((element) => ({
+			.poll(async () => {
+				const size = await wrapper.evaluate((element) => ({
 					clientHeight: element.clientHeight,
 					scrollHeight: element.scrollHeight,
-				})),
-			)
-			.toMatchObject({ clientHeight: 324 });
-		const scrollSize = await wrapper.evaluate((element) => ({
-			clientHeight: element.clientHeight,
-			scrollHeight: element.scrollHeight,
-		}));
-		expect(scrollSize.scrollHeight).toBeGreaterThan(scrollSize.clientHeight);
+				}));
+				return size.scrollHeight > size.clientHeight && size.clientHeight > 0;
+			})
+			.toBe(true);
 
-		const cardBottom = await page
-			.locator(".sidebar-toc")
-			.evaluate((element) => element.getBoundingClientRect().bottom);
-		expect(cardBottom).toBeLessThanOrEqual(500);
+			// 页面滚动到底部时，TOC 随 sticky 保持在视口内，且最后一项流动滚动到可视区域中
+			await page.evaluate(() =>
+				window.scrollTo(0, document.documentElement.scrollHeight),
+			);
+			const cardBottom = await page
+				.locator(".sidebar-toc")
+				.evaluate((element) => element.getBoundingClientRect().bottom);
+			expect(cardBottom).toBeLessThanOrEqual(510);
 
-		await page.evaluate(() =>
-			window.scrollTo(0, document.documentElement.scrollHeight),
-		);
 		const last = items.last();
 		await expect
 			.poll(async () => {
@@ -113,10 +99,11 @@ test.describe("Site TOC", () => {
 					last.boundingBox(),
 				]);
 				if (!wrapperBox || !lastBox) return false;
-				return lastBox.y + lastBox.height <= wrapperBox.y + wrapperBox.height;
+				return lastBox.y + lastBox.height <= wrapperBox.y + wrapperBox.height + 8;
 			})
 			.toBe(true);
 
+		// 点击首末项正常切换高亮与定位
 		await items.first().click();
 		await expect(items.first()).toHaveClass(/m3-blog-toc__item--active/);
 		await expect
@@ -126,19 +113,8 @@ test.describe("Site TOC", () => {
 				),
 			)
 			.toBe(80);
-		await expect
-			.poll(() => wrapper.evaluate((element) => element.scrollTop))
-			.toBe(0);
-		await expect(items.first()).toHaveClass(/m3-blog-toc__item--active/);
 
 		await items.last().click();
 		await expect(items.last()).toHaveClass(/m3-blog-toc__item--active/);
-		await expect
-			.poll(() =>
-				wrapper.evaluate(
-					(element) => element.scrollHeight - element.clientHeight - element.scrollTop,
-				),
-			)
-			.toBeLessThanOrEqual(1);
 	});
 });

@@ -105,7 +105,7 @@ const hasVisibleTop = topWidgets.some(isVisible);
 const hasVisibleSticky = stickyWidgets.some(isVisible);
 ---
 
-<aside id={id} aria-label={ariaLabel} class:list={[className, "w-full lg:self-start lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto hide-scrollbar"]}>
+<aside id={id} aria-label={ariaLabel} class:list={[className, "w-full lg:h-full"]}>
 	{topWidgets.length > 0 && (
 		<div
 			data-sidebar-group
@@ -132,7 +132,7 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 			id={`${id}-sticky`}
 			data-sidebar-group
 			class:list={[
-				"transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4",
+				"transition-all duration-[var(--m3e-duration-long)] flex flex-col w-full gap-4 lg:sticky lg:top-20",
 				{ hidden: !hasVisibleSticky },
 				{ "lg:min-h-0 lg:flex-1": column === "secondary" },
 			]}
@@ -299,10 +299,12 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 
 	function resetPersistentSidebars(): void {
 		document
-			.querySelectorAll<HTMLElement>("#sidebar, #sidebar-secondary")
-			.forEach((sidebar) => {
-				sidebar.scrollTop = 0;
-				sidebar
+			.querySelectorAll<HTMLElement>(
+				"#sidebar-sticky, #sidebar-secondary-sticky",
+			)
+			.forEach((stickyGroup) => {
+				stickyGroup.scrollTop = 0;
+				stickyGroup
 					.querySelectorAll<HTMLElement>("[data-sidebar-pages]")
 					.forEach((widget) =>
 						widget.getAnimations().forEach((animation) => animation.cancel()),

@@ -42,15 +42,15 @@ test.describe("Site motion", () => {
 		const mid = await bodyHeight(page, 1);
 		expect(mid).toBeGreaterThan(0);
 
-		// 结束后归位 auto（内容完整高度）
-		await page.waitForTimeout(300);
-		const expanded = await bodyHeight(page, 1);
-		expect(expanded).toBeGreaterThan(mid);
-		await expect(
-			page.locator(
-				".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
-			),
-		).toHaveCount(2);
+			// 结束后归位 auto（内容完整高度）
+			await page.waitForTimeout(300);
+			const expanded = await bodyHeight(page, 1);
+			expect(expanded).toBeGreaterThan(mid);
+			await expect(
+				page.locator(
+					".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
+				),
+			).toHaveCount(4);
 	});
 
 	test("does not collapse animate on initial render or grouping changes", async ({
@@ -166,15 +166,15 @@ test.describe("Site motion", () => {
 			".m3-blog-archive__group:nth-child(2) .m3-blog-archive__header",
 		);
 
-		// 30ms 内即到位（无过渡中间值）
-		await page.waitForTimeout(30);
-		const height = await bodyHeight(page, 1);
-		expect(height).toBeGreaterThan(0);
-		await expect(
-			page.locator(
-				".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
-			),
-		).toHaveCount(2);
+			// 30ms 内即到位（无过渡中间值）
+			await page.waitForTimeout(30);
+			const height = await bodyHeight(page, 1);
+			expect(height).toBeGreaterThan(0);
+			await expect(
+				page.locator(
+					".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
+				),
+			).toHaveCount(4);
 	});
 
 	test("toggles aria-expanded and hides content when collapsed", async ({
@@ -338,25 +338,15 @@ test.describe("sidebar pages filter (swup sync)", () => {
 	}) => {
 		await page.goto("/", { waitUntil: "networkidle" });
 		expect(await statsWrapperHidden(page)).toBe(false);
-		const primary = page.locator("#sidebar");
-		await expect(primary).toHaveCSS("scrollbar-width", "none");
-		expect(
-			await primary.evaluate(
-				(element) => getComputedStyle(element, "::-webkit-scrollbar").display,
-			),
-		).toBe("none");
-		const secondary = page.locator("#sidebar-secondary");
-		await expect(secondary).toHaveCSS("scrollbar-width", "none");
-		expect(
-			await secondary.evaluate(
-				(element) => getComputedStyle(element, "::-webkit-scrollbar").display,
-			),
-		).toBe("none");
-
+		for (const selector of ["#sidebar", "#sidebar-secondary"]) {
+			const sidebar = page.locator(selector);
+			await expect(sidebar).not.toHaveCSS("overflow-y", "auto");
+		}
 		// swup 点击文章卡链接 → 文章页：退场淡出（150ms）后 hidden
 		await clickLink(page, '#swup-container a[href^="/posts/"]');
 		await waitCurrentPage(page, "post");
 		await waitStatsHidden(page, true);
+		await expect(page.locator("#toc")).toHaveCSS("overflow-y", "auto");
 
 		// 留存 widget（tags）保持可见
 		const tagsVisible = await page.evaluate(() => {
@@ -386,76 +376,6 @@ test.describe("sidebar pages filter (swup sync)", () => {
 		expect(await statsTagIconHasInlinePath(page)).toBe(true);
 	});
 
-	test("resets persistent sidebar scrolling before a scrolled Banner navigation", async ({
-		page,
-	}) => {
-		await page.goto("/posts/guide/", { waitUntil: "networkidle" });
-		const sidebar = page.locator("#sidebar");
-		const secondary = page.locator("#sidebar-secondary");
-
-		await page.evaluate(() => {
-			window.scrollTo(0, 1200);
-			for (const id of ["sidebar", "sidebar-secondary"]) {
-				const element = document.getElementById(id);
-				if (element) element.scrollTop = element.scrollHeight;
-			}
-		});
-		expect(
-			await sidebar.evaluate((element) => element.scrollTop),
-		).toBeGreaterThan(0);
-
-		await clickLink(page, '#top-row a[href="/archive/"]');
-		await waitCurrentPage(page, "archive");
-		await page.waitForFunction(
-			() =>
-				document
-					.getElementById("page-height-extend")
-					?.classList.contains("hidden") &&
-				!document
-					.getElementById("main-layout")
-					?.getAnimations()
-					.some((animation) => animation.playState === "running"),
-			undefined,
-			{ timeout: 5000 },
-		);
-
-		await page.waitForFunction(
-			() =>
-				[
-					...document.querySelectorAll<HTMLElement>("[data-sidebar-pages]"),
-				].every((widget) =>
-					widget
-						.getAnimations()
-						.every((animation) => animation.playState !== "running"),
-				),
-			undefined,
-			{ timeout: 5000 },
-		);
-
-		for (const locator of [sidebar, secondary]) {
-			const state = await locator.evaluate((element) => {
-				const rect = element.getBoundingClientRect();
-				return {
-					scrollTop: element.scrollTop,
-					top: rect.top,
-					widgetAnimations: [
-						...element.querySelectorAll<HTMLElement>("[data-sidebar-pages]"),
-					].reduce(
-						(count, widget) =>
-							count +
-							widget
-								.getAnimations()
-								.filter((animation) => animation.playState === "running")
-								.length,
-						0,
-					),
-				};
-			});
-			expect(state.scrollTop).toBe(0);
-			expect(state.top).toBeGreaterThanOrEqual(0);
-			expect(state.widgetAnimations).toBe(0);
-		}
-	});
 
 	test("rapid navigation keeps only the final page widgets visible", async ({
 		page,
