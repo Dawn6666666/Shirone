@@ -8,7 +8,7 @@ export const musicSidebarStylus = `
 
 	&__track
 		display: grid
-		grid-template-columns: 3.25rem minmax(0, 1fr) auto
+		grid-template-columns: 3.25rem minmax(0, 1fr)
 		align-items: center
 		gap: 0.75rem
 		min-width: 0
@@ -56,9 +56,7 @@ export const musicSidebarStylus = `
 			font: var(--m3e-type-body-small)
 			color: var(--on-surface-variant)
 
-	&__time,
 	&__times,
-	&__volume > span,
 	&__playlist-item time
 		font: var(--m3e-type-label-small)
 		font-variant-numeric: tabular-nums
@@ -67,7 +65,7 @@ export const musicSidebarStylus = `
 	&__progress
 		display: flex
 		flex-direction: column
-		gap: 0.125rem
+		gap: 0.25rem
 
 	&__progress-control
 		position: relative
@@ -150,68 +148,116 @@ export const musicSidebarStylus = `
 	&__times
 		display: flex
 		justify-content: space-between
+		align-items: center
+		min-height: 1.5rem
 
-	&__controls
-		display: grid
-		grid-template-columns: 2rem 2.5rem 3.5rem 2.5rem 2rem
-		justify-content: center
+	&__time-display
+		display: inline-flex
+		align-items: center
+		gap: 0.25rem
+		font: var(--m3e-type-label-small)
+		font-variant-numeric: tabular-nums
+		color: var(--on-surface-variant)
+
+	&__time-separator
+		opacity: 0.5
+
+	&__volume-inline
+		display: flex
 		align-items: center
 		gap: 0.25rem
 
-	&__volume
-		display: grid
-		grid-template-columns: 1.25rem minmax(0, 1fr) 2.5rem
-		align-items: center
-		gap: 0.5rem
-
-		> svg
-			width: 1.25rem
-			height: 1.25rem
+		.m3-icon-button
+			width: 1.5rem
+			height: 1.5rem
+			padding: 0
 			color: var(--on-surface-variant)
 
-		input
+			&:hover
+				color: var(--primary)
+
+			&__icon
+				font-size: 1.125rem
+
+	&__volume-slider-wrap
+		position: relative
+		width: 3.75rem
+		height: 1.25rem
+		display: flex
+		align-items: center
+
+	&__volume-slider
+		appearance: none
+		-webkit-appearance: none
+		width: 100%
+		height: 0.25rem
+		margin: 0
+		padding: 0
+		border: none
+		border-radius: var(--shape-corner-full)
+		background: linear-gradient(to right, var(--primary) 0%, var(--primary) var(--vol-pct, 70%), var(--surface-container-highest) var(--vol-pct, 70%), var(--surface-container-highest) 100%)
+		cursor: pointer
+		outline: none
+
+		&::-webkit-slider-runnable-track
 			appearance: none
 			-webkit-appearance: none
-			width: 100%
-			height: 1.25rem
-			margin: 0
+			height: 0.25rem
+			border-radius: var(--shape-corner-full)
 			background: transparent
-			cursor: pointer
-			accent-color: var(--primary)
+			border: none
 
-			&::-webkit-slider-runnable-track
-				height: 0.25rem
-				border-radius: var(--shape-corner-full)
-				background: var(--surface-container-highest)
+		&::-webkit-slider-thumb
+			appearance: none
+			-webkit-appearance: none
+			width: 0.625rem
+			height: 0.625rem
+			margin-top: -0.1875rem
+			border: none
+			border-radius: var(--shape-corner-full)
+			background: var(--primary)
+			box-shadow: 0 0 0 1px var(--surface-container-lowest)
+			transition: transform var(--m3e-duration-short) var(--m3e-easing-standard)
 
-			&::-webkit-slider-thumb
-				appearance: none
-				width: 1rem
-				height: 1rem
-				margin-top: -0.375rem
-				border: none
-				border-radius: var(--shape-corner-full)
-				background: var(--primary)
+			&:hover
+				transform: scale(1.25)
 
-			&::-moz-range-track
-				height: 0.25rem
-				border-radius: var(--shape-corner-full)
-				background: var(--surface-container-highest)
+		&::-moz-range-track
+			height: 0.25rem
+			border-radius: var(--shape-corner-full)
+			background: transparent
+			border: none
 
-			&::-moz-range-thumb
-				width: 1rem
-				height: 1rem
-				border: none
-				border-radius: var(--shape-corner-full)
-				background: var(--primary)
+		&::-moz-range-progress
+			height: 0.25rem
+			border-radius: var(--shape-corner-full)
+			background: var(--primary)
 
-			&:focus-visible
-				outline: 2px solid var(--primary)
-				outline-offset: 2px
+		&::-moz-range-thumb
+			width: 0.625rem
+			height: 0.625rem
+			border: none
+			border-radius: var(--shape-corner-full)
+			background: var(--primary)
+			box-shadow: 0 0 0 1px var(--surface-container-lowest)
+			transition: transform var(--m3e-duration-short) var(--m3e-easing-standard)
 
-			&:disabled
-				cursor: default
-				opacity: 0.38
+			&:hover
+				transform: scale(1.25)
+
+		&:focus-visible
+			outline: 2px solid var(--primary)
+			outline-offset: 2px
+
+		&:disabled
+			cursor: default
+			opacity: 0.38
+
+	&__controls
+		display: flex
+		justify-content: center
+		align-items: center
+		gap: 0.5rem
 
 	&__playlist-toggle
 		width: 100%
