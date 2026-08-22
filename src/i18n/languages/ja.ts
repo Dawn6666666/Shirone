@@ -118,6 +118,8 @@ export const ja: Translation = {
 	[Key.recentPosts]: "最近の投稿",
 	[Key.tableOfContents]: "目次",
 	[Key.formulaScrollable]: "横スクロール可能な数式",
+	[Key.announcement]: "お知らせ",
+	[Key.announcementClose]: "告知を閉じる",
 
 	[Key.comments]: "コメント",
 	[Key.commentsLoading]: "コメントを読み込み中...",

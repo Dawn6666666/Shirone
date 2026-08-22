@@ -112,6 +112,8 @@ export const zh_CN: Translation = {
 	[Key.recentPosts]: "最新文章",
 	[Key.tableOfContents]: "文章目录",
 	[Key.formulaScrollable]: "可横向滚动的公式",
+	[Key.announcement]: "公告",
+	[Key.announcementClose]: "关闭公告",
 
 	[Key.comments]: "评论",
 	[Key.commentsLoading]: "正在加载评论...",

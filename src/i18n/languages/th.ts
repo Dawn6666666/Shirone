@@ -110,6 +110,8 @@ export const th: Translation = {
 	[Key.recentPosts]: "โพสต์ล่าสุด",
 	[Key.tableOfContents]: "สารบัญ",
 	[Key.formulaScrollable]: "สูตรที่เลื่อนในแนวนอนได้",
+	[Key.announcement]: "ประกาศ",
+	[Key.announcementClose]: "ปิดประกาศ",
 
 	[Key.comments]: "ความคิดเห็น",
 	[Key.commentsLoading]: "กำลังโหลดความคิดเห็น...",

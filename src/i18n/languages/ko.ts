@@ -116,6 +116,8 @@ export const ko: Translation = {
 	[Key.recentPosts]: "최근 게시물",
 	[Key.tableOfContents]: "목차",
 	[Key.formulaScrollable]: "가로로 스크롤 가능한 수식",
+	[Key.announcement]: "공지사항",
+	[Key.announcementClose]: "공지 닫기",
 
 	[Key.comments]: "댓글",
 	[Key.commentsLoading]: "댓글을 불러오는 중...",

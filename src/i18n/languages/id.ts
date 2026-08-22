@@ -119,6 +119,8 @@ export const id: Translation = {
 	[Key.recentPosts]: "Postingan Terbaru",
 	[Key.tableOfContents]: "Daftar Isi",
 	[Key.formulaScrollable]: "Rumus yang dapat digulir secara horizontal",
+	[Key.announcement]: "Pengumuman",
+	[Key.announcementClose]: "Tutup pengumuman",
 
 	[Key.comments]: "Komentar",
 	[Key.commentsLoading]: "Memuat komentar...",

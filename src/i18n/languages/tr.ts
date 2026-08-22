@@ -119,6 +119,8 @@ export const tr: Translation = {
 	[Key.recentPosts]: "Son Paylaşımlar",
 	[Key.tableOfContents]: "İçindekiler",
 	[Key.formulaScrollable]: "Yatay kaydırılabilir formül",
+	[Key.announcement]: "Duyuru",
+	[Key.announcementClose]: "Duyuruyu Kapat",
 
 	[Key.comments]: "Yorumlar",
 	[Key.commentsLoading]: "Yorumlar yükleniyor...",
