@@ -85,10 +85,17 @@ export const musicSidebarStylus = `
 		gap: 0.25rem
 
 		.m3-icon-button
+			position: relative
 			width: 1.25rem
 			height: 1.25rem
 			padding: 0
 			color: var(--on-surface-variant)
+
+			&::after
+				content: ""
+				position: absolute
+				inset: -0.5rem
+				z-index: 1
 
 			&:hover
 				color: var(--primary)
@@ -208,10 +215,10 @@ export const musicSidebarStylus = `
 			appearance: none
 			-webkit-appearance: none
 			position: absolute
-			inset: 0
+			inset: -0.625rem 0
 			z-index: 2
 			width: 100%
-			height: 100%
+			height: calc(100% + 1.25rem)
 			margin: 0
 			padding: 0
 			border: none
@@ -290,6 +297,8 @@ export const musicSidebarStylus = `
 		overflow-y: auto
 		overscroll-behavior: contain
 		scrollbar-width: none
+		-webkit-mask-image: linear-gradient(to bottom, black calc(100% - 1.5rem), transparent 100%)
+		mask-image: linear-gradient(to bottom, black calc(100% - 1.5rem), transparent 100%)
 
 		&::-webkit-scrollbar
 			display: none
@@ -359,6 +368,22 @@ export const musicSidebarStylus = `
 	&__error
 		background: var(--error-container)
 		color: var(--on-error-container)
+
+@media (pointer: coarse)
+	.music-player
+		&__volume-slider-wrap
+			height: 2rem
+
+		&__progress-control
+			height: 2.5rem
+
+			input
+				inset: 0
+
+		&__controls
+			max-width: 22rem
+			width: 100%
+			margin: 0 auto
 
 @keyframes music-cover-playing
 	to
