@@ -22,7 +22,8 @@ export const musicSidebarStylus = `
 		border-radius: var(--shape-corner-full)
 		background: var(--secondary-container)
 		color: var(--on-secondary-container)
-		transform: rotate(0)
+		animation: music-cover-playing var(--m3e-duration-ambient-extra-long) linear infinite
+		animation-play-state: paused
 
 		> svg
 			width: 1.5rem
@@ -35,7 +36,7 @@ export const musicSidebarStylus = `
 			border-radius: var(--shape-corner-full)
 
 		&--playing
-			animation: music-cover-playing var(--m3e-duration-ambient-extra-long) linear infinite
+			animation-play-state: running
 
 	&__metadata
 		min-width: 0
@@ -359,10 +360,10 @@ export const musicSidebarStylus = `
 	to
 		transform: rotate(360deg)
 
-html.motion-reduced .music-player__cover--playing
+html.motion-reduced .music-player__cover
 	animation: none
 
 @media (prefers-reduced-motion: reduce)
-	.music-player__cover--playing
+	.music-player__cover
 		animation: none
 `;
