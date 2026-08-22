@@ -45,13 +45,13 @@ let snapshot = $state<MusicSnapshot>({
 	playlist: options.playlist,
 	currentIndex: options.playlist.length > 0 ? 0 : -1,
 	currentTrack: options.playlist[0] ?? null,
-	status: "idle",
+	status: options.provider === "meting" ? "loading" : "idle",
 	currentTime: 0,
 	duration: options.playlist[0]?.duration ?? 0,
 	volume: options.defaultVolume,
 	muted: false,
 	mode: options.defaultMode,
-	error: options.playlist.length > 0 ? null : "empty-playlist",
+	error: options.playlist.length > 0 || options.provider === "meting" ? null : "empty-playlist",
 });
 let playlistOpen = $state(false);
 const playlistId = "sidebar-music-playlist";
@@ -68,6 +68,15 @@ const modeIcons: Record<PlaybackMode, string> = {
 };
 
 const playing = $derived(snapshot.status === "playing");
+const loading = $derived(snapshot.status === "loading");
+const hasTracks = $derived(snapshot.playlist.length > 0);
+const currentTitle = $derived(
+	snapshot.currentTrack?.title ?? (loading ? labels.loading : labels.empty),
+);
+const currentArtist = $derived(
+	snapshot.currentTrack?.artist ?? (loading ? "..." : "—"),
+);
+
 const modeLabel = $derived(modeLabels[snapshot.mode]);
 const modeIcon = $derived(modeIcons[snapshot.mode]);
 const duration = $derived(Math.max(0, snapshot.duration));
@@ -92,7 +101,7 @@ const volumeLabel = $derived(
 	labels.volume.replace("{volume}", String(Math.round(snapshot.volume * 100))),
 );
 const liveMessage = $derived.by(() => {
-	if (snapshot.error) return labels.errors[snapshot.error];
+	if (snapshot.error && snapshot.status === "error") return labels.errors[snapshot.error];
 	if (snapshot.status === "loading") return labels.loading;
 	if (snapshot.currentTrack && snapshot.status === "playing") {
 		return labels.nowPlaying.replace("{title}", snapshot.currentTrack.title);
@@ -163,151 +172,150 @@ function setVolume(event: Event): void {
 </script>
 
 	<div class="music-player" data-music-player>
-		{#if snapshot.currentTrack}
-			<div class="music-player__track">
-					<div class={`music-player__cover${playing ? " music-player__cover--playing" : ""}`}>
-						{#if snapshot.currentTrack.cover}
-							<img
-								src={snapshot.currentTrack.cover}
-								alt=""
-								loading="lazy"
-								decoding="async"
+		<div class="music-player__track">
+			<div class={`music-player__cover${playing ? " music-player__cover--playing" : ""}`}>
+				{#if snapshot.currentTrack?.cover}
+					<img
+						src={snapshot.currentTrack.cover}
+						alt=""
+						loading="lazy"
+						decoding="async"
+					/>
+				{:else}
+					<Icon icon="material-symbols:music-note-rounded" aria-hidden="true" />
+				{/if}
+			</div>
+			<div class="music-player__metadata">
+				<strong title={currentTitle}>{currentTitle}</strong>
+				<span title={currentArtist}>{currentArtist}</span>
+				<div class="music-player__submeta">
+					<div class="music-player__time-display" aria-hidden="true">
+						<span>{displayTime}</span>
+						<span class="music-player__time-separator">/</span>
+						<span>{displayDuration}</span>
+					</div>
+					<div class="music-player__volume-inline">
+						<Tooltip label={snapshot.muted ? labels.unmute : labels.mute} placement="top">
+							<IconButton
+								icon="material-symbols:volume-up-rounded"
+								checkedIcon="material-symbols:volume-off-rounded"
+								label={snapshot.muted ? labels.unmute : labels.mute}
+								size="xsmall"
+								toggle
+								checked={snapshot.muted}
+								onclick={() => runtime?.setMuted(!snapshot.muted)}
 							/>
-						{:else}
-							<Icon icon="material-symbols:music-note-rounded" aria-hidden="true" />
-						{/if}
-					</div>
-				<div class="music-player__metadata">
-					<strong title={snapshot.currentTrack.title}>{snapshot.currentTrack.title}</strong>
-					{#if snapshot.currentTrack.artist}
-						<span title={snapshot.currentTrack.artist}>{snapshot.currentTrack.artist}</span>
-					{/if}
-					<div class="music-player__submeta">
-						<div class="music-player__time-display" aria-hidden="true">
-							<span>{displayTime}</span>
-							<span class="music-player__time-separator">/</span>
-							<span>{displayDuration}</span>
-						</div>
-						<div class="music-player__volume-inline">
-							<Tooltip label={snapshot.muted ? labels.unmute : labels.mute} placement="top">
-								<IconButton
-									icon="material-symbols:volume-up-rounded"
-									checkedIcon="material-symbols:volume-off-rounded"
-									label={snapshot.muted ? labels.unmute : labels.mute}
-									size="xsmall"
-									toggle
-									checked={snapshot.muted}
-									onclick={() => runtime?.setMuted(!snapshot.muted)}
-								/>
-							</Tooltip>
-							<div class="music-player__volume-slider-wrap">
-								<input
-									type="range"
-									min="0"
-									max="1"
-									step="0.01"
-									value={snapshot.volume}
-									aria-label={volumeLabel}
-									oninput={setVolume}
-									class="music-player__volume-slider"
-									style={`--vol-pct: ${Math.round(snapshot.volume * 100)}%`}
-								/>
-							</div>
+						</Tooltip>
+						<div class="music-player__volume-slider-wrap">
+							<input
+								type="range"
+								min="0"
+								max="1"
+								step="0.01"
+								value={snapshot.volume}
+								aria-label={volumeLabel}
+								oninput={setVolume}
+								class="music-player__volume-slider"
+								style={`--vol-pct: ${Math.round(snapshot.volume * 100)}%`}
+							/>
 						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<div class="music-player__progress">
-				<div class="music-player__progress-control">
-					<ProgressIndicator
-						variant="linear"
-						wavy
-						progress={progressRatio}
-						amplitude={playing ? 1 : 0}
-						label={progressLabel}
-						ariaHidden
-						showStop={false}
-						showThumb
-						class="music-player__progress-visual"
-					/>
-					<input
-						type="range"
-						min="0"
-						max={progressMax}
-						step="0.1"
-						value={Math.min(currentEffectiveTime, progressMax)}
-						disabled={duration <= 0}
-						aria-label={progressLabel}
-						onpointerdown={onProgressPointerDown}
-						onpointerup={onProgressPointerUp}
-						oninput={onProgressInput}
-						onchange={onProgressChange}
-					/>
-				</div>
+		<div class="music-player__progress">
+			<div class="music-player__progress-control">
+				<ProgressIndicator
+					variant="linear"
+					wavy
+					progress={progressRatio}
+					amplitude={playing ? 1 : 0}
+					label={progressLabel}
+					ariaHidden
+					showStop={false}
+					showThumb
+					class="music-player__progress-visual"
+				/>
+				<input
+					type="range"
+					min="0"
+					max={progressMax}
+					step="0.1"
+					value={Math.min(currentEffectiveTime, progressMax)}
+					disabled={duration <= 0 || !hasTracks}
+					aria-label={progressLabel}
+					onpointerdown={onProgressPointerDown}
+					onpointerup={onProgressPointerUp}
+					oninput={onProgressInput}
+					onchange={onProgressChange}
+				/>
 			</div>
+		</div>
 
-			<div class="music-player__controls">
-				<Tooltip label={modeLabel} placement="top">
-					<IconButton
-						icon={modeIcon}
-						label={`${labels.playbackMode}: ${modeLabel}`}
-						size="xsmall"
-						onclick={cycleMode}
-					/>
-				</Tooltip>
-				<Tooltip label={labels.previous} placement="top">
-					<IconButton
-						icon="material-symbols:skip-previous-rounded"
-						label={labels.previous}
-						size="small"
-						disabled={snapshot.playlist.length === 0}
-						onclick={() => void runtime?.previous()}
-					/>
-				</Tooltip>
-				<Tooltip label={playing ? labels.pause : labels.play} placement="top">
-					<IconButton
-						icon="material-symbols:play-arrow-rounded"
-						checkedIcon="material-symbols:pause-rounded"
-						label={playing ? labels.pause : labels.play}
-						variant="filled"
-						size="medium"
-						toggle
-						checked={playing}
-						disabled={snapshot.playlist.length === 0}
-						onclick={() => void runtime?.toggle()}
-					/>
-				</Tooltip>
-				<Tooltip label={labels.next} placement="top">
-					<IconButton
-						icon="material-symbols:skip-next-rounded"
-						label={labels.next}
-						size="small"
-						disabled={snapshot.playlist.length === 0}
-						onclick={() => void runtime?.next()}
-					/>
-				</Tooltip>
-				<Tooltip label={playlistOpen ? labels.hidePlaylist : labels.showPlaylist} placement="top">
-					<IconButton
-						icon="material-symbols:queue-music-rounded"
-						label={playlistOpen ? labels.hidePlaylist : labels.showPlaylist}
-						size="xsmall"
-						class="music-player__playlist-toggle"
-						ariaExpanded={playlistOpen}
-						ariaControls={playlistId}
-						disabled={snapshot.playlist.length === 0}
-						onclick={() => (playlistOpen = !playlistOpen)}
-					/>
-				</Tooltip>
-			</div>
+		<div class="music-player__controls">
+			<Tooltip label={modeLabel} placement="top">
+				<IconButton
+					icon={modeIcon}
+					label={`${labels.playbackMode}: ${modeLabel}`}
+					size="xsmall"
+					disabled={!hasTracks}
+					onclick={cycleMode}
+				/>
+			</Tooltip>
+			<Tooltip label={labels.previous} placement="top">
+				<IconButton
+					icon="material-symbols:skip-previous-rounded"
+					label={labels.previous}
+					size="small"
+					disabled={!hasTracks}
+					onclick={() => void runtime?.previous()}
+				/>
+			</Tooltip>
+			<Tooltip label={playing ? labels.pause : labels.play} placement="top">
+				<IconButton
+					icon="material-symbols:play-arrow-rounded"
+					checkedIcon="material-symbols:pause-rounded"
+					label={playing ? labels.pause : labels.play}
+					variant="filled"
+					size="medium"
+					toggle
+					checked={playing}
+					disabled={!hasTracks}
+					onclick={() => void runtime?.toggle()}
+				/>
+			</Tooltip>
+			<Tooltip label={labels.next} placement="top">
+				<IconButton
+					icon="material-symbols:skip-next-rounded"
+					label={labels.next}
+					size="small"
+					disabled={!hasTracks}
+					onclick={() => void runtime?.next()}
+				/>
+			</Tooltip>
+			<Tooltip label={playlistOpen ? labels.hidePlaylist : labels.showPlaylist} placement="top">
+				<IconButton
+					icon="material-symbols:queue-music-rounded"
+					label={playlistOpen ? labels.hidePlaylist : labels.showPlaylist}
+					size="xsmall"
+					class="music-player__playlist-toggle"
+					ariaExpanded={playlistOpen}
+					ariaControls={playlistId}
+					disabled={!hasTracks}
+					onclick={() => (playlistOpen = !playlistOpen)}
+				/>
+			</Tooltip>
+		</div>
 
-			<div
-				id={playlistId}
-				class="music-player__playlist-panel"
-				inert={!playlistOpen}
-				aria-hidden={!playlistOpen}
-				use:collapse={{ open: playlistOpen }}
-			>
+		<div
+			id={playlistId}
+			class="music-player__playlist-panel"
+			inert={!playlistOpen}
+			aria-hidden={!playlistOpen}
+			use:collapse={{ open: playlistOpen }}
+		>
+		{#if hasTracks}
 			<ol class="music-player__playlist">
 				{#each snapshot.playlist as track, index (track.id)}
 					<li>
@@ -335,14 +343,12 @@ function setVolume(event: Event): void {
 					</li>
 				{/each}
 			</ol>
-		</div>
-		{:else if snapshot.status === "loading"}
-			<p class="music-player__empty">{labels.loading}</p>
 		{:else}
 			<p class="music-player__empty">{labels.empty}</p>
 		{/if}
+	</div>
 
-	{#if snapshot.error}
+	{#if snapshot.error && snapshot.status === "error"}
 		<p class="music-player__error">{labels.errors[snapshot.error]}</p>
 	{/if}
 	<p class="sr-only" aria-live="polite" aria-atomic="true">{liveMessage}</p>
