@@ -182,6 +182,39 @@ function setVolume(event: Event): void {
 					{#if snapshot.currentTrack.artist}
 						<span title={snapshot.currentTrack.artist}>{snapshot.currentTrack.artist}</span>
 					{/if}
+					<div class="music-player__submeta">
+						<div class="music-player__time-display" aria-hidden="true">
+							<span>{displayTime}</span>
+							<span class="music-player__time-separator">/</span>
+							<span>{displayDuration}</span>
+						</div>
+						<div class="music-player__volume-inline">
+							<Tooltip label={snapshot.muted ? labels.unmute : labels.mute} placement="top">
+								<IconButton
+									icon="material-symbols:volume-up-rounded"
+									checkedIcon="material-symbols:volume-off-rounded"
+									label={snapshot.muted ? labels.unmute : labels.mute}
+									size="xsmall"
+									toggle
+									checked={snapshot.muted}
+									onclick={() => runtime?.setMuted(!snapshot.muted)}
+								/>
+							</Tooltip>
+							<div class="music-player__volume-slider-wrap">
+								<input
+									type="range"
+									min="0"
+									max="1"
+									step="0.01"
+									value={snapshot.volume}
+									aria-label={volumeLabel}
+									oninput={setVolume}
+									class="music-player__volume-slider"
+									style={`--vol-pct: ${Math.round(snapshot.volume * 100)}%`}
+								/>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -211,39 +244,6 @@ function setVolume(event: Event): void {
 						oninput={onProgressInput}
 						onchange={onProgressChange}
 					/>
-				</div>
-				<div class="music-player__times">
-					<div class="music-player__time-display" aria-hidden="true">
-						<span>{displayTime}</span>
-						<span class="music-player__time-separator">/</span>
-						<span>{displayDuration}</span>
-					</div>
-					<div class="music-player__volume-inline">
-						<Tooltip label={snapshot.muted ? labels.unmute : labels.mute} placement="top">
-							<IconButton
-								icon="material-symbols:volume-up-rounded"
-								checkedIcon="material-symbols:volume-off-rounded"
-								label={snapshot.muted ? labels.unmute : labels.mute}
-								size="xsmall"
-								toggle
-								checked={snapshot.muted}
-								onclick={() => runtime?.setMuted(!snapshot.muted)}
-							/>
-						</Tooltip>
-						<div class="music-player__volume-slider-wrap">
-							<input
-								type="range"
-								min="0"
-								max="1"
-								step="0.01"
-								value={snapshot.volume}
-								aria-label={volumeLabel}
-								oninput={setVolume}
-								class="music-player__volume-slider"
-								style={`--vol-pct: ${Math.round(snapshot.volume * 100)}%`}
-							/>
-						</div>
-					</div>
 				</div>
 			</div>
 
