@@ -245,15 +245,15 @@ test.describe("music sidebar client", () => {
 				}
 			).navigate("/archive/");
 		});
-		await page.waitForFunction(
-			() =>
-				document.getElementById("swup-container")?.dataset.currentPage ===
-				"archive",
-		);
-		await expect(page.locator(".music-player__metadata strong")).toHaveText(
-			"Second track",
-		);
-		const creations = await page.evaluate(() =>
+			await page.waitForFunction(
+				() =>
+					document.getElementById("swup-container")?.dataset.currentPage ===
+					"archive",
+			);
+			await expect(
+				page.locator("#music-client-test-host .music-player__metadata strong"),
+			).toHaveText("Second track");
+			const creations = await page.evaluate(() =>
 			(
 				window as typeof window & {
 					__musicAudioCreations?: () => number;

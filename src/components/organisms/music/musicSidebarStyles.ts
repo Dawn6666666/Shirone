@@ -8,20 +8,23 @@ export const musicSidebarStylus = `
 
 	&__track
 		display: grid
-		grid-template-columns: 3.5rem minmax(0, 1fr)
+		grid-template-columns: 3.25rem minmax(0, 1fr)
 		align-items: center
 		gap: 0.75rem
 		min-width: 0
 
 	&__cover
-		width: 3.5rem
-		height: 3.5rem
+		position: relative
+		width: 3.25rem
+		height: 3.25rem
 		display: grid
 		place-items: center
 		overflow: hidden
 		border-radius: var(--shape-corner-full)
 		background: var(--secondary-container)
 		color: var(--on-secondary-container)
+		box-shadow: 0 0 0 1.5px var(--surface-container-lowest), unquote("0 0 0 2.5px color-mix(in oklab, var(--primary) 20%, var(--outline-variant) 80%)"), unquote("0 2px 6px color-mix(in oklab, var(--on-surface) 6%, transparent)")
+		transition: box-shadow var(--m3e-duration-medium) var(--m3e-easing-standard)
 		animation: music-cover-playing var(--m3e-duration-ambient-extra-long) linear infinite
 		animation-play-state: paused
 
@@ -37,6 +40,7 @@ export const musicSidebarStylus = `
 
 		&--playing
 			animation-play-state: running
+			box-shadow: 0 0 0 1.5px var(--surface-container-lowest), 0 0 0 2.5px var(--primary), unquote("0 3px 10px color-mix(in oklab, var(--primary) 22%, transparent)")
 
 	&__metadata
 		min-width: 0

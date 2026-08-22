@@ -165,18 +165,18 @@ function setVolume(event: Event): void {
 	<div class="music-player" data-music-player>
 		{#if snapshot.currentTrack}
 			<div class="music-player__track">
-				<div class={`music-player__cover${playing ? " music-player__cover--playing" : ""}`}>
-					{#if snapshot.currentTrack.cover}
-						<img
-							src={snapshot.currentTrack.cover}
-							alt=""
-							loading="lazy"
-							decoding="async"
-						/>
-					{:else}
-						<Icon icon="material-symbols:music-note-rounded" aria-hidden="true" />
-					{/if}
-				</div>
+					<div class={`music-player__cover${playing ? " music-player__cover--playing" : ""}`}>
+						{#if snapshot.currentTrack.cover}
+							<img
+								src={snapshot.currentTrack.cover}
+								alt=""
+								loading="lazy"
+								decoding="async"
+							/>
+						{:else}
+							<Icon icon="material-symbols:music-note-rounded" aria-hidden="true" />
+						{/if}
+					</div>
 				<div class="music-player__metadata">
 					<strong title={snapshot.currentTrack.title}>{snapshot.currentTrack.title}</strong>
 					{#if snapshot.currentTrack.artist}
