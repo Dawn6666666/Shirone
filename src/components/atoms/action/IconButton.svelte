@@ -24,50 +24,56 @@ let {
 	shape = "round",
 	toggle = false,
 	checked = $bindable(false),
-	disabled = false,
-	label = "",
-	id = undefined,
-	href = undefined,
-	target = undefined,
-	rel = undefined,
-	onclick,
-	onchange,
-	class: className = "",
-	style = "",
-}: {
-	/** 图标内容插槽（优先于 icon prop；SSR 静态场景请用此方式传入 astro-icon 等已渲染图标） */
-	children?: import("svelte").Snippet;
-	/** 图标（Iconify 名；仅客户端水合场景可用，SSR 无水合时图标不会加载） */
-	icon?: string;
-	/** toggle 模式选中图标（Iconify 名） */
-	checkedIcon?: string;
-	/** 变体：standard（默认）/ filled / tonal / outlined */
-	variant?: "standard" | "filled" | "tonal" | "outlined";
-	/** 尺寸：xsmall 32 / small 40（默认）/ medium 56 / large 96 / xlarge 136 */
-	size?: "xsmall" | "small" | "medium" | "large" | "xlarge";
-	/** 形状：round（默认，圆形）/ square（方形，按尺寸圆角） */
-	shape?: "round" | "square";
-	/** toggle 模式：点击切换 checked */
-	toggle?: boolean;
-	/** 选中态（toggle 模式），$bindable */
-	checked?: boolean;
-	disabled?: boolean;
-	/** 无障碍标签（aria-label） */
-	label?: string;
-	/** 根元素 id 透传（供 CSS 选择器 / 锚点引用） */
-	id?: string;
-	/** 提供时渲染为 <a>（导航/外部链接，遵循「href → <a>」原生语义） */
-	href?: string;
-	/** 链接 target（仅 href 时生效） */
-	target?: string;
-	/** 链接 rel（仅 href 时生效） */
-	rel?: string;
-	onclick?: () => void;
-	/** toggle 模式选中变化回调 */
-	onchange?: (checked: boolean) => void;
-	class?: string;
-	style?: string;
-} = $props();
+		disabled = false,
+		label = "",
+		id = undefined,
+		ariaExpanded = undefined as boolean | undefined,
+		ariaControls = undefined as string | undefined,
+		href = undefined,
+		target = undefined,
+		rel = undefined,
+		onclick,
+		onchange,
+		class: className = "",
+		style = "",
+	}: {
+		/** 图标内容插槽（优先于 icon prop；SSR 静态场景请用此方式传入 astro-icon 等已渲染图标） */
+		children?: import("svelte").Snippet;
+		/** 图标（Iconify 名；仅客户端水合场景可用，SSR 无水合时图标不会加载） */
+		icon?: string;
+		/** toggle 模式选中图标（Iconify 名） */
+		checkedIcon?: string;
+		/** 变体：standard（默认）/ filled / tonal / outlined */
+		variant?: "standard" | "filled" | "tonal" | "outlined";
+		/** 尺寸：xsmall 32 / small 40（默认）/ medium 56 / large 96 / xlarge 136 */
+		size?: "xsmall" | "small" | "medium" | "large" | "xlarge";
+		/** 形状：round（默认，圆形）/ square（方形，按尺寸圆角） */
+		shape?: "round" | "square";
+		/** toggle 模式：点击切换 checked */
+		toggle?: boolean;
+		/** 选中态（toggle 模式），$bindable */
+		checked?: boolean;
+		disabled?: boolean;
+		/** 无障碍标签（aria-label） */
+		label?: string;
+		/** 根元素 id 透传（供 CSS 选择器 / 锚点引用） */
+		id?: string;
+		/** 折叠展开语义（aria-expanded） */
+		ariaExpanded?: boolean;
+		/** 控制的目标元素 ID（aria-controls） */
+		ariaControls?: string;
+		/** 提供时渲染为 <a>（导航/外部链接，遵循「href → <a>」原生语义） */
+		href?: string;
+		/** 链接 target（仅 href 时生效） */
+		target?: string;
+		/** 链接 rel（仅 href 时生效） */
+		rel?: string;
+		onclick?: () => void;
+		/** toggle 模式选中变化回调 */
+		onchange?: (checked: boolean) => void;
+		class?: string;
+		style?: string;
+	} = $props();
 
 function handleClick() {
 	if (toggle) {
@@ -90,6 +96,8 @@ function handleClick() {
 		{style}
 		aria-label={label}
 		aria-pressed={toggle ? checked : undefined}
+		aria-expanded={ariaExpanded}
+		aria-controls={ariaControls}
 		onclick={handleClick}
 	>
 		{#if icon}
@@ -108,6 +116,8 @@ function handleClick() {
 		{style}
 		aria-label={label}
 		aria-pressed={toggle ? checked : undefined}
+		aria-expanded={ariaExpanded}
+		aria-controls={ariaControls}
 		disabled={disabled}
 		onclick={handleClick}
 	>

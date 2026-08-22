@@ -255,30 +255,21 @@ export const musicSidebarStylus = `
 
 	&__controls
 		display: flex
-		justify-content: center
+		justify-content: space-between
 		align-items: center
-		gap: 0.5rem
+		padding: 0 0.25rem
 
-	&__playlist-toggle
-		width: 100%
-		height: 2.25rem
-		display: grid
-		grid-template-columns: 1.25rem 1fr 1.25rem
-		align-items: center
-		gap: 0.5rem
-		padding: 0 0.5rem
-		border: none
-		border-radius: var(--shape-corner-s)
-		background: transparent
-		color: var(--on-surface-variant)
-		font: var(--m3e-type-label-large)
-		text-align: left
-		cursor: pointer
-		--m3e-state-color: var(--on-surface)
+		.m3-icon-button
+			color: var(--on-surface-variant)
 
-		> svg
-			width: 1.25rem
-			height: 1.25rem
+			&:hover:not(:disabled)
+				color: var(--primary)
+
+			&--filled
+				color: var(--on-primary)
+
+				&:hover:not(:disabled)
+					color: var(--on-primary)
 
 	&__playlist-panel
 		overflow: hidden

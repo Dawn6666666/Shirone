@@ -287,22 +287,19 @@ function setVolume(event: Event): void {
 						onclick={() => void runtime?.next()}
 					/>
 				</Tooltip>
+				<Tooltip label={playlistOpen ? labels.hidePlaylist : labels.showPlaylist} placement="top">
+					<IconButton
+						icon="material-symbols:queue-music-rounded"
+						label={playlistOpen ? labels.hidePlaylist : labels.showPlaylist}
+						size="xsmall"
+						class="music-player__playlist-toggle"
+						ariaExpanded={playlistOpen}
+						ariaControls={playlistId}
+						disabled={snapshot.playlist.length === 0}
+						onclick={() => (playlistOpen = !playlistOpen)}
+					/>
+				</Tooltip>
 			</div>
-
-			<button
-				type="button"
-				class="music-player__playlist-toggle m3-state-layer"
-				aria-expanded={playlistOpen}
-				aria-controls={playlistId}
-				onclick={() => (playlistOpen = !playlistOpen)}
-			>
-				<Icon icon="material-symbols:queue-music-rounded" aria-hidden="true" />
-				<span>{playlistOpen ? labels.hidePlaylist : labels.showPlaylist}</span>
-				<Icon
-					icon={playlistOpen ? "material-symbols:expand-less-rounded" : "material-symbols:expand-more-rounded"}
-					aria-hidden="true"
-				/>
-			</button>
 
 			<div
 				id={playlistId}
