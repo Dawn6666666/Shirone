@@ -1,9 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import type { AlbumGroup, AlbumIndexItem, AlbumLayout, AlbumPhoto } from "@/types/album";
+import type {
+	AlbumGroup,
+	AlbumIndexItem,
+	AlbumLayout,
+	AlbumPhoto,
+} from "@/types/album";
 
-const ALBUM_ROOT = fileURLToPath(new URL("../../public/images/albums", import.meta.url));
+const ALBUM_ROOT = path.resolve(process.cwd(), "public/images/albums");
 const IMAGE_EXTENSIONS = new Set([
 	".jpg",
 	".jpeg",
@@ -28,12 +32,17 @@ function stringValue(value: unknown, fallback = ""): string {
 
 function stringArray(value: unknown): string[] {
 	return Array.isArray(value)
-		? value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean)
+		? value
+				.filter((item): item is string => typeof item === "string")
+				.map((item) => item.trim())
+				.filter(Boolean)
 		: [];
 }
 
 function numberValue(value: unknown): number | undefined {
-	return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : undefined;
+	return typeof value === "number" && Number.isFinite(value) && value > 0
+		? value
+		: undefined;
 }
 
 function dateValue(value: unknown, fallback = DEFAULT_DATE): string {
@@ -81,15 +90,21 @@ function fileDate(filePath: string): string {
 }
 
 function resolveLocalPhotoFiles(albumDir: string): string[] {
-	const files = fs.readdirSync(albumDir, { withFileTypes: true })
-		.filter((entry) => entry.isFile() && IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
+	const files = fs
+		.readdirSync(albumDir, { withFileTypes: true })
+		.filter(
+			(entry) =>
+				entry.isFile() &&
+				IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()),
+		)
 		.map((entry) => entry.name)
 		.filter((name) => !/^cover\.(?:webp|jpg)$/i.test(name));
 	const names = new Set(files);
 	return files
 		.filter((name) => {
 			const ext = path.extname(name).toLowerCase();
-			if (!names.has(`${path.basename(name, path.extname(name))}.webp`)) return true;
+			if (!names.has(`${path.basename(name, path.extname(name))}.webp`))
+				return true;
 			return ext === ".webp";
 		})
 		.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
@@ -117,26 +132,30 @@ function externalPhotos(albumId: string, rawPhotos: unknown): AlbumPhoto[] {
 		const raw = value as RawPhoto;
 		const src = stringValue(raw.src);
 		if (!src) {
-			console.warn(`[albums] Skipping ${albumId} photo ${index + 1}: missing src`);
+			console.warn(
+				`[albums] Skipping ${albumId} photo ${index + 1}: missing src`,
+			);
 			return [];
 		}
 		const title = stringValue(raw.title);
-		return [{
-			id: stringValue(raw.id, `${albumId}-external-photo-${index + 1}`),
-			src,
-			thumbnail: stringValue(raw.thumbnail) || undefined,
-			alt: stringValue(raw.alt, title || `Photo ${index + 1}`),
-			title: title || undefined,
-			description: stringValue(raw.description) || undefined,
-			tags: stringArray(raw.tags),
-			date: dateValue(raw.date),
-			location: stringValue(raw.location) || undefined,
-			width: numberValue(raw.width),
-			height: numberValue(raw.height),
-			camera: stringValue(raw.camera) || undefined,
-			lens: stringValue(raw.lens) || undefined,
-			settings: stringValue(raw.settings) || undefined,
-		}];
+		return [
+			{
+				id: stringValue(raw.id, `${albumId}-external-photo-${index + 1}`),
+				src,
+				thumbnail: stringValue(raw.thumbnail) || undefined,
+				alt: stringValue(raw.alt, title || `Photo ${index + 1}`),
+				title: title || undefined,
+				description: stringValue(raw.description) || undefined,
+				tags: stringArray(raw.tags),
+				date: dateValue(raw.date),
+				location: stringValue(raw.location) || undefined,
+				width: numberValue(raw.width),
+				height: numberValue(raw.height),
+				camera: stringValue(raw.camera) || undefined,
+				lens: stringValue(raw.lens) || undefined,
+				settings: stringValue(raw.settings) || undefined,
+			},
+		];
 	});
 }
 
@@ -161,7 +180,9 @@ function scanAlbumDirectory(entry: fs.Dirent): AlbumGroup | null {
 		console.warn(`[albums] Skipping ${id}: cover is missing`);
 		return null;
 	}
-	const photos = external ? externalPhotos(id, raw.photos) : localPhotos(id, albumDir);
+	const photos = external
+		? externalPhotos(id, raw.photos)
+		: localPhotos(id, albumDir);
 	return {
 		id,
 		title: stringValue(raw.title, id),
@@ -181,10 +202,13 @@ function scanAlbumDirectory(entry: fs.Dirent): AlbumGroup | null {
 
 export function scanAllAlbums(): AlbumGroup[] {
 	if (!fs.existsSync(ALBUM_ROOT)) return [];
-	return fs.readdirSync(ALBUM_ROOT, { withFileTypes: true })
+	return fs
+		.readdirSync(ALBUM_ROOT, { withFileTypes: true })
 		.map(scanAlbumDirectory)
 		.filter((album): album is AlbumGroup => album !== null)
-		.sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title));
+		.sort(
+			(a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title),
+		);
 }
 
 export function scanVisibleAlbums(): AlbumGroup[] {
@@ -193,7 +217,11 @@ export function scanVisibleAlbums(): AlbumGroup[] {
 
 export function toAlbumIndexItem(album: AlbumGroup): AlbumIndexItem {
 	const { photos, password, ...metadata } = album;
-	return { ...metadata, photoCount: photos.length, protected: Boolean(password) };
+	return {
+		...metadata,
+		photoCount: photos.length,
+		protected: Boolean(password),
+	};
 }
 
 export function findAlbum(id: string): AlbumGroup | undefined {
