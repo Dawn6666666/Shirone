@@ -19,7 +19,6 @@ export const musicSidebarStylus = `
 		height: 3.25rem
 		display: grid
 		place-items: center
-		overflow: hidden
 		border-radius: var(--shape-corner-full)
 		background: var(--secondary-container)
 		color: var(--on-secondary-container)
@@ -27,6 +26,16 @@ export const musicSidebarStylus = `
 		transition: box-shadow var(--m3e-duration-medium) var(--m3e-easing-standard)
 		animation: music-cover-playing var(--m3e-duration-ambient-extra-long) linear infinite
 		animation-play-state: paused
+
+		&::before
+			content: ""
+			position: absolute
+			inset: -2px
+			border-radius: var(--shape-corner-full)
+			border: 1.5px solid var(--primary)
+			opacity: 0
+			pointer-events: none
+			z-index: 1
 
 		> svg
 			width: 1.5rem
@@ -41,6 +50,12 @@ export const musicSidebarStylus = `
 		&--playing
 			animation-play-state: running
 			box-shadow: 0 0 0 1.5px var(--surface-container-lowest), 0 0 0 2.5px var(--primary), unquote("0 3px 10px color-mix(in oklab, var(--primary) 22%, transparent)")
+
+			&::before
+				animation: music-cover-ripple 3.2s cubic-bezier(0.1, 0.8, 0.2, 1) infinite
+
+			img
+				animation: music-cover-bounce 3.2s ease-in-out infinite
 
 	&__metadata
 		min-width: 0
@@ -389,10 +404,33 @@ export const musicSidebarStylus = `
 	to
 		transform: rotate(360deg)
 
-html.motion-reduced .music-player__cover
+@keyframes music-cover-ripple
+	0%
+		transform: scale(1)
+		opacity: 0.65
+	28%
+		transform: scale(1.18)
+		opacity: 0
+	100%
+		transform: scale(1.18)
+		opacity: 0
+
+@keyframes music-cover-bounce
+	0%, 100%
+		transform: scale(1)
+	14%
+		transform: scale(1.035)
+	28%
+		transform: scale(1)
+
+html.motion-reduced .music-player__cover,
+html.motion-reduced .music-player__cover::before,
+html.motion-reduced .music-player__cover img
 	animation: none
 
 @media (prefers-reduced-motion: reduce)
-	.music-player__cover
+	.music-player__cover,
+	.music-player__cover::before,
+	.music-player__cover img
 		animation: none
 `;
