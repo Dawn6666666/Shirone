@@ -284,7 +284,10 @@ export const musicSidebarStylus = `
 		padding: 0.25rem 0 0
 		overflow-y: auto
 		overscroll-behavior: contain
-		scrollbar-width: thin
+		scrollbar-width: none
+
+		&::-webkit-scrollbar
+			display: none
 
 	&__playlist-item
 		width: 100%
