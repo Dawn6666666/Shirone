@@ -1,6 +1,6 @@
 export type PlaybackMode = "sequence" | "repeat-one" | "shuffle";
 
-export type MusicProvider = "local" | "meting" | "custom";
+export type MusicProvider = "local" | "meting" | "custom" | "mixed";
 
 export type MetingServer = "netease" | "tencent" | "kugou" | "xiami" | "baidu";
 
@@ -43,11 +43,11 @@ export interface MetingMusicConfig {
 export interface MusicConfig {
 	/** 是否全局启用音乐功能 */
 	readonly enable: boolean;
-	/** 音频数据源模式：local（本地曲目） | meting（Meting API 远端歌单） | custom（显式传入 tracks） */
+	/** 音频数据源模式：local（本地曲目） | meting（Meting 远端歌单） | custom（显式传入 tracks） | mixed（本地与远端歌单合并） */
 	readonly provider?: MusicProvider;
-	/** 本地播放列表（provider 为 local 或 custom 时生效；local 未填时默认读取 src/data/music.ts） */
+	/** 本地播放列表（provider 为 local, custom, mixed 时生效；未填时默认读取 src/data/music.ts） */
 	readonly tracks?: readonly TrackDescriptor[];
-	/** Meting API 配置（provider 为 meting 时生效） */
+	/** Meting API 配置（provider 为 meting 或 mixed 时生效） */
 	readonly meting?: MetingMusicConfig;
 	/** 初始音量，范围 0–1 */
 	readonly defaultVolume: number;

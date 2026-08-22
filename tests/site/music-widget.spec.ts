@@ -11,7 +11,7 @@ import { tr } from "../../src/i18n/languages/tr";
 import { vi } from "../../src/i18n/languages/vi";
 import { zh_CN } from "../../src/i18n/languages/zh_CN";
 import { zh_TW } from "../../src/i18n/languages/zh_TW";
-import { mountMusicClient } from "../fixtures/music-client";
+import { mountMusicClient, remountMusicClient } from "../fixtures/music-client";
 
 const translations = [en, es, id, ja, ko, th, tr, vi, zh_CN, zh_TW];
 const musicKeys = [
@@ -245,15 +245,15 @@ test.describe("music sidebar client", () => {
 				}
 			).navigate("/archive/");
 		});
-			await page.waitForFunction(
-				() =>
-					document.getElementById("swup-container")?.dataset.currentPage ===
-					"archive",
-			);
-			await expect(
-				page.locator("#music-client-test-host .music-player__metadata strong"),
-			).toHaveText("Second track");
-			const creations = await page.evaluate(() =>
+		await page.waitForFunction(
+			() =>
+				document.getElementById("swup-container")?.dataset.currentPage ===
+				"archive",
+		);
+		await expect(
+			page.locator("#music-client-test-host .music-player__metadata strong"),
+		).toHaveText("Second track");
+		const creations = await page.evaluate(() =>
 			(
 				window as typeof window & {
 					__musicAudioCreations?: () => number;
@@ -261,5 +261,81 @@ test.describe("music sidebar client", () => {
 			).__musicAudioCreations?.(),
 		);
 		expect(creations).toBe(1);
+	});
+
+	test("meting mode dynamically fetches tracks and hydates playlist smoothly", async ({
+		page,
+	}) => {
+		await page.route("**/meting/**", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify([
+					{
+						id: 9901,
+						name: "Remote Anime Song",
+						artist: "Remote Singer",
+						url: "https://example.com/remote.mp3",
+						pic: "https://example.com/remote.jpg",
+						duration: 195000,
+					},
+					{
+						id: 9902,
+						name: "Second Remote Song",
+						artist: "Another Singer",
+						url: "https://example.com/second.mp3",
+						duration: 210000,
+					},
+				]),
+			});
+		});
+
+		await remountMusicClient(page, {
+			provider: "meting",
+			playlist: [],
+			meting: { id: "test-meting-id", server: "netease", type: "playlist" },
+			defaultVolume: 0.7,
+			defaultMode: "sequence",
+		});
+
+		await expect(
+			page.locator("#music-client-test-host .music-player__metadata strong"),
+		).toHaveText("Remote Anime Song", { timeout: 5000 });
+		await expect(
+			page.locator("#music-client-test-host .music-player__metadata > span"),
+		).toHaveText("Remote Singer");
+
+		const toggle = page.locator(".music-player__playlist-toggle");
+		await toggle.click();
+		await expect(page.locator("#sidebar-music-playlist")).toBeVisible();
+		await expect(
+			page.getByRole("button", { name: /Second Remote Song/ }),
+		).toBeVisible();
+	});
+
+	test("custom mode renders user defined tracks directly without network delay", async ({
+		page,
+	}) => {
+		await remountMusicClient(page, {
+			provider: "custom",
+			playlist: [
+				{
+					id: "custom-track-1",
+					title: "Custom User Melody",
+					artist: "Indie Artist",
+					source: "/audio/custom.mp3",
+					duration: 150,
+				},
+			],
+			defaultVolume: 0.8,
+			defaultMode: "shuffle",
+		});
+
+		await expect(
+			page.locator("#music-client-test-host .music-player__metadata strong"),
+		).toHaveText("Custom User Melody");
+		await expect(
+			page.locator("#music-client-test-host .music-player__metadata > span"),
+		).toHaveText("Indie Artist");
 	});
 });

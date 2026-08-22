@@ -51,7 +51,10 @@ let snapshot = $state<MusicSnapshot>({
 	volume: options.defaultVolume,
 	muted: false,
 	mode: options.defaultMode,
-	error: options.playlist.length > 0 || options.provider === "meting" ? null : "empty-playlist",
+	error:
+		options.playlist.length > 0 || options.provider === "meting"
+			? null
+			: "empty-playlist",
 });
 let playlistOpen = $state(false);
 const playlistId = "sidebar-music-playlist";
@@ -101,7 +104,8 @@ const volumeLabel = $derived(
 	labels.volume.replace("{volume}", String(Math.round(snapshot.volume * 100))),
 );
 const liveMessage = $derived.by(() => {
-	if (snapshot.error && snapshot.status === "error") return labels.errors[snapshot.error];
+	if (snapshot.error && snapshot.status === "error")
+		return labels.errors[snapshot.error];
 	if (snapshot.status === "loading") return labels.loading;
 	if (snapshot.currentTrack && snapshot.status === "playing") {
 		return labels.nowPlaying.replace("{title}", snapshot.currentTrack.title);

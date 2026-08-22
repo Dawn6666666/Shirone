@@ -63,13 +63,22 @@
 - 页框宽度由 `resolvePageWidth()`（`src/utils/responsive-utils.ts`）按编排自动解析，
   常量在 `src/constants/constants.ts`（`PAGE_WIDTH` / `PAGE_WIDTH_DUAL`），不提供手动覆盖。
 
-## 侧栏音乐启用契约
+## 侧栏音乐启用契约与四种模式
 
 侧栏音乐是默认关闭的可选能力，必须同时满足以下三项才加载并渲染：
 
 1. `musicConfig.enable` 为 `true`；
-2. 对应数据源（如本地 `src/data/music.ts` 或自定义 `tracks`）至少包含一首有效曲目；
+2. 对应数据源（本地 `src/data/music.ts`、自定义 `tracks` 或 `meting` 远端歌单）至少包含一首有效曲目/合法歌单 ID；
 3. `sidebarConfig.components` 中 `type: "music"` 的条目存在且 `enable: true`（默认条目为 `false`）。
+
+### 四种数据源工作模式（`provider`）
+
+| 模式 | 配置名 | 数据源 | 特点与适用场景 |
+|---|---|---|---|
+| **本地模式** | `"local"` | `src/data/music.ts` | 默认模式。零外部 API 依赖，构建期静态打包，首屏毫秒级就绪，支持离线/断网播放。 |
+| **自定义列表** | `"custom"` | `musicConfig.tracks` | 灵活自定义。直接在配置中传入曲目数组（支持外链音频与封面），无需修改通用数据文件。 |
+| **云端歌单** | `"meting"` | `musicConfig.meting` | 接入 Meting API（网易云、QQ 音乐、酷狗等），客户端异步按需拉取，曲目与封面自动清洗加载。 |
+| **混合增强模式** | `"mixed"` | 本地数据 + Meting API | **推荐**。首屏立即可播本地音乐，后台无感拉取远端歌单并在就绪后无缝追加合并；若遇断网或云端接口故障，自动静默降级为本地曲目，绝不破版。 |
 
 任一条件不满足时，音乐功能不得输出 DOM 或样式，不得请求音频/封面等资源，也不得把播放器代码或依赖带入主 bundle。配置消费者应先完成三项校验，再动态加载 `MusicSidebar`；不能用隐藏空卡片代替短路。
 

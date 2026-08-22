@@ -9,19 +9,62 @@ import type {
 
 /**
  * 侧栏音乐配置单一真源。
- * 遵循「零额外负担」原则：本地曲目数据维护在 src/data/music.ts，
- * 此处仅保留全局开关、播放器默认行为及数据源模式切换接口。
+ * 遵循「零额外负担」原则：禁用时不产生任何网络请求与额外 DOM。
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 【四种工作模式（Provider）使用指南】
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 1. "local"（本地独立模式，默认）：
+ *    - 数据源：src/data/music.ts
+ *    - 特点：零外部 API 依赖，首屏毫秒级就绪，静态打包直出，断网也能正常播放。
+ *    - 示例：
+ *      provider: "local"
+ *
+ * 2. "custom"（自定义列表模式）：
+ *    - 数据源：直接在 tracks 字段显式传入曲目数组（支持外链音频与封面）
+ *    - 特点：灵活自定义，无需修改通用数据文件。
+ *    - 示例：
+ *      provider: "custom",
+ *      tracks: [
+ *        { id: "song-1", title: "Song", artist: "Artist", source: "https://.../a.mp3", cover: "https://.../c.jpg" }
+ *      ]
+ *
+ * 3. "meting"（云端歌单模式）：
+ *    - 数据源：Meting API 远端歌单（网易云 / QQ音乐 / 酷狗等）
+ *    - 特点：客户端异步按需拉取，海量曲库与封面自动解析。
+ *    - 示例：
+ *      provider: "meting",
+ *      meting: { server: "netease", type: "playlist", id: "14164869977" }
+ *
+ * 4. "mixed"（混合增强模式，推荐）：
+ *    - 数据源：本地曲目（src/data/music.ts）+ Meting API 远端歌单自动合并
+ *    - 特点：首屏立即可播本地音乐，后台无感拉取远端歌单并在就绪后无缝扩容；
+ *            若遇断网或云端接口故障，自动静默降级为本地曲目播放，绝不报红破版。
+ *    - 示例：
+ *      provider: "mixed",
+ *      meting: { server: "netease", type: "playlist", id: "14164869977" }
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 export const musicConfig: MusicConfig = {
 	enable: true,
 	provider: "local",
-	defaultVolume: 0.7,
-	defaultMode: "sequence",
+	// tracks: [
+	// 	{
+	// 		id: "custom-1",
+	// 		title: "示例曲目",
+	// 		artist: "艺术家",
+	// 		cover: "/assets/music/cover/example.webp",
+	// 		source: "/assets/music/url/example.mp3",
+	// 		duration: 240,
+	// 	},
+	// ],
 	// meting: {
 	// 	server: "netease",
 	// 	type: "playlist",
 	// 	id: "14164869977",
 	// },
+	defaultVolume: 0.7,
+	defaultMode: "sequence",
 };
 
 export interface ResolvedMusicOptions {
@@ -94,7 +137,7 @@ export function resolveMusicOptions(
 	}
 
 	let rawTracks: readonly TrackDescriptor[] = [];
-	if (provider === "local") {
+	if (provider === "local" || provider === "mixed") {
 		rawTracks = config.tracks ?? musicTracks;
 	} else if (provider === "custom") {
 		rawTracks = config.tracks ?? [];
@@ -104,6 +147,19 @@ export function resolveMusicOptions(
 	const playlist = rawTracks
 		.map((track) => normalizeTrack(track, usedIds))
 		.filter((track): track is TrackDescriptor => track !== null);
+
+	if (provider === "mixed") {
+		const metingId = config.meting?.id?.trim();
+		if (playlist.length === 0 && !metingId) return null;
+		return Object.freeze({
+			provider: "mixed",
+			playlist: Object.freeze(playlist),
+			meting: config.meting,
+			defaultVolume: clampMusicVolume(config.defaultVolume),
+			defaultMode: config.defaultMode,
+		});
+	}
+
 	if (playlist.length === 0) return null;
 
 	return Object.freeze({

@@ -131,10 +131,15 @@ export const announcementConfig = {
 ## 9. MusicSidebar — 持久音乐播放器
 
 - **分层与外壳**：`MusicSidebar` 属于 organisms，而不是 molecule。它复用 `WidgetLayout` 作为标题外壳，但自身持有音频实例、播放状态和持久 shell 生命周期；
-- **数据源**：`src/config/musicConfig.ts`（开关/模式/默认设置）与 `src/data/music.ts`（本地曲目清单）。`defaultVolume` 与 `defaultMode` 只用于首次初始化；
-- **三项启用条件**：`musicConfig.enable: true`、至少一首有效 track、`sidebarConfig` 的 music 条目 `enable: true` 缺一不可。全局开关和 widget 开关均默认关闭；
-- **预期信息与控制**：显示当前曲目的必要信息，并提供上一首、播放/暂停、下一首、播放模式切换、播放进度拖动与音量调节。图标按钮必须有本地化可访问名称，状态按钮同步暴露当前状态；
+- **数据源与四种工作模式**：
+  1. `"local"`（本地模式）：读取 `src/data/music.ts`，纯静态打包，零外部网络延迟与依赖；
+  2. `"custom"`（自定义模式）：直接通过 `musicConfig.tracks` 配置个性化曲目外链；
+  3. `"meting"`（云端歌单）：接入 Meting API（网易云、QQ 音乐等），客户端异步按需拉取；
+  4. `"mixed"`（混合模式，推荐）：首屏立即秒开本地曲目，后台异步拉取云端歌单并无缝追加合并，异常时自动静默降级为本地曲目播放；
+- **三项启用条件**：`musicConfig.enable: true`、数据源有效（至少一首本地有效 track 或合法 Meting ID）、`sidebarConfig` 的 music 条目 `enable: true` 缺一不可。全局开关和 widget 开关均默认关闭；
+- **预期信息与控制**：显示当前曲目的必要信息，并提供上一首、播放/暂停、下一首、播放模式切换（顺序/单曲循环/随机）、播放进度拖动与紧凑音量调节。图标按钮必须有本地化可访问名称，状态按钮同步暴露当前状态；
 - **自适应波浪进度与原生 range 语义**：播放进度采用 M3E 自适应波浪 `ProgressIndicator` 原子，在当前播放位置提供平滑的 `showThumb` 手柄；交互层使用原生 `<input type="range">`，保留各自的 `min` / `max` / `step` / `value` 和可访问名称。不得用只响应指针拖拽的 `div` 模拟；键盘用户保有浏览器原生的方向键、Page Up / Page Down、Home / End 调节语义。进度范围随媒体时长更新，音量 range 与实际音频音量双向同步；
+- **声波脉冲与同心光晕**：封面采用同心圆环 M3E 发光外框，播放时以 3.2s 周期轻柔扩散声波涟漪光环（`music-cover-ripple`）与微弹性呼吸，暂停时精准就地冻结角度；
 - **Swup 持久性**：组件挂在 `#swup-container` 外，只在直接加载时初始化一次。站内导航不重建音频实例，不中断播放，也不丢失当前曲目、位置、音量或模式；页面过滤只改变 widget 可见性，不把 Swup 生命周期当作播放器重置信号；
 - **关闭零负担**：三项启用条件未全部满足时，在动态导入前短路，不输出 DOM/CSS，不请求曲目、封面或其他媒体，不加载播放器模块/依赖进主 bundle。样式不得因 Astro CSS 提升进入共享 CSS。
 

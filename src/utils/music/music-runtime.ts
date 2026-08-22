@@ -69,14 +69,19 @@ export function createMusicRuntime(
 
 	let state: RuntimeState = {
 		currentIndex: currentPlaylist.length > 0 ? 0 : -1,
-		status: options.provider === "meting" ? "loading" : "idle",
+		status:
+			options.provider === "meting" && currentPlaylist.length === 0
+				? "loading"
+				: "idle",
 		currentTime: 0,
 		duration: currentPlaylist[0]?.duration ?? 0,
 		volume: clampMusicVolume(options.defaultVolume),
 		muted: false,
 		mode: options.defaultMode,
 		error:
-			currentPlaylist.length > 0 || options.provider === "meting"
+			currentPlaylist.length > 0 ||
+			options.provider === "meting" ||
+			options.provider === "mixed"
 				? null
 				: "empty-playlist",
 	};
@@ -192,39 +197,66 @@ export function createMusicRuntime(
 	}
 
 	async function initialize(): Promise<void> {
-		if (audio && (options.provider !== "meting" || currentPlaylist.length > 0))
+		if (
+			audio &&
+			(options.provider === "local" ||
+				options.provider === "custom" ||
+				currentPlaylist.length > 0)
+		) {
 			return;
+		}
 		if (initializePromise) return initializePromise;
 		const generation = lifecycleGeneration;
 		const pending = Promise.resolve().then(async () => {
 			if (generation !== lifecycleGeneration) return;
 
 			if (
-				options.provider === "meting" &&
-				currentPlaylist.length === 0 &&
+				(options.provider === "meting" || options.provider === "mixed") &&
 				options.meting &&
 				customFetch
 			) {
-				patch({ status: "loading", error: null });
+				if (options.provider === "meting" && currentPlaylist.length === 0) {
+					patch({ status: "loading", error: null });
+				}
 				try {
 					const fetched = await fetchMetingTracks(options.meting, customFetch);
 					if (generation !== lifecycleGeneration) return;
 					if (fetched.length > 0) {
-						currentPlaylist = Object.freeze(
-							fetched.map((track) => Object.freeze({ ...track })),
-						);
-						patch({
-							currentIndex: 0,
-							status: "idle",
-							duration: currentPlaylist[0]?.duration ?? 0,
-							error: null,
-						});
-					} else {
+						if (options.provider === "mixed") {
+							const existingIds = new Set(currentPlaylist.map((t) => t.id));
+							const merged = [...currentPlaylist];
+							for (const item of fetched) {
+								if (!existingIds.has(item.id)) {
+									existingIds.add(item.id);
+									merged.push(Object.freeze({ ...item }));
+								}
+							}
+							currentPlaylist = Object.freeze(merged);
+							patch({
+								duration:
+									currentPlaylist[state.currentIndex]?.duration ??
+									state.duration,
+								error: null,
+							});
+						} else {
+							currentPlaylist = Object.freeze(
+								fetched.map((track) => Object.freeze({ ...track })),
+							);
+							patch({
+								currentIndex: 0,
+								status: "idle",
+								duration: currentPlaylist[0]?.duration ?? 0,
+								error: null,
+							});
+						}
+					} else if (options.provider === "meting") {
 						patch({ status: "error", error: "empty-playlist" });
 					}
 				} catch {
 					if (generation !== lifecycleGeneration) return;
-					patch({ status: "error", error: "source-unavailable" });
+					if (options.provider === "meting") {
+						patch({ status: "error", error: "source-unavailable" });
+					}
 				}
 			}
 
@@ -484,14 +516,19 @@ export function createMusicRuntime(
 			);
 			state = {
 				currentIndex: currentPlaylist.length > 0 ? 0 : -1,
-				status: options.provider === "meting" ? "loading" : "idle",
+				status:
+					options.provider === "meting" && currentPlaylist.length === 0
+						? "loading"
+						: "idle",
 				currentTime: 0,
 				duration: currentPlaylist[0]?.duration ?? 0,
 				volume: state.volume,
 				muted: false,
 				mode: options.defaultMode,
 				error:
-					currentPlaylist.length > 0 || options.provider === "meting"
+					currentPlaylist.length > 0 ||
+					options.provider === "meting" ||
+					options.provider === "mixed"
 						? null
 						: "empty-playlist",
 			};

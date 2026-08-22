@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import stylus from "stylus";
 import { musicSidebarStylus } from "../../src/components/organisms/music/musicSidebarStyles";
+import type { ResolvedMusicOptions } from "../../src/config/musicConfig";
 
 const musicSidebarStyles = new Promise<string>((resolve, reject) => {
 	stylus.render(musicSidebarStylus, (error, css) => {
@@ -9,7 +10,7 @@ const musicSidebarStyles = new Promise<string>((resolve, reject) => {
 	});
 });
 
-const labels = {
+export const fixtureLabels = {
 	previous: "Previous track",
 	play: "Play",
 	pause: "Pause",
@@ -35,7 +36,32 @@ const labels = {
 	},
 };
 
-export async function mountMusicClient(page: Page): Promise<void> {
+export const defaultTestOptions: ResolvedMusicOptions = {
+	provider: "local",
+	playlist: [
+		{
+			id: "one",
+			title: "First track",
+			artist: "First artist",
+			source: "/test-media/one.mp3",
+			duration: 180,
+		},
+		{
+			id: "two",
+			title: "Second track",
+			artist: "Second artist",
+			source: "/test-media/two.mp3",
+			duration: 240,
+		},
+	],
+	defaultVolume: 0.7,
+	defaultMode: "sequence",
+};
+
+export async function mountMusicClient(
+	page: Page,
+	initialOptions: ResolvedMusicOptions = defaultTestOptions,
+): Promise<void> {
 	await page.goto("/", { waitUntil: "domcontentloaded" });
 	await page.waitForFunction(() => {
 		return (
@@ -46,65 +72,65 @@ export async function mountMusicClient(page: Page): Promise<void> {
 	});
 	await page.addStyleTag({ content: await musicSidebarStyles });
 
-	await page.evaluate(async (fixtureLabels) => {
-		let audioCreations = 0;
-		class TestAudio extends EventTarget {
-			constructor() {
-				super();
-				audioCreations += 1;
+	await page.evaluate(
+		async ({ options, labels }) => {
+			let audioCreations = 0;
+			class TestAudio extends EventTarget {
+				constructor() {
+					super();
+					audioCreations += 1;
+				}
+
+				preload = "";
+				volume = 1;
+				muted = false;
+				paused = true;
+				currentTime = 0;
+				duration = 180;
+				private source: string | null = null;
+
+				get src(): string {
+					return this.source ?? "";
+				}
+
+				set src(value: string) {
+					this.source = value;
+				}
+
+				getAttribute(name: string): string | null {
+					return name === "src" ? this.source : null;
+				}
+
+				removeAttribute(name: string): void {
+					if (name === "src") this.source = null;
+				}
+
+				load(): void {
+					queueMicrotask(() => {
+						this.dispatchEvent(new Event("loadedmetadata"));
+					});
+				}
+
+				pause(): void {
+					if (this.paused) return;
+					this.paused = true;
+					this.dispatchEvent(new Event("pause"));
+				}
+
+				async play(): Promise<void> {
+					this.paused = false;
+					this.dispatchEvent(new Event("play"));
+				}
 			}
 
-			preload = "";
-			volume = 1;
-			muted = false;
-			paused = true;
-			currentTime = 0;
-			duration = 180;
-			private source: string | null = null;
+			Object.defineProperty(window, "Audio", {
+				configurable: true,
+				value: TestAudio,
+			});
 
-			get src(): string {
-				return this.source ?? "";
-			}
-
-			set src(value: string) {
-				this.source = value;
-			}
-
-			getAttribute(name: string): string | null {
-				return name === "src" ? this.source : null;
-			}
-
-			removeAttribute(name: string): void {
-				if (name === "src") this.source = null;
-			}
-
-			load(): void {
-				queueMicrotask(() => {
-					this.dispatchEvent(new Event("loadedmetadata"));
-				});
-			}
-
-			pause(): void {
-				if (this.paused) return;
-				this.paused = true;
-				this.dispatchEvent(new Event("pause"));
-			}
-
-			async play(): Promise<void> {
-				this.paused = false;
-				this.dispatchEvent(new Event("play"));
-			}
-		}
-
-		Object.defineProperty(window, "Audio", {
-			configurable: true,
-			value: TestAudio,
-		});
-
-			const { destroyMusicRuntime } = await import(
-				"/src/utils/music/index.ts"
-			);
-			destroyMusicRuntime();
+			const runtimeUrl = "/src/utils/music/index.ts";
+			const runtimeModule = await import(/* @vite-ignore */ runtimeUrl);
+			runtimeModule.destroyMusicRuntime();
 
 			document.querySelectorAll(".sidebar-widget").forEach((el) => {
 				if (
@@ -116,60 +142,71 @@ export async function mountMusicClient(page: Page): Promise<void> {
 			});
 			document
 				.querySelectorAll('[data-id="sidebar-music-player"]')
-				.forEach((el) => el.remove());
-			document
-				.querySelectorAll("[data-music-player]")
-				.forEach((el) => el.remove());
-			document
-				.querySelectorAll("#sidebar-music-player")
-				.forEach((el) => el.remove());
+				.forEach((el) => {
+					el.remove();
+				});
+			document.querySelectorAll("[data-music-player]").forEach((el) => {
+				el.remove();
+			});
+			document.querySelectorAll("#sidebar-music-player").forEach((el) => {
+				el.remove();
+			});
 
 			const host = document.createElement("section");
 			host.id = "music-client-test-host";
 
+			host.style.cssText =
+				"position: fixed; top: 80px; right: 16px; z-index: 2147483647; isolation: isolate; width: 320px; max-height: calc(100vh - 96px); overflow: auto; padding: 16px; background: var(--surface);";
+			document.body.prepend(host);
 
-		host.style.cssText =
-			"position: fixed; top: 80px; right: 16px; z-index: 2147483647; isolation: isolate; width: 320px; max-height: calc(100vh - 96px); overflow: auto; padding: 16px; background: var(--surface);";
-		document.body.prepend(host);
+			audioCreations = 0;
 
-		const { mountMusicClientFixture } = await import(
-			"/tests/fixtures/music-client.browser.ts"
-		);
-		const component = mountMusicClientFixture(host, {
-			options: {
-				playlist: [
-					{
-						id: "one",
-						title: "First track",
-						artist: "First artist",
-						source: "/test-media/one.mp3",
-						duration: 180,
-					},
-					{
-						id: "two",
-						title: "Second track",
-						artist: "Second artist",
-						source: "/test-media/two.mp3",
-						duration: 240,
-					},
-				],
-				defaultVolume: 0.7,
-				defaultMode: "sequence",
-			},
-			labels: fixtureLabels,
-		});
-		(
-			window as typeof window & {
-				__musicTestComponent?: unknown;
-				__musicAudioCreations?: () => number;
-			}
-		).__musicTestComponent = component;
-		(
-			window as typeof window & {
-				__musicAudioCreations?: () => number;
-			}
-		).__musicAudioCreations = () => audioCreations;
-	}, labels);
+			const fixtureUrl = "/tests/fixtures/music-client.browser.ts";
+			const browserFixture = await import(/* @vite-ignore */ fixtureUrl);
+			const component = browserFixture.mountMusicClientFixture(host, {
+				options,
+				labels,
+			});
+			(
+				window as typeof window & {
+					__musicTestComponent?: unknown;
+					__musicAudioCreations?: () => number;
+				}
+			).__musicTestComponent = component;
+			(
+				window as typeof window & {
+					__musicAudioCreations?: () => number;
+				}
+			).__musicAudioCreations = () => audioCreations;
+		},
+		{ options: initialOptions, labels: fixtureLabels },
+	);
 
 	await page.locator("[data-music-player]").waitFor();
+}
+
+export async function remountMusicClient(
+	page: Page,
+	options: ResolvedMusicOptions,
+): Promise<void> {
+	await page.evaluate(
+		async ({ options, labels }) => {
+			const host = document.getElementById("music-client-test-host");
+			if (!host) return;
+			host.innerHTML = "";
+
+			const runtimeUrl = "/src/utils/music/index.ts";
+			const runtimeModule = await import(/* @vite-ignore */ runtimeUrl);
+			runtimeModule.destroyMusicRuntime();
+
+			const fixtureUrl = "/tests/fixtures/music-client.browser.ts";
+			const browserFixture = await import(/* @vite-ignore */ fixtureUrl);
+			browserFixture.mountMusicClientFixture(host, {
+				options,
+				labels,
+			});
+		},
+		{ options, labels: fixtureLabels },
+	);
+	await page.locator("#music-client-test-host [data-music-player]").waitFor();
 }
