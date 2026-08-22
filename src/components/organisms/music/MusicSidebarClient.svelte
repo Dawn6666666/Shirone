@@ -336,9 +336,11 @@ function setVolume(event: Event): void {
 				{/each}
 			</ol>
 		</div>
-	{:else}
-		<p class="music-player__empty">{labels.empty}</p>
-	{/if}
+		{:else if snapshot.status === "loading"}
+			<p class="music-player__empty">{labels.loading}</p>
+		{:else}
+			<p class="music-player__empty">{labels.empty}</p>
+		{/if}
 
 	{#if snapshot.error}
 		<p class="music-player__error">{labels.errors[snapshot.error]}</p>

@@ -1,5 +1,6 @@
 import { musicTracks } from "@/data/music";
 import type {
+	MetingMusicConfig,
 	MusicConfig,
 	MusicProvider,
 	PlaybackMode,
@@ -8,18 +9,25 @@ import type {
 
 /**
  * 侧栏音乐配置单一真源。
- * 遵循「零额外负担」原则：本地曲目数据已抽离至 src/data/music.ts，
- * 此处仅保留全局开关、播放器默认行为及预留的数据源模式切换接口。
+ * 遵循「零额外负担」原则：本地曲目数据维护在 src/data/music.ts，
+ * 此处仅保留全局开关、播放器默认行为及数据源模式切换接口。
  */
 export const musicConfig: MusicConfig = {
 	enable: true,
 	provider: "local",
 	defaultVolume: 0.7,
 	defaultMode: "sequence",
+	// meting: {
+	// 	server: "netease",
+	// 	type: "playlist",
+	// 	id: "14164869977",
+	// },
 };
 
 export interface ResolvedMusicOptions {
+	readonly provider: MusicProvider;
 	readonly playlist: readonly TrackDescriptor[];
+	readonly meting?: MetingMusicConfig;
 	readonly defaultVolume: number;
 	readonly defaultMode: PlaybackMode;
 }
@@ -73,13 +81,24 @@ export function resolveMusicOptions(
 
 	const provider: MusicProvider = config.provider ?? "local";
 
+	if (provider === "meting") {
+		const id = config.meting?.id?.trim();
+		if (!id) return null;
+		return Object.freeze({
+			provider: "meting",
+			playlist: Object.freeze([]),
+			meting: config.meting,
+			defaultVolume: clampMusicVolume(config.defaultVolume),
+			defaultMode: config.defaultMode,
+		});
+	}
+
 	let rawTracks: readonly TrackDescriptor[] = [];
 	if (provider === "local") {
 		rawTracks = config.tracks ?? musicTracks;
-	} else if (provider === "custom" && config.tracks) {
-		rawTracks = config.tracks;
+	} else if (provider === "custom") {
+		rawTracks = config.tracks ?? [];
 	}
-	// 预留 meting 等远端 API 接入解析
 
 	const usedIds = new Set<string>();
 	const playlist = rawTracks
@@ -88,6 +107,7 @@ export function resolveMusicOptions(
 	if (playlist.length === 0) return null;
 
 	return Object.freeze({
+		provider,
 		playlist: Object.freeze(playlist),
 		defaultVolume: clampMusicVolume(config.defaultVolume),
 		defaultMode: config.defaultMode,

@@ -5,8 +5,11 @@ import {
 } from "../../src/config/musicConfig";
 import type { MusicConfig } from "../../src/types/musicConfig";
 import {
+	buildMetingUrl,
 	createMusicRuntime,
+	fetchMetingTracks,
 	nextTrackIndex,
+	parseMetingSong,
 	previousTrackIndex,
 } from "../../src/utils/music";
 
@@ -62,6 +65,7 @@ class MockAudio extends EventTarget {
 
 function options(trackCount = 3): ResolvedMusicOptions {
 	return {
+		provider: "local",
 		playlist: Array.from({ length: trackCount }, (_, index) => ({
 			id: `track-${index}`,
 			title: `Track ${index}`,
@@ -173,6 +177,76 @@ test.describe("music configuration and playlist helpers", () => {
 			expect(resolved).not.toBeNull();
 			expect(resolved?.playlist.length).toBeGreaterThan(0);
 			expect(resolved?.playlist[0].id).toBe("dazbee");
+		});
+
+		test("resolves custom and meting provider configurations", () => {
+			const customResolved = resolveMusicOptions({
+				enable: true,
+				provider: "custom",
+				tracks: [
+					{ id: "c1", title: "Custom Song", source: "/custom.mp3" },
+				],
+				defaultVolume: 0.8,
+				defaultMode: "repeat-one",
+			});
+			expect(customResolved).not.toBeNull();
+			expect(customResolved?.provider).toBe("custom");
+			expect(customResolved?.playlist).toHaveLength(1);
+			expect(customResolved?.playlist[0].id).toBe("c1");
+
+			const metingResolved = resolveMusicOptions({
+				enable: true,
+				provider: "meting",
+				meting: { id: "12345", server: "netease", type: "playlist" },
+				defaultVolume: 0.5,
+				defaultMode: "shuffle",
+			});
+			expect(metingResolved).not.toBeNull();
+			expect(metingResolved?.provider).toBe("meting");
+			expect(metingResolved?.meting?.id).toBe("12345");
+
+			const invalidMeting = resolveMusicOptions({
+				enable: true,
+				provider: "meting",
+				meting: { id: "" },
+				defaultVolume: 0.5,
+				defaultMode: "shuffle",
+			});
+			expect(invalidMeting).toBeNull();
+		});
+
+		test("builds meting url and parses raw meting song items", () => {
+			const url = buildMetingUrl({ id: "999", server: "tencent", type: "song" });
+			expect(url).toContain("server=tencent");
+			expect(url).toContain("type=song");
+			expect(url).toContain("id=999");
+
+			const emptyUrl = buildMetingUrl({ id: "" });
+			expect(emptyUrl).toBeNull();
+
+			const parsed = parseMetingSong(
+				{
+					id: 123456,
+					name: "Test Song",
+					artist: "Test Artist",
+					url: "https://example.com/song.mp3",
+					pic: "https://example.com/cover.jpg",
+					duration: 185000,
+				},
+				0,
+				"netease",
+			);
+			expect(parsed).toEqual({
+				id: "meting-netease-123456",
+				title: "Test Song",
+				artist: "Test Artist",
+				source: "https://example.com/song.mp3",
+				cover: "https://example.com/cover.jpg",
+				duration: 185,
+			});
+
+			const invalid = parseMetingSong({ name: "", url: "" }, 0);
+			expect(invalid).toBeNull();
 		});
 
 	test("covers empty, single, sequence, repeat, and deterministic shuffle indices", () => {
@@ -406,9 +480,59 @@ test.describe("music runtime", () => {
 			mode: "sequence",
 			error: null,
 		});
-		await runtime.initialize();
-		expect(index).toBe(2);
-		expect(audios[1].src).toBe("");
-		expect(audios[1].loadCalls).toBe(0);
+			await runtime.initialize();
+			expect(index).toBe(2);
+			expect(audios[1].src).toBe("");
+			expect(audios[1].loadCalls).toBe(0);
+		});
+
+		test("meting provider fetches tracks asynchronously and handles fetch failure", async () => {
+			const mockTracks = [
+				{
+					id: 101,
+					name: "Meting Song 1",
+					artist: "Artist 1",
+					url: "https://example.com/1.mp3",
+					duration: 200000,
+				},
+			];
+			const mockFetch = (async () => ({
+				ok: true,
+				json: async () => mockTracks,
+			})) as unknown as typeof fetch;
+
+			const metingOptions: ResolvedMusicOptions = {
+				provider: "meting",
+				playlist: [],
+				meting: { id: "123456", server: "netease", type: "playlist" },
+				defaultVolume: 0.7,
+				defaultMode: "sequence",
+			};
+
+			const audio = new MockAudio();
+			const runtime = createMusicRuntime(metingOptions, {
+				createAudio: () => audio as unknown as HTMLAudioElement,
+				fetch: mockFetch,
+			});
+
+			expect(runtime.getSnapshot().status).toBe("loading");
+			await runtime.initialize();
+			expect(runtime.getSnapshot().status).toBe("idle");
+			expect(runtime.getSnapshot().playlist).toHaveLength(1);
+			expect(runtime.getSnapshot().playlist[0].title).toBe("Meting Song 1");
+
+			const failingFetch = (async () => ({
+				ok: false,
+				status: 500,
+			})) as unknown as typeof fetch;
+
+			const failingRuntime = createMusicRuntime(metingOptions, {
+				createAudio: () => new MockAudio() as unknown as HTMLAudioElement,
+				fetch: failingFetch,
+			});
+
+			await failingRuntime.initialize();
+			expect(failingRuntime.getSnapshot().status).toBe("error");
+			expect(failingRuntime.getSnapshot().error).toBe("source-unavailable");
+		});
 	});
-});

@@ -2,6 +2,10 @@ export type PlaybackMode = "sequence" | "repeat-one" | "shuffle";
 
 export type MusicProvider = "local" | "meting" | "custom";
 
+export type MetingServer = "netease" | "tencent" | "kugou" | "xiami" | "baidu";
+
+export type MetingType = "playlist" | "song" | "album" | "artist";
+
 export type MusicErrorCode =
 	| "empty-playlist"
 	| "source-unavailable"
@@ -26,20 +30,24 @@ export interface TrackDescriptor {
 }
 
 export interface MetingMusicConfig {
-	readonly server?: "netease" | "tencent" | "kugou" | "xiami" | "baidu";
-	readonly type?: "playlist" | "song" | "album" | "artist";
+	/** 音乐平台，默认 netease（网易云音乐） */
+	readonly server?: MetingServer;
+	/** 资源类型，默认 playlist（歌单） */
+	readonly type?: MetingType;
+	/** 歌单 / 单曲 / 专辑 ID */
 	readonly id?: string;
+	/** Meting API 地址模板，默认使用公开 API */
 	readonly api?: string;
 }
 
 export interface MusicConfig {
 	/** 是否全局启用音乐功能 */
 	readonly enable: boolean;
-	/** 音频数据源模式：local（本地曲目） | meting（Meting API / 远端歌单） | custom（自定义列表） */
+	/** 音频数据源模式：local（本地曲目） | meting（Meting API 远端歌单） | custom（显式传入 tracks） */
 	readonly provider?: MusicProvider;
-	/** 本地播放列表覆盖（未显式提供且 provider 为 local 时默认使用 src/data/music.ts） */
+	/** 本地播放列表（provider 为 local 或 custom 时生效；local 未填时默认读取 src/data/music.ts） */
 	readonly tracks?: readonly TrackDescriptor[];
-	/** Meting 等远端 API 预留配置 */
+	/** Meting API 配置（provider 为 meting 时生效） */
 	readonly meting?: MetingMusicConfig;
 	/** 初始音量，范围 0–1 */
 	readonly defaultVolume: number;

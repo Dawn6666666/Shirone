@@ -6,8 +6,10 @@ import type {
 	MusicSnapshot,
 	MusicStatus,
 	PlaybackMode,
+	TrackDescriptor,
 } from "@/types/musicConfig";
 import { MUSIC_VOLUME_STORAGE_KEY, PLAYBACK_MODES } from "./constants";
+import { fetchMetingTracks } from "./meting";
 import { nextTrackIndex, previousTrackIndex } from "./playlist";
 
 interface RuntimeState {
@@ -35,6 +37,7 @@ export interface MusicRuntimeDependencies {
 	createAudio?: () => HTMLAudioElement;
 	getStorage?: () => Storage | null;
 	random?: () => number;
+	fetch?: typeof fetch;
 }
 
 function finiteMediaValue(value: number): number {
@@ -52,7 +55,7 @@ export function createMusicRuntime(
 	options: ResolvedMusicOptions,
 	dependencies: MusicRuntimeDependencies = {},
 ): MusicRuntime {
-	const playlist = Object.freeze(
+	let currentPlaylist: readonly TrackDescriptor[] = Object.freeze(
 		options.playlist.map((track) => Object.freeze({ ...track })),
 	);
 	const listeners = new Set<(snapshot: MusicSnapshot) => void>();
@@ -61,16 +64,21 @@ export function createMusicRuntime(
 		dependencies.getStorage ??
 		(() => (typeof window === "undefined" ? null : window.localStorage));
 	const random = dependencies.random ?? Math.random;
+	const customFetch =
+		dependencies.fetch ?? (typeof fetch !== "undefined" ? fetch : undefined);
 
 	let state: RuntimeState = {
-		currentIndex: playlist.length > 0 ? 0 : -1,
-		status: "idle",
+		currentIndex: currentPlaylist.length > 0 ? 0 : -1,
+		status: options.provider === "meting" ? "loading" : "idle",
 		currentTime: 0,
-		duration: playlist[0]?.duration ?? 0,
+		duration: currentPlaylist[0]?.duration ?? 0,
 		volume: clampMusicVolume(options.defaultVolume),
 		muted: false,
 		mode: options.defaultMode,
-		error: playlist.length > 0 ? null : "empty-playlist",
+		error:
+			currentPlaylist.length > 0 || options.provider === "meting"
+				? null
+				: "empty-playlist",
 	};
 	let audio: HTMLAudioElement | null = null;
 	let mediaListeners: MediaListeners | null = null;
@@ -84,9 +92,9 @@ export function createMusicRuntime(
 
 	function snapshot(): MusicSnapshot {
 		return Object.freeze({
-			playlist,
+			playlist: currentPlaylist,
 			currentIndex: state.currentIndex,
-			currentTrack: playlist[state.currentIndex] ?? null,
+			currentTrack: currentPlaylist[state.currentIndex] ?? null,
 			status: state.status,
 			currentTime: state.currentTime,
 			duration: state.duration,
@@ -184,10 +192,42 @@ export function createMusicRuntime(
 	}
 
 	async function initialize(): Promise<void> {
-		if (audio) return;
+		if (audio && (options.provider !== "meting" || currentPlaylist.length > 0))
+			return;
 		if (initializePromise) return initializePromise;
 		const generation = lifecycleGeneration;
-		const pending = Promise.resolve().then(() => {
+		const pending = Promise.resolve().then(async () => {
+			if (generation !== lifecycleGeneration) return;
+
+			if (
+				options.provider === "meting" &&
+				currentPlaylist.length === 0 &&
+				options.meting &&
+				customFetch
+			) {
+				patch({ status: "loading", error: null });
+				try {
+					const fetched = await fetchMetingTracks(options.meting, customFetch);
+					if (generation !== lifecycleGeneration) return;
+					if (fetched.length > 0) {
+						currentPlaylist = Object.freeze(
+							fetched.map((track) => Object.freeze({ ...track })),
+						);
+						patch({
+							currentIndex: 0,
+							status: "idle",
+							duration: currentPlaylist[0]?.duration ?? 0,
+							error: null,
+						});
+					} else {
+						patch({ status: "error", error: "empty-playlist" });
+					}
+				} catch {
+					if (generation !== lifecycleGeneration) return;
+					patch({ status: "error", error: "source-unavailable" });
+				}
+			}
+
 			if (generation !== lifecycleGeneration || audio) return;
 			audio = createAudio();
 			audio.preload = "none";
@@ -205,11 +245,11 @@ export function createMusicRuntime(
 	}
 
 	async function ensureSource(): Promise<number | null> {
-		if (state.currentIndex < 0 || !playlist[state.currentIndex]) {
+		await initialize();
+		if (state.currentIndex < 0 || !currentPlaylist[state.currentIndex]) {
 			patch({ status: "error", error: "empty-playlist" });
 			return null;
 		}
-		await initialize();
 		if (!audio) return null;
 		if (loadedIndex === state.currentIndex && audio.getAttribute("src")) {
 			return sourceGeneration;
@@ -221,13 +261,13 @@ export function createMusicRuntime(
 		audio.pause();
 		audio.removeAttribute("src");
 		loadedIndex = state.currentIndex;
-		audio.src = playlist[state.currentIndex].source;
+		audio.src = currentPlaylist[state.currentIndex].source;
 		bindMediaListeners(generation);
 		audio.load();
 		patch({
 			status: "loading",
 			currentTime: 0,
-			duration: playlist[state.currentIndex].duration ?? 0,
+			duration: currentPlaylist[state.currentIndex].duration ?? 0,
 			error: null,
 		});
 		return generation;
@@ -276,7 +316,11 @@ export function createMusicRuntime(
 	): Promise<void> {
 		playbackRequested = false;
 		playbackAttemptGeneration += 1;
-		if (!Number.isInteger(index) || index < 0 || index >= playlist.length) {
+		if (
+			!Number.isInteger(index) ||
+			index < 0 ||
+			index >= currentPlaylist.length
+		) {
 			patch({ status: "error", error: "invalid-track" });
 			return;
 		}
@@ -290,7 +334,7 @@ export function createMusicRuntime(
 			currentIndex: index,
 			status: "idle",
 			currentTime: 0,
-			duration: playlist[index].duration ?? 0,
+			duration: currentPlaylist[index].duration ?? 0,
 			error: null,
 		});
 		if (autoplay) await playLoadedSource(false);
@@ -298,20 +342,20 @@ export function createMusicRuntime(
 	}
 
 	async function recoverFromSourceError(): Promise<void> {
-		const currentTrack = playlist[state.currentIndex];
+		const currentTrack = currentPlaylist[state.currentIndex];
 		if (!currentTrack) {
 			patch({ status: "error", error: "empty-playlist" });
 			return;
 		}
 		failedTrackIds.add(currentTrack.id);
-		if (failedTrackIds.size >= playlist.length) {
+		if (failedTrackIds.size >= currentPlaylist.length) {
 			patch({ status: "error", error: "source-unavailable" });
 			return;
 		}
 
-		for (let offset = 1; offset < playlist.length; offset += 1) {
-			const candidate = (state.currentIndex + offset) % playlist.length;
-			const track = playlist[candidate];
+		for (let offset = 1; offset < currentPlaylist.length; offset += 1) {
+			const candidate = (state.currentIndex + offset) % currentPlaylist.length;
+			const track = currentPlaylist[candidate];
 			if (track && !failedTrackIds.has(track.id)) {
 				await selectInternal(candidate, true);
 				return;
@@ -324,7 +368,7 @@ export function createMusicRuntime(
 		failedTrackIds.clear();
 		const index = nextTrackIndex(
 			state.currentIndex,
-			playlist.length,
+			currentPlaylist.length,
 			state.mode,
 			random,
 		);
@@ -367,7 +411,7 @@ export function createMusicRuntime(
 			const mode = state.mode === "repeat-one" ? "sequence" : state.mode;
 			const index = nextTrackIndex(
 				state.currentIndex,
-				playlist.length,
+				currentPlaylist.length,
 				mode,
 				random,
 			);
@@ -383,7 +427,7 @@ export function createMusicRuntime(
 			const mode = state.mode === "repeat-one" ? "sequence" : state.mode;
 			const index = previousTrackIndex(
 				state.currentIndex,
-				playlist.length,
+				currentPlaylist.length,
 				mode,
 				random,
 			);
@@ -435,15 +479,21 @@ export function createMusicRuntime(
 			initializePromise = null;
 			loadedIndex = -1;
 			failedTrackIds.clear();
+			currentPlaylist = Object.freeze(
+				options.playlist.map((track) => Object.freeze({ ...track })),
+			);
 			state = {
-				currentIndex: playlist.length > 0 ? 0 : -1,
-				status: "idle",
+				currentIndex: currentPlaylist.length > 0 ? 0 : -1,
+				status: options.provider === "meting" ? "loading" : "idle",
 				currentTime: 0,
-				duration: playlist[0]?.duration ?? 0,
+				duration: currentPlaylist[0]?.duration ?? 0,
 				volume: state.volume,
 				muted: false,
 				mode: options.defaultMode,
-				error: playlist.length > 0 ? null : "empty-playlist",
+				error:
+					currentPlaylist.length > 0 || options.provider === "meting"
+						? null
+						: "empty-playlist",
 			};
 			emit();
 		},
