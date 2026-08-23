@@ -1,4 +1,7 @@
-import type { MetingMusicConfig, TrackDescriptor } from "@/types/musicConfig";
+import type {
+	MetingMusicConfig,
+	TrackDescriptor,
+} from "../../types/musicConfig.ts";
 
 export const DEFAULT_METING_API =
 	"https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r";

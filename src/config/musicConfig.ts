@@ -1,11 +1,11 @@
-import { musicTracks } from "@/data/music";
+import { musicTracks } from "../data/music.ts";
 import type {
 	MetingMusicConfig,
 	MusicConfig,
 	MusicProvider,
 	PlaybackMode,
 	TrackDescriptor,
-} from "@/types/musicConfig";
+} from "../types/musicConfig.ts";
 
 /**
  * 侧栏音乐配置单一真源。

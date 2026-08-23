@@ -1,4 +1,6 @@
 import { createRequire } from "node:module";
+import { existsSync } from "node:fs";
+import { basename, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
@@ -64,6 +66,21 @@ const optionalMusicSidebarPlugin = {
 	},
 };
 
+const isBuildCommand =
+	process.env.NODE_ENV === "production" || process.argv.includes("build");
+
+function resolveVariantSrc(file) {
+	if (isBuildCommand && resolvedFontOptions.subsetting?.enable) {
+		const ext = extname(file);
+		const baseName = basename(file, ext);
+		const subsetPath = `src/assets/fonts/.subset/${baseName}.subset.woff2`;
+		if (existsSync(subsetPath)) {
+			return `./${subsetPath}`;
+		}
+	}
+	return `./${file}`;
+}
+
 const configuredFonts =
 	resolvedFontOptions.mode === "custom"
 		? ["body", "cjk", "mono"].flatMap((role) => {
@@ -84,7 +101,7 @@ const configuredFonts =
 							cssVariable: resolvedRole.cssVariable,
 							options: {
 								variants: localVariants.map((variant) => ({
-									src: [`./${variant.file}`],
+									src: [resolveVariantSrc(variant.file)],
 									weight: variant.weight,
 									style: variant.style,
 									display: resolvedRole.display,

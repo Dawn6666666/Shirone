@@ -81,7 +81,7 @@ function validateVariant(
 	if (definition.source === "local" && !LOCAL_FONT_PATH.test(variant.file)) {
 		fail(
 			`${path}.file`,
-			"local fonts must be .woff2 files under src/assets/fonts",
+			"local fonts must be font files under src/assets/fonts (.woff2, .woff, .ttf, .otf)",
 		);
 	}
 	if (
@@ -163,11 +163,8 @@ export function resolveFontOptions(config: FontConfig): ResolvedFontOptions {
 		fail("mode", "must be system or custom");
 	if (!Array.isArray(config.fontFamilies))
 		fail("fontFamilies", "must be an array");
-	if (config.subsetting.allowRemoteText) {
-		fail(
-			"subsetting.allowRemoteText",
-			"is reserved until remote-data-system.md is approved",
-		);
+	if (typeof config.subsetting.allowRemoteText !== "boolean") {
+		fail("subsetting.allowRemoteText", "must be a boolean");
 	}
 	assertFinitePositive(config.budget.maxTotalBytes, "budget.maxTotalBytes");
 	assertFinitePositive(config.budget.maxFamilyBytes, "budget.maxFamilyBytes");

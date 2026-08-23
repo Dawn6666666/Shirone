@@ -28,6 +28,9 @@ yarn.lock
 
 # ide
 .idea
+
+# generated font subsets
+src/assets/fonts/.subset/
 *.iml
 
 # local tooling artifacts

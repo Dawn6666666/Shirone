@@ -29,9 +29,16 @@ function parseTTF(buffer) {
 			const strOffset = buffer.readUInt16BE(recordOffset + 10);
 
 			let val = "";
-			const slice = buffer.subarray(stringOffset + strOffset, stringOffset + strOffset + length);
+			const slice = buffer.subarray(
+				stringOffset + strOffset,
+				stringOffset + strOffset + length,
+			);
 
-			if (platformID === 0 || platformID === 3 || (platformID === 2 && encodingID === 1)) {
+			if (
+				platformID === 0 ||
+				platformID === 3 ||
+				(platformID === 2 && encodingID === 1)
+			) {
 				// UTF-16BE
 				val = slice.swap16().toString("utf16le");
 			} else {
@@ -44,7 +51,7 @@ function parseTTF(buffer) {
 	}
 
 	// Parse 'OS/2' table
-	let os2 = {};
+	const os2 = {};
 	if (tables["OS/2"]) {
 		const o = tables["OS/2"].offset;
 		os2.usWeightClass = buffer.readUInt16BE(o + 4);
@@ -61,8 +68,6 @@ function parseTTF(buffer) {
 
 		for (let i = 0; i < numSubtables; i++) {
 			const subOffset = cmapOffset + 4 + i * 8;
-			const platformID = buffer.readUInt16BE(subOffset);
-			const encodingID = buffer.readUInt16BE(subOffset + 2);
 			const subtableOffset = cmapOffset + buffer.readUInt32BE(subOffset + 4);
 			const format = buffer.readUInt16BE(subtableOffset);
 
@@ -85,7 +90,8 @@ function parseTTF(buffer) {
 							const glyphId = (c + idDelta) & 0xffff;
 							if (glyphId !== 0) unicodes.add(c);
 						} else {
-							const glyphOffset = idRangeOffset + s * 2 + idRangeOff + (c - startCode) * 2;
+							const glyphOffset =
+								idRangeOffset + s * 2 + idRangeOff + (c - startCode) * 2;
 							if (glyphOffset < buffer.length - 2) {
 								const glyphId = buffer.readUInt16BE(glyphOffset);
 								if (glyphId !== 0) unicodes.add(c);
@@ -107,7 +113,12 @@ function parseTTF(buffer) {
 		}
 	}
 
-	return { tables, names, os2, unicodes: Array.from(unicodes).sort((a, b) => a - b) };
+	return {
+		tables,
+		names,
+		os2,
+		unicodes: Array.from(unicodes).sort((a, b) => a - b),
+	};
 }
 
 const fontBuf = fs.readFileSync("zk.ttf");
@@ -129,33 +140,45 @@ const nameKeyMap = {
 };
 for (const [id, recs] of Object.entries(res.names)) {
 	const label = nameKeyMap[id] || `NameID ${id}`;
-	console.log(`[${label} (${id})]:`, recs.map(r => r.val).filter(Boolean));
+	console.log(`[${label} (${id})]:`, recs.map((r) => r.val).filter(Boolean));
 }
 
 console.log("\n=== OS/2 INFO ===");
 console.log("Weight Class:", res.os2.usWeightClass);
-console.log("Ascender / Descender:", res.os2.sTypoAscender, res.os2.sTypoDescender);
+console.log(
+	"Ascender / Descender:",
+	res.os2.sTypoAscender,
+	res.os2.sTypoDescender,
+);
 
 console.log("\n=== GLYPH / UNICODE COVERAGE ===");
 console.log("Total unique mapped Unicode characters:", res.unicodes.length);
 
 // Check specific ranges
 function countInRange(start, end) {
-	return res.unicodes.filter(c => c >= start && c <= end).length;
+	return res.unicodes.filter((c) => c >= start && c <= end).length;
 }
 
-const ascii = countInRange(0x0020, 0x007E);
-const hiragana = countInRange(0x3040, 0x309F);
-const katakana = countInRange(0x30A0, 0x30FF);
-const cjkPunct = countInRange(0x3000, 0x303F) + countInRange(0xFF00, 0xFFEF);
-const cjkUnified = countInRange(0x4E00, 0x9FFF);
-const cjkExtA = countInRange(0x3400, 0x4DBF);
-const cjkExtB = countInRange(0x20000, 0x2A6DF);
+const ascii = countInRange(0x0020, 0x007e);
+const hiragana = countInRange(0x3040, 0x309f);
+const katakana = countInRange(0x30a0, 0x30ff);
+const cjkPunct = countInRange(0x3000, 0x303f) + countInRange(0xff00, 0xffef);
+const cjkUnified = countInRange(0x4e00, 0x9fff);
+const cjkExtA = countInRange(0x3400, 0x4dbf);
+const cjkExtB = countInRange(0x20000, 0x2a6df);
 
-console.log(`ASCII (0x0020-0x007E): ${ascii} / 95 (${((ascii / 95) * 100).toFixed(1)}%)`);
-console.log(`Hiragana (0x3040-0x309F): ${hiragana} / 96 (${((hiragana / 96) * 100).toFixed(1)}%)`);
-console.log(`Katakana (0x30A0-0x30FF): ${katakana} / 96 (${((katakana / 96) * 100).toFixed(1)}%)`);
+console.log(
+	`ASCII (0x0020-0x007E): ${ascii} / 95 (${((ascii / 95) * 100).toFixed(1)}%)`,
+);
+console.log(
+	`Hiragana (0x3040-0x309F): ${hiragana} / 96 (${((hiragana / 96) * 100).toFixed(1)}%)`,
+);
+console.log(
+	`Katakana (0x30A0-0x30FF): ${katakana} / 96 (${((katakana / 96) * 100).toFixed(1)}%)`,
+);
 console.log(`CJK Punctuation & Fullwidth: ${cjkPunct}`);
-console.log(`CJK Unified Ideographs (0x4E00-0x9FFF): ${cjkUnified} / 20992 (${((cjkUnified / 20992) * 100).toFixed(1)}%)`);
+console.log(
+	`CJK Unified Ideographs (0x4E00-0x9FFF): ${cjkUnified} / 20992 (${((cjkUnified / 20992) * 100).toFixed(1)}%)`,
+);
 console.log(`CJK Ext A: ${cjkExtA}`);
 console.log(`CJK Ext B: ${cjkExtB}`);

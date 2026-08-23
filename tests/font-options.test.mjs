@@ -201,7 +201,7 @@ describe("Font Configuration & Resolver Tests", () => {
 					subsetting: { enable: false, includeContent: false, includeI18n: false, includeConfig: false, includeCommon: true, allowRemoteText: false },
 					budget: { maxTotalBytes: 4194304, maxFamilyBytes: 2097152 },
 				}),
-			/local fonts must be \.woff2 files under src\/assets\/fonts/,
+			/local fonts must be font files under src\/assets\/fonts/,
 		);
 
 		// 2. Duplicate role rejection

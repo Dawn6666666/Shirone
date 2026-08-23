@@ -132,24 +132,25 @@ export const fontConfig: FontConfig = {
 	],
 
 	/**
-	 * 字体子集化配置（预留选项）
+	 * 字体子集化配置（生产构建时自动从文章、i18n、配置及 Meting 歌曲中提取字符，生成极速精简版 .woff2）
+	 * - Dev 开发环境：自动加载完整原字体，任意输入新汉字实时可见，极速 HMR 零等待；
+	 * - Build 生产构建：自动执行子集裁剪，将几十兆大字体压缩为几百 KB 的专属子集，秒开加载。
 	 */
 	subsetting: {
-		enable: false,
-		includeContent: false,
-		includeI18n: false,
-		includeConfig: false,
-		includeCommon: true,
-		// 安全限制：构建期间禁止访问外部网络，必须保持 false
-		allowRemoteText: false,
+		enable: true, // 启用自动化子集裁剪
+		includeContent: true, // 扫描 src/content/ 下所有文章
+		includeI18n: true, // 扫描全部 10 种语言词典
+		includeConfig: true, // 扫描站点配置与导航
+		includeCommon: true, // 包含常用标点与基础字符
+		allowRemoteText: true, // 允许抓取 Meting 云端歌单曲目文本参与字形提取
 	},
 
 	/**
-	 * 字体打包体积预算限制（容纳全量 CJK 2.6 万字形超大字库）
+	 * 字体打包体积预算限制（子集化后通常仅 300KB ~ 1MB）
 	 */
 	budget: {
-		maxTotalBytes: 20 * 1024 * 1024, // 全站引用自定义字体总大小上限：20MB
-		maxFamilyBytes: 16 * 1024 * 1024, // 单个字体族文件大小上限：16MB
+		maxTotalBytes: 6 * 1024 * 1024, // 全站引用自定义字体总大小上限：6MB
+		maxFamilyBytes: 4 * 1024 * 1024, // 单个字体族文件大小上限：4MB
 	},
 };
 
