@@ -23,6 +23,7 @@ export {
 	resolveCommentOptions,
 } from "./commentConfig";
 export { expressiveCodeConfig } from "./expressiveCodeConfig";
+export { fontConfig, resolveFontOptions, resolvedFontOptions } from "./fontConfig";
 export { licenseConfig } from "./licenseConfig";
 export { LinkPresets, navBarConfig } from "./navBarConfig";
 export {

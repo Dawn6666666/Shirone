@@ -1,3 +1,5 @@
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
@@ -5,10 +7,11 @@ import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-s
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import swup from "@swup/astro";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
 import { expressiveCodeConfig } from "./src/config/expressiveCodeConfig.ts";
+import { resolvedFontOptions } from "./src/config/fontConfig.ts";
 import {
 	musicConfig,
 	resolveMusicOptions,
@@ -16,6 +19,10 @@ import {
 import { sidebarConfig } from "./src/config/sidebarConfig.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
+import {
+	getFontsourceImports,
+	getLocalFontVariants,
+} from "./src/utils/font-options.ts";
 import { siteMarkdownProcessor } from "./src/utils/markdown-processor.mjs";
 
 const musicWidgetEnabled =
@@ -57,18 +64,70 @@ const optionalMusicSidebarPlugin = {
 	},
 };
 
+const configuredFonts =
+	resolvedFontOptions.mode === "custom"
+		? ["body", "cjk", "mono"].flatMap((role) => {
+				const resolvedRole = resolvedFontOptions.roles[role];
+				if (!resolvedRole.family) return [];
+
+				const isCompositeSans = role === "body" || role === "cjk";
+				const fallbackOpts = isCompositeSans
+					? { fallbacks: [], optimizedFallbacks: false }
+					: {};
+
+				const localVariants = getLocalFontVariants(resolvedFontOptions, role);
+				if (localVariants.length > 0) {
+					return [
+						{
+							provider: fontProviders.local(),
+							name: resolvedRole.family,
+							cssVariable: resolvedRole.cssVariable,
+							options: {
+								variants: localVariants.map((variant) => ({
+									src: [`./${variant.file}`],
+									weight: variant.weight,
+									style: variant.style,
+									display: resolvedRole.display,
+									...(variant.subset ? { subset: variant.subset } : {}),
+									...(variant.unicodeRange
+										? { unicodeRange: variant.unicodeRange }
+										: {}),
+								})),
+							},
+							...fallbackOpts,
+						},
+					];
+				}
+
+				const fontsourceVariants = resolvedRole.variants.filter(
+					(v) => v.source === "fontsource",
+				);
+				if (fontsourceVariants.length > 0) {
+					return [
+						{
+							provider: fontProviders.fontsource(),
+							name: resolvedRole.family,
+							cssVariable: resolvedRole.cssVariable,
+							...fallbackOpts,
+						},
+					];
+				}
+
+				return [];
+			})
+		: [];
+
 // https://astro.build/config
 export default defineConfig({
 	site: "https://shirone.mysqil.com/",
 	base: "/",
 	trailingSlash: "always",
+	fonts: configuredFonts,
 	integrations: [
 		swup({
 			theme: false,
 			ignore: 'a[href="#"]',
-			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
-			// the default value `transition-` cause transition delay
-			// when the Tailwind class `transition-all` is used
+			animationClass: "transition-swup-",
 			containers: ["main", "#toc"],
 			smoothScrolling: true,
 			cache: true,
@@ -76,8 +135,6 @@ export default defineConfig({
 			accessibility: true,
 			updateHead: {
 				awaitAssets: true,
-				// Cached client-only islands do not re-inject component CSS after
-				// Swup removes it from the head. Keep styles across page visits.
 				persistTags: "link[rel=stylesheet], style",
 			},
 			updateBodyClass: false,
@@ -115,8 +172,7 @@ export default defineConfig({
 				borderRadius: "0.75rem",
 				borderColor: "none",
 				codeFontSize: "0.875rem",
-				codeFontFamily:
-					"'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+				codeFontFamily: "var(--m3e-font-mono-family)",
 				codeLineHeight: "1.5rem",
 				frames: {
 					editorBackground: "var(--codeblock-bg)",
@@ -141,9 +197,7 @@ export default defineConfig({
 		}),
 		svelte({
 			compilerOptions: {
-				// Svelte 默认 cssHash = hash(filename)，组件移动目录后 SSR/客户端
-				// 拿到的 filename 会不一致（scope hash 分裂导致样式丢失）。
-				// 改为基于 CSS 源码哈希，与路径无关，SSR 与客户端恒一致。
+				// CSS-source hashing keeps SSR and client scope hashes stable after moves.
 				cssHash: ({ css, hash }) => `svelte-${hash(css)}`,
 			},
 		}),
@@ -169,7 +223,6 @@ export default defineConfig({
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {
-					// temporarily suppress this warning
 					if (
 						warning.message.includes("is dynamically imported by") &&
 						warning.message.includes("but also statically imported by")

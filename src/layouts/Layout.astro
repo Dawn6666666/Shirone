@@ -1,11 +1,8 @@
 ---
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
-
 import Snackbar from "@components/atoms/overlay/Snackbar.svelte";
 import ConfigCarrier from "@components/system/ConfigCarrier.astro";
-import { expressiveCodeConfig, profileConfig, siteConfig } from "@/config";
+import { Font } from "astro:assets";
+import { expressiveCodeConfig, profileConfig, resolvedFontOptions, siteConfig } from "@/config";
 import type { SidebarPage } from "@/types/sidebarConfig";
 import {
 	AUTO_MODE,
@@ -19,11 +16,13 @@ import {
 } from "../constants/constants";
 import { defaultFavicons } from "../constants/icon";
 import type { Favicon } from "../types/config";
+import { createFontRoleStyle } from "../utils/font-options";
 import { resolvePageWidth } from "../utils/responsive-utils";
 import { pathsEqual, url } from "../utils/url-utils";
 import "katex/dist/katex.css";
 import "overlayscrollbars/overlayscrollbars.css";
 import "../styles/main.css";
+import "../styles/font-faces.css";
 
 interface Props {
 	title?: string;
@@ -39,8 +38,6 @@ let { title, description, lang, setOGTypeArticle, page } = Astro.props;
 const initialPage =
 	page ?? (pathsEqual(Astro.url.pathname, url("/")) ? "home" : undefined);
 
-// defines global css variables
-// why doing this in Layout instead of GlobalStyles: https://github.com/withastro/astro/issues/6728#issuecomment-1502203757
 const configHue = siteConfig.themeColor.hue;
 const lightTheme =
 	expressiveCodeConfig.lightTheme ?? expressiveCodeConfig.theme;
@@ -59,18 +56,20 @@ if (title) {
 const favicons: Favicon[] =
 	siteConfig.favicon.length > 0 ? siteConfig.favicon : defaultFavicons;
 
-// const siteLang = siteConfig.lang.replace('_', '-')
 if (!lang) {
 	lang = `${siteConfig.lang}`;
 }
 const siteLang = lang.replace("_", "-");
+const fontRoleStyle = createFontRoleStyle(resolvedFontOptions);
+const customFontsEnabled = resolvedFontOptions.mode === "custom";
+const hasBodyFont = customFontsEnabled && Boolean(resolvedFontOptions.roles.body.family);
+const hasCjkFont = customFontsEnabled && Boolean(resolvedFontOptions.roles.cjk.family);
+const hasMonoFont = customFontsEnabled && Boolean(resolvedFontOptions.roles.mono.family);
 ---
 
 <!DOCTYPE html>
 <html lang={siteLang} class="bg-[var(--page-bg)] transition text-[14px] md:text-[16px]">
 	<head>
-		<!-- Fix the CSS cascade-layer order. Tailwind's `base` layer (preflight resets like `button { color: inherit }`)
-		     must precede `components`, otherwise component classes like `.btn-plain` lose to the resets in dark mode. -->
 		<style is:inline>@layer properties, theme, base, components, utilities;</style>
 
 		<title>{pageTitle}</title>
@@ -84,10 +83,10 @@ const siteLang = lang.replace("_", "-");
 		<meta property="og:title" content={pageTitle}>
 		<meta property="og:description" content={description || pageTitle}>
 		{setOGTypeArticle ? (
-        <meta property="og:type" content="article" />
-        ) : (
-        <meta property="og:type" content="website" />
-        )}
+			<meta property="og:type" content="article" />
+		) : (
+			<meta property="og:type" content="website" />
+		)}
 
 		<meta name="twitter:card" content="summary_large_image">
 		<meta property="twitter:url" content={Astro.url}>
@@ -96,17 +95,19 @@ const siteLang = lang.replace("_", "-");
 
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
+		{fontRoleStyle && <style is:inline set:html={fontRoleStyle}></style>}
+		{hasBodyFont && <Font cssVariable={resolvedFontOptions.roles.body.cssVariable as never} preload={resolvedFontOptions.roles.body.preload} />}
+		{hasCjkFont && <Font cssVariable={resolvedFontOptions.roles.cjk.cssVariable as never} preload={resolvedFontOptions.roles.cjk.preload} />}
+		{hasMonoFont && <Font cssVariable={resolvedFontOptions.roles.mono.cssVariable as never} preload={resolvedFontOptions.roles.mono.preload} />}
 		{favicons.map(favicon => (
 			<link rel="icon"
-				  href={favicon.src.startsWith('/') ? url(favicon.src) : favicon.src}
-				  sizes={favicon.sizes}
-				  media={favicon.theme && `(prefers-color-scheme: ${favicon.theme})`}
+				href={favicon.src.startsWith('/') ? url(favicon.src) : favicon.src}
+				sizes={favicon.sizes}
+				media={favicon.theme && `(prefers-color-scheme: ${favicon.theme})`}
 			/>
 		))}
 
-		<!-- Set the theme before the page is rendered to avoid a flash -->
-			<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, configHue, lightTheme, darkTheme, defaultWallpaperMode}}>
-			// Load the theme from local storage
+		<script is:inline define:vars={{DEFAULT_THEME, LIGHT_MODE, DARK_MODE, AUTO_MODE, BANNER_HEIGHT_EXTEND, configHue, lightTheme, darkTheme, defaultWallpaperMode}}>
 			const theme = localStorage.getItem('theme') || DEFAULT_THEME;
 			let isDark = false;
 			switch (theme) {
@@ -126,56 +127,41 @@ const siteLang = lang.replace("_", "-");
 					}
 			}
 
-			// Set the theme for Expressive Code (light/dark code block themes)
 			document.documentElement.setAttribute('data-theme', isDark ? darkTheme : lightTheme);
-
-			// Load the hue from local storage
 			const hue = localStorage.getItem('hue') || configHue;
 			document.documentElement.style.setProperty('--hue', hue);
-
-			// Apply reduced-motion preference before paint to avoid animation flash
-				if (localStorage.getItem('mc-motion') === 'reduced') {
-					document.documentElement.classList.add('motion-reduced');
-				}
-
-				// Apply wallpaper preference before paint.
-				const storedWallpaperMode = localStorage.getItem('wallpaper-mode');
-				const wallpaperMode = storedWallpaperMode === 'banner' || storedWallpaperMode === 'none'
-					? storedWallpaperMode
-					: defaultWallpaperMode;
-				document.documentElement.dataset.wallpaperMode = wallpaperMode;
-
-				// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
-				let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
+			if (localStorage.getItem('mc-motion') === 'reduced') {
+				document.documentElement.classList.add('motion-reduced');
+			}
+			const storedWallpaperMode = localStorage.getItem('wallpaper-mode');
+			const wallpaperMode = storedWallpaperMode === 'banner' || storedWallpaperMode === 'none'
+				? storedWallpaperMode
+				: defaultWallpaperMode;
+			document.documentElement.dataset.wallpaperMode = wallpaperMode;
+			let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
 			offset = offset - offset % 4;
 			document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
 		</script>
 		<style define:vars={{
 			configHue,
-			// 页框宽度按侧栏编排自动解析（single 85rem / dual 96rem）
 			'page-width': resolvePageWidth(),
-		}}></style>  <!-- defines global css variables. This will be applied to <html> <body> and some other elements idk why -->
-
+		}}></style>
 
 		<slot name="head"></slot>
-
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
-
 	</head>
-		<body
-			class="min-h-screen transition"
-			data-current-page={initialPage}
-			data-banner-visible="false"
-			data-banner-layout="compact"
-			data-banner-top-app-bar="false"
-			data-banner-has-desktop={String(hasDesktopBanner)}
-			data-banner-has-mobile={String(hasMobileBanner)}
-		>
+	<body
+		class="min-h-screen transition"
+		data-current-page={initialPage}
+		data-banner-visible="false"
+		data-banner-layout="compact"
+		data-banner-top-app-bar="false"
+		data-banner-has-desktop={String(hasDesktopBanner)}
+		data-banner-has-mobile={String(hasMobileBanner)}
+	>
 		<ConfigCarrier></ConfigCarrier>
 		<Snackbar client:only="svelte"></Snackbar>
 		<slot />
-
-		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
 	</body>
 </html>
@@ -190,221 +176,79 @@ const siteLang = lang.replace("_", "-");
 	'banner-panel-overlap': `${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem`,
 }}>
 @reference "../styles/main.css";
-		@layer components {
-			:root {
-				--banner-stage-height: var(--banner-height-home);
-				--banner-content-top: calc(var(--banner-stage-height) - var(--banner-panel-overlap));
-			}
-
-			#main-layout {
-				top: 5.5rem;
-				transition: top var(--m3e-duration-long) var(--m3e-easing-standard);
-			}
-
-			body[data-banner-layout="banner"] #main-layout {
-				top: var(--banner-content-top);
-			}
-
-				body[data-banner-layout="banner"] #top-row {
-					height: calc(var(--banner-stage-height) - 4.5rem);
-				}
-
-				.navbar-hidden {
-					opacity: 0;
-					transform: translateY(-4rem);
-				}
-			}
-
-			@media (min-width: 1024px) {
-				html[data-wallpaper-mode="banner"] body[data-banner-has-desktop="true"] #main-layout {
-					top: var(--banner-content-top);
-				}
-
-				html[data-wallpaper-mode="banner"] body[data-banner-has-desktop="true"] #top-row {
-					height: calc(var(--banner-stage-height) - 4.5rem);
-				}
-			}
-
-		@media (max-width: 1023.98px) {
-				:root {
-					--banner-stage-height: max(70vh, 28rem);
-				}
-
-				@media (max-width: 479.98px) {
-					:root {
-						--banner-panel-overlap: var(--m3e-space-8);
-					}
-				}
-
-				@media (min-width: 480px) and (max-width: 767.98px) {
-					:root {
-						--banner-panel-overlap: var(--m3e-space-10);
-					}
-				}
-
-			html[data-wallpaper-mode="banner"] body[data-current-page="home"][data-banner-has-mobile="true"] #main-layout {
-				top: var(--banner-content-top);
-			}
-
-			html[data-wallpaper-mode="banner"] body[data-current-page="home"][data-banner-has-mobile="true"] #top-row {
-				height: calc(var(--banner-stage-height) - 4.5rem);
-			}
-
-			body[data-banner-layout="compact"] #top-row {
-				height: auto;
-			}
-		}
-
-
-	@media (min-width: 480px) and (max-width: 767.98px) {
+	@layer components {
 		:root {
-			--banner-stage-height: max(75vh, 31.25rem);
+			--banner-stage-height: var(--banner-height-home);
+			--banner-content-top: calc(var(--banner-stage-height) - var(--banner-panel-overlap));
 		}
-	}
-
-	@media (min-width: 768px) and (max-width: 1023.98px) {
-		:root {
-			--banner-stage-height: max(70vh, 31.25rem);
+		#main-layout {
+			top: 5.5rem;
+			transition: top var(--m3e-duration-long) var(--m3e-easing-standard);
 		}
+		body[data-banner-layout="banner"] #main-layout { top: var(--banner-content-top); }
+		body[data-banner-layout="banner"] #top-row { height: calc(var(--banner-stage-height) - 4.5rem); }
+		.navbar-hidden { opacity: 0; transform: translateY(-4rem); }
 	}
-
+	@media (min-width: 1024px) {
+		html[data-wallpaper-mode="banner"] body[data-banner-has-desktop="true"] #main-layout { top: var(--banner-content-top); }
+		html[data-wallpaper-mode="banner"] body[data-banner-has-desktop="true"] #top-row { height: calc(var(--banner-stage-height) - 4.5rem); }
+	}
+	@media (max-width: 1023.98px) {
+		:root { --banner-stage-height: max(70vh, 28rem); }
+		@media (max-width: 479.98px) { :root { --banner-panel-overlap: var(--m3e-space-8); } }
+		@media (min-width: 480px) and (max-width: 767.98px) { :root { --banner-panel-overlap: var(--m3e-space-10); } }
+		html[data-wallpaper-mode="banner"] body[data-current-page="home"][data-banner-has-mobile="true"] #main-layout { top: var(--banner-content-top); }
+		html[data-wallpaper-mode="banner"] body[data-current-page="home"][data-banner-has-mobile="true"] #top-row { height: calc(var(--banner-stage-height) - 4.5rem); }
+		body[data-banner-layout="compact"] #top-row { height: auto; }
+	}
+	@media (min-width: 480px) and (max-width: 767.98px) { :root { --banner-stage-height: max(75vh, 31.25rem); } }
+	@media (min-width: 768px) and (max-width: 1023.98px) { :root { --banner-stage-height: max(70vh, 31.25rem); } }
 </style>
 
 <script>
 import "../utils/code-collapse";
 import { initLastUpdatedNotices } from "../utils/last-updated-notice";
 import { initMermaidDiagrams } from "../utils/mermaid";
-import {
-	OverlayScrollbars,
-	// ScrollbarsHidingPlugin,
-	// SizeObserverPlugin,
-	// ClickScrollPlugin
-} from 'overlayscrollbars';
+import { OverlayScrollbars } from 'overlayscrollbars';
 import {getHue, getStoredTheme, setHue, setTheme} from "../utils/setting-utils";
-import { WALLPAPER_MODE_CHANGE_EVENT } from "../constants/constants";
-import {
-	BANNER_HEIGHT,
-	BANNER_HEIGHT_EXTEND,
-} from "../constants/constants";
-
-/* Preload fonts */
-// (async function() {
-// 	try {
-// 		await Promise.all([
-// 			document.fonts.load("400 1em Roboto"),
-// 			document.fonts.load("700 1em Roboto"),
-// 		]);
-// 		document.body.classList.remove("hidden");
-// 	} catch (error) {
-// 		console.log("Failed to load fonts:", error);
-// 	}
-// })();
-
-/* TODO This is a temporary solution for style flicker issue when the transition is activated */
-/* issue link: https://github.com/withastro/astro/issues/8711, the solution get from here too */
-/* update: fixed in Astro 3.2.4 */
-/*
-function disableAnimation() {
-	const css = document.createElement('style')
-	css.appendChild(
-		document.createTextNode(
-			`*{
-              -webkit-transition:none!important;
-              -moz-transition:none!important;
-              -o-transition:none!important;
-              -ms-transition:none!important;
-              transition:none!important
-              }`
-		)
-	)
-	document.head.appendChild(css)
-
-	return () => {
-		// Force restyle
-		;(() => window.getComputedStyle(document.body))()
-
-		// Wait for next tick before removing
-		setTimeout(() => {
-			document.head.removeChild(css)
-		}, 1)
-	}
-}
-*/
+import { WALLPAPER_MODE_CHANGE_EVENT, BANNER_HEIGHT, BANNER_HEIGHT_EXTEND } from "../constants/constants";
 
 function setClickOutsideToClose(panel: string, ignores: string[]) {
-	document.addEventListener("click", event => {
-		let panelDom = document.getElementById(panel);
-		let tDom = event.target;
-		if (!(tDom instanceof Node)) return;		// Ensure the event target is an HTML Node
-		for (let ig of ignores) {
-			let ie = document.getElementById(ig)
-			if (ie == tDom || (ie?.contains(tDom))) {
-				return;
-			}
+	document.addEventListener('click', event => {
+		const panelDom = document.getElementById(panel);
+		const target = event.target;
+		if (!(target instanceof Node)) return;
+		for (const ignore of ignores) {
+			const element = document.getElementById(ignore);
+			if (element === target || element?.contains(target)) return;
 		}
-		// 面板元素不存在（如无顶栏/面板的独立页面）时跳过，避免 null.classList
-		if (panelDom) panelDom.classList.add("float-panel-closed");
+		if (panelDom) panelDom.classList.add('float-panel-closed');
 	});
 }
-setClickOutsideToClose("display-setting", ["display-setting", "display-settings-switch"])
-setClickOutsideToClose("search-panel", ["search-panel", "search-bar", "search-switch"])
+setClickOutsideToClose('display-setting', ['display-setting', 'display-settings-switch']);
+setClickOutsideToClose('search-panel', ['search-panel', 'search-bar', 'search-switch']);
 
-
-function loadTheme() {
-	const theme = getStoredTheme()
-	setTheme(theme)
-}
-
-function loadHue() {
-	setHue(getHue())
-}
+function loadTheme() { setTheme(getStoredTheme()); }
+function loadHue() { setHue(getHue()); }
 
 function initCustomScrollbar() {
-	// Keep the document on its native root scroller. Wrapping body with
-	// OverlayScrollbars can leave it locked after viewport mode changes.
 	const katexElements = document.querySelectorAll('.katex-display') as NodeListOf<HTMLElement>;
-
-	const katexObserverOptions = {
-		root: null,
-		rootMargin: '100px',
-		threshold: 0.1
-	};
-
-	const processKatexElement = (element: HTMLElement) => {
-		if (!element.parentNode) return;
-		if (element.hasAttribute('data-scrollbar-initialized')) return;
-
-		const container = document.createElement('div');
-		container.className = 'katex-display-container';
-		container.setAttribute('aria-label', 'scrollable container for formulas');
-
-		element.parentNode.insertBefore(container, element);
-		container.appendChild(element);
-
-		OverlayScrollbars(container, {
-			scrollbars: {
-				theme: 'scrollbar-base scrollbar-auto',
-				autoHide: 'leave',
-				autoHideDelay: 500,
-				autoHideSuspend: false
-			}
-		});
-
-		element.setAttribute('data-scrollbar-initialized', 'true');
-	};
-
-	const katexObserver = new IntersectionObserver((entries, observer) => {
+	const observer = new IntersectionObserver((entries, intersectionObserver) => {
 		entries.forEach(entry => {
-			if (entry.isIntersecting) {
-			processKatexElement(entry.target as HTMLElement);
-			observer.unobserve(entry.target);
-			}
+			if (!entry.isIntersecting) return;
+			const element = entry.target as HTMLElement;
+			if (!element.parentNode || element.hasAttribute('data-scrollbar-initialized')) return;
+			const container = document.createElement('div');
+			container.className = 'katex-display-container';
+			container.setAttribute('aria-label', 'scrollable container for formulas');
+			element.parentNode.insertBefore(container, element);
+			container.appendChild(element);
+			OverlayScrollbars(container, { scrollbars: { theme: 'scrollbar-base scrollbar-auto', autoHide: 'leave', autoHideDelay: 500, autoHideSuspend: false } });
+			element.setAttribute('data-scrollbar-initialized', 'true');
+			intersectionObserver.unobserve(element);
 		});
-	}, katexObserverOptions);
-
-	katexElements.forEach(element => {
-		katexObserver.observe(element);
-	});
+	}, { root: null, rootMargin: '100px', threshold: 0.1 });
+	katexElements.forEach(element => observer.observe(element));
 }
 
 function init() {
@@ -412,8 +256,6 @@ function init() {
 	loadHue();
 	initCustomScrollbar();
 }
-
-/* Load settings when entering the site */
 init();
 initLastUpdatedNotices();
 initMermaidDiagrams();
@@ -424,7 +266,6 @@ const setup = () => {
 	let scrollStarted = false;
 	let visitActive = false;
 	let finishTimer: number | undefined;
-
 	function finishVisit() {
 		if (!visitActive) return;
 		visitActive = false;
@@ -434,55 +275,33 @@ const setup = () => {
 			document.getElementById('toc-wrapper')?.classList.remove('toc-not-ready');
 		}, 200);
 	}
-
-	window.swup?.hooks.on('link:click', () => {
-		// Remove the delay for the first time page load
-		document.documentElement.style.setProperty('--content-delay', '0ms')
-	})
-	window.swup?.hooks.on('content:replace', initCustomScrollbar)
-	window.swup?.hooks.on('visit:start', () => {
+	window.swup.hooks.on('link:click', () => document.documentElement.style.setProperty('--content-delay', '0ms'));
+	window.swup.hooks.on('content:replace', initCustomScrollbar);
+	window.swup.hooks.on('visit:start', () => {
 		window.clearTimeout(finishTimer);
 		visitActive = true;
 		scrollStarted = false;
-
-		// Keep enough document height until Swup's scroll animation has ended.
 		document.getElementById('page-height-extend')?.classList.remove('hidden');
 		document.getElementById('toc-wrapper')?.classList.add('toc-not-ready');
 	});
-	window.swup?.hooks.on('visit:end', () => {
-		// scroll:start/end are skipped when the page is already at its target position.
-		if (!scrollStarted) finishVisit();
-	});
-	window.swup?.hooks.on('visit:abort', finishVisit);
-	if (window.swup?.hooks.exists('scroll:end')) {
-		window.swup.hooks.on('scroll:start', () => {
-			if (visitActive) scrollStarted = true;
-		});
+	window.swup.hooks.on('visit:end', () => { if (!scrollStarted) finishVisit(); });
+	window.swup.hooks.on('visit:abort', finishVisit);
+	if (window.swup.hooks.exists('scroll:end')) {
+		window.swup.hooks.on('scroll:start', () => { if (visitActive) scrollStarted = true; });
 		window.swup.hooks.on('scroll:end', finishVisit);
 	}
-}
-if (window.swup?.hooks) {
-	setup()
-} else {
-	document.addEventListener('swup:enable', setup, { once: true })
-}
+};
+if (window.swup?.hooks) setup();
+else document.addEventListener('swup:enable', setup, { once: true });
 
-let backToTopBtn = document.getElementById('back-to-top-btn');
-let toc = document.getElementById('toc-wrapper');
-
+const backToTopBtn = document.getElementById('back-to-top-btn');
+const toc = document.getElementById('toc-wrapper');
 function scrollFunction() {
 	const scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
 	const backToTopThreshold = window.innerHeight * (BANNER_HEIGHT / 100);
-
-	if (backToTopBtn) {
-		backToTopBtn.classList.toggle('hide', scrollTop <= backToTopThreshold);
-	}
-
+	backToTopBtn?.classList.toggle('hide', scrollTop <= backToTopThreshold);
 	const bannerVisible = document.body.dataset.bannerVisible === 'true';
-	if (toc) {
-		toc.classList.toggle('toc-hide', bannerVisible && scrollTop <= backToTopThreshold);
-	}
-
+	toc?.classList.toggle('toc-hide', bannerVisible && scrollTop <= backToTopThreshold);
 	const navbar = document.getElementById('navbar');
 	const bannerStage = document.getElementById('banner-wrapper');
 	const bannerBottom = bannerStage?.getBoundingClientRect().height ?? 0;
@@ -490,20 +309,14 @@ function scrollFunction() {
 	document.body.dataset.bannerScrolled = String(!overBanner);
 	navbar?.classList.toggle('top-app-bar--transparent', overBanner);
 }
-
 window.addEventListener('scroll', scrollFunction, { passive: true });
 window.addEventListener('resize', () => {
-	// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
 	let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
 	offset = offset - offset % 4;
 	document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
 	scrollFunction();
 });
-
-new MutationObserver(scrollFunction).observe(document.body, {
-	attributes: true,
-	attributeFilter: ['data-banner-visible', 'data-banner-layout'],
-});
+new MutationObserver(scrollFunction).observe(document.body, { attributes: true, attributeFilter: ['data-banner-visible', 'data-banner-layout'] });
 window.addEventListener(WALLPAPER_MODE_CHANGE_EVENT, () => requestAnimationFrame(scrollFunction));
 document.addEventListener('swup:page:view', scrollFunction);
 scrollFunction();
@@ -515,21 +328,12 @@ import { applyStoredLayoutMode } from "../utils/layout-mode";
 
 const setup = () => {
 	initFancybox();
-
-	window.swup.hooks.on("visit:start", () => {
-		cleanupFancybox();
-	});
-
+	window.swup.hooks.on("visit:start", cleanupFancybox);
 	window.swup.hooks.on("content:replace", () => {
 		initFancybox();
-		// swup 替换内容后，SSR 输出的是站点默认布局模式，重新应用访客偏好
 		applyStoredLayoutMode(document.getElementById("post-list"));
 	});
 };
-
-if (window.swup) {
-	setup();
-} else {
-	document.addEventListener("swup:enable", setup);
-}
+if (window.swup) setup();
+else document.addEventListener("swup:enable", setup);
 </script>
