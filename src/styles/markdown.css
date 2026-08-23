@@ -139,3 +139,85 @@
     @apply mt-4 mb-2;
   }
 }
+
+/* --- Markdown 响应式图片画廊网格（:::grid 容器指令） ---
+   选择器叠加 .image-grid 保持足够特异性，覆盖 prose 排版与全局 img 规则，
+   全程不使用 !important；reduced-motion 由 main.css 的全局规则统一降级。 */
+.custom-md .image-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--image-grid-columns, 3), minmax(0, 1fr));
+  gap: var(--m3e-space-3);
+  margin: var(--m3e-space-6) 0;
+}
+
+.custom-md .image-grid .image-grid__item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+}
+
+.custom-md .image-grid .image-grid__link {
+  display: block;
+  aspect-ratio: var(--image-grid-aspect-ratio, 16 / 10);
+  overflow: hidden;
+  border-radius: var(--shape-corner-m);
+  background: var(--surface-container-high);
+  line-height: 0;
+}
+
+.custom-md .image-grid .image-grid__link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.custom-md .image-grid .image-grid__link:hover,
+.custom-md .image-grid .image-grid__link:active {
+  border-bottom: 0;
+  background: var(--surface-container-high);
+  text-decoration: none;
+}
+
+.custom-md .image-grid .image-grid__link > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
+  object-fit: var(--image-grid-fit, cover);
+  object-position: center;
+  transition: transform var(--m3e-duration-medium) var(--m3e-easing-standard);
+}
+
+.custom-md .image-grid .image-grid__link:hover > img {
+  transform: scale(1.025);
+}
+
+.custom-md .image-grid .image-grid__caption {
+  margin-top: auto;
+  padding-top: var(--m3e-space-2);
+  color: var(--on-surface-variant);
+  font: var(--m3e-type-body-small);
+  text-align: center;
+}
+
+/* 响应式断点：平板降为 2 列（单列声明保持 1 列） */
+@media (max-width: 47.99rem) {
+  .custom-md .image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .custom-md .image-grid[data-columns="1"] {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 窄屏降为 1 列 */
+@media (max-width: 29.99rem) {
+  .custom-md .image-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -47,8 +47,29 @@ export class FancyboxHandler {
 			return;
 		}
 
+		this.syncImageGridLinkTargets();
 		this.bindSelectors();
 		this.initialized = true;
+		// 供测试与外部脚本等待绑定就绪的稳定契约（cleanup 时移除）
+		document.documentElement.dataset.fancyboxReady = "true";
+	}
+
+	/**
+	 * 对齐画廊链接的灯箱目标地址。
+	 * Astro 图片资产管线只改写 <img> 的 src（相对路径 → 优化地址），
+	 * 画廊 <a> 的 href 在 AST 阶段仍是原始相对路径；绑定前将其同步为
+	 * 渲染后的图片地址，避免灯箱打开 404。
+	 */
+	private syncImageGridLinkTargets(): void {
+		for (const link of document.querySelectorAll<HTMLAnchorElement>(
+			".image-grid__link",
+		)) {
+			const img = link.querySelector("img");
+			const target = img?.currentSrc || img?.src;
+			if (target) {
+				link.href = target;
+			}
+		}
 	}
 
 	/**
@@ -57,6 +78,7 @@ export class FancyboxHandler {
 	private checkForImages(): boolean {
 		return (
 			document.querySelector(FANCYBOX_SELECTORS.articleImages) !== null ||
+			document.querySelector(FANCYBOX_SELECTORS.imageGrids) !== null ||
 			document.querySelector(FANCYBOX_SELECTORS.singleFancybox) !== null
 		);
 	}
@@ -99,14 +121,19 @@ export class FancyboxHandler {
 
 		const commonConfig = getDefaultFancyboxConfig();
 
-		// 文章正文图片和封面
+		// 文章正文图片和封面（整篇作为单一轮播组）
 		this.Fancybox.bind(
 			FANCYBOX_SELECTORS.articleImages,
 			this.createArticleConfig(commonConfig),
 		);
 		this.boundSelectors.push(FANCYBOX_SELECTORS.articleImages);
 
-		// 带 data-fancybox 属性的单独元素
+		// 画廊网格：Fancybox 按每个链接的 data-fancybox 值将同一网格聚合为独立轮播组，
+		// 不设置 groupAll，避免跨网格/跨文章合并。
+		this.Fancybox.bind(FANCYBOX_SELECTORS.imageGrids, commonConfig);
+		this.boundSelectors.push(FANCYBOX_SELECTORS.imageGrids);
+
+		// 带 data-fancybox 属性的其他单独元素（已排除画廊链接）
 		this.Fancybox.bind(FANCYBOX_SELECTORS.singleFancybox, commonConfig);
 		this.boundSelectors.push(FANCYBOX_SELECTORS.singleFancybox);
 	}
@@ -146,8 +173,9 @@ export class FancyboxHandler {
 			this.Fancybox.unbind(selector);
 		}
 		this.boundSelectors = [];
-		// 解绑后允许下次 init 重新绑定
+		// 解绑后允许下次 init 重新绑定；同时清除就绪契约，避免跨页假就绪
 		this.initPromise = null;
+		delete document.documentElement.dataset.fancyboxReady;
 	}
 
 	/**

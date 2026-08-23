@@ -9,7 +9,9 @@ import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
+import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
 import { parseDirectiveNode } from "../plugins/remark-directive-rehype.js";
+import { remarkEscapeNumericColons } from "../plugins/remark-escape-numeric-colons.mjs";
 import { remarkExcerpt } from "../plugins/remark-excerpt.js";
 import { remarkMermaid } from "../plugins/remark-mermaid.mjs";
 import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
@@ -18,6 +20,7 @@ import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
  * 站点统一 Remark 插件链（单一事实来源）
  */
 export const siteRemarkPlugins = [
+	remarkEscapeNumericColons,
 	remarkMath,
 	remarkMermaid,
 	remarkReadingTime,
@@ -39,6 +42,7 @@ export const siteRehypePlugins = [
 		{
 			components: {
 				github: GithubCardComponent,
+				grid: ImageGridComponent,
 				note: (x, y) => AdmonitionComponent(x, y, "note"),
 				tip: (x, y) => AdmonitionComponent(x, y, "tip"),
 				important: (x, y) => AdmonitionComponent(x, y, "important"),
