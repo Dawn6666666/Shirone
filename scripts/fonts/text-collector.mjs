@@ -116,11 +116,12 @@ async function collectMusicText(charSet) {
 		}
 	}
 
-	// 模式 C & D：网络歌单模式 (meting) 或 混合模式 (mixed) -> 抓取 Meting 远端歌单
+	// 模式 C & D：网络歌单模式 (meting) 或 混合模式 (mixed) -> 抓取 Meting 远端歌单（受 allowRemoteText 配置控制）
 	if (
 		(provider === "meting" || provider === "mixed") &&
 		musicConfig.meting &&
-		musicConfig.meting.id
+		musicConfig.meting.id &&
+		(fontConfig.subsetting?.allowRemoteText ?? false)
 	) {
 		const url = buildMetingUrl(musicConfig.meting);
 		if (url) {

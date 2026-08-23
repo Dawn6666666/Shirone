@@ -12,6 +12,13 @@ export async function subsetAllFonts(options = {}) {
 	const force = options.force ?? false;
 	const isEnabled = fontConfig.subsetting?.enable ?? false;
 
+	if (fontConfig.mode === "system" && !force) {
+		console.log(
+			'[subsetting] ℹ System font mode enabled (mode: "system"), skipping font subsetting',
+		);
+		return;
+	}
+
 	if (!isEnabled && !force) {
 		console.log(
 			"[subsetting] ℹ Font subsetting is disabled in fontConfig (subsetting.enable: false), skipping",
