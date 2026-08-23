@@ -37,6 +37,14 @@ export const ko: Translation = {
 	[Key.animeStatusPlanned]: "시청 예정",
 	[Key.animeStatusOnHold]: "보류",
 	[Key.animeStatusDropped]: "중단",
+	[Key.animeSourceLocal]: "로컬 컬렉션",
+	[Key.animeSourceBangumi]: "Bangumi",
+	[Key.animeSourceBilibili]: "Bilibili",
+	[Key.animeProviderUnavailable]: "데이터 소스를 일시적으로 사용할 수 없습니다",
+	[Key.animeProviderStale]: "캐시된 스냅샷을 사용하는 중입니다",
+	[Key.animeConfigMissingBangumi]: "Bangumi 사용자 ID가 설정되지 않았습니다",
+	[Key.animeConfigMissingBilibili]: "Bilibili UID가 설정되지 않았습니다",
+	[Key.animeSyncEmpty]: "이 데이터 소스에 애니메이션 항목이 없습니다",
 
 	[Key.compass]: "나침반",
 	[Key.compassBanner]:

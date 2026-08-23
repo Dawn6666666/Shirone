@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { animeConfig } from "../../src/config/animeConfig.ts";
 import { fontConfig } from "../../src/config/fontConfig.ts";
 import { musicConfig } from "../../src/config/musicConfig.ts";
 import { buildMetingUrl } from "../../src/utils/music/meting.ts";
@@ -84,6 +85,9 @@ export async function collectAllText() {
 	// 5. 处理音乐模块文字（覆盖 local / custom / meting / mixed 四种模式）
 	await collectMusicText(charSet);
 
+	// 6. 处理番剧模块文字（依据 docs/remote-data-system.md 规范，纯本地离线扫描 local 数据与落盘快照）
+	await collectAnimeText(charSet);
+
 	return Array.from(charSet).sort().join("");
 }
 
@@ -165,6 +169,45 @@ async function collectMusicText(charSet) {
 			} catch (error) {
 				console.warn(
 					`[subsetting] ⚠ Failed to fetch Meting playlist text (${error.message}), continuing with local charset`,
+				);
+			}
+		}
+	}
+}
+
+/**
+ * 依据番剧配置采集本地数据与已落盘快照文本
+ * 严格遵循 docs/remote-data-system.md §3.2：绝不在子集化时发起外部网络请求，仅读取本地静态文件
+ */
+async function collectAnimeText(charSet) {
+	if (!animeConfig.enable) return;
+
+	// 1. 扫描本地手写番剧数据 (src/data/anime.ts)
+	const localAnimeFile = join(projectRoot, "src/data/anime.ts");
+	if (existsSync(localAnimeFile)) {
+		const text = await readFile(localAnimeFile, "utf8");
+		for (const ch of text) {
+			if (ch.charCodeAt(0) > 31) charSet.add(ch);
+		}
+	}
+
+	// 2. 若允许远端文本落盘分析，扫描已下载生成的本地快照 JSON (src/data/anime-snapshots/*.json)
+	if (fontConfig.subsetting?.allowRemoteText ?? false) {
+		const snapshotDir = join(
+			projectRoot,
+			animeConfig.snapshot?.directory || "src/data/anime-snapshots",
+		);
+		if (existsSync(snapshotDir)) {
+			const snapshotFiles = await walkDirectory(snapshotDir, [".json"]);
+			for (const file of snapshotFiles) {
+				const text = await readFile(file, "utf8");
+				for (const ch of text) {
+					if (ch.charCodeAt(0) > 31) charSet.add(ch);
+				}
+			}
+			if (snapshotFiles.length > 0) {
+				console.log(
+					`[subsetting] ✓ Collected text from ${snapshotFiles.length} anime snapshot files`,
 				);
 			}
 		}

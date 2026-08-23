@@ -38,6 +38,14 @@ export const ja: Translation = {
 	[Key.animeStatusPlanned]: "未視聴",
 	[Key.animeStatusOnHold]: "保留中",
 	[Key.animeStatusDropped]: "中止",
+	[Key.animeSourceLocal]: "ローカルコレクション",
+	[Key.animeSourceBangumi]: "Bangumi 番組計画",
+	[Key.animeSourceBilibili]: "ビリビリ (Bilibili)",
+	[Key.animeProviderUnavailable]: "データソースは現在利用できません",
+	[Key.animeProviderStale]: "キャッシュスナップショットを使用中",
+	[Key.animeConfigMissingBangumi]: "Bangumi ユーザーIDが未設定です",
+	[Key.animeConfigMissingBilibili]: "Bilibili UIDが未設定です",
+	[Key.animeSyncEmpty]: "このデータソースにはアニメがありません",
 
 	[Key.compass]: "サイト羅針盤",
 	[Key.compassBanner]:

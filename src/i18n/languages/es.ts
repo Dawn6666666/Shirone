@@ -37,6 +37,14 @@ export const es: Translation = {
 	[Key.animeStatusPlanned]: "Planeado",
 	[Key.animeStatusOnHold]: "En pausa",
 	[Key.animeStatusDropped]: "Abandonado",
+	[Key.animeSourceLocal]: "Colección local",
+	[Key.animeSourceBangumi]: "Bangumi",
+	[Key.animeSourceBilibili]: "Bilibili",
+	[Key.animeProviderUnavailable]: "Fuente de datos no disponible temporalmente",
+	[Key.animeProviderStale]: "Usando instantánea en caché",
+	[Key.animeConfigMissingBangumi]: "ID de usuario de Bangumi no configurado",
+	[Key.animeConfigMissingBilibili]: "UID de Bilibili no configurado",
+	[Key.animeSyncEmpty]: "No se encontraron animes en esta fuente de datos",
 
 	[Key.compass]: "Brújula",
 	[Key.compassBanner]:

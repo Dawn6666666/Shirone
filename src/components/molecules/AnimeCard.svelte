@@ -11,7 +11,7 @@
 	import ProgressIndicator from "@components/atoms/feedback/ProgressIndicator.svelte";
 	import { i18n } from "@i18n/translation";
 	import { reveal } from "@utils/motion";
-	import { ANIME_STATUS_META } from "@utils/anime-data";
+	import { ANIME_STATUS_META } from "@utils/anime/status";
 	import type { AnimeItem } from "../../data/anime";
 
 	let {

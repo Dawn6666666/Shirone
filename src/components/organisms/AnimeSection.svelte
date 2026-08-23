@@ -17,7 +17,7 @@
 	import Icon from "@iconify/svelte";
 	import I18nKey from "@i18n/i18nKey";
 	import { i18n } from "@i18n/translation";
-	import { ANIME_STATUS_META } from "@utils/anime-data";
+	import { ANIME_STATUS_META } from "@utils/anime/status";
 	import { flipFromRect } from "@utils/motion";
 	import type { AnimeItem } from "../../data/anime";
 	import { onMount } from "svelte";
@@ -257,8 +257,13 @@
 		{/if}
 	{:else}
 		<div class="anime-section__empty">
-			<Icon icon="material-symbols:search-off-outline-rounded" aria-hidden="true" />
-			<span>{i18n(I18nKey.animeNoResults)}</span>
+			{#if animes.length === 0}
+				<Icon icon="material-symbols:live-tv-off-outline-rounded" aria-hidden="true" />
+				<span>{i18n(I18nKey.animeSyncEmpty)}</span>
+			{:else}
+				<Icon icon="material-symbols:search-off-outline-rounded" aria-hidden="true" />
+				<span>{i18n(I18nKey.animeNoResults)}</span>
+			{/if}
 		</div>
 	{/if}
 </Card>

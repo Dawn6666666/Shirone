@@ -38,6 +38,14 @@ export const id: Translation = {
 	[Key.animeStatusPlanned]: "Direncanakan",
 	[Key.animeStatusOnHold]: "Ditunda",
 	[Key.animeStatusDropped]: "Ditinggalkan",
+	[Key.animeSourceLocal]: "Koleksi Lokal",
+	[Key.animeSourceBangumi]: "Bangumi",
+	[Key.animeSourceBilibili]: "Bilibili",
+	[Key.animeProviderUnavailable]: "Sumber data sedang tidak tersedia",
+	[Key.animeProviderStale]: "Menggunakan snapshot cache",
+	[Key.animeConfigMissingBangumi]: "ID pengguna Bangumi belum dikonfigurasi",
+	[Key.animeConfigMissingBilibili]: "UID Bilibili belum dikonfigurasi",
+	[Key.animeSyncEmpty]: "Tidak ada anime yang ditemukan di sumber data ini",
 
 	[Key.compass]: "Kompas",
 	[Key.compassBanner]:

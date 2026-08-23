@@ -24,10 +24,14 @@ test.describe("番剧页", () => {
 		await expect(page.locator(".anime-card")).toHaveCount(ANIME_COUNT);
 	});
 
-	test("渲染番剧卡片（状态 pill / 评分 / 真实封面 / 进度条）", async ({ page }) => {
+	test("渲染番剧卡片（状态 pill / 评分 / 真实封面 / 进度条）", async ({
+		page,
+	}) => {
 		const first = page.locator(".anime-card").first();
 		await expect(first).toHaveAttribute("data-status", "completed");
-		await expect(first.locator(".anime-card__title")).toHaveText("Lycoris Recoil");
+		await expect(first.locator(".anime-card__title")).toHaveText(
+			"Lycoris Recoil",
+		);
 		// 状态 tonal pill（i18n 文案 + 语义色注入）
 		await expect(first.locator(".anime-card__status")).toHaveText("Completed");
 		await expect(first.locator(".anime-card__status")).toHaveCSS(
@@ -36,26 +40,38 @@ test.describe("番剧页", () => {
 		);
 		// 评分 scrim pill（封面右上，star + 数字）
 		await expect(first.locator(".anime-card__rating")).toContainText("9.8");
-		// Mizuki 迁移数据带真实封面与 Bilibili 外链：封面 img + 可点 <a> + 悬停播放层
+		// 迁移数据带真实封面与外链：封面 img + 可点 <a> + 悬停播放层
 		await expect(first.locator(".anime-card__cover-img")).toHaveCount(1);
 		await expect(first.locator("a.anime-card__cover")).toHaveCount(1);
 		await expect(first.locator("a.anime-card__cover")).toHaveAttribute(
 			"href",
-			/https:\/\/www\.bilibili\.com\/bangumi\/media\/md28338623/,
+			/https:\/\/(www\.bilibili\.com\/bangumi\/media\/md28338623|bgm\.tv\/subject\/364450)/,
 		);
 		await expect(first.locator(".anime-card__play")).toHaveCount(1);
 		// completed 卡不渲染进度条；watching 卡渲染 determinate 进度 + watched/total
 		await expect(first.locator(".m3-progress--linear")).toHaveCount(0);
-		const watching = page.locator(".anime-card").nth(1);
-		await expect(watching.locator(".anime-card__title")).toHaveText("Yowamushi Pedal");
+		const watching = page
+			.locator('.anime-card[data-status="watching"]')
+			.first();
+		await expect(watching.locator(".anime-card__title")).toHaveText(
+			/The Secret of the Magic Girl|Yowamushi Pedal/,
+		);
 		await expect(watching.locator(".m3-progress--linear")).toHaveCount(1);
-		await expect(watching.locator(".anime-card__progress-text")).toHaveText("8/12");
+		await expect(watching.locator(".anime-card__progress-text")).toHaveText(
+			"8/12",
+		);
 		// 元信息行与题材弱标签
-		await expect(first.locator(".anime-card__meta")).toHaveText("2022 · A-1 Pictures");
-		await expect(first.locator(".anime-card__genre").first()).toHaveText("#Action");
+		await expect(first.locator(".anime-card__meta")).toHaveText(
+			"2022 · A-1 Pictures",
+		);
+		await expect(first.locator(".anime-card__genre").first()).toHaveText(
+			"#Action",
+		);
 	});
 
-	test("页头与站点统一视觉结构（PageHeader + 状态筛选 chips）", async ({ page }) => {
+	test("页头与站点统一视觉结构（PageHeader + 状态筛选 chips）", async ({
+		page,
+	}) => {
 		await expect(page.locator(".page-header")).toHaveCount(1);
 		await expect(page.locator(".page-header__title")).toHaveText("Anime");
 		await expect(page.locator(".page-header__icon svg")).toHaveCount(1);
@@ -68,7 +84,10 @@ test.describe("番剧页", () => {
 	test("单选状态筛选（再点取消恢复全部，aria-pressed 同步 + URL ?status=）", async ({
 		page,
 	}) => {
-		const watchingChip = page.getByRole("button", { name: "Watching", exact: true });
+		const watchingChip = page.getByRole("button", {
+			name: "Watching",
+			exact: true,
+		});
 		await watchingChip.click();
 		await expect(watchingChip).toHaveAttribute("aria-pressed", "true");
 		await expect(page).toHaveURL(/[?&]status=watching/);
@@ -83,10 +102,15 @@ test.describe("番剧页", () => {
 
 	test("深链恢复筛选（?status=completed）与空态", async ({ page }) => {
 		await page.goto("/anime/?status=completed");
-		const completedChip = page.getByRole("button", { name: "Completed", exact: true });
+		const completedChip = page.getByRole("button", {
+			name: "Completed",
+			exact: true,
+		});
 		await expect(completedChip).toHaveAttribute("aria-pressed", "true");
 		await expect(page.locator(".anime-card")).toHaveCount(1);
-		await expect(page.locator(".anime-card__title")).toHaveText("Lycoris Recoil");
+		await expect(page.locator(".anime-card__title")).toHaveText(
+			"Lycoris Recoil",
+		);
 		// 未知状态值 → 空态文案
 		await page.goto("/anime/?status=nonsense");
 		await expect(page.locator(".anime-section__empty")).toBeVisible();
@@ -98,10 +122,14 @@ test.describe("番剧页", () => {
 	test("状态筛选切换播放 LoadingIndicator 过渡后揭幕", async ({ page }) => {
 		await page.getByRole("button", { name: "Planned", exact: true }).click();
 		// 三段过渡的指示器阶段（contained LoadingIndicator 出现在内容区）
-		await expect(page.locator(".anime-section__loading .m3-loading--contained")).toBeVisible();
+		await expect(
+			page.locator(".anime-section__loading .m3-loading--contained"),
+		).toBeVisible();
 		// 过渡收敛后只剩 planned 一张卡
 		await expect(page.locator(".anime-card")).toHaveCount(1);
-		await expect(page.locator(".anime-card__title")).toHaveText("Is the Order a Rabbit?");
+		await expect(page.locator(".anime-card__title")).toHaveText(
+			"Is the Order a Rabbit?",
+		);
 		await expect(page.locator(".anime-section__loading")).toHaveCount(0);
 	});
 
@@ -110,7 +138,9 @@ test.describe("番剧页", () => {
 		// 主栏受侧栏挤压（1280 视口下内容宽 ≈ 500-600px → 3 列档），列数 ≥ 2
 		const columns = await page
 			.locator(".anime-list")
-			.evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
+			.evaluate(
+				(el) => getComputedStyle(el).gridTemplateColumns.split(" ").length,
+			);
 		expect(columns).toBeGreaterThanOrEqual(2);
 	});
 
@@ -119,7 +149,9 @@ test.describe("番剧页", () => {
 		await expect(searchInput).toBeVisible();
 		await searchInput.fill("Lycoris");
 		await expect(page.locator(".anime-card")).toHaveCount(1);
-		await expect(page.locator(".anime-card__title")).toHaveText("Lycoris Recoil");
+		await expect(page.locator(".anime-card__title")).toHaveText(
+			"Lycoris Recoil",
+		);
 		await expect(page).toHaveURL(/[?&]q=Lycoris/);
 
 		// 清除搜索恢复全部
@@ -129,9 +161,15 @@ test.describe("番剧页", () => {
 		await expect(page).not.toHaveURL(/q=/);
 	});
 
-	test("工具栏快捷切换布局（List / Grid 互切与独立状态持久化）", async ({ page }) => {
-		const listBtn = page.locator('.anime-section__layout-btn[aria-label="List"]');
-		const gridBtn = page.locator('.anime-section__layout-btn[aria-label="Grid"]');
+	test("工具栏快捷切换布局（List / Grid 互切与独立状态持久化）", async ({
+		page,
+	}) => {
+		const listBtn = page.locator(
+			'.anime-section__layout-btn[aria-label="List"]',
+		);
+		const gridBtn = page.locator(
+			'.anime-section__layout-btn[aria-label="Grid"]',
+		);
 
 		// 默认 grid 海报网格
 		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--grid/);
@@ -142,7 +180,9 @@ test.describe("番剧页", () => {
 		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--list/);
 		await expect(listBtn).toHaveAttribute("aria-pressed", "true");
 		expect(
-			await page.evaluate(() => localStorage.getItem("shirone:anime-layout-mode")),
+			await page.evaluate(() =>
+				localStorage.getItem("shirone:anime-layout-mode"),
+			),
 		).toBe("list");
 
 		// 切换回 grid 海报网格
@@ -150,7 +190,9 @@ test.describe("番剧页", () => {
 		await expect(page.locator(".anime-list")).toHaveClass(/anime-list--grid/);
 		await expect(gridBtn).toHaveAttribute("aria-pressed", "true");
 		expect(
-			await page.evaluate(() => localStorage.getItem("shirone:anime-layout-mode")),
+			await page.evaluate(() =>
+				localStorage.getItem("shirone:anime-layout-mode"),
+			),
 		).toBe("grid");
 	});
 });
@@ -167,7 +209,10 @@ test.describe("番剧页布局形态（独立偏好）", () => {
 		const first = page.locator(".anime-card").first();
 		await expect(first).toHaveCSS("flex-direction", "row");
 		// 1280 视口 ≥ 768px 断点 → 11rem 封面（8.5rem 为小屏档）
-		await expect(first.locator(".anime-card__cover")).toHaveCSS("width", "176px");
+		await expect(first.locator(".anime-card__cover")).toHaveCSS(
+			"width",
+			"176px",
+		);
 		// 正文铺开：标题/描述/进度在同一横排右侧
 		await expect(first.locator(".anime-card__body")).toHaveCSS(
 			"justify-content",

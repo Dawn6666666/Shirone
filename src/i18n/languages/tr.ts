@@ -37,6 +37,14 @@ export const tr: Translation = {
 	[Key.animeStatusPlanned]: "Planlandı",
 	[Key.animeStatusOnHold]: "Beklemede",
 	[Key.animeStatusDropped]: "Bırakıldı",
+	[Key.animeSourceLocal]: "Yerel Koleksiyon",
+	[Key.animeSourceBangumi]: "Bangumi",
+	[Key.animeSourceBilibili]: "Bilibili",
+	[Key.animeProviderUnavailable]: "Veri kaynağı şu anda kullanılamıyor",
+	[Key.animeProviderStale]: "Önbelleğe alınmış anlık görüntü kullanılıyor",
+	[Key.animeConfigMissingBangumi]: "Bangumi kullanıcı kimliği yapılandırılmadı",
+	[Key.animeConfigMissingBilibili]: "Bilibili UID yapılandırılmadı",
+	[Key.animeSyncEmpty]: "Bu veri kaynağında anime öğesi bulunamadı",
 
 	[Key.compass]: "Pusula",
 	[Key.compassBanner]:

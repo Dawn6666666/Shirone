@@ -38,6 +38,14 @@ export const en: Translation = {
 	[Key.animeStatusPlanned]: "Planned",
 	[Key.animeStatusOnHold]: "On Hold",
 	[Key.animeStatusDropped]: "Dropped",
+	[Key.animeSourceLocal]: "Local Collection",
+	[Key.animeSourceBangumi]: "Bangumi",
+	[Key.animeSourceBilibili]: "Bilibili",
+	[Key.animeProviderUnavailable]: "Data source currently unavailable",
+	[Key.animeProviderStale]: "Using cached snapshot",
+	[Key.animeConfigMissingBangumi]: "Bangumi user ID not configured",
+	[Key.animeConfigMissingBilibili]: "Bilibili UID not configured",
+	[Key.animeSyncEmpty]: "No anime items found in this source",
 
 	[Key.compass]: "Compass",
 	[Key.compassBanner]:

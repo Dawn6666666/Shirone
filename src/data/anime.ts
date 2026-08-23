@@ -9,6 +9,8 @@
  * JSON 数据源（外部收藏服务拉取）见 utils/anime-data.ts 的 AnimeSource 分发。
  */
 
+import type { AnimeIdentity } from "../types/animeConfig.ts";
+
 /** 收藏状态（Bangumi 领域通行五态） */
 export type AnimeStatus =
 	| "watching"
@@ -38,6 +40,8 @@ export interface AnimeItem {
 	genres: string[];
 	/** 观看时间段（年-月） */
 	period?: { start: string; end: string };
+	/** 条目来源身份标识（可选，用于跨源去重与归档） */
+	identity?: AnimeIdentity;
 }
 
 export const animeData: AnimeItem[] = [

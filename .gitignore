@@ -33,6 +33,11 @@ yarn.lock
 src/assets/fonts/.subset/
 *.iml
 
+# anime snapshot data & downloaded covers
+src/data/anime-snapshots/*.json
+public/assets/anime/covers/*
+!public/assets/anime/covers/.gitkeep
+
 # local tooling artifacts
 .zcode/
 research/

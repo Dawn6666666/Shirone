@@ -38,6 +38,14 @@ export const vi: Translation = {
 	[Key.animeStatusPlanned]: "Dự định xem",
 	[Key.animeStatusOnHold]: "Tạm dừng",
 	[Key.animeStatusDropped]: "Đã bỏ",
+	[Key.animeSourceLocal]: "Bộ sưu tập cục bộ",
+	[Key.animeSourceBangumi]: "Bangumi",
+	[Key.animeSourceBilibili]: "Bilibili",
+	[Key.animeProviderUnavailable]: "Nguồn dữ liệu hiện không khả dụng",
+	[Key.animeProviderStale]: "Đang sử dụng bản lưu tạm (snapshot)",
+	[Key.animeConfigMissingBangumi]: "Chưa cấu hình ID người dùng Bangumi",
+	[Key.animeConfigMissingBilibili]: "Chưa cấu hình UID Bilibili",
+	[Key.animeSyncEmpty]: "Không tìm thấy anime nào trong nguồn dữ liệu này",
 
 	[Key.compass]: "La bàn",
 	[Key.compassBanner]:
