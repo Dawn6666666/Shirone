@@ -10,6 +10,7 @@ import remarkSectionize from "remark-sectionize";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
+import { rehypeMarkdownImages } from "../plugins/rehype-markdown-images.mjs";
 import { parseDirectiveNode } from "../plugins/remark-directive-rehype.js";
 import { remarkEscapeNumericColons } from "../plugins/remark-escape-numeric-colons.mjs";
 import { remarkExcerpt } from "../plugins/remark-excerpt.js";
@@ -74,6 +75,9 @@ export const siteRehypePlugins = [
 			},
 		},
 	],
+	// 图片通用增强（w-N% 宽度 / 标题图注 / 惰性加载）：殿后执行，
+	// 确保 :::grid 等组件已渲染出跳过类名
+	rehypeMarkdownImages,
 ];
 
 /**

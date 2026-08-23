@@ -106,3 +106,19 @@ The content :spoiler[is hidden **ayyy**]!
 The content :spoiler[is hidden **ayyy**]!
 
 ```
+
+## Image Widths and Captions
+
+A standalone image accepts an optional `w-N%` width token in its alt text and a Markdown title rendered as a centered caption below the image:
+
+![Album example image w-50%](/images/albums/AcgExample/07.webp "Half-width image with a caption")
+
+```markdown
+![Image description w-50%](./image.webp "Visible caption")
+```
+
+Valid widths range from `w-1%` to `w-100%`; invalid tokens stay in the alt text. The width and the caption are independent — a title alone also produces a caption:
+
+![Album example image w-75%](/images/albums/AcgExample/08.webp)
+
+![Album example image](/images/albums/AcgExample/09.webp "Caption without a width token")
