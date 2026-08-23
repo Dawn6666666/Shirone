@@ -47,7 +47,7 @@ import type {
  */
 export const musicConfig: MusicConfig = {
 	enable: true,
-	provider: "local",
+	provider: "mixed",
 	// tracks: [
 	// 	{
 	// 		id: "custom-1",
@@ -58,11 +58,11 @@ export const musicConfig: MusicConfig = {
 	// 		duration: 240,
 	// 	},
 	// ],
-	// meting: {
-	// 	server: "netease",
-	// 	type: "playlist",
-	// 	id: "14164869977",
-	// },
+	meting: {
+		server: "netease",
+		type: "playlist",
+		id: "14164869977",
+	},
 	defaultVolume: 0.7,
 	defaultMode: "sequence",
 };
