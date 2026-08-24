@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "check": "astro check",
+    "design:lint": "node scripts/check-design.mjs",
     "check:manifest": "node scripts/check-manifest.mjs",
     "anime:sync": "node scripts/anime/sync.mjs",
     "fonts:check": "node scripts/fonts/check-fonts.mjs",
