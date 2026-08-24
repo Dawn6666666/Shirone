@@ -22,14 +22,14 @@ test.describe("FAB Navigation System", () => {
 		const commentBtn = page.locator("#fab-comment-btn");
 		await expect(commentBtn).toHaveCount(0);
 
-		// 初始状态下 BackToTop 处于隐藏类
+		// 初始状态下 BackToTop 不占据布局
 		const topBtn = page.locator("#fab-top-btn");
-		await expect(topBtn).toHaveClass(/is-hidden/);
+		await expect(topBtn).toBeHidden();
 
 		// 滚动越过 Banner 后 BackToTop 浮现
 		await page.evaluate(() => window.scrollTo(0, 800));
 		await page.waitForTimeout(300);
-		await expect(topBtn).not.toHaveClass(/is-hidden/);
+		await expect(topBtn).toBeVisible();
 
 		// 点击 BackToTop 返回顶部
 		await topBtn.click();

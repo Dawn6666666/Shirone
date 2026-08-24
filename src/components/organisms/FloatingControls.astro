@@ -3,6 +3,7 @@ import FloatingActionButton from "@components/molecules/FloatingActionButton.ast
 import FloatingTOCPanel from "@components/molecules/FloatingTOCPanel.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { resolveDeviceClasses } from "@utils/fab-responsive";
 import { isWidgetVisibleOnPage } from "@utils/sidebar-page";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
@@ -54,7 +55,14 @@ const isHomeItemVisible = homeItem
 >
 	<!-- 1. TOC 悬浮目录项与弹窗 -->
 	{tocItem && (
-		<div class:list={["relative", { "is-page-hidden": !isWidgetVisibleOnPage(tocItem.pages, page) }]}>
+		<div
+			data-fab-slot
+			class:list={[
+				"relative",
+				resolveDeviceClasses(tocItem.devices),
+				{ "is-page-hidden": !isWidgetVisibleOnPage(tocItem.pages, page) },
+			]}
+		>
 			<FloatingTOCPanel
 				headings={headings}
 				maxDepth={tocItem.depth}

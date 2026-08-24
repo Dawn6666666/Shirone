@@ -2,6 +2,12 @@
  * Shirone FAB 运行时控制器
  * 负责：滚动监测、Swup 导航同步、TOC 弹窗开闭与焦点捕获、页面过滤协同。
  */
+import {
+	fadeOutThenHide,
+	flipFromRect,
+	prefersReducedMotion,
+	revealIn,
+} from "@utils/motion";
 
 interface FabControllerState {
 	tocOpen: boolean;
@@ -16,6 +22,9 @@ class FabController {
 
 	private bound = false;
 	private previousFocus: HTMLElement | null = null;
+	private animateVisibility = false;
+	private visibilityGeneration = 0;
+	private visibilitySync: Promise<void> = Promise.resolve();
 
 	constructor() {
 		this.init();
@@ -40,6 +49,9 @@ class FabController {
 		this.bindEvents();
 		this.bindSwupHooks();
 		this.syncPageState();
+		requestAnimationFrame(() => {
+			this.animateVisibility = true;
+		});
 	}
 
 	private bindScrollListener(): void {
@@ -59,7 +71,11 @@ class FabController {
 			const threshold = (window.innerHeight * ratio) / 100;
 
 			if (topBtn) {
-				topBtn.classList.toggle("is-hidden", scrollTop <= threshold);
+				const nextAllowed = String(scrollTop > threshold);
+				if (topBtn.dataset.fabScrollAllowed !== nextAllowed) {
+					topBtn.dataset.fabScrollAllowed = nextAllowed;
+					this.scheduleVisibilitySync();
+				}
 			}
 		};
 
@@ -200,6 +216,7 @@ class FabController {
 		const hasCommentsAttr = container?.dataset.hasComments;
 		const items = document.querySelectorAll<HTMLElement>("[data-fab-item]");
 
+		let visibilityChanged = false;
 		items.forEach((item) => {
 			const type = item.dataset.fabType;
 			const pagesAttr = item.dataset.fabPages;
@@ -225,11 +242,115 @@ class FabController {
 				}
 			}
 
-			item.classList.toggle("is-page-hidden", !isAllowed);
+			const nextAllowed = String(isAllowed);
+			if (item.dataset.fabPageAllowed !== nextAllowed) {
+				item.dataset.fabPageAllowed = nextAllowed;
+				visibilityChanged = true;
+			}
 		});
+		if (visibilityChanged) this.scheduleVisibilitySync();
 
 		this.syncFloatingToc();
 		this.closeToc();
+	}
+
+	private getFabSlot(item: HTMLElement): HTMLElement {
+		let current = item;
+		while (
+			current.parentElement &&
+			current.parentElement.id !== "floating-controls"
+		) {
+			current = current.parentElement;
+		}
+		return current;
+	}
+
+	private getVisibleSlots(): HTMLElement[] {
+		return Array.from(
+			document.querySelectorAll<HTMLElement>(
+				"#floating-controls > [data-fab-slot]:not(.hidden), #floating-controls > [data-fab-item]:not(.hidden)",
+			),
+		);
+	}
+
+	private scheduleVisibilitySync(): void {
+		this.visibilityGeneration += 1;
+		this.visibilitySync = this.visibilitySync.then(() =>
+			this.syncVisibilityCollection(),
+		);
+	}
+
+	private shouldShowItem(item: HTMLElement): boolean {
+		const pageAllowed = item.dataset.fabPageAllowed !== "false";
+		const scrollAllowed =
+			item.dataset.fabType !== "top" ||
+			item.dataset.fabScrollAllowed === "true";
+		return pageAllowed && scrollAllowed;
+	}
+
+	private async syncVisibilityCollection(): Promise<void> {
+		const generation = this.visibilityGeneration;
+		const items = Array.from(
+			document.querySelectorAll<HTMLElement>("[data-fab-item]"),
+		);
+		const slots = items.map((item) => ({
+			item,
+			slot: this.getFabSlot(item),
+			show: this.shouldShowItem(item),
+		}));
+		const exiters = slots.filter(
+			({ slot, show }) => !show && !slot.classList.contains("hidden"),
+		);
+		const enterers = slots.filter(
+			({ slot, show }) => show && slot.classList.contains("hidden"),
+		);
+		if (exiters.length === 0 && enterers.length === 0) return;
+
+		const visibleBefore = this.getVisibleSlots();
+		const rects = new Map(
+			visibleBefore.map((visible) => [
+				visible,
+				visible.getBoundingClientRect(),
+			]),
+		);
+
+		if (!this.animateVisibility || prefersReducedMotion()) {
+			exiters.forEach(({ slot }) => {
+				slot.classList.add("hidden");
+			});
+			enterers.forEach(({ slot }) => {
+				slot.classList.remove("hidden");
+			});
+			this.clearLegacyVisibilityClasses(slots);
+			return;
+		}
+		this.clearLegacyVisibilityClasses(slots);
+
+		await Promise.all(exiters.map(({ slot }) => fadeOutThenHide(slot)));
+		if (generation !== this.visibilityGeneration) {
+			return;
+		}
+		enterers.forEach(({ slot }) => {
+			slot.classList.remove("hidden");
+		});
+		visibleBefore
+			.filter((visible) => !exiters.some(({ slot }) => slot === visible))
+			.forEach((visible) => {
+				const rect = rects.get(visible);
+				if (rect) flipFromRect(visible, rect);
+			});
+		enterers.forEach(({ slot }) => {
+			revealIn(slot);
+		});
+	}
+
+	private clearLegacyVisibilityClasses(
+		slots: Array<{ item: HTMLElement; slot: HTMLElement }>,
+	): void {
+		slots.forEach(({ item, slot }) => {
+			item.classList.remove("is-hidden", "is-page-hidden");
+			slot.classList.remove("is-hidden", "is-page-hidden");
+		});
 	}
 
 	private syncFloatingToc(): void {
