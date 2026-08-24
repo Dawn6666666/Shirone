@@ -57,25 +57,6 @@ const tocHeadings = headings.map((heading) => ({
 	scrollbar-width: thin
 </style>
 
-<style is:global>
-	.m3-blog-toc__item.m3-blog-toc__item--active {
-		background: var(--secondary-container);
-		color: var(--on-secondary-container);
-	}
-	.m3-blog-toc__item--active .m3-blog-toc__mark {
-		background: var(--primary);
-		color: var(--on-primary);
-	}
-	.m3-blog-toc__item--active .m3-blog-toc__dot {
-		background: var(--on-primary);
-		opacity: 1;
-	}
-	.m3-blog-toc__item--active .m3-blog-toc__text {
-		color: var(--on-secondary-container);
-		font-weight: 600;
-	}
-</style>
-
 <script>
 class TableOfContents extends HTMLElement {
 	tocEl: HTMLElement | null = null;
