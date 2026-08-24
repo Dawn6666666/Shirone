@@ -1,12 +1,19 @@
 <script lang="ts">
+import AccentBar from "@components/atoms/display/AccentBar.svelte";
+import PanelStack from "@components/atoms/display/PanelStack.svelte";
 import SegmentedButton from "@components/atoms/selection/SegmentedButton.svelte";
 import Slider from "@components/atoms/selection/Slider.svelte";
 import Switch from "@components/atoms/selection/Switch.svelte";
-import AccentBar from "@components/atoms/display/AccentBar.svelte";
-import PanelStack from "@components/atoms/display/PanelStack.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
+import {
+	defaultMode,
+	flipToMode,
+	getStoredMode,
+	LAYOUT_MODE_CHANGE_EVENT,
+	storeMode,
+} from "@utils/layout-mode";
 import {
 	MC_SPECS,
 	MC_STYLES,
@@ -24,17 +31,10 @@ import {
 	setWallpaperMode,
 } from "@utils/setting-utils";
 import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
-import {
-	defaultMode,
-	flipToMode,
-	getStoredMode,
-	LAYOUT_MODE_CHANGE_EVENT,
-	storeMode,
-} from "@utils/layout-mode";
-import type { PostListMode } from "@/types/postListConfig";
 import { onMount } from "svelte";
 import { getDefaultSpec, getDefaultStyle, siteConfig } from "@/config";
 import type { WallpaperMode } from "@/types/config";
+import type { PostListMode } from "@/types/postListConfig";
 
 let { class: className = "" }: { class?: string } = $props();
 
@@ -170,9 +170,9 @@ const stylePreviews = $derived(
 
 <div id="display-setting" class="float-panel float-panel-closed absolute transition-all w-80 {className}">
     <PanelStack>
-        <!-- 段一：标题 + 色相滑块（滑块保持原样） -->
-        <div class="p-4">
-            <div class="flex flex-row gap-2 mb-3 items-center justify-between">
+        <!-- 段一：主题配色（色相 + 风格九宫格 + Color Spec） -->
+        <div class="p-4 flex flex-col gap-3">
+            <div class="flex flex-row gap-2 items-center justify-between">
                 <div class="flex gap-2 font-bold text-lg text-[var(--on-surface)] transition relative ml-3">
                     <AccentBar size="small" class="absolute -left-3 top-[0.33rem]" />
                     {i18n(I18nKey.themeColor)}
@@ -194,37 +194,33 @@ const stylePreviews = $derived(
                 </div>
             </div>
             <Slider bind:value={hue} min={0} max={360} step={5} label={i18n(I18nKey.themeColor)} />
-        </div>
 
-        <!-- 段二：配色风格九宫格 -->
-        <div class="p-4 flex flex-col gap-2">
-            <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorStyle)}</span>
-            <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label={i18n(I18nKey.colorStyle)}>
-                {#each stylePreviews as p (p.style)}
-                    <button
-                        type="button"
-                        role="radio"
-                        aria-checked={style === p.style}
-                        title={p.label}
-                        aria-label={p.label}
-                        class="m3-style-cell"
-                        class:selected={style === p.style}
-                        onclick={() => (style = p.style)}
-                    >
-                        <span class="m3-style-cell__dots">
-                            <span class="m3-style-cell__dot" style={`background: ${p.colors.primary}`}></span>
-                            <span class="m3-style-cell__dot" style={`background: ${p.colors.secondary}`}></span>
-                            <span class="m3-style-cell__dot" style={`background: ${p.colors.tertiary}`}></span>
-                        </span>
-                        <span class="m3-style-cell__name">{p.label}</span>
-                    </button>
-                {/each}
+            <div class="flex flex-col gap-2 pt-1">
+                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorStyle)}</span>
+                <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label={i18n(I18nKey.colorStyle)}>
+                    {#each stylePreviews as p (p.style)}
+                        <button
+                            type="button"
+                            role="radio"
+                            aria-checked={style === p.style}
+                            title={p.label}
+                            aria-label={p.label}
+                            class="m3-style-cell"
+                            class:selected={style === p.style}
+                            onclick={() => (style = p.style)}
+                        >
+                            <span class="m3-style-cell__dots">
+                                <span class="m3-style-cell__dot" style={`background: ${p.colors.primary}`}></span>
+                                <span class="m3-style-cell__dot" style={`background: ${p.colors.secondary}`}></span>
+                                <span class="m3-style-cell__dot" style={`background: ${p.colors.tertiary}`}></span>
+                            </span>
+                            <span class="m3-style-cell__name">{p.label}</span>
+                        </button>
+                    {/each}
+                </div>
             </div>
-        </div>
 
-        <!-- 段三：Color Spec + 减少动效 -->
-        <div class="p-4 flex flex-col gap-3">
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-1.5 pt-1">
                 <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorSpec)}</span>
                 <SegmentedButton
                     options={MC_SPECS.map((s) => ({
@@ -235,26 +231,24 @@ const stylePreviews = $derived(
                     label={i18n(I18nKey.colorSpec)}
                 />
             </div>
+        </div>
 
-            <div class="flex items-center gap-3">
-                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.reduceMotion)}</span>
-                <Switch bind:checked={motionReduced} label={i18n(I18nKey.reduceMotion)} icons />
+        <!-- 段二：界面布局（页面背景 + 列表布局） -->
+        <div class="p-4 flex flex-col gap-3">
+            <div class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.wallpaperMode)}</span>
+                <SegmentedButton
+                    options={[
+                        { value: "none", label: i18n(I18nKey.wallpaperModeNone) },
+                        { value: "banner", label: i18n(I18nKey.wallpaperModeBanner) },
+                    ]}
+                    bind:value={wallpaperMode}
+                    label={i18n(I18nKey.wallpaperMode)}
+                />
             </div>
 
-			<div class="flex flex-col gap-1.5">
-				<span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.wallpaperMode)}</span>
-				<SegmentedButton
-					options={[
-						{ value: "none", label: i18n(I18nKey.wallpaperModeNone) },
-						{ value: "banner", label: i18n(I18nKey.wallpaperModeBanner) },
-					]}
-					bind:value={wallpaperMode}
-					label={i18n(I18nKey.wallpaperMode)}
-				/>
-			</div>
-
-			<div class="flex flex-col gap-1.5">
-				<span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.layoutMode)}</span>
+            <div class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.layoutMode)}</span>
                 <SegmentedButton
                     options={[
                         { value: "list", label: i18n(I18nKey.layoutList) },
@@ -264,6 +258,15 @@ const stylePreviews = $derived(
                     label={i18n(I18nKey.layoutMode)}
                 />
             </div>
+        </div>
+
+        <!-- 段三：动效与体验 -->
+        <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <Icon icon="material-symbols:motion-photos-off-outline-rounded" class="text-lg text-[var(--primary)]" />
+                <span class="text-sm font-bold text-[var(--on-surface)]">{i18n(I18nKey.reduceMotion)}</span>
+            </div>
+            <Switch bind:checked={motionReduced} label={i18n(I18nKey.reduceMotion)} icons />
         </div>
     </PanelStack>
 </div>
