@@ -89,6 +89,13 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm astro ...`           | Run CLI commands like `astro add`, `astro check`    |
 | `pnpm astro --help`        | Get help using the Astro CLI                        |
 
+## 🔦 Lighthouse Audits
+
+Run the production Lighthouse workflow with `pnpm.cmd lighthouse`. Device-specific
+entries are available as `pnpm.cmd lighthouse:desktop` and
+`pnpm.cmd lighthouse:mobile`. See [docs/lighthouse.md](docs/lighthouse.md)
+for the audit matrix, thresholds, report locations, and troubleshooting guidance.
+
 ## ✏️ Contributing
 
 Check out the [Contributing Guide](https://github.com/saicaca/fuwari/blob/main/CONTRIBUTING.md) for details on how to contribute to this project.

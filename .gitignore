@@ -47,3 +47,8 @@ research/
 test-results/
 playwright-report/
 tests/site/visual.spec.ts-snapshots/
+
+# Lighthouse local reports
+artifacts/lighthouse/*
+!artifacts/lighthouse/.gitkeep
+.lighthouseci/
