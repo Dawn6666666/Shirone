@@ -129,6 +129,7 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 		contextAnimation: Animation | null;
 		contextTransitionPending: boolean;
 		titleFitFrame: number | null;
+		navigationSyncFrame: number | null;
 		timer: number | null;
 	}
 
@@ -176,6 +177,7 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 		contextAnimation: null,
 		contextTransitionPending: false,
 		titleFitFrame: null,
+		navigationSyncFrame: null,
 		timer: null,
 	};
 
@@ -598,6 +600,17 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 		else stopRotation();
 	}
 
+	function scheduleNavigationSync(animateIn = false) {
+		if (runtime.navigationSyncFrame !== null) {
+			window.cancelAnimationFrame(runtime.navigationSyncFrame);
+		}
+		runtime.navigationSyncFrame = window.requestAnimationFrame(() => {
+			runtime.navigationSyncFrame = null;
+			syncBanner();
+			if (animateIn) animateContextIn();
+		});
+	}
+
 	if (stage) {
 		syncBanner();
 		if (!window.__shironeBannerBound) {
@@ -618,10 +631,11 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 				animateContextOut();
 			});
 			document.addEventListener("swup:content:replace", () => {
-				syncBanner();
-				animateContextIn();
+				scheduleNavigationSync(true);
 			});
-			document.addEventListener("swup:page:view", () => syncBanner());
+			document.addEventListener("swup:page:view", () => {
+				scheduleNavigationSync(true);
+			});
 			document.fonts?.ready.then(scheduleContextTitleFit);
 		}
 	}
