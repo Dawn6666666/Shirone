@@ -19,6 +19,7 @@ import {
 	resolveMusicOptions,
 } from "./src/config/musicConfig.ts";
 import { sidebarConfig } from "./src/config/sidebarConfig.ts";
+import { siteConfig } from "./src/config/siteConfig.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import {
@@ -136,8 +137,8 @@ const configuredFonts =
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://shirone.mysqil.com/",
-	base: "/",
+	site: siteConfig.site,
+	base: siteConfig.base ?? "/",
 	trailingSlash: "always",
 	fonts: configuredFonts,
 	integrations: [

@@ -36,7 +36,7 @@
 
 | 文件 | 职责 |
 |---|---|
-| `siteConfig.ts` | 站点标识 / 语言 / HCT 主题色 / 横幅 / TOC 深度 / 进度条 / favicon（含 `getDefaultStyle` / `getDefaultSpec` 回退值） |
+| `siteConfig.ts` | 站点部署 URL / base 路径 / 标题标识 / 语言 / HCT 主题色 / 横幅 / TOC 深度 / 进度条 / favicon（含 `getDefaultStyle` / `getDefaultSpec` 回退值） |
 | `profileConfig.ts` | 博主资料：头像 / 名称 / 简介 / 社交链接 |
 | `licenseConfig.ts` | 文章版权声明 |
 | `expressiveCodeConfig.ts` | 代码块明暗主题 |

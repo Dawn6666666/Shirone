@@ -51,7 +51,7 @@ export async function GET(context: APIContext): Promise<Response> {
 	return rss({
 		title: siteConfig.title,
 		description: siteConfig.subtitle || "No description",
-		site: context.site ?? "https://shirone.mysqil.com",
+		site: context.site ?? siteConfig.site,
 		items: blog.map((post) => {
 			const isEncrypted = isEncryptedPost(post.data);
 			let contentHtml: string;

@@ -5,6 +5,8 @@ export type WallpaperMode = "banner" | "none";
 export type TopAppBarContentAlign = "left" | "center";
 
 export type SiteConfig = {
+	site: string;
+	base?: string;
 	title: string;
 	subtitle: string;
 	topAppBar: {
