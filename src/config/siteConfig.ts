@@ -76,9 +76,14 @@ export const siteConfig: SiteConfig = {
 			},
 		},
 		carousel: {
-			// 多张图片时自动交叉淡入；interval 单位为毫秒，运行时最小值为 3000。
+			// 是否开启多张图片自动轮播；多张图片时生效，单张图片时自动降级为静态展示。
 			enable: true,
+			// 轮播切换间隔时间（毫秒），运行时最小值限制为 3000ms。
 			interval: 6000,
+			// 交叉淡入淡出（Crossfade）过渡时长（毫秒，默认 1200ms）。
+			fadeDuration: 1200,
+			// 运镜呼吸动画模式："ken-burns"（默认，循环运镜）| "zoom-in"（推进）| "zoom-out"（拉远）| "pan-left"（左移）| "pan-right"（右移）| "none"（无运镜）。
+			animation: "ken-burns",
 		},
 		waves: {
 			// 在 Banner 底部渲染页面背景色水波纹；关闭后不输出波浪 DOM。

@@ -44,6 +44,11 @@ const subtitleArray = Array.isArray(rawSubtitles)
 	: [rawSubtitles];
 const defaultInitialSubtitle = subtitleArray[0] ?? "";
 const typewriter = siteConfig.banner.homeText.typewriter;
+const carouselFadeDuration = Math.min(
+	Math.max(siteConfig.banner.carousel?.fadeDuration ?? 1200, 300),
+	3000,
+);
+const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
 ---
 
 <section
@@ -56,6 +61,9 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 	data-mobile-images={JSON.stringify(mobileImages)}
 	data-carousel-enabled={String(siteConfig.banner.carousel.enable)}
 	data-carousel-interval={String(Math.max(siteConfig.banner.carousel.interval, 3000))}
+	data-carousel-fade-duration={String(carouselFadeDuration)}
+	data-carousel-animation={carouselAnimation}
+	style={`--banner-fade-duration: ${carouselFadeDuration}ms;`}
 	data-position={siteConfig.banner.position ?? "center"}
 	data-home-title={siteConfig.banner.homeText.title}
 	data-home-subtitles={JSON.stringify(subtitleArray)}
@@ -108,6 +116,11 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 <script>
 	import { resolveBannerState, type BannerViewport } from "@utils/banner-state";
 	import {
+		playBannerMotion,
+		type BannerAnimationHandle,
+		type BannerAnimationPreset,
+	} from "@utils/banner-animation";
+	import {
 		EASING_ACCELERATE,
 		EASING_DECELERATE,
 		prefersReducedMotion,
@@ -131,6 +144,7 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 		titleFitFrame: number | null;
 		navigationSyncFrame: number | null;
 		timer: number | null;
+		layerMotions: [BannerAnimationHandle | null, BannerAnimationHandle | null];
 	}
 
 	declare global {
@@ -179,6 +193,7 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 		titleFitFrame: null,
 		navigationSyncFrame: null,
 		timer: null,
+		layerMotions: [null, null],
 	};
 
 	function parseImages(value: string | undefined): string[] {
@@ -377,6 +392,44 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 		runtime.preloaded.src = images[(index + 1) % images.length];
 	}
 
+	function getCarouselInterval(): number {
+		return Math.max(
+			Number.parseInt(stage?.dataset.carouselInterval || "6000", 10),
+			3000,
+		);
+	}
+
+	function getFadeDuration(): number {
+		return Math.max(
+			Number.parseInt(stage?.dataset.carouselFadeDuration || "1200", 10),
+			300,
+		);
+	}
+
+	function getAnimationPreset(): BannerAnimationPreset {
+		return (
+			(stage?.dataset.carouselAnimation as BannerAnimationPreset) ||
+			"ken-burns"
+		);
+	}
+
+	function stopLayerMotions() {
+		runtime.layerMotions[0]?.cancel();
+		runtime.layerMotions[0] = null;
+		runtime.layerMotions[1]?.cancel();
+		runtime.layerMotions[1] = null;
+	}
+
+	function pauseLayerMotions() {
+		runtime.layerMotions[0]?.pause();
+		runtime.layerMotions[1]?.pause();
+	}
+
+	function resumeLayerMotions() {
+		runtime.layerMotions[0]?.resume();
+		runtime.layerMotions[1]?.resume();
+	}
+
 	function showImage(src: string, immediate: boolean) {
 		if (!layers.length) return;
 		const nextLayer = immediate ? runtime.activeLayer : runtime.activeLayer === 0 ? 1 : 0;
@@ -384,8 +437,28 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 		const previous = layers[runtime.activeLayer];
 		if (next.src !== new URL(src, window.location.href).href) next.src = src;
 		next.style.objectPosition = stage?.dataset.position || "center";
+
+		const interval = getCarouselInterval();
+		const fadeDuration = getFadeDuration();
+		const motionDuration = interval + fadeDuration;
+		const preset = getAnimationPreset();
+
+		runtime.layerMotions[nextLayer]?.cancel();
+		runtime.layerMotions[nextLayer] = playBannerMotion({
+			element: next,
+			preset,
+			index: runtime.activeIndex,
+			durationMs: motionDuration,
+		});
+
 		if (immediate || prefersReducedMotion()) {
-			for (const layer of layers) layer.classList.remove("banner-stage__image--active");
+			for (let i = 0; i < layers.length; i += 1) {
+				if (i !== nextLayer) {
+					layers[i].classList.remove("banner-stage__image--active");
+					runtime.layerMotions[i]?.cancel();
+					runtime.layerMotions[i] = null;
+				}
+			}
 			next.classList.add("banner-stage__image--active");
 		} else {
 			next.classList.add("banner-stage__image--active");
@@ -585,6 +658,7 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 
 		if (!state.visible || !state.assetGroup) {
 			stopRotation();
+			stopLayerMotions();
 			return;
 		}
 
@@ -623,10 +697,20 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 			});
 			window.matchMedia("(min-width: 1024px)").addEventListener("change", () => syncBanner());
 				window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => {
+					if (prefersReducedMotion()) {
+						stopLayerMotions();
+						showSubtitleImmediately();
+					}
 					syncBanner();
-					if (prefersReducedMotion()) showSubtitleImmediately();
 				});
-			document.addEventListener("visibilitychange", () => syncBanner());
+			document.addEventListener("visibilitychange", () => {
+					if (document.hidden) {
+						pauseLayerMotions();
+					} else {
+						resumeLayerMotions();
+					}
+					syncBanner();
+				});
 			document.addEventListener("swup:visit:start", () => {
 				animateContextOut();
 			});
@@ -665,7 +749,9 @@ const typewriter = siteConfig.banner.homeText.typewriter;
 			height: 100%
 			object-fit: cover
 			opacity: 0
-			transition: opacity var(--m3e-duration-long) var(--m3e-easing-standard)
+			transition: opacity var(--banner-fade-duration, 1200ms) var(--m3e-easing-standard)
+			will-change: opacity, transform
+			transform-origin: center center
 
 		.banner-stage__image--active
 			opacity: 1
