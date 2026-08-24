@@ -16,6 +16,8 @@ interface Props {
 	year?: number;
 	links?: FooterLink[];
 	poweredBy?: FooterLink[];
+	/** 自定义注入的页脚 HTML（来自 FooterConfig.html） */
+	customHtml?: string;
 	class?: string;
 }
 
@@ -24,6 +26,7 @@ const {
 	year = new Date().getFullYear(),
 	links = [],
 	poweredBy = [],
+	customHtml = "",
 	class: className,
 } = Astro.props;
 ---
@@ -31,6 +34,7 @@ const {
 <footer class:list={["m3-blog-footer", className]}>
 	<div class="m3-blog-footer__divider" aria-hidden="true" />
 	<div class="m3-blog-footer__inner">
+		{customHtml && <div class="m3-blog-footer__custom" set:html={customHtml} />}
 		<p class="m3-blog-footer__text">
 			&copy; {year} {name}. All Rights Reserved.
 			{links.map((l) => (
@@ -79,10 +83,18 @@ const {
 		padding: 0 1.5rem
 		text-align: center
 
-	&__text
+	&__text,
+	&__custom
 		font: var(--m3e-type-body-small)
 		color: var(--on-surface-variant)
 		line-height: 1.7
+		a
+			font-weight: 500
+			color: var(--primary)
+			text-decoration: none
+			transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+			&:hover
+				opacity: 0.8
 
 	&__link
 		font-weight: 500

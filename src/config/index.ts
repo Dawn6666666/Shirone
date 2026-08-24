@@ -34,6 +34,7 @@ export {
 	resolvedFontOptions,
 	resolveFontOptions,
 } from "./fontConfig";
+export { footerConfig } from "./footerConfig";
 export { licenseConfig } from "./licenseConfig";
 export {
 	clampMusicVolume,

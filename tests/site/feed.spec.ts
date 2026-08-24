@@ -97,4 +97,12 @@ test.describe("Feed and Subscription System", () => {
 			/http:\/\/localhost:4321\/atom\.xml/,
 		);
 	});
+
+	test("footer custom HTML injection honors zero extra DOM footprint when empty or comments only", async ({
+		page,
+	}) => {
+		await page.goto("/", { waitUntil: "networkidle" });
+		const customContainer = page.locator(".m3-blog-footer__custom");
+		await expect(customContainer).toHaveCount(0);
+	});
 });
