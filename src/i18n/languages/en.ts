@@ -248,6 +248,9 @@ export const en: Translation = {
 	[Key.downloadSharePoster]: "Download Image",
 	[Key.sharePosterFailed]: "Failed to generate share poster. Please retry.",
 	[Key.retry]: "Retry",
+	[Key.backToTop]: "Back to top",
+	[Key.backToComment]: "Scroll to comments",
+	[Key.backToHome]: "Back to home",
 	[Key.close]: "Close",
 	[Key.scanToRead]: "Scan to read article",
 

@@ -239,6 +239,9 @@ export const th: Translation = {
 	[Key.downloadSharePoster]: "ดาวน์โหลดรูปภาพ",
 	[Key.sharePosterFailed]: "สร้างรูปภาพแชร์ไม่สำเร็จ โปรดลองอีกครั้ง",
 	[Key.retry]: "ลองอีกครั้ง",
+	[Key.backToTop]: "กลับไปด้านบน",
+	[Key.backToComment]: "ไปยังความคิดเห็น",
+	[Key.backToHome]: "กลับหน้าแรก",
 	[Key.close]: "ปิด",
 	[Key.scanToRead]: "สแกนเพื่ออ่านบทความ",
 

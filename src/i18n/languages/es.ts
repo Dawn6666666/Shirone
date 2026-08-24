@@ -249,6 +249,9 @@ export const es: Translation = {
 	[Key.downloadSharePoster]: "Descargar imagen",
 	[Key.sharePosterFailed]: "No se pudo generar la tarjeta. Inténtalo de nuevo.",
 	[Key.retry]: "Reintentar",
+	[Key.backToTop]: "Volver arriba",
+	[Key.backToComment]: "Ir a los comentarios",
+	[Key.backToHome]: "Volver al inicio",
 	[Key.close]: "Cerrar",
 	[Key.scanToRead]: "Escanear para leer el artículo",
 

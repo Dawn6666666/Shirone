@@ -250,6 +250,9 @@ export const vi: Translation = {
 	[Key.downloadSharePoster]: "Tải ảnh về",
 	[Key.sharePosterFailed]: "Tạo ảnh chia sẻ thất bại. Vui lòng thử lại.",
 	[Key.retry]: "Thử lại",
+	[Key.backToTop]: "Về đầu trang",
+	[Key.backToComment]: "Đến bình luận",
+	[Key.backToHome]: "Về trang chủ",
 	[Key.close]: "Đóng",
 	[Key.scanToRead]: "Quét mã để đọc bài viết",
 

@@ -1,9 +1,9 @@
-# 原子化分层结构规范 — Shirone 主题
+﻿# 原子化分层结构规范 — Shirone 主题
 
 > 本文档定义 `src/components/` 的原子化（Atomic Design）分层结构：
 > 各层职责、依赖方向与**禁止事项**。
 > 适用版本：基于 Astro 7 + Svelte 5 + Tailwind CSS 4。
-> 配套文档：`docs/m3e-standard.md`（M3E 令牌与设计规范）、`docs/sidebar-system.md`（侧栏编排）、`docs/sidebar-widgets.md`（侧栏组件文档）。
+> 配套文档：`docs/m3e-standard.md`（M3E 令牌与设计规范）、`docs/fab-system.md`（FAB 与悬浮目录系统）、`docs/sidebar-system.md`（侧栏编排）、`docs/sidebar-widgets.md`（侧栏组件文档）。
 
 ---
 
@@ -37,9 +37,9 @@
 
 | 层 | 目录 | 职责 | 允许依赖 |
 |---|---|---|---|
-| **原子** | `atoms/` | 单一职责的 UI 元素（60 个，清单单一真源见 `atoms/manifest.json`） | 仅设计令牌（`--mc-*`、`--m3e-*`、语义别名）与 `.m3-state-layer`；**不得 import 任何组件** |
-| **分子** | `molecules/` | 原子的固定组合：PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、PostMeta、SearchBar、TOC、WidgetLayout、ImageWrapper、License、Pagination、ArticleDiscoveryItem | atoms + 同层分子（须同层方向合理） |
-| **有机体** | `organisms/` | 独立业务区块：TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArticleDiscovery、ArticleShare、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、MusicSidebar | atoms + molecules + 被组合的**更小** organism |
+| **原子** | `atoms/` | 单一职责的 UI 元素（64 个，清单单一真源见 `atoms/manifest.json`） | 仅设计令牌（`--mc-*`、`--m3e-*`、语义别名）与 `.m3-state-layer`，**不得 import 任何组件** |
+| **分子** | `molecules/` | 原子的固定组合：PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、PostMeta、SearchBar、SidebarTOC、FloatingActionButton、FloatingTOCPanel、WidgetLayout、ImageWrapper、License、Pagination、ArticleDiscoveryItem 等 | atoms + 同层分子（须同层方向合理） |
+| **有机体** | `organisms/` | 独立业务区块：TopAppBar、SideBar、Footer、Search、PostCard、PostPage、FloatingControls、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、BannerStage、MusicSidebar 等 | atoms + molecules + 被组合的**更小** organism |
 | **模板** | `layouts/` | 页面骨架与网格布局：Layout、MainGridLayout | organisms + molecules + system |
 | **页面** | `pages/` | 路由级编排：`[...page].astro`、`about.astro`、`archive.astro`、`posts/[...slug].astro` | layouts + organisms + molecules + content |
 | **系统** | `system/` | 全局基础设施 | 仅令牌与 utils |
@@ -49,22 +49,21 @@
 
 ## 3. 依赖规则
 
-1. **单向向上**：`atoms ← molecules ← organisms ← templates ← pages`。任何层只能依赖自己与更底层。
-2. **同层分子互依赖**允许，但禁止形成环（A→B 且 B→A）。
-3. **organism 组合 organism**：仅允许"主从"组合（如 TopAppBar 组合 Search / DisplaySettings / LightDarkSwitch，PostPage 组合 PostCard）；禁止 organism 间平铺式的互相引用——需要共享时，把共享部分下沉为 molecule。
-4. **组件禁止反向依赖模板与页面**：任何 `src/components/` 下的文件不得 import `layouts/` 或 `pages/`。
-5. **跨目录引用一律用 `@components/<层>/<文件>` 别名**，禁止 `../../` 相对链。
+1. **单向向上**：`atoms → molecules → organisms → templates → pages`。任何层只能依赖自己与更底层。
+2. **同层分子互依赖**允许，但禁止循环（A → B → A）。
+3. **同层有机体互依赖**原则上禁止；例外：大有机体组合专门的小有机体（如 SideBar 组合 Profile、MainGridLayout 组合 FloatingControls 与 SideBar）。
+4. **禁止反向依赖**：底层绝对不能 import 高层组件。
 
 ---
 
-## 4. 禁止事项
+## 4. 禁止事项（Checklist）
 
-### 4.1 目录与命名
+### 4.1 技术栈混用与水合
 
-1. **禁止新建或恢复 `control/`、`misc/`、`widget/` 目录**——历史遗留布局，已分别并入 molecules / organisms，不得复活。
-2. **禁止在 `src/components/` 根目录直接放置组件**——所有组件必须落入七层之一，根目录只允许存在这七个子目录。
-3. **禁止非 PascalCase 命名**（如 `search-bar.svelte`、`footer.astro`）——统一 `SearchBar.svelte`、`Footer.astro`。
-4. **禁止把组件放进 `src/utils/`、`src/styles/` 或 `src/layouts/`**——组件只属于 `src/components/<层>/`。
+1. **禁止在纯 SSR 页面引入 `@iconify/svelte` 图标**——没有 hydration 岛的页面上 Svelte 图标不会渲染。纯 SSR 页面（如全静态文章页、分类列表）统一用 `astro-icon`。
+2. **禁止在 `.svelte` 中混用 runes 与旧响应式语法**——全文件保持一致（`<script lang="ts">` 中用 `$props()`、`$state()` 时全用 runes；旧语法全用 `export let`、`let`、`$:`）。
+3. **禁止给静态展示组件无端添加 `client:load`**——只有带用户交互（搜索、切换、轮播、抽屉、点赞等）的组件才加 client 指令。首选 `client:visible` 惰性水合。
+4. **禁止破坏 Stylus 选择器连接**——如 `.btn { &.active { ... } }` 输出 `.btn.active`（正确）；若写成 `& .active` 则变成后代选择器（可能非预期）。避免 `&` 与父级类名拼接出错误命名的 CSS 类。
 
 ### 4.2 依赖方向
 
@@ -77,8 +76,8 @@
 
 9. **禁止硬编码色值、圆角、阴影、动效时长**——一律引用 `--mc-*`、语义令牌（`--primary`、`--surface-container-high`…）与 `--m3e-*`；例外仅限站点固有内容色（如广告牌语义色，见 m3e-standard.md §3.1）。
 10. **禁止散落的非令牌动效**——如 `transition: all 0.3s`、`animation: xxx 1s linear`；统一用 `--m3e-duration-*` + `--m3e-easing-*`。
-11. **禁止在 Svelte 组件内混用 runes 与 legacy 语法**——同一文件内不得同时出现 `$state/$props/$bindable` 与 `export let`/`$:`。
-12. **禁止重复实现交互反馈**——hover/focus/pressed 叠色统一用 `.m3-state-layer`，不得在各组件里自造 `:hover { background: ... }` 叠色逻辑。
+11. **禁止硬编码用户可见文本**——UI 文案必须走 `i18nKey.ts` 与 10 种语言映射（见 project-rules.md §4）。
+12. **禁止在组件内写死暗色模式覆写**——暗色适配应通过 CSS 变量在主题切换时自动切换，而不是在组件内写 `.dark & { ... }` 覆写颜色逻辑。
 13. **禁止跨层 relative import**——`../../`、`../misc/` 等一律替换为 `@components/<层>/<文件>`。
 
 ### 4.4 职责边界
@@ -96,14 +95,14 @@
 | 新组件是什么 | 落层 |
 |---|---|
 | 单一 UI 元素，无组合、无业务，可被任意复用 | atoms |
-| 2 个以上原子的固定组合（如"标签 chip 列表"） | molecules |
-| 独立业务区块，带数据/状态/布局职责（如"文章卡片流"） | organisms |
+| 2 个以上原子的固定组合（如"标签 chip 列表"、"浮动按钮包装器"） | molecules |
+| 独立业务区块，带数据/状态/布局职责（如"右下角悬浮控制流"、"文章卡片流"） | organisms |
 | 全局基础设施（脚本注入、全局样式载体） | system |
 | 渲染 content 集合正文 | content |
 | 页面骨架 / 网格 | layouts |
 
 落层后检查：
-1. import 是否只指向本层与更低层？
+1. import 是否只指向本层与更底层？
 2. 是否有循环依赖？
 3. 是否用了 `@components/<层>/<文件>` 别名？
 4. 是否只消费令牌、未硬编码数值？
@@ -116,11 +115,11 @@
 | 层 | 组件 |
 |---|---|
 | atoms/ | 63 个原子组件（Button、Chip、IconButton、FAB、FABMenu、Slider、SegmentedButton、TextField、Switch、Checkbox、RadioButton、Dialog、Menu、Badge、Divider、Snackbar、Tabs、Select、DataTable、SearchView、Autocomplete、SheetSide、Carousel、PullToRefresh、DatePicker、TimePicker、Chips、Banner、Tooltip、Card、AppBar、NavigationBar/Rail/Drawer、ExposedDropdownMenu、ListItem、LoadingIndicator、ProgressIndicator、AlertDialog、BadgedBox、SplitButton、ToggleButton、ButtonGroup、SearchBar、DateInput、FloatingToolbar、BottomSheet 等；完整清单与 tier 见 `atoms/manifest.json`） |
-| molecules/ | PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、Announcement、SiteStats、Calendar、PostMeta、SearchBar、TOC、WidgetLayout、ImageWrapper、License、Pagination、FriendCard、MomentCard、MomentGallery、AlbumCard、LastUpdatedNotice、ArticleDiscoveryItem、SkillCard、ProjectCard、TimelineCard（25） |
-| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、FriendSection、MomentSection、AlbumSection、AlbumGallery、PasswordGate、ProtectedAlbum、EncryptedContent、ProtectedPost、ArticleDiscovery、ArticleShare、SkillSection、ProjectSection、TimelineSection、MusicSidebar（28） |
-| system/ | ConfigCarrier、GlobalStyles（2） |
-| content/ | Markdown（1） |
-| layouts/ | Layout、MainGridLayout（2） |
+| molecules/ | PageHeader、SectionTitle、ButtonLink、ButtonTag、Tags、Categories、Announcement、SiteStats、Calendar、CalendarView、AnimeCard、CompassTile、PostMeta、SearchBar、SidebarTOC、FloatingActionButton、FloatingTOCPanel、WidgetLayout、ImageWrapper、License、Pagination、FriendCard、MomentCard、MomentGallery、AlbumCard、LastUpdatedNotice、ArticleDiscoveryItem、SkillCard、ProjectCard、TimelineCard、BannerWaves、MermaidDiagramViewer |
+| organisms/ | TopAppBar、SideBar、Footer、Search、PostCard、PostPage、FloatingControls、ArchivePanel、DisplaySettings、Profile、LightDarkSwitch、SiteNavigationDrawer、RouteProgress、CategoryBar、BackToTop、BannerStage、FriendSection、MomentSection、AnimeSection、CompassSection、AlbumSection、AlbumGallery、PasswordGate、ProtectedAlbum、EncryptedContent、ProtectedPost、ArticleDiscovery、ArticleShare、SkillSection、ProjectSection、TimelineSection、MusicSidebar |
+| system/ | ConfigCarrier、GlobalStyles |
+| content/ | Markdown |
+| layouts/ | Layout、MainGridLayout |
 | pages/ | 首页、archive、friends、moments、about、posts/[...slug]、[…page] 等路由 |
 
 ---

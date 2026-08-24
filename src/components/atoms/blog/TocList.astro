@@ -39,6 +39,7 @@ let counter = 0;
 			<a
 				class:list={["m3-blog-toc__item", { "m3-blog-toc__item--sub": !top }]}
 				href={`#${h.slug}`}
+				data-toc-depth={h.depth}
 			>
 				<span class="m3-blog-toc__mark" aria-hidden="true">
 					{top ? (

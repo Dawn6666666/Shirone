@@ -253,6 +253,9 @@ enum I18nKey {
 	downloadSharePoster = "downloadSharePoster",
 	sharePosterFailed = "sharePosterFailed",
 	retry = "retry",
+	backToTop = "backToTop",
+	backToComment = "backToComment",
+	backToHome = "backToHome",
 	close = "close",
 	scanToRead = "scanToRead",
 }

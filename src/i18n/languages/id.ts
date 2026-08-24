@@ -251,6 +251,9 @@ export const id: Translation = {
 	[Key.downloadSharePoster]: "Unduh Gambar",
 	[Key.sharePosterFailed]: "Gagal membuat poster berbagi. Silakan coba lagi.",
 	[Key.retry]: "Coba Lagi",
+	[Key.backToTop]: "Kembali ke atas",
+	[Key.backToComment]: "Lompat ke komentar",
+	[Key.backToHome]: "Kembali ke beranda",
 	[Key.close]: "Tutup",
 	[Key.scanToRead]: "Pindai untuk membaca artikel",
 

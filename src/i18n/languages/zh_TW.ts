@@ -240,6 +240,9 @@ export const zh_TW: Translation = {
 	[Key.downloadSharePoster]: "下載分享圖",
 	[Key.sharePosterFailed]: "分享圖生成失敗，請重試",
 	[Key.retry]: "重試",
+	[Key.backToTop]: "返回頂部",
+	[Key.backToComment]: "直達評論",
+	[Key.backToHome]: "返回首頁",
 	[Key.close]: "關閉",
 	[Key.scanToRead]: "掃碼閱讀全文",
 

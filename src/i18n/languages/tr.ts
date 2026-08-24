@@ -251,6 +251,9 @@ export const tr: Translation = {
 	[Key.sharePosterFailed]:
 		"Paylaşım görseli oluşturulamadı. Lütfen tekrar deneyin.",
 	[Key.retry]: "Tekrar Dene",
+	[Key.backToTop]: "Yukarı dön",
+	[Key.backToComment]: "Yorumlara git",
+	[Key.backToHome]: "Ana sayfaya dön",
 	[Key.close]: "Kapat",
 	[Key.scanToRead]: "Makaleyi okumak için tara",
 

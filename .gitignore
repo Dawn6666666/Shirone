@@ -43,6 +43,7 @@ public/assets/anime/covers/*
 research/
 
 # playwright
+.playwright-cli/
 test-results/
 playwright-report/
 tests/site/visual.spec.ts-snapshots/

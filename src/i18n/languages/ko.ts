@@ -247,6 +247,9 @@ export const ko: Translation = {
 	[Key.downloadSharePoster]: "이미지 다운로드",
 	[Key.sharePosterFailed]: "공유 카드 생성에 실패했습니다. 다시 시도해 주세요.",
 	[Key.retry]: "다시 시도",
+	[Key.backToTop]: "맨 위로 돌아가기",
+	[Key.backToComment]: "댓글로 이동",
+	[Key.backToHome]: "홈으로 돌아가기",
 	[Key.close]: "닫기",
 	[Key.scanToRead]: "QR 코드로 글 읽기",
 

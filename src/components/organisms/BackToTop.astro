@@ -1,50 +1,25 @@
 ---
 import FAB from "@components/atoms/action/FAB.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
 import { Icon } from "astro-icon/components";
 ---
 
-<!-- There can't be a filter on parent element, or it will break `fixed` -->
-<div class="back-to-top-wrapper hidden lg:block">
-    <div id="back-to-top-btn" class="back-to-top-btn hide flex items-center rounded-2xl overflow-hidden transition" onclick="backToTop()">
-        <FAB ariaLabel="Back to Top" class="m-0">
-            <Icon name="material-symbols:keyboard-arrow-up-rounded" class="text-[1.5rem] mx-auto"></Icon>
-        </FAB>
-    </div>
+<div
+	id="back-to-top-btn"
+	class="back-to-top-compatibility"
+	onclick="window.__shironeFab?.scrollToTop() ?? window.scrollTo({ top: 0, behavior: 'smooth' })"
+>
+	<FAB client:load variant="primary" ariaLabel={i18n(I18nKey.backToTop)}>
+		<Icon name="material-symbols:keyboard-arrow-up-rounded" class="text-2xl" />
+	</FAB>
 </div>
 
 <style lang="stylus">
-.back-to-top-wrapper
-    width: 3.75rem
-    height: 3.75rem
-    position: absolute
-    right: 0
-    top: 0
-    pointer-events: none
-
-.back-to-top-btn
-    color: var(--primary)
-    font-size: 2.25rem
-    font-weight: bold
-    border: none
-    position: fixed
-    bottom: 10rem
-    opacity: 1
-    cursor: pointer
-    transform: translateX(5rem)
-    pointer-events: auto
-    i
-        font-size: 1.75rem
-    &.hide
-        transform: translateX(5rem) scale(0.9)
-        opacity: 0
-        pointer-events: none
-    &:active
-      transform: translateX(5rem) scale(0.9)
-
+.back-to-top-compatibility
+	display: inline-flex
+	position: fixed
+	right: var(--m3e-space-6)
+	bottom: var(--m3e-space-10)
+	z-index: 45
 </style>
-
-<script is:raw is:inline>
-function backToTop() {
-    window.scroll({ top: 0, behavior: 'smooth' });
-}
-</script>

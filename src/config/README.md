@@ -1,20 +1,20 @@
-# 配置目录约定
+﻿# 配置目录约定
 
-本目录是 Shirone 全部用户可改配置的唯一入口。约定如下：
+本目录是 Shirone 全部用户可选配置的唯一入口。约定如下：
 
 ## 文件组织
 
 | 内容 | 位置 | 示例 |
 |---|---|---|
-| 配置值（带注释的默认值） | `src/config/<domain>Config.ts` | `siteConfig.ts`、`sidebarConfig.ts` |
-| 配置类型 | `src/types/<domain>Config.ts` | `types/sidebarConfig.ts`、`types/navBarConfig.ts` |
+| 配置值（带注释的默认值） | `src/config/<domain>Config.ts` | `siteConfig.ts`、`sidebarConfig.ts`、`fabConfig.ts` |
+| 配置类型 | `src/types/<domain>Config.ts` | `types/sidebarConfig.ts`、`types/fabConfig.ts` |
 
 通用类型（多领域共享，如 `Favicon`、`LIGHT_DARK_MODE`）放在 `src/types/config.ts`。
 
 ## 导入规则
 
-1. **消费方统一从 barrel 导入**：`import { siteConfig } from "@/config"`；
-   只需要单一领域时可用具体文件：`import { siteConfig } from "@/config/siteConfig"`。
+1. **消费方统一从 barrel 导入**：`import { siteConfig, fabConfig } from "@/config"`；
+   只需要单一领域时可用具体文件：`import { fabConfig } from "@/config/fabConfig"`。
 2. **禁止相对路径杂写法**：不允许 `../../config`、`../config`、`src/config` 三种历史写法。
 3. **循环依赖规避**：`i18n/translation.ts` 依赖 `siteConfig`，而 `navBarConfig` 等又消费
    i18n——该类反向依赖模块只允许从具体文件导入（如 `@/config/siteConfig`），
@@ -36,12 +36,13 @@
 
 | 文件 | 职责 |
 |---|---|
-| `siteConfig.ts` | 站点标识 / 语言 / HCT 主题色 / 横幅 / TOC / 进度条 / favicon（含 `getDefaultStyle` / `getDefaultSpec` 回退值） |
+| `siteConfig.ts` | 站点标识 / 语言 / HCT 主题色 / 横幅 / TOC 深度 / 进度条 / favicon（含 `getDefaultStyle` / `getDefaultSpec` 回退值） |
 | `profileConfig.ts` | 博主资料：头像 / 名称 / 简介 / 社交链接 |
 | `licenseConfig.ts` | 文章版权声明 |
 | `expressiveCodeConfig.ts` | 代码块明暗主题 |
 | `navBarConfig.ts` | 导航栏链接（`LinkPresets` 预设表 + 组装） |
 | `sidebarConfig.ts` | 侧栏编排与 widget 清单（`arrangement` 单/双栏、`side` 主栏物理侧、widget `column` 分栏标签；判别联合类型见 `types/sidebarConfig.ts`；编排指导见 `docs/sidebar-system.md`，组件文档见 `docs/sidebar-widgets.md`，新增 widget checklist 见 `docs/common-components.md` §3.1） |
+| `fabConfig.ts` | 右下角悬浮控制流（FAB）配置：总开关、各操作项（返回顶部、悬浮目录、直达评论、返回首页、自定义操作）、细粒度设备受控矩阵（`devices?: ("mobile" | "tablet" | "desktop")[]`）、页面范围过滤与图标定制；架构见 `docs/fab-system.md` |
 | `announcementConfig.ts` | 公告内容（侧栏 announcement widget 消费，text 为空不渲染） |
 | `musicConfig.ts` | 侧栏音乐全局配置：总开关（默认关闭）、`provider` 模式切换接口、`defaultVolume` 初始音量与 `defaultMode` 初始播放模式（本地曲目清单维护在 `src/data/music.ts`）；与 `sidebarConfig` 的 music 条目共同控制 `MusicSidebar`，详见下文与 `docs/sidebar-widgets.md` |
 | `postListConfig.ts` | 文章列表：分页大小 + 布局（list/grid 模式、封面位置、grid 卡片宽度档位） |
@@ -57,12 +58,64 @@
 ## 侧栏编排与页框宽度
 
 - `arrangement: "single"`（默认）——全部 widget 渲染进唯一侧栏，页框 85rem；
-- `arrangement: "dual"`——`column: "secondary"` 的 widget 进入副栏（视口 ≥1280px 起三列），
+- `arrangement: "dual"`——`column: "secondary"` 的 widget 进入副栏（视口 ≥ 1280px 起三列），
   其余留在主栏；页框自动放宽到 96rem，TOC 悬浮 rail 自动让位（右侧余量被副栏占据）。
   1280px 以下自动退化为单栏（只显主栏），无需配置。
-- `side: "left" | "right"` 决定主栏物理侧，dual 下副栏落在对面。
-- 页框宽度由 `resolvePageWidth()`（`src/utils/responsive-utils.ts`）按编排自动解析，
+- `side: "left" | "right"` 决定主栏物理侧，dual 线下副栏落在对面。
+- 页框宽度用 `resolvePageWidth()`（`src/utils/responsive-utils.ts`）按编排自动解析，
   常量在 `src/constants/constants.ts`（`PAGE_WIDTH` / `PAGE_WIDTH_DUAL`），不提供手动覆盖。
+
+## 右下角悬浮控制流（FAB）配置契约
+
+`fabConfig.ts` 控制右下角悬浮操作栏的呈现与交互：
+
+```typescript
+export const fabConfig: FabConfig = {
+    enable: true,
+    items: [
+        {
+            type: "top",
+            enable: true,
+            icon: "material-symbols:keyboard-arrow-up-rounded",
+            // 未指定 devices 时全设备生效；滚过横幅高度阈值后平滑浮现
+        },
+        {
+            type: "toc",
+            enable: true,
+            icon: "material-symbols:format-list-bulleted-rounded",
+            pages: ["post"],
+            // 桌面端侧栏已有粘性 TOC，故默认仅在移动端与平板端显示悬浮目录
+            devices: ["mobile", "tablet"],
+        },
+        {
+            type: "comment",
+            enable: true,
+            icon: "material-symbols:comment-outline-rounded",
+            pages: ["post"],
+            devices: ["mobile", "tablet"],
+        },
+        {
+            type: "home",
+            enable: false,
+            icon: "material-symbols:home-outline-rounded",
+        },
+    ],
+};
+```
+
+### 核心规则与受控特性
+
+1. **细粒度设备受控（`devices`）**：
+   - `"mobile"`（< 768px）
+   - `"tablet"`（768px ~ 1023px）
+   - `"desktop"`（≥ 1024px）
+   - 省略时默认所有设备均允许；SSR 阶段直接输出 Tailwind CSS 响应式类（如 `flex lg:hidden`），零首屏闪烁，CLS = 0。
+2. **页面范围过滤（`pages`）**：
+   - 过滤逻辑与侧栏 `SidebarPage` 统一，通过 `#swup-container` 的 `data-current-page` 在 Swup 站内导航时联动隐藏/显示。
+3. **评论按钮零额外负担**：
+   - 全局未开启评论系统（`commentConfig.enable: false`）或当前文章关闭评论时，评论 FAB 按钮产物为 0 DOM，零多余外链请求与布局偏移。
+4. **无音乐挂件（保持纯粹）**：
+   - FAB 控制流不集成音乐播放器，避免与侧边栏 `MusicSidebar` 产生双重状态混乱及包体积膨胀。
 
 ## 侧栏音乐启用契约与四种模式
 
@@ -79,7 +132,7 @@
 | **本地模式** | `"local"` | `src/data/music.ts` | 默认模式。零外部 API 依赖，构建期静态打包，首屏毫秒级就绪，支持离线/断网播放。 |
 | **自定义列表** | `"custom"` | `musicConfig.tracks` | 灵活自定义。直接在配置中传入曲目数组（支持外链音频与封面），无需修改通用数据文件。 |
 | **云端歌单** | `"meting"` | `musicConfig.meting` | 接入 Meting API（网易云、QQ 音乐、酷狗等），客户端异步按需拉取，曲目与封面自动清洗加载。 |
-| **混合增强模式** | `"mixed"` | 本地数据 + Meting API | **推荐**。首屏立即可播本地音乐，后台无感拉取远端歌单并在就绪后无缝追加合并；若遇断网或云端接口故障，自动静默降级为本地曲目，绝不破版。 |
+| **混合增强模式** | `"mixed"` | 本地数据 + Meting API | **推荐**。首屏立即播放本地音乐，后台无感拉取远端歌单并在就绪后无缝追加合并；若遇断网或云端接口故障，自动静默降级为本地曲目，绝不破版。 |
 
 任一条件不满足时，音乐功能不得输出 DOM 或样式，不得请求音频/封面等资源，也不得把播放器代码或依赖带入主 bundle。配置消费者应先完成三项校验，再动态加载 `MusicSidebar`；不能用隐藏空卡片代替短路。
 

@@ -1,9 +1,9 @@
-# 通用组件规范（molecules）— Shirone 主题
+﻿# 通用组件规范（molecules）— Shirone 主题
 
 > 记录 `src/components/molecules/` 中**跨页面 / 区块复用**的通用组件：
 > 职责、Props、用法与新增约定。配套文档：
 > `atomic-structure.md`（分层）、`m3e-standard.md`（令牌与原子）、`animation.md`（动效库）、
-> `sidebar-system.md`（侧栏编排）、`sidebar-widgets.md`（侧栏组件文档）。
+> `sidebar-system.md`（侧栏编排）、`sidebar-widgets.md`（侧栏组件文档）、`fab-system.md`（FAB 与悬浮目录系统）。
 
 ---
 
@@ -14,6 +14,8 @@
 - **与原子（atoms）区别**：由多个原子组合而成，可含简单布局（如"图标 + 标题 + 副标题"）；
 - **与有机体（organisms）区别**：不承载业务数据、不依赖站点内容集合、无路由/持久化副作用；
 - 命名 PascalCase，跨目录引用用 `@components/molecules/<Name>`。
+
+---
 
 ## 2. 标题组件族
 
@@ -38,9 +40,9 @@
 - 标题与副标题左缘对齐（副标题不缩进），与下方内容区齐平；
 - 用于非首页内容页顶部（友链、归档、关于等），替代各页自维护的 h1 块。
 
-> **SSR 静态页注意**：`PageHeader.svelte` 用 `@iconify/svelte` 渲染图标，
+> **SSR 静态页注意**：`PageHeader.svelte` 用 `@iconify/svelte` 渲染图标；
 > 在无 hydration 的纯 SSR 页面上图标为空（HTML 只留占位）。纯 SSR 页面
-> 请用视觉一致的 `atoms/display/PageHeader.astro`（astro-icon 构建期内联），
+> 请用视觉一致的 `atoms/display/PageHeader.astro`（astro-icon 构建期内联）；
 > 分类/标签索引页即此用法；Svelte 岛内（client:only）继续用 molecules 版。
 
 ### 2.2 SectionTitle — 区块标题
@@ -51,20 +53,16 @@
 	title="Categories"
 	subtitle="Browse posts by topic"
 />
-<!-- 省略 icon / subtitle 也可 -->
+<!-- 省略 icon / subtitle 亦可 -->
 <SectionTitle title="Categories" />
 ```
 
 - 用于侧栏卡片、设置面板等区块内的小标题；
 - 图标可选、副标题可选，三者缺省时自动省略对应 DOM。
 
-### 2.3 选择规则
+---
 
-- 页面级语义（`<h1>`）→ `PageHeader`；
-- 区块级语义（`<h2>`/分组标题）→ `SectionTitle`；
-- 已有标题但仅需微调（如设置面板内联标题）可暂不替换，后续统一收敛。
-
-## 3. 其它通用组件
+## 3. 其它通用分子组件
 
 | 组件 | 用途 |
 |---|---|
@@ -79,34 +77,13 @@
 | `Announcement` | 公告侧栏 widget（Banner 原子 round 形态，无标题外壳；内容源 `announcementConfig`） |
 | `SiteStats` | 站点统计侧栏 widget（规格表行：MetaIcon 徽标 + 点线引导 + 表格数字；数据源 `utils/site-stats` 备忘化汇总） |
 | `Calendar` | 月度文章历侧栏 widget（SSR 直出日期聚合 + CalendarView 水合岛：单月视图、切月 reveal、点击有文日 collapse 展开当日文章） |
-| `SidebarTOC` | 文章目录侧栏 widget（WidgetLayout 外壳 + 当前文章 headings；通常限定 `pages: ["post"]`） |
+| `SidebarTOC` | 文章目录侧栏 widget（WidgetLayout 外壳 + 内嵌 `<table-of-contents>` 自定义元素及 `TocList` 原子） |
+| `FloatingActionButton` | 右下角浮动操作按钮包装器（响应式设备类受控 + 页面范围过滤属性） |
+| `FloatingTOCPanel` | 移动端/平板浮动大纲目录卡片分子（M3 Surface Container High 风格、平滑滚动定位与隐藏滚动条） |
 
-原子层通用件（`Button` / `Card` / `IconButton` / `Avatar` / `AccentBar` 等）见 `m3e-standard.md` §4。
+原子层通用件（`Button` / `Card` / `IconButton` / `Avatar` / `AccentBar` / `FAB` 等）见 `m3e-standard.md` §4。
 
-### 3.1 侧栏 widget 编排
-
-侧栏 widget 由 `src/config/sidebarConfig.ts` 数据驱动，`SideBar.astro` 的 `componentMap` 是唯一注册表。
-编排模型（单/双栏、slot、column 标签）见 `sidebar-system.md`；内置 widget 逐个文档见 `sidebar-widgets.md`。
-新增一个侧栏 widget 的 checklist：
-
-1. 在 `src/types/sidebarConfig.ts` 的 `SidebarWidget` 判别联合扩展分支（widget 自己的配置项放分支内，不搞扁平大对象）；
-2. 实现 widget 组件（molecules 或 organisms），接收可选 `widget` prop 读取自己的配置；
-3. 在 `SideBar.astro` 的 `componentMap` 注册（`satisfies Record<SidebarWidget["type"], unknown>` 保证不漏键）；
-4. 在 `sidebarConfig.components` 追加默认条目（新 widget 默认 `enable: false`，保证存量站点 DOM 零变化）；
-5. 若有独立内容源（如 `announcementConfig`），类型放 `src/types/`、值放 `src/config/` 并在 barrel 注册；
-6. 本文件 §3 登记 + `atomic-structure.md` §6 分层清单同步。
-
-### 3.2 有状态侧栏有机体
-
-`MusicSidebar` 是侧栏 widget，但分层属于 organisms：它使用 `WidgetLayout` 作为外壳，同时拥有音频实例、播放状态、原生 range 控制接线和 Swup 持久 shell 生命周期，这些职责不能下沉到 molecule。
-
-音乐配置采用双开关加有效数据守卫：`musicConfig.enable`、`sidebarConfig` 的 music 条目 `enable` 均为 `true`，且 `tracks` 至少有一首有效曲目后，SideBar 才动态加载 `MusicSidebar`。任一条件失败都必须在导入前短路，保证零 DOM、零媒体网络、零主 bundle/依赖和零提升 CSS；music 默认侧栏条目保持关闭。启用后组件在 `#swup-container` 外只挂载一次，Swup 导航不得重建音频实例或重置当前曲目、位置、音量及模式。
-
-widget 编排还带两个通用标签（见 `sidebarConfig.ts` 注释）：
-
-- `slot: "top" | "sticky"`——栏内停靠位（固定顶部 / 跟随滚动）；
-- `column: "primary" | "secondary"`——分栏标签，仅在 `arrangement: "dual"` 时生效，
-  标记为 `secondary` 的 widget 渲染进副栏（`SideBar.astro` 按标签过滤，主/副栏各一个实例）。
+---
 
 ## 4. 新增通用组件约定
 
@@ -117,8 +94,11 @@ widget 编排还带两个通用标签（见 `sidebarConfig.ts` 注释）：
    - 更新 `atomic-structure.md` §6 的 molecules 清单；
    - 更新 `m3e-standard.md` §8 文件索引。
 
+---
+
 ## 5. 关联文档
 
-- `docs/atomic-structure.md` — 分层与依赖规则
+- `docs/atomic-structure.md` — 分层与依赖规划
+- `docs/fab-system.md` — FAB 与移动端悬浮目录系统规范
 - `docs/m3e-standard.md` — 设计令牌、原子组件、文件索引
 - `docs/animation.md` — 动效令牌、`use:collapse` 插件与 reduced-motion

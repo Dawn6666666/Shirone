@@ -250,6 +250,9 @@ export const ja: Translation = {
 	[Key.sharePosterFailed]:
 		"シェアカードの生成に失敗しました。再試行してください。",
 	[Key.retry]: "再試行",
+	[Key.backToTop]: "トップへ戻る",
+	[Key.backToComment]: "コメントへ移動",
+	[Key.backToHome]: "ホームへ戻る",
 	[Key.close]: "閉じる",
 	[Key.scanToRead]: "QRコードで続きを読む",
 
