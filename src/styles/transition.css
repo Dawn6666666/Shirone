@@ -2,10 +2,11 @@
 
 /* Page transition animations with Swup */
 html.is-changing .transition-swup-fade {
-    @apply transition-all duration-200
+    transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1), transform 200ms cubic-bezier(0.2, 0, 0, 1);
 }
 html.is-animating .transition-swup-fade {
-    @apply opacity-0 translate-y-4
+    opacity: 0;
+    transform: translateY(1rem);
 }
 
 /* Fade-in animations for components */

@@ -173,7 +173,6 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 		flipFromRect,
 		prefersReducedMotion,
 		revealIn,
-		waitForLayoutTransitions,
 	} from "@utils/motion";
 	import { attributeToPages, isWidgetVisibleOnPage } from "@utils/sidebar-page";
 
@@ -306,7 +305,6 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 		if (!navigationActive || !sidebarSyncPending) return;
 		const currentGeneration = navigationGeneration;
 		navigationActive = false;
-		await waitForLayoutTransitions(document.getElementById("main-layout"));
 		if (currentGeneration !== navigationGeneration) return;
 		sidebarSyncPending = false;
 		await syncSidebarPages();

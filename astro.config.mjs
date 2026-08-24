@@ -1,7 +1,5 @@
-import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
 import { basename, extname } from "node:path";
-import { fileURLToPath } from "node:url";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
@@ -14,18 +12,12 @@ import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
 import { expressiveCodeConfig } from "./src/config/expressiveCodeConfig.ts";
 import { resolvedFontOptions } from "./src/config/fontConfig.ts";
-import {
-	musicConfig,
-	resolveMusicOptions,
-} from "./src/config/musicConfig.ts";
+import { musicConfig, resolveMusicOptions } from "./src/config/musicConfig.ts";
 import { sidebarConfig } from "./src/config/sidebarConfig.ts";
 import { siteConfig } from "./src/config/siteConfig.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
-import {
-	getFontsourceImports,
-	getLocalFontVariants,
-} from "./src/utils/font-options.ts";
+import { getLocalFontVariants } from "./src/utils/font-options.ts";
 import { siteMarkdownProcessor } from "./src/utils/markdown-processor.mjs";
 
 const musicWidgetEnabled =
@@ -152,11 +144,13 @@ export default defineConfig({
 			preload: true,
 			accessibility: true,
 			updateHead: {
-				awaitAssets: true,
+				awaitAssets: false,
 				persistTags: "link[rel=stylesheet], style",
 			},
 			updateBodyClass: false,
 			globalInstance: true,
+			animateHistoryBrowsing: false,
+			skipPopStateHandling: (event) => Boolean(event.state?.url?.includes("#")),
 		}),
 		icon({
 			include: {
