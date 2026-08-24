@@ -1,8 +1,8 @@
 ---
 import BannerWaves from "@components/molecules/BannerWaves.astro";
-import { Icon } from "astro-icon/components";
 import { resolveAsset } from "@utils/asset-utils";
 import { url } from "@utils/url-utils";
+import { Icon } from "astro-icon/components";
 import { siteConfig } from "@/config";
 import type { SidebarPage } from "@/types/sidebarConfig";
 
@@ -38,6 +38,12 @@ const mobileImages = await Promise.all(
 	siteConfig.banner.src.mobile.map(resolveBannerUrl),
 );
 const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
+const rawSubtitles = siteConfig.banner.homeText.subtitle;
+const subtitleArray = Array.isArray(rawSubtitles)
+	? rawSubtitles
+	: [rawSubtitles];
+const defaultInitialSubtitle = subtitleArray[0] ?? "";
+const typewriter = siteConfig.banner.homeText.typewriter;
 ---
 
 <section
@@ -52,9 +58,12 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 	data-carousel-interval={String(Math.max(siteConfig.banner.carousel.interval, 3000))}
 	data-position={siteConfig.banner.position ?? "center"}
 	data-home-title={siteConfig.banner.homeText.title}
-	data-subtitle-typewriter-enabled={String(siteConfig.banner.homeText.typewriter.enable)}
-	data-subtitle-typewriter-loop={String(siteConfig.banner.homeText.typewriter.loop)}
-	data-subtitle-typewriter-speed={String(Math.max(siteConfig.banner.homeText.typewriter.speed, 1))}
+	data-home-subtitles={JSON.stringify(subtitleArray)}
+	data-subtitle-typewriter-enabled={String(typewriter.enable)}
+	data-subtitle-typewriter-loop={String(typewriter.loop)}
+	data-subtitle-typewriter-speed={String(Math.max(typewriter.speed, 1))}
+	data-subtitle-typewriter-delete-speed={String(Math.max(typewriter.deleteSpeed ?? 50, 1))}
+	data-subtitle-typewriter-pause-time={String(Math.max(typewriter.pauseTime ?? 2000, 0))}
 >
 	<div class="banner-stage__media" aria-hidden="true">
 		<img class="banner-stage__image banner-stage__image--front" alt="" />
@@ -67,10 +76,10 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		<div class="banner-stage__copy banner-stage__copy--home" data-banner-home-copy>
 			<h1>{siteConfig.banner.homeText.title}</h1>
 			<p
-				aria-label={siteConfig.banner.homeText.subtitle}
+				aria-label={defaultInitialSubtitle}
 				data-subtitle-state="complete"
 			>
-				{siteConfig.banner.homeText.subtitle}
+				{defaultInitialSubtitle}
 			</p>
 		</div>
 	)}
@@ -151,7 +160,6 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 	const contextDate = stage?.querySelector<HTMLTimeElement>(
 		"[data-banner-context-date]",
 	);
-	const subtitleText = subtitle?.textContent || "";
 	const runtime: BannerRuntime = {
 		activeGroup: null,
 		activeIndex: 0,
@@ -210,6 +218,20 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		return Array.from(value);
 	}
 
+	function getSubtitleTexts(): string[] {
+		try {
+			const parsed = JSON.parse(stage?.dataset.homeSubtitles || "[]");
+			if (Array.isArray(parsed) && parsed.length > 0) {
+				return parsed.filter(Boolean);
+			}
+		} catch {
+			// ignore
+		}
+		const initial =
+			subtitle?.getAttribute("aria-label") || subtitle?.textContent || "";
+		return initial ? [initial] : [];
+	}
+
 	function stopSubtitleTyping() {
 		runtime.subtitleGeneration += 1;
 		if (runtime.subtitleTimer !== null) {
@@ -218,7 +240,8 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 		runtime.subtitleTimer = null;
 		runtime.subtitleVisible = false;
 		if (subtitle) {
-			subtitle.textContent = subtitleText;
+			const texts = getSubtitleTexts();
+			subtitle.textContent = texts[0] || "";
 			subtitle.dataset.subtitleState = "complete";
 		}
 	}
@@ -226,7 +249,11 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 	function showSubtitleImmediately() {
 		stopSubtitleTyping();
 		runtime.subtitleVisible = true;
-		if (subtitle) subtitle.dataset.subtitleState = "complete";
+		if (subtitle) {
+			const texts = getSubtitleTexts();
+			subtitle.textContent = texts[0] || "";
+			subtitle.dataset.subtitleState = "complete";
+		}
 	}
 
 	function readMotionDuration(property: string, fallback: number): number {
@@ -258,52 +285,88 @@ const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 			return;
 		}
 
-		stopSubtitleTyping();
-		runtime.subtitleVisible = true;
-		const segments = subtitleSegments(subtitleText);
-		const loop = stage?.dataset.subtitleTypewriterLoop === "true";
-		const configuredSpeed = Number.parseFloat(
-			stage?.dataset.subtitleTypewriterSpeed || "150",
-		);
-		const speed = Number.isFinite(configuredSpeed)
-			? Math.max(configuredSpeed, 1)
-			: 150;
-		const loopPause = readMotionDuration("--m3e-duration-long", 400);
-		let index = 0;
+		runtime.subtitleGeneration += 1;
 		const generation = runtime.subtitleGeneration;
-		subtitle.textContent = "";
-		subtitle.dataset.subtitleState = "typing";
+		if (runtime.subtitleTimer !== null) {
+			window.clearTimeout(runtime.subtitleTimer);
+		}
+		runtime.subtitleTimer = null;
+		runtime.subtitleVisible = true;
 
-		const revealNext = () => {
-			if (generation !== runtime.subtitleGeneration || !subtitle) return;
-			index += 1;
-			subtitle.textContent = segments.slice(0, index).join("");
-			if (index >= segments.length) {
-				if (!loop) {
-					runtime.subtitleTimer = null;
-					subtitle.dataset.subtitleState = "complete";
-					return;
-				}
-				subtitle.dataset.subtitleState = "complete";
-				runtime.subtitleTimer = window.setTimeout(() => {
-					if (generation !== runtime.subtitleGeneration || !subtitle) return;
-					index = 0;
-					subtitle.textContent = "";
-					subtitle.dataset.subtitleState = "typing";
-					revealNext();
-				}, loopPause);
-				return;
-			}
-			runtime.subtitleTimer = window.setTimeout(revealNext, speed);
-		};
-
-		if (!segments.length) {
-			runtime.subtitleTimer = null;
-			subtitle.textContent = subtitleText;
+		const texts = getSubtitleTexts();
+		if (!texts.length) {
+			subtitle.textContent = "";
 			subtitle.dataset.subtitleState = "complete";
 			return;
 		}
-		revealNext();
+
+		const loop = stage?.dataset.subtitleTypewriterLoop === "true";
+		const configuredSpeed = Number.parseFloat(
+			stage?.dataset.subtitleTypewriterSpeed || "120",
+		);
+		const speed = Number.isFinite(configuredSpeed)
+			? Math.max(configuredSpeed, 1)
+			: 120;
+		const configuredDeleteSpeed = Number.parseFloat(
+			stage?.dataset.subtitleTypewriterDeleteSpeed || "50",
+		);
+		const deleteSpeed = Number.isFinite(configuredDeleteSpeed)
+			? Math.max(configuredDeleteSpeed, 1)
+			: 50;
+		const configuredPauseTime = Number.parseFloat(
+			stage?.dataset.subtitleTypewriterPauseTime || "2000",
+		);
+		const pauseTime = Number.isFinite(configuredPauseTime)
+			? Math.max(configuredPauseTime, 0)
+			: 2000;
+
+		let textIndex = 0;
+		let charIndex = 0;
+		let isDeleting = false;
+		subtitle.textContent = "";
+		subtitle.dataset.subtitleState = "typing";
+
+		const step = () => {
+			if (generation !== runtime.subtitleGeneration || !subtitle) return;
+
+			const currentText = texts[textIndex] || "";
+			const segments = subtitleSegments(currentText);
+
+			if (isDeleting) {
+				if (charIndex > 0) {
+					charIndex -= 1;
+					subtitle.textContent = segments.slice(0, charIndex).join("");
+					runtime.subtitleTimer = window.setTimeout(step, deleteSpeed);
+				} else {
+					// 当前句子已反向回退完毕，切换至下一条并开始正向打字
+					isDeleting = false;
+					textIndex = (textIndex + 1) % texts.length;
+					runtime.subtitleTimer = window.setTimeout(step, speed);
+				}
+			} else {
+				if (charIndex < segments.length) {
+					charIndex += 1;
+					subtitle.textContent = segments.slice(0, charIndex).join("");
+					runtime.subtitleTimer = window.setTimeout(step, speed);
+				} else {
+					// 当前句子完整打字呈现
+					subtitle.dataset.subtitleState = "complete";
+					// 若配置了多句或者启用了循环回退
+					if (texts.length > 1 || loop) {
+						isDeleting = true;
+						runtime.subtitleTimer = window.setTimeout(() => {
+							if (generation !== runtime.subtitleGeneration || !subtitle) return;
+							subtitle.dataset.subtitleState = "typing";
+							step();
+						}, pauseTime);
+					} else {
+						runtime.subtitleTimer = null;
+					}
+				}
+			}
+		};
+
+		step();
 	}
 
 	function preloadNext(images: string[], index: number) {

@@ -64,10 +64,17 @@ export type SiteConfig = {
 		homeText: {
 			enable: boolean;
 			title: string;
-			subtitle: string;
+			/** 首页副标题文本，支持单条字符串或多条交替循环的字符串数组 */
+			subtitle: string | string[];
 			typewriter: {
 				enable: boolean;
+				/** 打字速度（每个字符间隔，毫秒，默认 120） */
 				speed: number;
+				/** 回退反向删除速度（每个字符间隔，毫秒，默认 50） */
+				deleteSpeed?: number;
+				/** 打字完成后等待停顿时间（毫秒，默认 2000） */
+				pauseTime?: number;
+				/** 完成后是否循环播放（默认 true） */
 				loop: boolean;
 			};
 		};

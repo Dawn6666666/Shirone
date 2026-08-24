@@ -15,7 +15,7 @@ async function waitForBannerState(
 
 async function expectSubtitleTyping(page: import("@playwright/test").Page) {
 	const subtitle = page.locator("#banner-wrapper [data-banner-home-copy] p");
-	const expected = "A Material 3 anime blog";
+	const expected = "特別なことはないけど、君がいると十分です";
 	await expect(subtitle).toHaveAttribute("data-subtitle-state", "typing");
 	const typingText = await subtitle.textContent();
 	expect(typingText).toBeTruthy();
@@ -134,11 +134,14 @@ test.describe("banner wallpaper", () => {
 			"context",
 		);
 		expect(
-			resolveBannerState({ ...base, viewport: "mobile", page: "post" }).copyMode,
+			resolveBannerState({ ...base, viewport: "mobile", page: "post" })
+				.copyMode,
 		).toBeNull();
 	});
 
-	test("server response includes article banner context", async ({ request }) => {
+	test("server response includes article banner context", async ({
+		request,
+	}) => {
 		const response = await request.get("/posts/guide/");
 		expect(response.ok()).toBe(true);
 		const html = await response.text();
@@ -182,11 +185,13 @@ test.describe("banner wallpaper", () => {
 			const boxRect = element.getBoundingClientRect();
 			return {
 				centerX: Math.abs(
-					boxRect.left + boxRect.width / 2 -
+					boxRect.left +
+						boxRect.width / 2 -
 						(stageRect.left + stageRect.width / 2),
 				),
 				centerY: Math.abs(
-					boxRect.top + boxRect.height / 2 -
+					boxRect.top +
+						boxRect.height / 2 -
 						(stageRect.top + stageRect.height / 2),
 				),
 				boxWidth: boxRect.width,
@@ -260,18 +265,16 @@ test.describe("banner wallpaper", () => {
 		await expect(page.locator("[data-banner-context-title]")).toHaveText(
 			"Archive",
 		);
-		await expect(
-			page.locator("[data-banner-context-description]"),
-		).toHaveText(/^\d+ posts$/);
+		await expect(page.locator("[data-banner-context-description]")).toHaveText(
+			/^\d+ posts$/,
+		);
 
 		await page.goto("/about/", { waitUntil: "domcontentloaded" });
 		await waitForBannerState(page, true);
 		await expect(page.locator("[data-banner-context-title]")).toHaveText(
 			"About",
 		);
-		await expect(
-			page.locator("[data-banner-context-details]"),
-		).toBeHidden();
+		await expect(page.locator("[data-banner-context-details]")).toBeHidden();
 	});
 
 	test("server response keeps the complete home subtitle", async ({
@@ -279,7 +282,9 @@ test.describe("banner wallpaper", () => {
 	}) => {
 		const response = await request.get("/");
 		expect(response.ok()).toBe(true);
-		expect(await response.text()).toContain("A Material 3 anime blog");
+		expect(await response.text()).toContain(
+			"特別なことはないけど、君がいると十分です",
+		);
 	});
 
 	test("desktop exposes subtitle typewriter controls", async ({ page }) => {
@@ -291,11 +296,29 @@ test.describe("banner wallpaper", () => {
 		);
 		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
 			"data-subtitle-typewriter-speed",
-			"120",
+			"100",
+		);
+		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+			"data-subtitle-typewriter-delete-speed",
+			"50",
+		);
+		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+			"data-subtitle-typewriter-pause-time",
+			"2000",
 		);
 		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
 			"data-subtitle-typewriter-loop",
 			"true",
+		);
+		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
+			"data-home-subtitles",
+			JSON.stringify([
+				"特別なことはないけど、君がいると十分です",
+				"今でもあなたは私の光",
+				"君ってさ、知らないうちに私の毎日になってたよ",
+				"君と話すと、なんか毎日がちょっと楽しくなるんだ",
+				"今日はなんでもない日。でも、ちょっとだけいい日",
+			]),
 		);
 	});
 
@@ -475,7 +498,7 @@ test.describe("banner wallpaper", () => {
 		await waitForBannerState(page, true);
 		await expect(
 			page.locator("#banner-wrapper [data-banner-home-copy] p"),
-		).toHaveText("A Material 3 anime blog");
+		).toHaveText("特別なことはないけど、君がいると十分です");
 		await expect(
 			page.locator("#banner-wrapper [data-banner-home-copy] p"),
 		).toHaveAttribute("data-subtitle-state", "complete");
@@ -500,7 +523,7 @@ test.describe("banner wallpaper", () => {
 		await waitForBannerState(page, true);
 		await expect(
 			page.locator("#banner-wrapper [data-banner-home-copy] p"),
-		).toHaveText("A Material 3 anime blog");
+		).toHaveText("特別なことはないけど、君がいると十分です");
 		await expect(
 			page.locator("#banner-wrapper [data-banner-home-copy] p"),
 		).toHaveAttribute("data-subtitle-state", "complete");
@@ -520,20 +543,23 @@ test.describe("banner wallpaper", () => {
 		await page.waitForFunction(() => Boolean(window.swup?.hooks));
 
 		await page.evaluate(() => {
-			(window as typeof window & { __swupPersistenceProbe?: string }).__swupPersistenceProbe =
-				"preserved";
+			(
+				window as typeof window & { __swupPersistenceProbe?: string }
+			).__swupPersistenceProbe = "preserved";
 		});
 		await page
-			.locator('#swup-container a.m3-blog-postcard__title[href="/posts/guide/"]')
+			.locator(
+				'#swup-container a.m3-blog-postcard__title[href="/posts/guide/"]',
+			)
 			.click();
 		await page.waitForFunction(
 			() =>
 				document.getElementById("swup-container")?.dataset.currentPage ===
 				"post",
 		);
-		await expect(
-			page.locator("[data-banner-context-title]"),
-		).toHaveText("Simple Guides for Fuwari");
+		await expect(page.locator("[data-banner-context-title]")).toHaveText(
+			"Simple Guides for Fuwari",
+		);
 		await expect(page.locator("#banner-wrapper")).toHaveAttribute(
 			"aria-label",
 			"Simple Guides for Fuwari",
@@ -552,12 +578,10 @@ test.describe("banner wallpaper", () => {
 				document.getElementById("swup-container")?.dataset.currentPage ===
 				"friends",
 		);
-		await expect(
-			page.locator("[data-banner-context-title]"),
-		).toHaveText("Friends");
-		await expect(
-			page.locator("[data-banner-context-description]"),
-		).toHaveText(
+		await expect(page.locator("[data-banner-context-title]")).toHaveText(
+			"Friends",
+		);
+		await expect(page.locator("[data-banner-context-description]")).toHaveText(
 			"Link exchange is welcome — see the About page for how to apply.",
 		);
 		await expect(page.locator("[data-banner-context-meta]")).toBeHidden();
@@ -587,15 +611,16 @@ test.describe("banner wallpaper", () => {
 				attributes: true,
 				attributeFilter: ["data-context-motion"],
 			});
-			(window as typeof window & { __bannerMotionStates?: string[] })
-				.__bannerMotionStates = states;
+			(
+				window as typeof window & { __bannerMotionStates?: string[] }
+			).__bannerMotionStates = states;
 		});
 
 		await page.locator('#navbar a[href="/friends/"]').click();
 		await page.waitForFunction(
 			() =>
 				document.getElementById("swup-container")?.dataset.currentPage ===
-					"friends",
+				"friends",
 		);
 		await page.waitForFunction(() => {
 			const states =
@@ -631,14 +656,16 @@ test.describe("banner wallpaper", () => {
 			await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
 			await page.waitForFunction(() => Boolean(window.swup?.hooks));
 			await page.evaluate(() => {
-				(window.swup as typeof window.swup & { navigate: (url: string) => void }).navigate(
-					"/friends/",
-				);
+				(
+					window.swup as typeof window.swup & {
+						navigate: (url: string) => void;
+					}
+				).navigate("/friends/");
 			});
 			await page.waitForFunction(
 				() =>
 					document.getElementById("swup-container")?.dataset.currentPage ===
-						"friends",
+					"friends",
 			);
 			await expect(page.locator("#banner-wrapper")).toHaveAttribute(
 				"data-context-motion",
