@@ -171,7 +171,6 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 	import {
 		fadeOutThenHide,
 		flipFromRect,
-		observeLayoutShifts,
 		prefersReducedMotion,
 		revealIn,
 		waitForLayoutTransitions,
@@ -270,28 +269,6 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 
 	void syncSidebarPages();
 
-	let stopLayoutShiftObserver: (() => void) | undefined;
-	let stopLayoutShiftTimer: number | undefined;
-	function startMobileLayoutTransition(): void {
-		window.clearTimeout(stopLayoutShiftTimer);
-		stopLayoutShiftObserver?.();
-		stopLayoutShiftObserver = undefined;
-		if (!window.matchMedia("(max-width: 1023px)").matches) return;
-		const sidebar = document.getElementById("sidebar");
-		const mainContent = document.getElementById("main-content-column");
-		if (sidebar && mainContent) {
-			stopLayoutShiftObserver = observeLayoutShifts(sidebar, mainContent);
-		}
-	}
-
-	function stopMobileLayoutTransition(): void {
-		window.clearTimeout(stopLayoutShiftTimer);
-		stopLayoutShiftTimer = window.setTimeout(() => {
-			stopLayoutShiftObserver?.();
-			stopLayoutShiftObserver = undefined;
-		}, 350);
-	}
-
 	let navigationGeneration = 0;
 	let navigationActive = false;
 	let scrollStarted = false;
@@ -319,7 +296,6 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 		scrollStarted = false;
 		sidebarSyncPending = false;
 		resetPersistentSidebars();
-		startMobileLayoutTransition();
 	}
 
 	function onSwupReplace(): void {
@@ -334,14 +310,12 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 		if (currentGeneration !== navigationGeneration) return;
 		sidebarSyncPending = false;
 		await syncSidebarPages();
-		if (currentGeneration === navigationGeneration) stopMobileLayoutTransition();
 	}
 
 	function onVisitAbort(): void {
 		navigationGeneration += 1;
 		navigationActive = false;
 		sidebarSyncPending = false;
-		stopMobileLayoutTransition();
 	}
 
 	function bindSwupHooks(): void {
