@@ -13,6 +13,14 @@ export const siteConfig: SiteConfig = {
 	topAppBar: {
 		contentAlign: "center",
 	},
+	// 显示设置面板控制：配置各项前端切换项的可见性（默认全部开启）。
+	displaySettings: {
+		colorStyle: true, // 是否展示配色风格 9 宫格
+		colorSpec: true, // 是否展示 Color Spec 调色规范切换
+		wallpaperMode: true, // 是否展示页面背景（纯色/横幅）切换
+		layoutMode: true, // 是否展示文章列表布局（列表/网格）切换
+		reduceMotion: true, // 是否展示减少动效切换
+	},
 	lang: "en", // Language code, e.g. 'en', 'zh_CN', 'ja', etc.
 	themeColor: {
 		hue: 315, // Default hue 0-360. ★ 站点设计默认粉紫（偏二次元）；262 紫 / 345 粉 也可选
@@ -93,4 +101,22 @@ export function getDefaultStyle(): string {
 /** 站点默认 Color Spec（2021 / 2025） */
 export function getDefaultSpec(): string {
 	return siteConfig.themeColor.spec;
+}
+
+/** 解析并返回显示设置面板各项开关（未配置时默认 true） */
+export function resolveDisplaySettings(): {
+	colorStyle: boolean;
+	colorSpec: boolean;
+	wallpaperMode: boolean;
+	layoutMode: boolean;
+	reduceMotion: boolean;
+} {
+	const cfg = siteConfig.displaySettings;
+	return {
+		colorStyle: cfg?.colorStyle ?? true,
+		colorSpec: cfg?.colorSpec ?? true,
+		wallpaperMode: cfg?.wallpaperMode ?? true,
+		layoutMode: cfg?.layoutMode ?? true,
+		reduceMotion: cfg?.reduceMotion ?? true,
+	};
 }

@@ -4,6 +4,19 @@ export type WallpaperMode = "banner" | "none";
 
 export type TopAppBarContentAlign = "left" | "center";
 
+export type DisplaySettingsConfig = {
+	/** 是否在显示设置面板展示配色风格（9 宫格）选择器（默认 true） */
+	colorStyle?: boolean;
+	/** 是否在显示设置面板展示 Color Spec（调色规范 2021 / 2025）切换器（默认 true） */
+	colorSpec?: boolean;
+	/** 是否在显示设置面板展示 Page background（页面背景 纯色 / 横幅）切换器（默认 true） */
+	wallpaperMode?: boolean;
+	/** 是否在显示设置面板展示 Layout（文章列表布局 列表 / 网格）切换器（默认 true） */
+	layoutMode?: boolean;
+	/** 是否在显示设置面板展示 Reduce motion（减少动效）切换器（默认 true） */
+	reduceMotion?: boolean;
+};
+
 export type SiteConfig = {
 	site: string;
 	base?: string;
@@ -13,6 +26,9 @@ export type SiteConfig = {
 		/** 桌面端标题与导航内容组的对齐方式。 */
 		contentAlign: TopAppBarContentAlign;
 	};
+
+	/** 显示设置浮层各切换项的前端可见性控制 */
+	displaySettings?: DisplaySettingsConfig;
 
 	lang:
 		| "en"

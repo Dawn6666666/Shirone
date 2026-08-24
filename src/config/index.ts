@@ -47,6 +47,11 @@ export { POST_CARD_MIN_WIDTH, postListConfig } from "./postListConfig";
 export { profileConfig } from "./profileConfig";
 export { projectsConfig } from "./projectsConfig";
 export { sidebarConfig } from "./sidebarConfig";
-export { getDefaultSpec, getDefaultStyle, siteConfig } from "./siteConfig";
+export {
+	getDefaultSpec,
+	getDefaultStyle,
+	resolveDisplaySettings,
+	siteConfig,
+} from "./siteConfig";
 export { skillsConfig } from "./skillsConfig";
 export { timelineConfig } from "./timelineConfig";

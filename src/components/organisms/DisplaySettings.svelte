@@ -32,11 +32,18 @@ import {
 } from "@utils/setting-utils";
 import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
 import { onMount } from "svelte";
-import { getDefaultSpec, getDefaultStyle, siteConfig } from "@/config";
+import {
+	getDefaultSpec,
+	getDefaultStyle,
+	resolveDisplaySettings,
+	siteConfig,
+} from "@/config";
 import type { WallpaperMode } from "@/types/config";
 import type { PostListMode } from "@/types/postListConfig";
 
 let { class: className = "" }: { class?: string } = $props();
+
+const displayConfig = resolveDisplaySettings();
 
 const defaultHue = getDefaultHue();
 const defaultStyle = getDefaultStyle() as McStyle;
@@ -195,79 +202,91 @@ const stylePreviews = $derived(
             </div>
             <Slider bind:value={hue} min={0} max={360} step={5} label={i18n(I18nKey.themeColor)} />
 
-            <div class="flex flex-col gap-2 pt-1">
-                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorStyle)}</span>
-                <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label={i18n(I18nKey.colorStyle)}>
-                    {#each stylePreviews as p (p.style)}
-                        <button
-                            type="button"
-                            role="radio"
-                            aria-checked={style === p.style}
-                            title={p.label}
-                            aria-label={p.label}
-                            class="m3-style-cell"
-                            class:selected={style === p.style}
-                            onclick={() => (style = p.style)}
-                        >
-                            <span class="m3-style-cell__dots">
-                                <span class="m3-style-cell__dot" style={`background: ${p.colors.primary}`}></span>
-                                <span class="m3-style-cell__dot" style={`background: ${p.colors.secondary}`}></span>
-                                <span class="m3-style-cell__dot" style={`background: ${p.colors.tertiary}`}></span>
-                            </span>
-                            <span class="m3-style-cell__name">{p.label}</span>
-                        </button>
-                    {/each}
+            {#if displayConfig.colorStyle}
+                <div class="flex flex-col gap-2 pt-1">
+                    <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorStyle)}</span>
+                    <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label={i18n(I18nKey.colorStyle)}>
+                        {#each stylePreviews as p (p.style)}
+                            <button
+                                type="button"
+                                role="radio"
+                                aria-checked={style === p.style}
+                                title={p.label}
+                                aria-label={p.label}
+                                class="m3-style-cell"
+                                class:selected={style === p.style}
+                                onclick={() => (style = p.style)}
+                            >
+                                <span class="m3-style-cell__dots">
+                                    <span class="m3-style-cell__dot" style={`background: ${p.colors.primary}`}></span>
+                                    <span class="m3-style-cell__dot" style={`background: ${p.colors.secondary}`}></span>
+                                    <span class="m3-style-cell__dot" style={`background: ${p.colors.tertiary}`}></span>
+                                </span>
+                                <span class="m3-style-cell__name">{p.label}</span>
+                            </button>
+                        {/each}
+                    </div>
                 </div>
-            </div>
+            {/if}
 
-            <div class="flex flex-col gap-1.5 pt-1">
-                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorSpec)}</span>
-                <SegmentedButton
-                    options={MC_SPECS.map((s) => ({
-                        value: s,
-                        label: s === "2021" ? i18n(I18nKey.spec2021) : i18n(I18nKey.spec2025),
-                    }))}
-                    bind:value={spec}
-                    label={i18n(I18nKey.colorSpec)}
-                />
-            </div>
+            {#if displayConfig.colorSpec}
+                <div class="flex flex-col gap-1.5 pt-1">
+                    <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.colorSpec)}</span>
+                    <SegmentedButton
+                        options={MC_SPECS.map((s) => ({
+                            value: s,
+                            label: s === "2021" ? i18n(I18nKey.spec2021) : i18n(I18nKey.spec2025),
+                        }))}
+                        bind:value={spec}
+                        label={i18n(I18nKey.colorSpec)}
+                    />
+                </div>
+            {/if}
         </div>
 
         <!-- 段二：界面布局（页面背景 + 列表布局） -->
-        <div class="p-4 flex flex-col gap-3">
-            <div class="flex flex-col gap-1.5">
-                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.wallpaperMode)}</span>
-                <SegmentedButton
-                    options={[
-                        { value: "none", label: i18n(I18nKey.wallpaperModeNone) },
-                        { value: "banner", label: i18n(I18nKey.wallpaperModeBanner) },
-                    ]}
-                    bind:value={wallpaperMode}
-                    label={i18n(I18nKey.wallpaperMode)}
-                />
-            </div>
+        {#if displayConfig.wallpaperMode || displayConfig.layoutMode}
+            <div class="p-4 flex flex-col gap-3">
+                {#if displayConfig.wallpaperMode}
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.wallpaperMode)}</span>
+                        <SegmentedButton
+                            options={[
+                                { value: "none", label: i18n(I18nKey.wallpaperModeNone) },
+                                { value: "banner", label: i18n(I18nKey.wallpaperModeBanner) },
+                            ]}
+                            bind:value={wallpaperMode}
+                            label={i18n(I18nKey.wallpaperMode)}
+                        />
+                    </div>
+                {/if}
 
-            <div class="flex flex-col gap-1.5">
-                <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.layoutMode)}</span>
-                <SegmentedButton
-                    options={[
-                        { value: "list", label: i18n(I18nKey.layoutList) },
-                        { value: "grid", label: i18n(I18nKey.layoutGrid) },
-                    ]}
-                    bind:value={postListMode}
-                    label={i18n(I18nKey.layoutMode)}
-                />
+                {#if displayConfig.layoutMode}
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.layoutMode)}</span>
+                        <SegmentedButton
+                            options={[
+                                { value: "list", label: i18n(I18nKey.layoutList) },
+                                { value: "grid", label: i18n(I18nKey.layoutGrid) },
+                            ]}
+                            bind:value={postListMode}
+                            label={i18n(I18nKey.layoutMode)}
+                        />
+                    </div>
+                {/if}
             </div>
-        </div>
+        {/if}
 
         <!-- 段三：动效与体验 -->
-        <div class="p-4 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <Icon icon="material-symbols:motion-photos-off-outline-rounded" class="text-lg text-[var(--primary)]" />
-                <span class="text-sm font-bold text-[var(--on-surface)]">{i18n(I18nKey.reduceMotion)}</span>
+        {#if displayConfig.reduceMotion}
+            <div class="p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <Icon icon="material-symbols:motion-photos-off-outline-rounded" class="text-lg text-[var(--primary)]" />
+                    <span class="text-sm font-bold text-[var(--on-surface)]">{i18n(I18nKey.reduceMotion)}</span>
+                </div>
+                <Switch bind:checked={motionReduced} label={i18n(I18nKey.reduceMotion)} icons />
             </div>
-            <Switch bind:checked={motionReduced} label={i18n(I18nKey.reduceMotion)} icons />
-        </div>
+        {/if}
     </PanelStack>
 </div>
 
