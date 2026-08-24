@@ -13,7 +13,8 @@ export const BANNER_HEIGHT_EXTEND = 30;
 export const BANNER_HEIGHT_HOME = BANNER_HEIGHT + BANNER_HEIGHT_EXTEND;
 
 // The height the main panel overlaps the banner, unit: rem
-export const MAIN_PANEL_OVERLAPS_BANNER_HEIGHT = 3.5;
+// Keep a small overlap so the content frame meets the wave edge naturally.
+export const MAIN_PANEL_OVERLAPS_BANNER_HEIGHT = 1;
 
 // Page width: rem. Single sidebar uses PAGE_WIDTH; dual-column
 // arrangement widens the frame one tier (resolved in responsive-utils).
