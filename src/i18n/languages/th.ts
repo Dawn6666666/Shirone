@@ -256,4 +256,15 @@ export const th: Translation = {
 	[Key.resetConfirmMessage]: "จะคืนค่าสีหลัก สไตล์สี และสเปกสีกลับเป็นค่าเริ่มต้น",
 	[Key.cancel]: "ยกเลิก",
 	[Key.reset]: "รีเซ็ต",
+
+	[Key.rss]: "ฟีด RSS",
+	[Key.rssSubtitle]: "ติดตามบทความล่าสุดผ่านโปรแกรมอ่าน RSS",
+	[Key.atom]: "ฟีด Atom",
+	[Key.atomSubtitle]: "ติดตามบทความล่าสุดผ่านโปรแกรมอ่าน Atom",
+	[Key.feedLink]: "ที่อยู่ฟีด",
+	[Key.feedHowToUse]: "วิธีติดตาม",
+	[Key.feedHowToUseDesc]:
+		"เพิ่ม URL ฟีดด้านบนลงในโปรแกรมอ่าน RSS/Atom (เช่น NetNewsWire, Feedly, Inoreader, Follow) เพื่อรับการแจ้งเตือนบทความใหม่",
+	[Key.feedOpenXml]: "ดู XML ต้นฉบับ",
+	[Key.feedRecentPosts]: "บทความล่าสุดในฟีด",
 };

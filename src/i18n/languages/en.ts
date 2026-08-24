@@ -266,4 +266,15 @@ export const en: Translation = {
 		"This will restore the default hue, color style and color spec.",
 	[Key.cancel]: "Cancel",
 	[Key.reset]: "Reset",
+
+	[Key.rss]: "RSS Feed",
+	[Key.rssSubtitle]: "Subscribe to latest articles via RSS reader",
+	[Key.atom]: "Atom Feed",
+	[Key.atomSubtitle]: "Subscribe to latest articles via Atom reader",
+	[Key.feedLink]: "Feed URL",
+	[Key.feedHowToUse]: "How to Subscribe",
+	[Key.feedHowToUseDesc]:
+		"Add this feed URL to your favorite RSS/Atom reader (e.g. NetNewsWire, Feedly, Inoreader, Follow) to get instant updates.",
+	[Key.feedOpenXml]: "View Raw XML",
+	[Key.feedRecentPosts]: "Recent Posts in Feed",
 };

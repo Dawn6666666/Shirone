@@ -267,4 +267,15 @@ export const ja: Translation = {
 	[Key.resetConfirmMessage]: "既定の色相・配色スタイル・配色仕様に戻ります。",
 	[Key.cancel]: "キャンセル",
 	[Key.reset]: "リセット",
+
+	[Key.rss]: "RSS フィード",
+	[Key.rssSubtitle]: "RSS リーダーで最新記事を購読",
+	[Key.atom]: "Atom フィード",
+	[Key.atomSubtitle]: "Atom リーダーで最新記事を購読",
+	[Key.feedLink]: "購読 URL",
+	[Key.feedHowToUse]: "購読方法",
+	[Key.feedHowToUseDesc]:
+		"上記の購読 URL をお好みの RSS/Atom リーダー（NetNewsWire、Feedly、Inoreader、Follow など）に登録すると、最新記事が通知されます。",
+	[Key.feedOpenXml]: "XML を直接表示",
+	[Key.feedRecentPosts]: "最新の配信記事",
 };

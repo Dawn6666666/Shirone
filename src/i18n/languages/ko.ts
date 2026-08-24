@@ -265,4 +265,15 @@ export const ko: Translation = {
 		"기본 색상, 색상 스타일, 색상 규격으로 되돌아갑니다.",
 	[Key.cancel]: "취소",
 	[Key.reset]: "재설정",
+
+	[Key.rss]: "RSS 피드",
+	[Key.rssSubtitle]: "RSS 리더기로 최신 글을 구독하세요",
+	[Key.atom]: "Atom 피드",
+	[Key.atomSubtitle]: "Atom 리더기로 최신 글을 구독하세요",
+	[Key.feedLink]: "구독 주소",
+	[Key.feedHowToUse]: "구독 방법",
+	[Key.feedHowToUseDesc]:
+		"위 주소를 선호하는 RSS/Atom 리더기(NetNewsWire, Feedly, Inoreader, Follow 등)에 등록하여 새 글 알림을 받아보세요.",
+	[Key.feedOpenXml]: "원본 XML 보기",
+	[Key.feedRecentPosts]: "피드 최신 글",
 };

@@ -268,4 +268,15 @@ export const vi: Translation = {
 		"Sẽ khôi phục hue, phong cách màu và đặc tả màu mặc định.",
 	[Key.cancel]: "Hủy",
 	[Key.reset]: "Đặt lại",
+
+	[Key.rss]: "Nguồn cấp RSS",
+	[Key.rssSubtitle]: "Đăng ký nhận bài viết mới nhất qua trình đọc RSS",
+	[Key.atom]: "Nguồn cấp Atom",
+	[Key.atomSubtitle]: "Đăng ký nhận bài viết mới nhất qua trình đọc Atom",
+	[Key.feedLink]: "Địa chỉ nguồn cấp",
+	[Key.feedHowToUse]: "Cách đăng ký",
+	[Key.feedHowToUseDesc]:
+		"Thêm URL nguồn cấp ở trên vào trình đọc RSS/Atom yêu thích của bạn (như NetNewsWire, Feedly, Inoreader, Follow) để nhận thông báo bài viết mới.",
+	[Key.feedOpenXml]: "Xem XML gốc",
+	[Key.feedRecentPosts]: "Bài viết mới nhất trong nguồn cấp",
 };

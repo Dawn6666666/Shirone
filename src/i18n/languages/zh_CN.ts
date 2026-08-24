@@ -257,4 +257,15 @@ export const zh_CN: Translation = {
 	[Key.resetConfirmMessage]: "将恢复为站点默认的色相、配色风格与 Color Spec。",
 	[Key.cancel]: "取消",
 	[Key.reset]: "重置",
+
+	[Key.rss]: "RSS 订阅",
+	[Key.rssSubtitle]: "使用 RSS 阅读器订阅本站最新文章",
+	[Key.atom]: "Atom 订阅",
+	[Key.atomSubtitle]: "使用 Atom 阅读器订阅本站最新文章",
+	[Key.feedLink]: "订阅地址",
+	[Key.feedHowToUse]: "如何订阅",
+	[Key.feedHowToUseDesc]:
+		"将上方订阅地址添加到任意 RSS/Atom 阅读器（如 NetNewsWire、Feedly、Inoreader、Follow 等），即可即时接收新文章推送。",
+	[Key.feedOpenXml]: "查看原始 XML",
+	[Key.feedRecentPosts]: "最新推送文章",
 };

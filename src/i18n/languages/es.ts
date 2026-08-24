@@ -267,4 +267,15 @@ export const es: Translation = {
 		"Se restaurarán el tono, estilo de color y especificación predeterminados.",
 	[Key.cancel]: "Cancelar",
 	[Key.reset]: "Restablecer",
+
+	[Key.rss]: "Canal RSS",
+	[Key.rssSubtitle]: "Suscríbete a los últimos artículos con un lector RSS",
+	[Key.atom]: "Canal Atom",
+	[Key.atomSubtitle]: "Suscríbete a los últimos artículos con un lector Atom",
+	[Key.feedLink]: "Dirección del canal",
+	[Key.feedHowToUse]: "Cómo suscribirse",
+	[Key.feedHowToUseDesc]:
+		"Añade esta URL a tu lector RSS/Atom favorito (como NetNewsWire, Feedly, Inoreader o Follow) para recibir actualizaciones.",
+	[Key.feedOpenXml]: "Ver XML original",
+	[Key.feedRecentPosts]: "Artículos recientes del canal",
 };

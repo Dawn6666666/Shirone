@@ -3,18 +3,23 @@
  * 页脚（消费 blog/FooterBar 原子）。
  * 只负责配置数据：版权名称/年份、RSS/Sitemap 链接、Powered by。
  */
+import FooterBar from "@components/atoms/blog/FooterBar.astro";
 import { url } from "@utils/url-utils";
 import { profileConfig } from "@/config";
-import FooterBar from "@components/atoms/blog/FooterBar.astro";
 
 const currentYear = new Date().getFullYear();
 const links = [
-	{ label: "RSS", href: url("rss.xml"), external: true },
+	{ label: "RSS", href: url("rss/") },
+	{ label: "Atom", href: url("atom/") },
 	{ label: "Sitemap", href: url("sitemap-index.xml"), external: true },
 ];
 const poweredBy = [
 	{ label: "Astro", href: "https://astro.build", external: true },
-	{ label: "Shirone", href: "https://github.com/LyraVoid/Shirone", external: true },
+	{
+		label: "Shirone",
+		href: "https://github.com/LyraVoid/Shirone",
+		external: true,
+	},
 ];
 ---
 

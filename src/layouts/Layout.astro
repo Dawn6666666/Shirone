@@ -1,8 +1,13 @@
 ---
+import { Font } from "astro:assets";
 import Snackbar from "@components/atoms/overlay/Snackbar.svelte";
 import ConfigCarrier from "@components/system/ConfigCarrier.astro";
-import { Font } from "astro:assets";
-import { expressiveCodeConfig, profileConfig, resolvedFontOptions, siteConfig } from "@/config";
+import {
+	expressiveCodeConfig,
+	profileConfig,
+	resolvedFontOptions,
+	siteConfig,
+} from "@/config";
 import type { SidebarPage } from "@/types/sidebarConfig";
 import {
 	AUTO_MODE,
@@ -62,9 +67,12 @@ if (!lang) {
 const siteLang = lang.replace("_", "-");
 const fontRoleStyle = createFontRoleStyle(resolvedFontOptions);
 const customFontsEnabled = resolvedFontOptions.mode === "custom";
-const hasBodyFont = customFontsEnabled && Boolean(resolvedFontOptions.roles.body.family);
-const hasCjkFont = customFontsEnabled && Boolean(resolvedFontOptions.roles.cjk.family);
-const hasMonoFont = customFontsEnabled && Boolean(resolvedFontOptions.roles.mono.family);
+const hasBodyFont =
+	customFontsEnabled && Boolean(resolvedFontOptions.roles.body.family);
+const hasCjkFont =
+	customFontsEnabled && Boolean(resolvedFontOptions.roles.cjk.family);
+const hasMonoFont =
+	customFontsEnabled && Boolean(resolvedFontOptions.roles.mono.family);
 ---
 
 <!DOCTYPE html>
@@ -149,6 +157,7 @@ const hasMonoFont = customFontsEnabled && Boolean(resolvedFontOptions.roles.mono
 
 		<slot name="head"></slot>
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
+		<link rel="alternate" type="application/atom+xml" title={profileConfig.name} href={`${Astro.site}atom.xml`}/>
 	</head>
 	<body
 		class="min-h-screen transition"

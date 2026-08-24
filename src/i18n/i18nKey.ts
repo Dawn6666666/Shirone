@@ -258,6 +258,17 @@ enum I18nKey {
 	backToHome = "backToHome",
 	close = "close",
 	scanToRead = "scanToRead",
+
+	// Feed subscription & guide
+	rss = "rss",
+	rssSubtitle = "rssSubtitle",
+	atom = "atom",
+	atomSubtitle = "atomSubtitle",
+	feedLink = "feedLink",
+	feedHowToUse = "feedHowToUse",
+	feedHowToUseDesc = "feedHowToUseDesc",
+	feedOpenXml = "feedOpenXml",
+	feedRecentPosts = "feedRecentPosts",
 }
 
 export default I18nKey;

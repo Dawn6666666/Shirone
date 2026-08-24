@@ -269,4 +269,15 @@ export const tr: Translation = {
 		"Varsayılan renk tonu, renk stili ve renk spesifikasyonu geri yüklenecek.",
 	[Key.cancel]: "İptal",
 	[Key.reset]: "Sıfırla",
+
+	[Key.rss]: "RSS Akışı",
+	[Key.rssSubtitle]: "RSS okuyucu ile en son yazılara abone olun",
+	[Key.atom]: "Atom Akışı",
+	[Key.atomSubtitle]: "Atom okuyucu ile en son yazılara abone olun",
+	[Key.feedLink]: "Akış Adresi",
+	[Key.feedHowToUse]: "Nasıl Abone Olunur",
+	[Key.feedHowToUseDesc]:
+		"Yeni yazı bildirimleri almak için yukarıdaki bağlantıyı dilediğiniz RSS/Atom okuyucusuna (NetNewsWire, Feedly, Inoreader, Follow vb.) ekleyin.",
+	[Key.feedOpenXml]: "Ham XML'i Görüntüle",
+	[Key.feedRecentPosts]: "Akıştaki Son Yazılar",
 };

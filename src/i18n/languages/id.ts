@@ -269,4 +269,15 @@ export const id: Translation = {
 		"Hue, gaya warna, dan spesifikasi warna akan dikembalikan ke bawaan.",
 	[Key.cancel]: "Batal",
 	[Key.reset]: "Atur ulang",
+
+	[Key.rss]: "Umpan RSS",
+	[Key.rssSubtitle]: "Berlangganan artikel terbaru melalui pembaca RSS",
+	[Key.atom]: "Umpan Atom",
+	[Key.atomSubtitle]: "Berlangganan artikel terbaru melalui pembaca Atom",
+	[Key.feedLink]: "Alamat Umpan",
+	[Key.feedHowToUse]: "Cara Berlangganan",
+	[Key.feedHowToUseDesc]:
+		"Tambahkan URL umpan di atas ke pembaca RSS/Atom favorit Anda (seperti NetNewsWire, Feedly, Inoreader, Follow) untuk menerima pembaruan.",
+	[Key.feedOpenXml]: "Lihat XML Asli",
+	[Key.feedRecentPosts]: "Artikel Terbaru di Umpan",
 };
