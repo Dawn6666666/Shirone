@@ -115,6 +115,11 @@ class FabController {
 			}
 		});
 
+		// 解密协调器重建侧栏 TOC 后发出通知，刷新悬浮目录（覆盖面板已打开时解密完成的情况）
+		document.addEventListener("shirone:toc-synced", () =>
+			this.syncFloatingToc(),
+		);
+
 		// 目录项点击平滑跳转并自动收起
 		panel?.addEventListener("click", (e) => {
 			const target = e.target as HTMLElement;
@@ -146,6 +151,10 @@ class FabController {
 	}
 
 	public openToc(): void {
+		// 打开前总是从侧栏源（#toc nav.m3-blog-toc）刷新目录内容：
+		// 加密文章解锁后侧栏 TOC 由 post-decryption 客户端重建，
+		// 悬浮面板需还原实时状态而非残留 SSR 空态。
+		this.syncFloatingToc();
 		const panel = document.getElementById("floating-toc-panel");
 		if (!panel) return;
 		this.previousFocus =
@@ -353,7 +362,7 @@ class FabController {
 		});
 	}
 
-	private syncFloatingToc(): void {
+	public syncFloatingToc(): void {
 		const tree = document.getElementById("floating-toc-tree");
 		const source = document.querySelector("#toc nav.m3-blog-toc");
 		const panel = document.getElementById("floating-toc-panel");

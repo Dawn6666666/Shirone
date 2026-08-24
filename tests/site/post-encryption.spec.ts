@@ -186,4 +186,45 @@ test.describe("文章加密交互与解密流", () => {
 		await expect(page.locator(".password-gate")).toBeVisible();
 		await expect(page.locator(".markdown-content")).toHaveCount(0);
 	});
+
+	test("移动端解密后悬浮 TOC 与侧栏同步并支持锚点跳转", async ({ page }) => {
+		await page.setViewportSize({ width: 375, height: 667 });
+		await page.goto("/posts/encrypted-demo/", { waitUntil: "networkidle" });
+
+		// 未解锁前悬浮 TOC 为空态
+		const tocBtn = page.locator("#fab-toc-btn");
+		await expect(tocBtn).toBeVisible();
+		await tocBtn.click();
+		const panel = page.locator("#floating-toc-panel");
+		await expect(panel).toHaveClass(/is-open/);
+		await expect(
+			page.locator("#floating-toc-tree a.m3-blog-toc__item"),
+		).toHaveCount(0);
+		await page.keyboard.press("Escape");
+		await expect(panel).not.toHaveClass(/is-open/);
+
+		// 解锁文章
+		await page.locator('input[name="password"]').fill("shirone-secret");
+		await page.locator('.password-gate button[type="submit"]').click();
+		await expect(page.locator(".markdown-content")).toBeVisible({
+			timeout: 10000,
+		});
+
+		// 解密后悬浮 TOC 同步侧栏标题
+		await tocBtn.click();
+		await expect(panel).toHaveClass(/is-open/);
+		const floatingItem = page
+			.locator("#floating-toc-tree a.m3-blog-toc__item")
+			.filter({ hasText: "Security Architecture and Core Features" });
+		await expect(floatingItem).toHaveCount(1);
+
+		// 点击条目锚点跳转并自动收起
+		await expect(floatingItem).toHaveAttribute(
+			"href",
+			/security-architecture-and-core-features/i,
+		);
+		await floatingItem.click();
+		await expect(panel).not.toHaveClass(/is-open/);
+		await expect(page).toHaveURL(/security-architecture-and-core-features/i);
+	});
 });

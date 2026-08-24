@@ -81,6 +81,7 @@ function syncTableOfContents(container: HTMLElement): void {
 		const anchor = document.createElement("a");
 		anchor.className = `m3-blog-toc__item${topLevel ? "" : " m3-blog-toc__item--sub"}`;
 		anchor.href = `#${encodeURIComponent(heading.slug)}`;
+		anchor.dataset.tocDepth = String(heading.depth);
 
 		const mark = document.createElement("span");
 		mark.className = "m3-blog-toc__mark";
@@ -101,6 +102,10 @@ function syncTableOfContents(container: HTMLElement): void {
 		nav.append(anchor);
 	}
 	toc.init?.();
+
+	// 通知悬浮目录（#floating-toc-tree）刷新：解密前悬浮面板 SSR 为空态，
+	// 解密后需与侧栏 TOC 保持同步。fab-controller 监听该事件并克隆侧栏源。
+	document.dispatchEvent(new CustomEvent("shirone:toc-synced"));
 }
 
 function handleAnchorScroll(): void {
