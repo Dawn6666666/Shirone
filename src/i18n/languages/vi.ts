@@ -77,6 +77,20 @@ export const vi: Translation = {
 	[Key.projectTechnologies]: "Công nghệ",
 	[Key.projectsNoResults]: "Không có dự án nào trong danh mục này",
 
+	[Key.devices]: "Thiết bị của tôi",
+	[Key.devicesBanner]:
+		"Phần cứng, tiện ích và công cụ phục vụ công việc hằng ngày của tôi.",
+	[Key.devicesCounts]: "thiết bị",
+	[Key.devicesNoResults]: "Không tìm thấy thiết bị phù hợp",
+	[Key.devicesSearchPlaceholder]: "Tìm theo tên, thương hiệu hoặc thông số...",
+	[Key.devicesCategoryLabel]: "Danh mục thiết bị",
+	[Key.devicesStatusActive]: "Sử dụng chính",
+	[Key.devicesStatusBackup]: "Dự phòng",
+	[Key.devicesStatusArchived]: "Lưu trữ",
+	[Key.devicesStatusWishlist]: "Danh sách mong muốn",
+	[Key.devicesViewSpecs]: "Xem chi tiết",
+	[Key.devicesFeatured]: "Nổi bật",
+
 	[Key.timeline]: "Dòng thời gian",
 	[Key.timelineBanner]:
 		"Hành trình phát triển, các cột mốc và khoảnh khắc đáng nhớ.",

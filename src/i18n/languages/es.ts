@@ -76,6 +76,21 @@ export const es: Translation = {
 	[Key.projectTechnologies]: "Tecnologías",
 	[Key.projectsNoResults]: "Ningún proyecto coincide con esta categoría",
 
+	[Key.devices]: "Mis Dispositivos",
+	[Key.devicesBanner]:
+		"Hardware, dispositivos y herramientas que impulsan mi flujo de trabajo diario.",
+	[Key.devicesCounts]: "dispositivos",
+	[Key.devicesNoResults]: "Ningún dispositivo coincide con tus filtros",
+	[Key.devicesSearchPlaceholder]:
+		"Buscar por nombre, marca o especificaciones...",
+	[Key.devicesCategoryLabel]: "Categorías de dispositivos",
+	[Key.devicesStatusActive]: "Principal",
+	[Key.devicesStatusBackup]: "Reserva",
+	[Key.devicesStatusArchived]: "Archivado",
+	[Key.devicesStatusWishlist]: "Lista de deseos",
+	[Key.devicesViewSpecs]: "Ver detalles",
+	[Key.devicesFeatured]: "Destacado",
+
 	[Key.timeline]: "Línea de tiempo",
 	[Key.timelineBanner]:
 		"Trayectoria de crecimiento, hitos y momentos memorables.",

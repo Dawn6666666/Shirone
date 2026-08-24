@@ -76,6 +76,20 @@ export const tr: Translation = {
 	[Key.projectTechnologies]: "Teknolojiler",
 	[Key.projectsNoResults]: "Bu kategoriyle eşleşen proje yok",
 
+	[Key.devices]: "Cihazlarım",
+	[Key.devicesBanner]:
+		"Günlük iş akışımı güçlendiren donanım, aletler ve cihazlar.",
+	[Key.devicesCounts]: "cihaz",
+	[Key.devicesNoResults]: "Filtrelere uyan cihaz bulunamadı",
+	[Key.devicesSearchPlaceholder]: "İsim, marka veya özelliklere göre ara...",
+	[Key.devicesCategoryLabel]: "Cihaz kategorileri",
+	[Key.devicesStatusActive]: "Birincil",
+	[Key.devicesStatusBackup]: "Yedek",
+	[Key.devicesStatusArchived]: "Arşivlendi",
+	[Key.devicesStatusWishlist]: "İstek listesi",
+	[Key.devicesViewSpecs]: "Detayları gör",
+	[Key.devicesFeatured]: "Öne çıkan",
+
 	[Key.timeline]: "Zaman Çizelgesi",
 	[Key.timelineBanner]:
 		"Büyüme yolculuğu, kilometre taşları ve unutulmaz anlar.",

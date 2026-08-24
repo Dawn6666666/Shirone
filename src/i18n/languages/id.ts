@@ -77,6 +77,21 @@ export const id: Translation = {
 	[Key.projectTechnologies]: "Teknologi",
 	[Key.projectsNoResults]: "Tidak ada proyek dalam kategori ini",
 
+	[Key.devices]: "Perangkat Saya",
+	[Key.devicesBanner]:
+		"Peralatan, gawai, dan alat yang menunjang alur kerja harian saya.",
+	[Key.devicesCounts]: "perangkat",
+	[Key.devicesNoResults]: "Tidak ada perangkat yang cocok dengan filter",
+	[Key.devicesSearchPlaceholder]:
+		"Cari berdasarkan nama, merek, atau spesifikasi...",
+	[Key.devicesCategoryLabel]: "Kategori perangkat",
+	[Key.devicesStatusActive]: "Utama",
+	[Key.devicesStatusBackup]: "Cadangan",
+	[Key.devicesStatusArchived]: "Arsip",
+	[Key.devicesStatusWishlist]: "Daftar keinginan",
+	[Key.devicesViewSpecs]: "Lihat detail",
+	[Key.devicesFeatured]: "Unggulan",
+
 	[Key.timeline]: "Linimasa",
 	[Key.timelineBanner]:
 		"Jejak pertumbuhan, tonggak pencapaian, dan momen berharga.",

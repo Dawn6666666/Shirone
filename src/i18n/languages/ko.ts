@@ -75,6 +75,20 @@ export const ko: Translation = {
 	[Key.projectTechnologies]: "기술",
 	[Key.projectsNoResults]: "이 카테고리에 해당하는 프로젝트가 없습니다",
 
+	[Key.devices]: "내 기기",
+	[Key.devicesBanner]:
+		"일상과 업무에서 사용하는 다양한 디지털 기기와 장비입니다.",
+	[Key.devicesCounts]: "개의 기기",
+	[Key.devicesNoResults]: "일치하는 기기가 없습니다",
+	[Key.devicesSearchPlaceholder]: "이름, 브랜드, 사양으로 검색...",
+	[Key.devicesCategoryLabel]: "기기 카테고리",
+	[Key.devicesStatusActive]: "메인 사용 중",
+	[Key.devicesStatusBackup]: "서브 / 백업",
+	[Key.devicesStatusArchived]: "보관 / 컬렉션",
+	[Key.devicesStatusWishlist]: "위시리스트",
+	[Key.devicesViewSpecs]: "상세 정보",
+	[Key.devicesFeatured]: "메인 추천",
+
 	[Key.timeline]: "타임라인",
 	[Key.timelineBanner]: "성장 궤적, 중요한 경험 및 이정표 기록.",
 	[Key.timelineCounts]: "개의 기록",
