@@ -30,9 +30,8 @@ export function packMasonry(container: HTMLElement): void {
 
 	if (colCount <= 1) return;
 
-	const columnHeights = new Array<number>(colCount).fill(0);
-	for (const card of cards) {
-		const height = card.offsetHeight; // align-items:start → 自然高度
+	const measurements = cards.map((card) => {
+		const height = card.offsetHeight;
 		const gridColumnEnd = getComputedStyle(card).gridColumnEnd;
 		const spanMatch = gridColumnEnd.match(/span\s+(\d+)/);
 		const dataSpan = Number.parseInt(card.dataset.masonrySpan ?? "", 10);
@@ -47,6 +46,13 @@ export function packMasonry(container: HTMLElement): void {
 			),
 			colCount,
 		);
+		return { card, height, span };
+	});
+
+	const columnHeights = new Array<number>(colCount).fill(0);
+	const plans = [];
+
+	for (const { card, height, span } of measurements) {
 		let shortest = 0;
 		let shortestHeight = Number.POSITIVE_INFINITY;
 		for (let col = 0; col <= colCount - span; col++) {
@@ -56,12 +62,21 @@ export function packMasonry(container: HTMLElement): void {
 				shortestHeight = candidateHeight;
 			}
 		}
-		card.style.gridColumnStart = String(shortest + 1);
-		card.style.gridColumnEnd = `span ${span}`;
-		card.style.gridRowEnd = `span ${Math.ceil((height + ROW_GAP) / ROW_UNIT)}`;
+		plans.push({
+			card,
+			colStart: String(shortest + 1),
+			colEnd: `span ${span}`,
+			rowEnd: `span ${Math.ceil((height + ROW_GAP) / ROW_UNIT)}`,
+		});
 		for (let col = shortest; col < shortest + span; col++) {
 			columnHeights[col] = shortestHeight + height + ROW_GAP;
 		}
+	}
+
+	for (const plan of plans) {
+		plan.card.style.gridColumnStart = plan.colStart;
+		plan.card.style.gridColumnEnd = plan.colEnd;
+		plan.card.style.gridRowEnd = plan.rowEnd;
 	}
 }
 
@@ -72,6 +87,13 @@ export function packMasonry(container: HTMLElement): void {
 export function setupMasonry(container: HTMLElement): void {
 	packMasonry(container);
 	if (typeof ResizeObserver === "undefined") return;
-	const observer = new ResizeObserver(() => packMasonry(container));
+	let frameId: number | null = null;
+	const observer = new ResizeObserver(() => {
+		if (frameId !== null) cancelAnimationFrame(frameId);
+		frameId = requestAnimationFrame(() => {
+			frameId = null;
+			packMasonry(container);
+		});
+	});
 	observer.observe(container);
 }

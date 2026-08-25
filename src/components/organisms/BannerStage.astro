@@ -455,14 +455,18 @@ const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
 			for (let i = 0; i < layers.length; i += 1) {
 				if (i !== nextLayer) {
 					layers[i].classList.remove("banner-stage__image--active");
+					layers[i].classList.remove("banner-stage__image--fading");
 					runtime.layerMotions[i]?.cancel();
 					runtime.layerMotions[i] = null;
 				}
 			}
 			next.classList.add("banner-stage__image--active");
+			next.classList.remove("banner-stage__image--fading");
 		} else {
 			next.classList.add("banner-stage__image--active");
+			next.classList.add("banner-stage__image--fading");
 			previous.classList.remove("banner-stage__image--active");
+			previous.classList.add("banner-stage__image--fading");
 		}
 		runtime.activeLayer = nextLayer;
 	}
@@ -749,9 +753,11 @@ const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
 			height: 100%
 			object-fit: cover
 			opacity: 0
-			transition: opacity var(--banner-fade-duration, 1200ms) var(--m3e-easing-standard)
 			will-change: opacity, transform
 			transform-origin: center center
+
+		.banner-stage__image--fading
+			transition: opacity var(--banner-fade-duration, 1200ms) var(--m3e-easing-standard)
 
 		.banner-stage__image--active
 			opacity: 1

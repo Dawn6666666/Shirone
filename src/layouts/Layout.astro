@@ -4,9 +4,10 @@ import Snackbar from "@components/atoms/overlay/Snackbar.svelte";
 import ConfigCarrier from "@components/system/ConfigCarrier.astro";
 import {
 	expressiveCodeConfig,
+	musicConfig,
 	profileConfig,
-	resolveTextureOptions,
 	resolvedFontOptions,
+	resolveTextureOptions,
 	siteConfig,
 } from "@/config";
 import type { SidebarPage } from "@/types/sidebarConfig";
@@ -54,6 +55,12 @@ const textureOptions = resolveTextureOptions();
 const defaultTexturePreset = textureOptions.defaultPreset;
 const defaultTextureOpacity = textureOptions.defaultOpacity;
 const textureEnabled = textureOptions.enable;
+
+const shouldPreconnectMeting =
+	musicConfig.enable &&
+	(musicConfig.provider === "meting" || musicConfig.provider === "mixed") &&
+	Boolean(musicConfig.meting?.id);
+
 const hasDesktopBanner = siteConfig.banner.src.desktop.length > 0;
 const hasMobileBanner = siteConfig.banner.src.mobile.length > 0;
 
@@ -114,7 +121,7 @@ const hasMonoFont =
 		{hasBodyFont && <Font cssVariable={resolvedFontOptions.roles.body.cssVariable as never} preload={resolvedFontOptions.roles.body.preload} />}
 		{hasCjkFont && <Font cssVariable={resolvedFontOptions.roles.cjk.cssVariable as never} preload={resolvedFontOptions.roles.cjk.preload} />}
 		{hasMonoFont && <Font cssVariable={resolvedFontOptions.roles.mono.cssVariable as never} preload={resolvedFontOptions.roles.mono.preload} />}
-		{favicons.map(favicon => (
+				{favicons.map(favicon => (
 			<link rel="icon"
 				href={favicon.src.startsWith('/') ? url(favicon.src) : favicon.src}
 				sizes={favicon.sizes}
@@ -180,6 +187,9 @@ const hasMonoFont =
 		<slot name="head"></slot>
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
 		<link rel="alternate" type="application/atom+xml" title={profileConfig.name} href={`${Astro.site}atom.xml`}/>
+			{shouldPreconnectMeting && (
+			<link rel="preconnect" href="https://api.injahow.cn" crossorigin />
+		)}
 	</head>
 	<body
 		class="min-h-screen transition"

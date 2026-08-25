@@ -13,19 +13,4 @@ module.exports = async function prepareLighthouse(browser) {
 			window.localStorage.setItem("theme", "light");
 		}
 	});
-
-	await page.waitForFunction(
-		() => {
-			const root = document.documentElement;
-			const animations = [...document.querySelectorAll(".onload-animation")];
-			return (
-				root.style.getPropertyValue("--mc-primary").trim().startsWith("#") &&
-				animations.every((element) => {
-					if (element.offsetParent === null) return true;
-					return getComputedStyle(element).opacity === "1";
-				})
-			);
-		},
-		{ timeout: 15_000 },
-	).catch(() => undefined);
 };

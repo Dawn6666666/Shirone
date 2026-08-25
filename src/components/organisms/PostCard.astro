@@ -1,4 +1,5 @@
 ---
+import { getImage } from "astro:assets";
 /**
  * 文章卡片（消费 blog/PostCard 原子）。
  * 只负责取数转 props：封面解析、日期格式化、分类/标签 URL、字数/时长文案。
@@ -10,8 +11,8 @@ import PostCard from "@components/atoms/blog/PostCard.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
-import { getCategoryUrl, getDir, getTagUrl } from "@utils/url-utils";
 import { isEncryptedPost } from "@utils/post-encryption";
+import { getCategoryUrl, getDir, getTagUrl } from "@utils/url-utils";
 
 interface Props {
 	class?: string;
@@ -59,7 +60,7 @@ if (image) {
 		image.startsWith("data:")
 	);
 	if (isLocal) {
-		const files = import.meta.glob<{ src: string }>("../../**", {
+		const files = import.meta.glob<ImageMetadata>("../../**", {
 			import: "default",
 		});
 		const normalizedPath = path
@@ -68,7 +69,16 @@ if (image) {
 		const file = files[normalizedPath];
 		if (file) {
 			const mod = await file();
-			coverUrl = mod.src;
+			try {
+				const optimized = await getImage({
+					src: mod,
+					format: "webp",
+					width: 720,
+				});
+				coverUrl = optimized.src;
+			} catch {
+				coverUrl = (mod as unknown as { src: string }).src;
+			}
 		}
 	}
 }
@@ -83,9 +93,7 @@ const words = remarkPluginFrontmatter.words ?? 0;
 const wordCount =
 	isEncrypted && entry.data.hideHomeContent
 		? undefined
-		: `${words} ${i18n(
-				words === 1 ? I18nKey.wordCount : I18nKey.wordsCount,
-			)}`;
+		: `${words} ${i18n(words === 1 ? I18nKey.wordCount : I18nKey.wordsCount)}`;
 const excerpt =
 	isEncrypted && entry.data.hideHomeContent
 		? i18n(I18nKey.postEncryptedSummary)
