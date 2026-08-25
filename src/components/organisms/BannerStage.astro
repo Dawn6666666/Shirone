@@ -733,20 +733,6 @@ const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
 			overflow: hidden
 			background: var(--surface-container-lowest)
 
-			&::before
-				content: ""
-				position: absolute
-				z-index: 2
-				top: 0
-				left: 50%
-				width: min(14rem, 34vw)
-				height: 3px
-				transform: translateX(-50%)
-				background: var(--primary)
-				border-radius: 0 0 var(--shape-corner-full) var(--shape-corner-full)
-				opacity: 0.62
-				box-shadow: unquote("0 0 1.5rem color-mix(in srgb, var(--primary) 70%, transparent)")
-
 			&[hidden]
 				display: none
 
@@ -777,9 +763,6 @@ const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
 
 		:global(html.dark) .banner-stage__scrim
 			background: unquote("rgb(0 0 0 / var(--banner-dim-opacity))")
-
-		:global(html.dark) .banner-stage::before
-			opacity: 0.9
 
 		.banner-stage__copy
 			z-index: 2
