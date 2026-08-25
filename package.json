@@ -86,7 +86,6 @@
     "@biomejs/biome": "2.2.5",
     "@lhci/cli": "0.15.1",
     "@playwright/test": "^1.62.1",
-    "@lhci/cli": "0.15.1",
     "@rollup/plugin-yaml": "^4.1.2",
     "@swup/scroll-plugin": "3.3.2",
     "@types/hast": "^3.0.5",
