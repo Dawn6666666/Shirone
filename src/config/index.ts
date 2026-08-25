@@ -52,6 +52,7 @@ export {
 	getDefaultSpec,
 	getDefaultStyle,
 	resolveDisplaySettings,
+	resolveTextureOptions,
 	siteConfig,
 } from "./siteConfig";
 export { skillsConfig } from "./skillsConfig";

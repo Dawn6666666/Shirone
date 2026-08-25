@@ -22,7 +22,10 @@ export default defineConfig({
 		trace: "retain-on-failure",
 	},
 	webServer: {
-		command: "pnpm astro dev --port 4321 --host",
+		command:
+			process.platform === "win32"
+				? "pnpm.cmd astro dev --port 4321 --host"
+				: "pnpm astro dev --port 4321 --host",
 		url: "http://localhost:4321",
 		reuseExistingServer: true,
 		timeout: 120_000,

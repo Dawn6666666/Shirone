@@ -7,6 +7,18 @@ export const WALLPAPER_MODE_KEY = "wallpaper-mode";
 export const WALLPAPER_MODE_CHANGE_EVENT = "wallpaper-mode:change";
 export const WALLPAPER_MODE_OPTIONS = ["none", "banner"] as const;
 
+export const TEXTURE_PRESET_KEY = "texture-preset";
+export const TEXTURE_OPACITY_KEY = "texture-opacity";
+export const TEXTURE_CHANGE_EVENT = "texture:change";
+export const TEXTURE_PRESETS = [
+	"none",
+	"starlight",
+	"cyber-dots",
+	"topography",
+	"geometric",
+	"sakura",
+] as const;
+
 // Banner height unit: vh
 export const BANNER_HEIGHT = 35;
 export const BANNER_HEIGHT_EXTEND = 30;

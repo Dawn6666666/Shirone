@@ -23,11 +23,17 @@ import {
 } from "@utils/mc-utils";
 import {
 	getDefaultHue,
+	getDefaultTextureOpacity,
+	getDefaultTexturePreset,
 	getHue,
 	getMotionPreference,
+	getStoredTextureOpacity,
+	getStoredTexturePreset,
 	getStoredWallpaperMode,
 	setHue,
 	setMotionPreference,
+	setTextureOpacity,
+	setTexturePreset,
 	setWallpaperMode,
 } from "@utils/setting-utils";
 import { getSpec, getStyle, setSpec, setStyle } from "@utils/theme-utils";
@@ -40,6 +46,7 @@ import {
 } from "@/config";
 import type { WallpaperMode } from "@/types/config";
 import type { PostListMode } from "@/types/postListConfig";
+import type { TexturePreset } from "@/types/textureConfig";
 
 let { class: className = "" }: { class?: string } = $props();
 
@@ -66,6 +73,50 @@ const defaultWallpaperMode = siteConfig.wallpaperMode.defaultMode;
 let wallpaperMode = $state<WallpaperMode>(getStoredWallpaperMode());
 let lastAppliedWallpaperMode = wallpaperMode;
 
+// 背景纹理预设与浓度
+const defaultTexturePreset = getDefaultTexturePreset();
+const defaultTextureOpacity = getDefaultTextureOpacity();
+let texturePreset = $state<TexturePreset>(getStoredTexturePreset());
+let lastAppliedTexturePreset = texturePreset;
+let textureOpacity = $state<number>(getStoredTextureOpacity());
+
+const textureOptions: {
+	value: TexturePreset;
+	labelKey: I18nKey;
+	icon: string;
+}[] = [
+	{
+		value: "none",
+		labelKey: I18nKey.texturePresetNone,
+		icon: "material-symbols:block-rounded",
+	},
+	{
+		value: "starlight",
+		labelKey: I18nKey.texturePresetStarlight,
+		icon: "material-symbols:auto-awesome-outline-rounded",
+	},
+	{
+		value: "cyber-dots",
+		labelKey: I18nKey.texturePresetCyberDots,
+		icon: "material-symbols:grid-view-rounded",
+	},
+	{
+		value: "topography",
+		labelKey: I18nKey.texturePresetTopography,
+		icon: "material-symbols:waves-rounded",
+	},
+	{
+		value: "geometric",
+		labelKey: I18nKey.texturePresetGeometric,
+		icon: "material-symbols:category-outline-rounded",
+	},
+	{
+		value: "sakura",
+		labelKey: I18nKey.texturePresetSakura,
+		icon: "material-symbols:local-florist-outline-rounded",
+	},
+];
+
 // 明暗切换时重算色卡（LightDarkSwitch 改 <html> 的 class）
 onMount(() => {
 	const observer = new MutationObserver(() => {
@@ -79,13 +130,15 @@ onMount(() => {
 	return () => observer.disconnect();
 });
 
-/** 完整重置：色相 / 配色风格 / Color Spec / 列表布局 全部还原为站点默认（点击即生效，无确认弹窗） */
+/** 完整重置：色相 / 配色风格 / Color Spec / 列表布局 / 背景纹理 全部还原为站点默认（点击即生效，无确认弹窗） */
 function confirmReset() {
 	hue = defaultHue;
 	style = defaultStyle;
 	spec = defaultSpec;
 	postListMode = defaultLayoutMode;
 	wallpaperMode = defaultWallpaperMode;
+	texturePreset = defaultTexturePreset;
+	textureOpacity = defaultTextureOpacity;
 }
 
 /** 是否有可重置的偏离（控制 Reset 按钮可见性） */
@@ -94,7 +147,9 @@ const isDirty = $derived(
 		style !== defaultStyle ||
 		spec !== defaultSpec ||
 		postListMode !== defaultLayoutMode ||
-		wallpaperMode !== defaultWallpaperMode,
+		wallpaperMode !== defaultWallpaperMode ||
+		texturePreset !== defaultTexturePreset ||
+		textureOpacity !== defaultTextureOpacity,
 );
 
 $effect(() => {
@@ -113,6 +168,14 @@ $effect(() => {
 	if (wallpaperMode === lastAppliedWallpaperMode) return;
 	lastAppliedWallpaperMode = wallpaperMode;
 	setWallpaperMode(wallpaperMode);
+});
+$effect(() => {
+	if (texturePreset === lastAppliedTexturePreset) return;
+	lastAppliedTexturePreset = texturePreset;
+	setTexturePreset(texturePreset);
+});
+$effect(() => {
+	setTextureOpacity(textureOpacity);
 });
 $effect(() => {
 	if (postListMode === lastAppliedMode) return;
@@ -244,8 +307,8 @@ const stylePreviews = $derived(
             {/if}
         </div>
 
-        <!-- 段二：界面布局（页面背景 + 列表布局） -->
-        {#if displayConfig.wallpaperMode || displayConfig.layoutMode}
+        <!-- 段二：界面布局（页面背景 + 列表布局 + 背景纹理） -->
+        {#if displayConfig.wallpaperMode || displayConfig.layoutMode || displayConfig.texture}
             <div class="p-4 flex flex-col gap-3">
                 {#if displayConfig.wallpaperMode}
                     <div class="flex flex-col gap-1.5">
@@ -272,6 +335,29 @@ const stylePreviews = $derived(
                             bind:value={postListMode}
                             label={i18n(I18nKey.layoutMode)}
                         />
+                    </div>
+                {/if}
+
+                {#if displayConfig.texture}
+                    <div class="flex flex-col gap-2 pt-1">
+                        <span class="text-sm font-bold text-[var(--on-surface-variant)] ml-1">{i18n(I18nKey.texturePreset)}</span>
+                        <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label={i18n(I18nKey.texturePreset)}>
+                            {#each textureOptions as opt (opt.value)}
+                                <button
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={texturePreset === opt.value}
+                                    title={i18n(opt.labelKey)}
+                                    aria-label={i18n(opt.labelKey)}
+                                    class="m3-style-cell"
+                                    class:selected={texturePreset === opt.value}
+                                    onclick={() => (texturePreset = opt.value)}
+                                >
+                                    <Icon icon={opt.icon} class="text-lg" />
+                                    <span class="m3-style-cell__name">{i18n(opt.labelKey)}</span>
+                                </button>
+                            {/each}
+                        </div>
                     </div>
                 {/if}
             </div>

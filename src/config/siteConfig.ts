@@ -1,4 +1,5 @@
 import type { SiteConfig } from "@/types/config";
+import type { ResolvedTextureOptions, TextureConfig } from "@/types/textureConfig";
 
 /**
  * 站点核心配置：标题 / 语言 / 主题色（HCT 动态配色）/ 横幅 / 目录 / 进度条 / favicon。
@@ -20,6 +21,7 @@ export const siteConfig: SiteConfig = {
 		wallpaperMode: true, // 是否展示页面背景（纯色/横幅）切换
 		layoutMode: true, // 是否展示文章列表布局（列表/网格）切换
 		reduceMotion: true, // 是否展示减少动效切换
+		texture: true, // 是否展示背景纹理选择
 	},
 	lang: "en", // Language code, e.g. 'en', 'zh_CN', 'ja', etc.
 	themeColor: {
@@ -35,6 +37,13 @@ export const siteConfig: SiteConfig = {
 	// 访客在“显示设置”中的选择会保存在浏览器中，并覆盖这里的默认值。
 	wallpaperMode: {
 		defaultMode: "banner",
+	},
+	// 页面背景纹理系统配置（5 大精美预设 + 零开销 HCT 动态取色）
+	texture: {
+		enable: true, // 是否启用背景纹理系统
+		defaultPreset: "starlight", // 默认纹理预设："none" | "starlight" | "cyber-dots" | "topography" | "geometric" | "sakura"
+		defaultOpacity: 0.12, // 默认纹理浓度 (0.05 ~ 0.25)
+		allowMotion: true, // 是否允许背景微动效（开启 reduced-motion 时自动静止）
 	},
 	banner: {
 		// 将图片放入 public 目录，并填写以 "/" 开头的站点路径。
@@ -108,6 +117,50 @@ export const siteConfig: SiteConfig = {
 	],
 };
 
+/**
+ * 解析并返回背景纹理配置选项（包含关闭短路与 0 开销优化判定）
+ */
+export function resolveTextureOptions(
+	config: boolean | TextureConfig | undefined = siteConfig.texture,
+	displaySettingsTexture: boolean = siteConfig.displaySettings?.texture ?? true,
+): ResolvedTextureOptions {
+	if (config === false || config === undefined) {
+		return {
+			enable: false,
+			defaultPreset: "none",
+			defaultOpacity: 0.12,
+			allowMotion: false,
+		};
+	}
+
+	if (config === true) {
+		return {
+			enable: true,
+			defaultPreset: "starlight",
+			defaultOpacity: 0.12,
+			allowMotion: true,
+		};
+	}
+
+	const enable = config.enable ?? true;
+	const defaultPreset = config.defaultPreset ?? "starlight";
+	const defaultOpacity = config.defaultOpacity ?? 0.12;
+	const allowMotion = config.allowMotion ?? true;
+
+	// 性能短路优化：
+	// 如果配置 enable: false，或者 defaultPreset: "none" 且显示设置面板未允许切换（访客也无法开启），
+	// 则自动视为完全关闭以达成零 DOM、零 CSS、零运行时代价。
+	const effectiveEnable =
+		enable && (defaultPreset !== "none" || displaySettingsTexture);
+
+	return {
+		enable: effectiveEnable,
+		defaultPreset,
+		defaultOpacity,
+		allowMotion,
+	};
+}
+
 /** 站点默认配色风格（访客未做选择时的回退值） */
 export function getDefaultStyle(): string {
 	return siteConfig.themeColor.style;
@@ -125,13 +178,19 @@ export function resolveDisplaySettings(): {
 	wallpaperMode: boolean;
 	layoutMode: boolean;
 	reduceMotion: boolean;
+	texture: boolean;
 } {
 	const cfg = siteConfig.displaySettings;
+	const textureOpts = resolveTextureOptions(
+		siteConfig.texture,
+		cfg?.texture ?? true,
+	);
 	return {
 		colorStyle: cfg?.colorStyle ?? true,
 		colorSpec: cfg?.colorSpec ?? true,
 		wallpaperMode: cfg?.wallpaperMode ?? true,
 		layoutMode: cfg?.layoutMode ?? true,
 		reduceMotion: cfg?.reduceMotion ?? true,
+		texture: textureOpts.enable && (cfg?.texture ?? true),
 	};
 }

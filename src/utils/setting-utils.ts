@@ -3,12 +3,88 @@ import {
 	DARK_MODE,
 	DEFAULT_THEME,
 	LIGHT_MODE,
+	TEXTURE_CHANGE_EVENT,
+	TEXTURE_OPACITY_KEY,
+	TEXTURE_PRESET_KEY,
+	TEXTURE_PRESETS,
 	WALLPAPER_MODE_CHANGE_EVENT,
 	WALLPAPER_MODE_KEY,
 } from "@constants/constants.ts";
 import { applyCurrentScheme } from "@utils/theme-utils";
-import { expressiveCodeConfig } from "@/config";
+import { expressiveCodeConfig, siteConfig } from "@/config";
 import type { LIGHT_DARK_MODE, WallpaperMode } from "@/types/config";
+import type { TexturePreset } from "@/types/textureConfig";
+
+export function isTexturePreset(value: unknown): value is TexturePreset {
+	return (
+		typeof value === "string" &&
+		(TEXTURE_PRESETS as readonly string[]).includes(value)
+	);
+}
+
+export function getDefaultTexturePreset(): TexturePreset {
+	const textureCfg =
+		typeof siteConfig.texture === "object" ? siteConfig.texture : undefined;
+	const fallback = textureCfg?.defaultPreset ?? "starlight";
+	const value =
+		document.getElementById("config-carrier")?.dataset.texturePreset;
+	return isTexturePreset(value) ? value : fallback;
+}
+
+export function getStoredTexturePreset(): TexturePreset {
+	const value = localStorage.getItem(TEXTURE_PRESET_KEY);
+	return isTexturePreset(value) ? value : getDefaultTexturePreset();
+}
+
+export function setTexturePreset(preset: TexturePreset): void {
+	localStorage.setItem(TEXTURE_PRESET_KEY, preset);
+	document.documentElement.dataset.texturePreset = preset;
+	window.dispatchEvent(
+		new CustomEvent(TEXTURE_CHANGE_EVENT, {
+			detail: { preset, opacity: getStoredTextureOpacity() },
+		}),
+	);
+}
+
+export function getDefaultTextureOpacity(): number {
+	const textureCfg =
+		typeof siteConfig.texture === "object" ? siteConfig.texture : undefined;
+	const fallback = textureCfg?.defaultOpacity ?? 0.12;
+	const carrier = document.getElementById("config-carrier");
+	const val = carrier?.dataset.textureOpacity;
+	if (val) {
+		const parsed = Number.parseFloat(val);
+		if (!Number.isNaN(parsed) && parsed >= 0 && parsed <= 1) {
+			return parsed;
+		}
+	}
+	return fallback;
+}
+
+export function getStoredTextureOpacity(): number {
+	const value = localStorage.getItem(TEXTURE_OPACITY_KEY);
+	if (value) {
+		const parsed = Number.parseFloat(value);
+		if (!Number.isNaN(parsed) && parsed >= 0 && parsed <= 1) {
+			return parsed;
+		}
+	}
+	return getDefaultTextureOpacity();
+}
+
+export function setTextureOpacity(opacity: number): void {
+	const clamped = Math.min(Math.max(opacity, 0), 1);
+	localStorage.setItem(TEXTURE_OPACITY_KEY, String(clamped));
+	document.documentElement.style.setProperty(
+		"--texture-opacity",
+		String(clamped),
+	);
+	window.dispatchEvent(
+		new CustomEvent(TEXTURE_CHANGE_EVENT, {
+			detail: { preset: getStoredTexturePreset(), opacity: clamped },
+		}),
+	);
+}
 
 export function isWallpaperMode(value: unknown): value is WallpaperMode {
 	return value === "banner" || value === "none";

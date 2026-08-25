@@ -225,6 +225,15 @@ enum I18nKey {
 	wallpaperModeBanner = "wallpaperModeBanner",
 	wallpaperModeNone = "wallpaperModeNone",
 
+	texturePreset = "texturePreset",
+	texturePresetNone = "texturePresetNone",
+	texturePresetStarlight = "texturePresetStarlight",
+	texturePresetCyberDots = "texturePresetCyberDots",
+	texturePresetTopography = "texturePresetTopography",
+	texturePresetGeometric = "texturePresetGeometric",
+	texturePresetSakura = "texturePresetSakura",
+	textureOpacity = "textureOpacity",
+
 	layoutMode = "layoutMode",
 	layoutList = "layoutList",
 	layoutGrid = "layoutGrid",

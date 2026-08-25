@@ -1,4 +1,5 @@
 import type { AUTO_MODE, DARK_MODE, LIGHT_MODE } from "@constants/constants";
+import type { TextureConfig } from "./textureConfig";
 
 export type WallpaperMode = "banner" | "none";
 
@@ -15,6 +16,8 @@ export type DisplaySettingsConfig = {
 	layoutMode?: boolean;
 	/** 是否在显示设置面板展示 Reduce motion（减少动效）切换器（默认 true） */
 	reduceMotion?: boolean;
+	/** 是否在显示设置面板展示背景纹理选择器（默认 true，且受 texture.enable 控制） */
+	texture?: boolean;
 };
 
 export type SiteConfig = {
@@ -51,6 +54,8 @@ export type SiteConfig = {
 	wallpaperMode: {
 		defaultMode: WallpaperMode;
 	};
+	/** 页面背景纹理系统配置，支持布尔值直接开关或详细配置对象 */
+	texture?: boolean | TextureConfig;
 	banner: {
 		src: {
 			desktop: string[];
