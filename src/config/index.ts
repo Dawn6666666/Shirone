@@ -57,3 +57,8 @@ export {
 } from "./siteConfig";
 export { skillsConfig } from "./skillsConfig";
 export { timelineConfig } from "./timelineConfig";
+
+export {
+	imageBloomConfig,
+	resolveImageBloomOptions,
+} from "./imageBloomConfig";

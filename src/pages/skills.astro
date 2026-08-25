@@ -12,5 +12,5 @@ if (!skillsConfig.enable) {
 ---
 
 <MainGridLayout title={i18n(I18nKey.skills)} description={i18n(I18nKey.skillsBanner)} page="skills">
-	<SkillSection categories={skillsConfig.categories} items={skillsConfig.items} client:only="svelte" />
+	<SkillSection categories={skillsConfig.categories} items={skillsConfig.items} client:visible />
 </MainGridLayout>

@@ -13,6 +13,7 @@
 @import "./markdown.css" layer(components);
 @import "./expressive-code.css" layer(components);
 @import "./toc.css" layer(components);
+@import "./image-bloom.css" layer(components);
 
 @layer base {
     /* 全局正文色走主题变量：裸内容（未显式设色的文字/按钮）明暗自适应，

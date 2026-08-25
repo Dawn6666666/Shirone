@@ -233,6 +233,16 @@ export default defineConfig({
 			],
 		},
 		build: {
+			minify: "esbuild",
+			cssCodeSplit: true,
+			cssMinify: "esbuild",
+			chunkSizeWarningLimit: 1000,
+			esbuild: isBuildCommand
+				? {
+						drop: ["debugger"],
+						pure: ["console.log", "console.debug"],
+					}
+				: undefined,
 			rollupOptions: {
 				onwarn(warning, warn) {
 					if (

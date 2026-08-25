@@ -17,7 +17,7 @@ export async function resolveAsset(
 		src.startsWith("data:")
 	);
 	if (!isLocal) return src;
-	const files = import.meta.glob<{ src: string }>("../**", {
+	const files = import.meta.glob<{ src: string }>("../**/*.{png,jpg,jpeg,webp,avif,svg,gif}", {
 		import: "default",
 	});
 	const normalizedPath = path

@@ -11,5 +11,5 @@ import { compassData } from "../data/compass";
 ---
 
 <MainGridLayout title={i18n(I18nKey.compass)} description={i18n(I18nKey.compassBanner)} page="compass">
-    <CompassSection shelves={compassData} client:only="svelte"></CompassSection>
+    <CompassSection shelves={compassData} client:visible></CompassSection>
 </MainGridLayout>
