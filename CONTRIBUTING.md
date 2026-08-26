@@ -82,9 +82,27 @@ Optional integrations must remain lightweight when disabled. A disabled feature 
 
 Read [`src/config/README.md`](./src/config/README.md) before changing configuration, and [`docs/on-demand-loading.md`](./docs/on-demand-loading.md) before adding an optional integration.
 
-## Testing Your Changes
+## Testing and Formatting Your Changes
 
-Run Astro diagnostics before submitting any code change:
+Before committing or submitting a pull request, you must format your code and ensure all quality checks pass:
+
+### 1. Mandatory Code Formatting
+
+All source files must be formatted with Biome before committing:
+
+```bash
+pnpm format
+```
+
+To verify formatting in CI or pre-commit checks without writing files:
+
+```bash
+pnpm exec biome ci ./src
+```
+
+### 2. Quality Checks & Diagnostics
+
+Run Astro diagnostics:
 
 ```bash
 npx astro check
@@ -94,27 +112,26 @@ It must complete with zero errors. On Windows PowerShell, run `npx.cmd astro che
 
 Choose the additional checks that match your change:
 
-| Change | Suggested checks |
-| --- | --- |
-| TypeScript or shared APIs | `pnpm type-check` |
-| Atom files or manifest metadata | `pnpm check:manifest` |
-| Source formatting | `pnpm exec biome ci ./src` |
-| Page or component behavior | The smallest relevant Playwright test, plus `tests/site/a11y.spec.ts` |
-| Icons | `npx playwright test tests/site/icons.spec.ts` |
-| Content processing or configuration | `pnpm build` |
-| Performance-sensitive work | `pnpm run perf:measure` and the relevant Lighthouse audit |
-
-For a focused site test, use:
-
-```bash
-npx playwright test tests/site/<spec>.spec.ts
-```
-
-`pnpm lint` and `pnpm format` modify files. Use `pnpm exec biome ci ./src` when you only want to check formatting without rewriting source files.
+| Check / Task | Command | Note |
+| --- | --- | --- |
+| **Code Formatting** | `pnpm format` | **Mandatory before committing** |
+| **Format Verification** | `pnpm exec biome ci ./src` | Read-only check for CI |
+| **Astro Diagnostics** | `npx astro check` | **Must report 0 errors** |
+| **TypeScript Checks** | `pnpm type-check` | For TypeScript or shared APIs |
+| **Atom Manifest** | `pnpm check:manifest` | When atoms are added, moved, or deleted |
+| **Playwright Tests** | `npx playwright test tests/site/<spec>.spec.ts` | For page or component behavior |
+| **Accessibility Lock** | `npx playwright test tests/site/a11y.spec.ts` | For UI and component updates |
+| **Production Build** | `pnpm build` | For content processing, fonts, and schemas |
+| **Performance Audit** | `pnpm run perf:measure` | For performance-sensitive work |
 
 UI changes should be checked at relevant desktop and mobile sizes in both light and dark themes. Include `tests/site/a11y.spec.ts`, and add screenshots to the pull request when the visual difference is intentional.
 
 ## Commits
+
+Before committing, make sure:
+1. All files are formatted using `pnpm format`;
+2. `npx astro check` reports 0 errors;
+3. Relevant tests pass.
 
 Use [Conventional Commits](https://www.conventionalcommits.org/) with a concise English subject:
 
@@ -132,10 +149,12 @@ Keep each commit centered on one concern and review the staged diff before commi
 
 Before opening a pull request:
 
-1. Rebase or update your branch against the current default branch.
-2. Review the complete diff and remove unrelated changes.
-3. Run the checks relevant to your work.
-4. Confirm that existing configuration and content remain compatible.
+1. Format all modified files with `pnpm format`.
+2. Rebase or update your branch against the current default branch.
+3. Review the complete diff and remove unrelated changes.
+4. Run `npx astro check` and confirm zero errors.
+5. Run the checks relevant to your work.
+6. Confirm that existing configuration and content remain compatible.
 
 In the pull request description, explain:
 

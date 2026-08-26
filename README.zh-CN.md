@@ -126,6 +126,7 @@ draft: false
 | --- | --- |
 | `pnpm dev` | 启动开发服务器 |
 | `pnpm new-post <filename>` | 创建新文章 |
+| `pnpm format` | 运行 Biome 格式化代码（提交前必跑） |
 | `pnpm check` | 运行 Astro 诊断 |
 | `pnpm type-check` | 运行 TypeScript 检查 |
 | `pnpm check:manifest` | 校验组件清单 |
@@ -161,7 +162,7 @@ pnpm build
 
 ## 参与贡献
 
-欢迎提交 Issue 和 Pull Request。准备开发大型功能或视觉改动前，请先发起 Issue 或 Discussion。提交代码前请阅读 [`CONTRIBUTING.md`](./CONTRIBUTING.md) 和仓库规则，确保每个 Pull Request 只处理一个明确主题，并使用 Conventional Commits。
+欢迎提交 Issue 和 Pull Request。准备开发大型功能或视觉改动前，请先发起 Issue 或 Discussion。提交代码前请阅读 [`CONTRIBUTING.md`](./CONTRIBUTING.md) 和仓库规则，提交前务必运行 `pnpm format` 格式化代码，确保每个 Pull Request 只处理一个明确主题，并使用 Conventional Commits。
 
 ## 致谢
 

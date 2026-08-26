@@ -71,9 +71,9 @@ content/（Markdown 正文，仅 pages 引用）
 
 ---
 
-## 6. 代码风格
+## 6. 代码风格与格式化
 
-- **Svelte 组件手写 diff 保持原缩进**（tab/CRLF 或 LF 按文件现状），不对组件跑 biome 全文件格式化（避免无关 churn）；`tests/` 可跑 biome。
+- **强制 Biome 格式化**：提交代码前**必须**运行 `pnpm format` 格式化所有代码文件，确保全仓代码缩进（tab）、引号（double）及导入顺序完全统一；CI 环境下执行 `pnpm exec biome ci ./src` 进行零写入校验。
 - **禁止硬编码**：色值、圆角、阴影、动效时长一律走 token（唯一例外：图片上的覆盖层用固定黑/白）。
 - **禁止散落的非令牌动效**：如 `transition: all 0.3s`、`animation: xxx 1s linear`。
 - **禁止原子/分子引入业务副作用**：数据获取、localStorage、路由跳转属于有机体。
@@ -98,9 +98,10 @@ content/（Markdown 正文，仅 pages 引用）
 提交前必须全绿：
 
 ```bash
+pnpm.cmd format              # 强制代码格式化
 npx.cmd astro check          # 0 errors / 0 warnings
 node scripts/check-manifest.mjs  # manifest 与文件系统一致
-npx.cmd playwright test      # site 级全量（约 1 分钟，atoms 级测试已移除）
+npx.cmd playwright test      # site 级全量测试
 ```
 
 测试覆盖（`tests/`）：

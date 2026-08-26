@@ -126,6 +126,7 @@ draft: false
 | --- | --- |
 | `pnpm dev` | 啟動開發伺服器 |
 | `pnpm new-post <filename>` | 建立新文章 |
+| `pnpm format` | 執行 Biome 格式化程式碼（提交前必跑） |
 | `pnpm check` | 執行 Astro 診斷 |
 | `pnpm type-check` | 執行 TypeScript 檢查 |
 | `pnpm check:manifest` | 驗證元件清單 |
@@ -161,7 +162,7 @@ pnpm build
 
 ## 參與貢獻
 
-歡迎提交 Issue 與 Pull Request。若準備開發大型功能或視覺改動，請先建立 Issue 或 Discussion。提交程式碼前請閱讀 [`CONTRIBUTING.md`](./CONTRIBUTING.md) 與儲存庫規則，讓每個 Pull Request 聚焦於單一明確主題，並使用 Conventional Commits。
+歡迎提交 Issue 與 Pull Request。若準備開發大型功能或視覺改動，請先建立 Issue 或 Discussion。提交程式碼前請閱讀 [`CONTRIBUTING.md`](./CONTRIBUTING.md) 與儲存庫規則，提交前務必執行 `pnpm format` 格式化程式碼，讓每個 Pull Request 聚焦於單一明確主題，並使用 Conventional Commits。
 
 ## 致謝
 

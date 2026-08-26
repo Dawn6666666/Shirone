@@ -126,6 +126,7 @@ Frequently used optional fields include `updated`, `pinned`, `comment`, `lang`, 
 | --- | --- |
 | `pnpm dev` | Start the development server |
 | `pnpm new-post <filename>` | Create a new post |
+| `pnpm format` | Format source files with Biome (mandatory before commit) |
 | `pnpm check` | Run Astro diagnostics |
 | `pnpm type-check` | Run TypeScript checks |
 | `pnpm check:manifest` | Validate the component manifest |
@@ -161,7 +162,7 @@ Use `pnpm build` as the build command and `dist` as the output directory. More d
 
 ## Contributing
 
-Issues and pull requests are welcome. For substantial features or visual changes, please open an issue or discussion first. Read [`CONTRIBUTING.md`](./CONTRIBUTING.md) and the repository rules before submitting code, keep each pull request focused, and use Conventional Commits.
+Issues and pull requests are welcome. For substantial features or visual changes, please open an issue or discussion first. Read [`CONTRIBUTING.md`](./CONTRIBUTING.md) and the repository rules before submitting code. Always format your changes with `pnpm format` before committing, keep each pull request focused, and use Conventional Commits.
 
 ## Acknowledgements
 

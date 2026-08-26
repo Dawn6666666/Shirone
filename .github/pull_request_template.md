@@ -8,6 +8,8 @@
 ## Checklist
 
 - [ ] I have read the [**CONTRIBUTING**](https://github.com/LyraVoid/Shirone/blob/main/CONTRIBUTING.md) document.
+- [ ] I have formatted my code using Biome (`pnpm format`).
+- [ ] `npx astro check` passes with 0 errors.
 - [ ] I have checked to ensure that this Pull Request is not for personal changes.
 - [ ] I have performed a self-review of my own code.
 - [ ] My changes generate no new warnings.

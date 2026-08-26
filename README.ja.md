@@ -126,6 +126,7 @@ draft: false
 | --- | --- |
 | `pnpm dev` | 開発サーバーを起動 |
 | `pnpm new-post <filename>` | 新しい記事を作成 |
+| `pnpm format` | Biome でコードをフォーマット（コミット前に必須） |
 | `pnpm check` | Astro の診断を実行 |
 | `pnpm type-check` | TypeScript の検査を実行 |
 | `pnpm check:manifest` | コンポーネントマニフェストを検証 |
@@ -161,7 +162,7 @@ pnpm build
 
 ## コントリビューション
 
-Issue と Pull Request を歓迎します。大きな機能追加やビジュアル変更に着手する前に、Issue または Discussion を作成してください。コードを提出する際は [`CONTRIBUTING.md`](./CONTRIBUTING.md) とリポジトリのルールを読み、Pull Request の目的を一つに絞り、Conventional Commits を使用してください。
+Issue と Pull Request を歓迎します。大きな機能追加やビジュアル変更に着手する前に、Issue または Discussion を作成してください。コードを提出する際は [`CONTRIBUTING.md`](./CONTRIBUTING.md) とリポジトリのルールを読み、コミット前に必ず `pnpm format` でフォーマットを実行し、Pull Request の目的を一つに絞り、Conventional Commits を使用してください。
 
 ## 謝辞
 
