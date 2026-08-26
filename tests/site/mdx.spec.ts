@@ -89,6 +89,10 @@ test.describe("MDX Support and M3E Integration", () => {
 		const admonition = page.locator(".admonition");
 		await expect(admonition.first()).toBeVisible();
 
+		const githubCard = page.locator(".card-github").first();
+		await expect(githubCard).toHaveCSS("display", "block");
+		await expect(githubCard).toHaveCSS("text-decoration-line", "none");
+
 		const katex = page.locator(".katex");
 		await expect(katex.first()).toBeVisible();
 

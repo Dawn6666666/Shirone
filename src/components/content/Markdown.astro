@@ -8,6 +8,10 @@ const className = Astro.props.class;
 	<slot />
 </div>
 
+<style lang="stylus" is:global>
+@import "../../styles/markdown-extend.styl"
+</style>
+
 <script>
 	import { initCodeCopyButtons } from "@utils/code-copy";
 
