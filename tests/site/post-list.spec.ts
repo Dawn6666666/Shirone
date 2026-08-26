@@ -44,6 +44,7 @@ test.describe("文章列表布局模式", () => {
 		await page.addInitScript(() =>
 			localStorage.setItem("post-list-mode", "grid"),
 		);
+		await page.setViewportSize({ width: 1600, height: 900 });
 		await page.goto("/");
 		const container = page.locator("#post-list");
 		await expect(container).toHaveClass(/m3e-post-list--grid/);
@@ -65,6 +66,7 @@ test.describe("文章列表布局模式", () => {
 	test("设置面板切换到 grid：容器切换 + 偏好写入 localStorage", async ({
 		page,
 	}) => {
+		await page.setViewportSize({ width: 1600, height: 900 });
 		await page.goto("/");
 		await page.locator("#display-settings-switch").click();
 		// DisplaySettings 为 client:only 岛，等水合产物出现；radio 被
@@ -97,6 +99,43 @@ test.describe("文章列表布局模式", () => {
 			.poll(() =>
 				container.evaluate((el) => getComputedStyle(el).display),
 			)
+			.toBe("flex");
+	});
+
+	test("单侧栏压窄内容时回退 ListUI，空间恢复后自动回到 GridUI", async ({
+		page,
+	}) => {
+		await page.addInitScript(() =>
+			localStorage.setItem("post-list-mode", "grid"),
+		);
+		// lg 到 xl 之间只显示主侧栏；此时内容列不足以容纳两张 regular 卡片。
+		await page.setViewportSize({ width: 1050, height: 900 });
+		await page.goto("/");
+		const container = page.locator("#post-list");
+		const firstCover = page.locator(".m3-blog-postcard__cover").first();
+
+		// 偏好仍为 grid，但有效布局回退为桌面 ListUI。
+		await expect(container).toHaveAttribute("data-layout-mode", "grid");
+		await expect(container).toHaveClass(/m3e-post-list--grid/);
+		await expect
+			.poll(() => container.evaluate((el) => getComputedStyle(el).display))
+			.toBe("flex");
+		await expect
+			.poll(() => firstCover.evaluate((el) => getComputedStyle(el).position))
+			.toBe("absolute");
+
+		// 容器重新满足两列宽度后，纯响应式恢复 GridUI，无需改写偏好。
+		await page.setViewportSize({ width: 1600, height: 900 });
+		await expect
+			.poll(() => container.evaluate((el) => getComputedStyle(el).display))
+			.toBe("grid");
+		await expect
+			.poll(() => firstCover.evaluate((el) => getComputedStyle(el).position))
+			.toBe("relative");
+
+		await page.setViewportSize({ width: 1050, height: 900 });
+		await expect
+			.poll(() => container.evaluate((el) => getComputedStyle(el).display))
 			.toBe("flex");
 	});
 

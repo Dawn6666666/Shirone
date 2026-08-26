@@ -411,7 +411,7 @@ const titleLabel =
 			height: 2rem
 
 /* ============================================================
-   容器模式联动（PostPage 的 #post-list 容器类钩子，:global 祖先选择器）
+   容器模式联动（PostPage 的命名容器 + #post-list 类钩子）
    同一卡片按所在容器切换 token 形态，而非两套皮肤：
    - m3e-post-list--grid     封面 16:9 通栏贴边（复用移动端封面置顶语言）
    - m3e-post-list--cover-left  list 模式封面居左（桌面 ≥md 镜像布局）
@@ -419,16 +419,16 @@ const titleLabel =
    修饰符形式永不匹配）。
    ============================================================ */
 .m3-blog-postcard
-	/* —— 网格（瀑布流）模式：仅 ≥md 生效（手机端永久锁定 list）——
+	/* —— 网格（瀑布流）模式：仅在容器确实能形成至少两列时生效 ——
 	   封面内缩（与正文左右边缘对齐 --m3e-space-4，圆角 m、2:1）；
 	   无封面卡片沿用 list 的右上 enter 箭头区块（正文右缘自动让位）；
 	   卡片高度天然混合（有/无封面），由 PostPage 的 JS 最短列打包消除空洞 */
-	@media (min-width: bp-md)
-		:global(.m3e-post-list--grid) &
+	grid-card-layout(shell-selector)
+		:global({shell-selector} .m3e-post-list--grid) &
 			flex-direction: column-reverse
 
 		/* 封面和正文使用同一套内缩节奏，避免出现错位的内容边缘 */
-		:global(.m3e-post-list--grid) &__cover
+		:global({shell-selector} .m3e-post-list--grid) &__cover
 			position: relative
 			inset: auto
 			width: auto
@@ -437,31 +437,35 @@ const titleLabel =
 			margin: var(--m3e-space-4) var(--m3e-space-4) 0
 			border-radius: var(--shape-corner-m)
 
-		/* 覆写 list 桌面端的封面右置内边距（list 规则 0,2,0，此处以
-		   0,3,0 显式取胜，不依赖源顺序）；无封面卡的右缘让位由下方
-		   显式的 :not(--cover) 规则（0,4,0）接管 */
-		:global(.m3e-post-list--grid .m3-blog-postcard) &__body
+		/* 显式加入卡片根类，提高优先级并覆写 list 的封面让位内边距。 */
+		:global({shell-selector} .m3e-post-list--grid .m3-blog-postcard) &__body
 			padding: var(--m3e-space-5)
 
-		/* 无封面卡：右上 enter 区块让位（与 list 同值 4.75rem）。
-		   :global 内只放容器类，`:not` 挂在 & 上（自身复合），
-		   叠 &__body 后天然高于上面的统一 padding */
-		:global(.m3e-post-list--grid) &:not(.m3-blog-postcard--cover) &__body
+		/* 无封面卡继续为右上 enter 区块让位。 */
+		:global({shell-selector} .m3e-post-list--grid .m3-blog-postcard:not(.m3-blog-postcard--cover)) &__body
 			padding-right: 4.75rem
 
-		/* 右侧 enter 大箭头区块已在（无封面卡），标题内联小箭头冗余，隐藏 */
-		:global(.m3e-post-list--grid) &__arrow
+		/* 右侧 enter 大箭头区块已在，隐藏冗余的标题内联箭头。 */
+		:global({shell-selector} .m3e-post-list--grid) &__arrow
 			display: none
 
-		/* grid 密度缩放：元信息徽标 32 → 24px、图标 20 → 16px
-		   （list 档内容在窄卡里太重，缩内容而非扩卡片）。
-		   单块 :global 复合选择器（相邻两个 :global() 编译不生效） */
-		:global(.m3e-post-list--grid .m3-meta-icon)
+		/* grid 密度缩放：元信息徽标 32 → 24px、图标 20 → 16px。 */
+		:global({shell-selector} .m3e-post-list--grid) & :global(.m3-meta-icon)
 			width: 1.5rem
 			height: 1.5rem
 			> :global(svg)
 				width: 1rem
 				height: 1rem
+
+	@media (min-width: bp-md)
+		@container post-list-layout (min-width: 41rem)
+			grid-card-layout('.m3e-post-list-shell--compact')
+
+		@container post-list-layout (min-width: 49rem)
+			grid-card-layout('.m3e-post-list-shell--regular')
+
+		@container post-list-layout (min-width: 57rem)
+			grid-card-layout('.m3e-post-list-shell--relaxed')
 
 	/* —— 列表封面居左：仅桌面 ≥md，镜像右侧布局 —— */
 	@media (min-width: bp-md)

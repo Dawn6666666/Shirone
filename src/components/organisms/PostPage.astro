@@ -15,18 +15,19 @@ const { mode, cover, cardWidth } = postListConfig.layout;
 <!-- 卡片间留白分隔（gap = --m3e-space-4，无容器底色 / 无虚线）。
      容器承载布局模式：m3e-post-list--list / --grid（PostCard 原子经
      :global 祖先钩子联动形态），--cover-left 仅 list 模式生效。 -->
-<div
-    id="post-list"
-    class:list={[
-        "transition m3e-post-list mb-4",
-        `m3e-post-list--${mode}`,
-        { "m3e-post-list--cover-left": mode === "list" && cover === "left" },
-    ]}
-    data-layout-mode={mode}
-    style={`--post-card-min: ${POST_CARD_MIN_WIDTH[cardWidth]};`}
->
-    {page.data.map((entry: CollectionEntry<"posts">) => (
-        <PostCard
+<div class:list={["m3e-post-list-shell", `m3e-post-list-shell--${cardWidth}`]}>
+    <div
+        id="post-list"
+        class:list={[
+            "transition m3e-post-list mb-4",
+            `m3e-post-list--${mode}`,
+            { "m3e-post-list--cover-left": mode === "list" && cover === "left" },
+        ]}
+        data-layout-mode={mode}
+        style={`--post-card-min: ${POST_CARD_MIN_WIDTH[cardWidth]};`}
+    >
+        {page.data.map((entry: CollectionEntry<"posts">) => (
+            <PostCard
                 entry={entry}
                 title={entry.data.title}
                 tags={entry.data.tags}
@@ -40,32 +41,51 @@ const { mode, cover, cardWidth } = postListConfig.layout;
                 draft={entry.data.draft}
                 class:list="onload-animation"
                 style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}
-        ></PostCard>
-    ))}
+            ></PostCard>
+        ))}
+    </div>
 </div>
 
 <style lang="stylus">
 @import "../../styles/breakpoints.styl"
+.m3e-post-list-shell
+	container: post-list-layout / inline-size
+
 .m3e-post-list
 	display: flex
 	flex-direction: column
 	gap: var(--m3e-space-4)
 
-	/* 网格（瀑布流）模式：仅 ≥md 生效——手机端永久锁定 list（容器回退到
-	   上方基础 flex 单列，卡片沿用移动端 list 形态）。窄屏下最短列打包的
+	/* 网格（瀑布流）模式：仅在内容容器至少能容纳两张所选宽度的卡片时生效。
+	   这让单/双侧栏压窄内容列时自动回退 list，而不是留下单列 GridUI。
+	   手机端同样回退到上方基础 flex 单列。窄容器下最短列打包的
 	   colCount ≤ 1，自动清空 span，无需 JS 分支。
 	   卡片高度天然混合（有/无封面），由 utils/masonry.ts 做最短列打包：
 	   JS 给每张卡片设置 grid-column-start + grid-row-end: span N。
 	   行轨道 8px、row-gap 0（16px 行距烘焙进 span）——与 masonry.ts 的
 	   ROW_UNIT / ROW_GAP 常量约定，两处需同步改。 */
-	&--grid
-		@media (min-width: bp-md)
-			display: grid
-			grid-template-columns: repeat(auto-fill, minmax(var(--post-card-min, 20rem), 1fr))
-			align-items: start
-			grid-auto-rows: 8px
-			row-gap: 0
-			column-gap: var(--m3e-space-4)
+
+activate-post-grid()
+	display: grid
+	grid-template-columns: repeat(auto-fill, minmax(var(--post-card-min, 20rem), 1fr))
+	align-items: start
+	grid-auto-rows: 8px
+	row-gap: 0
+	column-gap: var(--m3e-space-4)
+
+/* 阈值 = 2 × POST_CARD_MIN_WIDTH + --m3e-space-4（列间距）。 */
+@media (min-width: bp-md)
+	@container post-list-layout (min-width: 41rem)
+		.m3e-post-list-shell--compact .m3e-post-list--grid
+			activate-post-grid()
+
+	@container post-list-layout (min-width: 49rem)
+		.m3e-post-list-shell--regular .m3e-post-list--grid
+			activate-post-grid()
+
+	@container post-list-layout (min-width: 57rem)
+		.m3e-post-list-shell--relaxed .m3e-post-list--grid
+			activate-post-grid()
 </style>
 
 <!-- 首屏防闪：SSR 输出的是站点默认模式，访客偏好（localStorage）在容器

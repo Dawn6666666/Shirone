@@ -14,6 +14,8 @@ import type { PostCardWidth, PostListConfig } from "@/types/postListConfig";
  *     - "relaxed"：宽松大卡（最小宽 28rem，突出大图）。
  *
  * 注意：访客可在前端显示设置面板中动态切换 list/grid，此处为站点初始默认值。
+ * GridUI 仅在主内容容器至少能容纳两张所选宽度的卡片时生效；侧栏等因素压窄
+ * 内容后会暂时回退 ListUI，但保留 grid 偏好，空间恢复后自动切回。
  */
 export const postListConfig: PostListConfig = {
 	pageSize: 8,
