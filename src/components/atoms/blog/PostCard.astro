@@ -7,7 +7,6 @@
  */
 import { Icon } from "astro-icon/components";
 import AccentBar from "@components/atoms/display/AccentBar.svelte";
-import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import PostMeta from "./PostMeta.astro";
@@ -122,7 +121,7 @@ const titleLabel =
 	{hasCover ? (
 		<a class="m3-blog-postcard__cover" href={href} aria-label={title}>
 			<span class="m3-blog-postcard__cover-loading" aria-hidden="true">
-				<LoadingIndicator contained size={40} client:visible />
+				<span class="m3-blog-postcard__cover-spinner"></span>
 			</span>
 			<img
 				src={image}
@@ -273,6 +272,13 @@ const titleLabel =
 			justify-content: center
 			background: var(--surface-container-low)
 			transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard)
+		> :global(.m3-blog-postcard__cover-spinner)
+			width: 1.75rem
+			height: 1.75rem
+			border-radius: 50%
+			border: 2px solid var(--surface-container-high)
+			border-top-color: var(--primary)
+			animation: postcard-spin 800ms linear infinite
 		> :global(.m3-blog-postcard__cover-loading--done)
 			opacity: 0
 			pointer-events: none
@@ -359,6 +365,10 @@ const titleLabel =
 		/* 无封面时给右侧进入按钮（3.25rem + 0.75rem 边距）预留空间，描述提前换行 */
 		&:not(.m3-blog-postcard--cover) &__body
 			padding-right: 4.75rem
+
+@keyframes postcard-spin
+	to
+		transform: rotate(360deg)
 
 	/* === 移动端：封面置顶布局优化（桌面端保持不动） === */
 	@media (max-width: bp-md - 1px)

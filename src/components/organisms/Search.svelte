@@ -72,16 +72,22 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 	try {
 		let searchResults: SearchResult[] = [];
 
-		if (import.meta.env.PROD && pagefindLoaded && window.pagefind) {
-			const response = await window.pagefind.search(keyword);
-			searchResults = await Promise.all(
-				response.results.map((item) => item.data()),
-			);
+		if (import.meta.env.PROD) {
+			if (!window.pagefind && typeof (window as unknown as { __loadPagefind?: () => Promise<unknown> }).__loadPagefind === "function") {
+				await (window as unknown as { __loadPagefind: () => Promise<unknown> }).__loadPagefind();
+				pagefindLoaded = typeof window.pagefind?.search === "function";
+			}
+			if (pagefindLoaded && window.pagefind) {
+				const response = await window.pagefind.search(keyword);
+				searchResults = await Promise.all(
+					response.results.map((item) => item.data()),
+				);
+			} else {
+				searchResults = [];
+				console.error("Pagefind is not available in production environment.");
+			}
 		} else if (import.meta.env.DEV) {
 			searchResults = fakeResult;
-		} else {
-			searchResults = [];
-			console.error("Pagefind is not available in production environment.");
 		}
 
 		result = searchResults;
@@ -123,14 +129,7 @@ onMount(() => {
 			);
 			initializeSearch();
 		});
-
-		// Fallback in case events are not caught or pagefind is already loaded by the time this script runs
-		setTimeout(() => {
-			if (!initialized) {
-				console.log("Fallback: Initializing search after timeout.");
-				initializeSearch();
-			}
-		}, 2000);
+		initializeSearch();
 	}
 });
 

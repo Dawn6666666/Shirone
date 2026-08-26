@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fontConfig } from "../../src/config/fontConfig.ts";
@@ -31,8 +31,9 @@ export async function subsetAllFonts(options = {}) {
 	// 1. 收集全站文本字符（包含 Markdown、i18n、配置及 Meting 歌曲信息）
 	const allText = await collectAllText();
 	if (!allText || allText.length === 0) {
-		console.warn("[subsetting] ⚠ No characters collected, skipping subsetting");
-		return;
+		throw new Error(
+			"[subsetting] ❌ No characters collected from site content/config/i18n. Subsetting cannot proceed.",
+		);
 	}
 
 	mkdirSync(subsetDir, { recursive: true });
@@ -52,16 +53,18 @@ export async function subsetAllFonts(options = {}) {
 		return;
 	}
 
+	const maxFamilyBytes = fontConfig.budget?.maxFamilyBytes ?? 4 * 1024 * 1024;
+
 	for (const variant of localVariants) {
 		const originalPath = join(projectRoot, variant.file);
 		if (!existsSync(originalPath)) {
-			console.warn(`[subsetting] ⚠ Font file not found: ${originalPath}`);
-			continue;
+			throw new Error(`[subsetting] ❌ Source font file not found: ${originalPath}`);
 		}
 
 		const ext = extname(variant.file);
 		const baseName = basename(variant.file, ext);
 		const outputPath = join(subsetDir, `${baseName}.subset.woff2`);
+		const tempOutputPath = join(subsetDir, `${baseName}.subset.${Date.now()}.tmp`);
 
 		console.log(
 			`[subsetting] Processing ${baseName}${ext} -> ${baseName}.subset.woff2`,
@@ -76,7 +79,7 @@ export async function subsetAllFonts(options = {}) {
 					"fontTools.subset",
 					originalPath,
 					`--text-file=${charsetFile}`,
-					`--output-file=${outputPath}`,
+					`--output-file=${tempOutputPath}`,
 					"--flavor=woff2",
 					"--layout-features=*",
 					"--desubroutinize",
@@ -84,8 +87,21 @@ export async function subsetAllFonts(options = {}) {
 				{ stdio: "pipe" },
 			);
 
+			if (!existsSync(tempOutputPath) || statSync(tempOutputPath).size === 0) {
+				throw new Error(`Generated subset font file is empty or missing: ${tempOutputPath}`);
+			}
+
+			const subsetBytes = statSync(tempOutputPath).size;
+			if (subsetBytes > maxFamilyBytes) {
+				throw new Error(
+					`Subset font ${baseName}.subset.woff2 (${subsetBytes} bytes) exceeds family budget (${maxFamilyBytes} bytes)`,
+				);
+			}
+
+			// 原子替换
+			renameSync(tempOutputPath, outputPath);
+
 			const originalBytes = statSync(originalPath).size;
-			const subsetBytes = statSync(outputPath).size;
 			const reduction = (
 				((originalBytes - subsetBytes) / originalBytes) *
 				100
@@ -96,9 +112,17 @@ export async function subsetAllFonts(options = {}) {
 				`[subsetting] ✓ ${baseName}: ${(originalBytes / 1024 / 1024).toFixed(2)} MB -> ${(subsetBytes / 1024).toFixed(1)} KB (-${reduction}%) in ${durationMs}ms`,
 			);
 		} catch (error) {
+			if (existsSync(tempOutputPath)) {
+				try {
+					rmSync(tempOutputPath, { force: true });
+				} catch {
+					// ignore cleanup error
+				}
+			}
 			console.error(
 				`[subsetting] ❌ Failed to subset ${baseName}: ${error.message}`,
 			);
+			throw error;
 		}
 	}
 

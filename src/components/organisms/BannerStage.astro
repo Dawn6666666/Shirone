@@ -49,6 +49,9 @@ const carouselFadeDuration = Math.min(
 	3000,
 );
 const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
+const initialDesktopSrc = desktopImages[0] ?? "";
+const initialMobileSrc = mobileImages[0] ?? "";
+const initialSrc = initialDesktopSrc || initialMobileSrc;
 ---
 
 <section
@@ -74,7 +77,15 @@ const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
 	data-subtitle-typewriter-pause-time={String(Math.max(typewriter.pauseTime ?? 2000, 0))}
 >
 	<div class="banner-stage__media" aria-hidden="true">
-		<img class="banner-stage__image banner-stage__image--front" alt="" />
+		<img
+			class="banner-stage__image banner-stage__image--front banner-stage__image--active"
+			src={initialSrc || undefined}
+			fetchpriority="high"
+			loading="eager"
+			decoding="async"
+			alt=""
+			style={`object-position: ${siteConfig.banner.position ?? "center"};`}
+		/>
 		<img class="banner-stage__image banner-stage__image--back" alt="" />
 	</div>
 	{siteConfig.banner.dim.enable && (
@@ -388,8 +399,15 @@ const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
 
 	function preloadNext(images: string[], index: number) {
 		if (images.length < 2) return;
-		runtime.preloaded = new Image();
-		runtime.preloaded.src = images[(index + 1) % images.length];
+		const schedulePreload = () => {
+			runtime.preloaded = new Image();
+			runtime.preloaded.src = images[(index + 1) % images.length];
+		};
+		if (typeof window.requestIdleCallback === "function") {
+			window.requestIdleCallback(schedulePreload, { timeout: 3000 });
+		} else {
+			window.setTimeout(schedulePreload, 1500);
+		}
 	}
 
 	function getCarouselInterval(): number {

@@ -70,6 +70,11 @@ function resolveVariantSrc(file) {
 		if (existsSync(subsetPath)) {
 			return `./${subsetPath}`;
 		}
+		throw new Error(
+			`[font-system] Missing required subset font: ${subsetPath}. ` +
+				`Font subsetting is enabled for production builds, but the subset file was not found. ` +
+				`Ensure 'pnpm.cmd fonts:subset' ran successfully before building.`,
+		);
 	}
 	return `./${file}`;
 }

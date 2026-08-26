@@ -1,5 +1,5 @@
 import { readdir, readFile, stat } from "node:fs/promises";
-import { extname, join } from "node:path";
+import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolvedFontOptions } from "../../src/config/fontConfig.ts";
 
@@ -7,6 +7,9 @@ const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const dist = join(projectRoot, "dist");
 const maxTotalBytes = Number(
 	process.env.FONT_MAX_TOTAL_BYTES ?? resolvedFontOptions.budget.maxTotalBytes,
+);
+const maxFamilyBytes = Number(
+	process.env.FONT_MAX_FAMILY_BYTES ?? resolvedFontOptions.budget.maxFamilyBytes,
 );
 
 async function walk(directory) {
@@ -37,6 +40,7 @@ try {
 
 	const referencedFonts = new Set();
 	const remoteUrls = [];
+	const rawFonts = [];
 
 	for (const file of textFiles) {
 		const content = await readFile(file, "utf8");
@@ -55,6 +59,12 @@ try {
 				continue;
 			}
 
+			// Reject raw unsubsetted TTF/OTF in production build
+			if (/\.(?:ttf|otf)(?:[?#]|$)/i.test(rawUrl)) {
+				rawFonts.push({ file, rawUrl });
+				continue;
+			}
+
 			const diskPath = resolveAssetPath(rawUrl);
 			referencedFonts.add(diskPath);
 		}
@@ -66,24 +76,47 @@ try {
 		);
 	}
 
+	if (rawFonts.length > 0) {
+		throw new Error(
+			`production CSS/HTML references uncompressed raw font files (.ttf/.otf):\n${rawFonts.map((r) => `  - ${r.file}: ${r.rawUrl}`).join("\n")}\nOnly optimized .woff2 fonts are permitted in production.`,
+		);
+	}
+
 	let totalBytes = 0;
+	const assetDetails = [];
+
 	for (const fontPath of referencedFonts) {
 		try {
-			totalBytes += (await stat(fontPath)).size;
-		} catch {
-			// Asset might be hashed differently; continue
+			const size = (await stat(fontPath)).size;
+			totalBytes += size;
+			const name = basename(fontPath);
+			assetDetails.push({ name, size, path: fontPath });
+
+			if (size > maxFamilyBytes) {
+				throw new Error(
+					`font asset ${name} (${(size / 1024 / 1024).toFixed(2)} MB, ${size} B) exceeds max family budget limit of ${(maxFamilyBytes / 1024 / 1024).toFixed(2)} MB (${maxFamilyBytes} B)`,
+				);
+			}
+		} catch (error) {
+			if (error?.code === "ENOENT") {
+				throw new Error(`referenced font asset not found on disk: ${fontPath}`);
+			}
+			throw error;
 		}
 	}
 
 	if (totalBytes > maxTotalBytes) {
 		throw new Error(
-			`referenced custom font assets total ${totalBytes} bytes, exceeding budget limit of ${maxTotalBytes} bytes`,
+			`referenced custom font assets total ${totalBytes} bytes, exceeding total budget limit of ${maxTotalBytes} bytes`,
 		);
 	}
 
 	console.log(
-		`fonts:check passed (${referencedFonts.size} custom font assets referenced, ${totalBytes} bytes)`,
+		`[fonts:check] ✓ Passed! ${referencedFonts.size} custom font assets referenced (${(totalBytes / 1024).toFixed(1)} KB / ${(maxTotalBytes / 1024).toFixed(1)} KB budget):`,
 	);
+	for (const asset of assetDetails) {
+		console.log(`  - ${asset.name}: ${(asset.size / 1024).toFixed(1)} KB`);
+	}
 } catch (error) {
 	if (error?.code === "ENOENT") {
 		console.error(

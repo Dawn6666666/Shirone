@@ -123,6 +123,10 @@ onMount(() => {
 	lastFrame = phaseStart;
 
 	const frame = (now: number) => {
+		if (document.hidden) {
+			raf = requestAnimationFrame(frame);
+			return;
+		}
 		if (isIndeterminate) {
 			const elapsed = now - phaseStart;
 			if (elapsed >= MORPH_INTERVAL) {
