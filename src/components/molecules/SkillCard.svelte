@@ -1,26 +1,23 @@
 <script lang="ts">
-	/** 技能展示卡（分子）：图标、名称、说明与离散熟练度。 */
-	import Icon from "@iconify/svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import { reveal } from "@utils/motion";
-	import type { SkillItem, SkillLevel } from "@/types/skillsConfig";
+/** 技能展示卡（分子）：图标、名称、说明与离散熟练度。 */
+import Icon from "@iconify/svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { reveal } from "@utils/motion";
+import type { SkillItem, SkillLevel } from "@/types/skillsConfig";
 
-	let {
-		skill,
-		delay = 0,
-	}: { skill: SkillItem; delay?: number } = $props();
+let { skill, delay = 0 }: { skill: SkillItem; delay?: number } = $props();
 
-	const levelMeta: Record<SkillLevel, { value: number; key: I18nKey }> = {
-		beginner: { value: 1, key: I18nKey.skillLevelBeginner },
-		intermediate: { value: 2, key: I18nKey.skillLevelIntermediate },
-		advanced: { value: 3, key: I18nKey.skillLevelAdvanced },
-		expert: { value: 4, key: I18nKey.skillLevelExpert },
-	};
+const levelMeta: Record<SkillLevel, { value: number; key: I18nKey }> = {
+	beginner: { value: 1, key: I18nKey.skillLevelBeginner },
+	intermediate: { value: 2, key: I18nKey.skillLevelIntermediate },
+	advanced: { value: 3, key: I18nKey.skillLevelAdvanced },
+	expert: { value: 4, key: I18nKey.skillLevelExpert },
+};
 
-	const meta = $derived(levelMeta[skill.level]);
-	const levelLabel = $derived(i18n(meta.key));
-	const fallback = $derived((skill.name.charAt(0) || "?").toUpperCase());
+const meta = $derived(levelMeta[skill.level]);
+const levelLabel = $derived(i18n(meta.key));
+const fallback = $derived((skill.name.charAt(0) || "?").toUpperCase());
 </script>
 
 <article class="skill-card" data-level={skill.level} use:reveal={{ delay }}>

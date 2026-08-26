@@ -18,7 +18,15 @@ interface Props {
 	/** flexbox 自适应滚动：子元素 flex-1 min-h-0，由父容器决定可用高度 */
 	flexScroll?: boolean;
 }
-const { id, name, isCollapsed, collapsedHeight, style, scrollContent = false, flexScroll = false } = Astro.props;
+const {
+	id,
+	name,
+	isCollapsed,
+	collapsedHeight,
+	style,
+	scrollContent = false,
+	flexScroll = false,
+} = Astro.props;
 const className = Astro.props.class;
 ---
 <widget-layout data-id={id} data-is-collapsed={String(isCollapsed)} class={className} style={style}>

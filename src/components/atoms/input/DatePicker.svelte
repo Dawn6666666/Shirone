@@ -79,7 +79,9 @@ const weekNames = $derived(
 		const names: string[] = [];
 		for (let i = 0; i < 7; i++) {
 			const d = new Date(2026, 0, 4 + i); // 2026-01-04 周日
-			names.push(new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(d));
+			names.push(
+				new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(d),
+			);
 		}
 		// 按 weekStart 重排
 		const start = weekStart % 7; // JS 0=周日

@@ -45,8 +45,12 @@ test.describe("Site TOC", () => {
 			};
 		});
 		expect(initialBounds).not.toBeNull();
-		expect(initialBounds!.wrapperTop).toBeGreaterThanOrEqual(initialBounds!.titleBottom);
-		expect(initialBounds!.firstTop).toBeGreaterThanOrEqual(initialBounds!.wrapperTop);
+		expect(initialBounds!.wrapperTop).toBeGreaterThanOrEqual(
+			initialBounds!.titleBottom,
+		);
+		expect(initialBounds!.firstTop).toBeGreaterThanOrEqual(
+			initialBounds!.wrapperTop,
+		);
 
 		// 滚动到底部 → 高亮最后一个标题
 		await page.evaluate(() =>
@@ -60,7 +64,9 @@ test.describe("Site TOC", () => {
 		await expect(active).toHaveText(/Front-matter of Posts/);
 	});
 
-	test("keeps a long TOC inside a short viewport with internal smooth scroll", async ({ page }) => {
+	test("keeps a long TOC inside a short viewport with internal smooth scroll", async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 1600, height: 500 });
 		await page.goto("/posts/expressive-code/", { waitUntil: "networkidle" });
 		await page.waitForFunction(() =>
@@ -82,14 +88,14 @@ test.describe("Site TOC", () => {
 			})
 			.toBe(true);
 
-			// 页面滚动到底部时，TOC 随 sticky 保持在视口内，且最后一项流动滚动到可视区域中
-			await page.evaluate(() =>
-				window.scrollTo(0, document.documentElement.scrollHeight),
-			);
-			const cardBottom = await page
-				.locator(".sidebar-toc")
-				.evaluate((element) => element.getBoundingClientRect().bottom);
-			expect(cardBottom).toBeLessThanOrEqual(510);
+		// 页面滚动到底部时，TOC 随 sticky 保持在视口内，且最后一项流动滚动到可视区域中
+		await page.evaluate(() =>
+			window.scrollTo(0, document.documentElement.scrollHeight),
+		);
+		const cardBottom = await page
+			.locator(".sidebar-toc")
+			.evaluate((element) => element.getBoundingClientRect().bottom);
+		expect(cardBottom).toBeLessThanOrEqual(510);
 
 		const last = items.last();
 		await expect
@@ -99,7 +105,9 @@ test.describe("Site TOC", () => {
 					last.boundingBox(),
 				]);
 				if (!wrapperBox || !lastBox) return false;
-				return lastBox.y + lastBox.height <= wrapperBox.y + wrapperBox.height + 8;
+				return (
+					lastBox.y + lastBox.height <= wrapperBox.y + wrapperBox.height + 8
+				);
 			})
 			.toBe(true);
 
@@ -109,7 +117,9 @@ test.describe("Site TOC", () => {
 		await expect
 			.poll(() =>
 				page.evaluate(
-					() => document.getElementById("expressive-code")?.getBoundingClientRect().top,
+					() =>
+						document.getElementById("expressive-code")?.getBoundingClientRect()
+							.top,
 				),
 			)
 			.toBe(80);

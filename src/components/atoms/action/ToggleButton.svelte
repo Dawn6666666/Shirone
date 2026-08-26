@@ -13,34 +13,34 @@
  * 40dp 高、图标 20dp、padding 16dp、label-large。
  */
 let {
-    checked = $bindable(false),
-    variant = "filled",
-    disabled = false,
-    label = "",
-    ariaLabel = "",
-    controlled = false,
-    class: className = "",
-    style = "",
-    onclick,
-    onpointerdown,
+	checked = $bindable(false),
+	variant = "filled",
+	disabled = false,
+	label = "",
+	ariaLabel = "",
+	controlled = false,
+	class: className = "",
+	style = "",
+	onclick,
+	onpointerdown,
 }: {
-    checked?: boolean;
-    variant?: "filled" | "tonal" | "outlined" | "elevated";
-    disabled?: boolean;
-    label?: string;
-    /** 无障碍名称（图标按钮无可见文本时使用） */
-    ariaLabel?: string;
-    /** 受控模式：点击不自动切换 checked，仅触发 onclick 回调（由父级管理状态） */
-    controlled?: boolean;
-    class?: string;
-    style?: string;
-    onclick?: () => void;
-    onpointerdown?: (e: PointerEvent) => void;
+	checked?: boolean;
+	variant?: "filled" | "tonal" | "outlined" | "elevated";
+	disabled?: boolean;
+	label?: string;
+	/** 无障碍名称（图标按钮无可见文本时使用） */
+	ariaLabel?: string;
+	/** 受控模式：点击不自动切换 checked，仅触发 onclick 回调（由父级管理状态） */
+	controlled?: boolean;
+	class?: string;
+	style?: string;
+	onclick?: () => void;
+	onpointerdown?: (e: PointerEvent) => void;
 } = $props();
 
 function handleClick() {
-    if (controlled) onclick?.();
-    else checked = !checked;
+	if (controlled) onclick?.();
+	else checked = !checked;
 }
 </script>
 

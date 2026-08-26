@@ -1,31 +1,31 @@
 <script lang="ts">
-	/**
-	 * M3E 通用原子 — Skeleton 加载占位。
-	 * variant: text（一行文字）/ circle（圆形，头像等）/ rect（矩形块，默认）；
-	 * width / height / radius 可覆盖；shimmer 高光扫过动画。
-	 */
-	let {
-		variant = "rect",
-		width,
-		height,
-		/** 圆角覆盖（默认按形状） */
-		radius,
-		class: className = "",
-	}: {
-		variant?: "text" | "circle" | "rect";
-		width?: string;
-		height?: string;
-		radius?: string;
-		class?: string;
-	} = $props();
+/**
+ * M3E 通用原子 — Skeleton 加载占位。
+ * variant: text（一行文字）/ circle（圆形，头像等）/ rect（矩形块，默认）；
+ * width / height / radius 可覆盖；shimmer 高光扫过动画。
+ */
+let {
+	variant = "rect",
+	width,
+	height,
+	/** 圆角覆盖（默认按形状） */
+	radius,
+	class: className = "",
+}: {
+	variant?: "text" | "circle" | "rect";
+	width?: string;
+	height?: string;
+	radius?: string;
+	class?: string;
+} = $props();
 
-	const style = [
-		width ? `width: ${width}` : "",
-		height ? `height: ${height}` : "",
-		radius ? `border-radius: ${radius}` : "",
-	]
-		.filter(Boolean)
-		.join(";");
+const style = [
+	width ? `width: ${width}` : "",
+	height ? `height: ${height}` : "",
+	radius ? `border-radius: ${radius}` : "",
+]
+	.filter(Boolean)
+	.join(";");
 </script>
 
 <span

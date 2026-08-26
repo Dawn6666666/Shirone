@@ -9,12 +9,12 @@ let nextInstanceId = 0;
 
 /** 为组件实例分配一个全局唯一的互斥 id */
 export function nextMenuInstanceId(): number {
-    return ++nextInstanceId;
+	return ++nextInstanceId;
 }
 
 /** 通知其他实例关闭（打开方调用） */
 export function announceMenuOpened(instanceId: number): void {
-    document.dispatchEvent(
-        new CustomEvent(MENU_EXCLUSIVE_EVENT, { detail: { instanceId } }),
-    );
+	document.dispatchEvent(
+		new CustomEvent(MENU_EXCLUSIVE_EVENT, { detail: { instanceId } }),
+	);
 }

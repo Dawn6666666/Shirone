@@ -42,9 +42,23 @@ export const compassData: CompassShelf[] = [
 		icon: "material-symbols:code-rounded",
 		blurb: "Sites I keep open while writing code",
 		entries: [
-			{ label: "GitHub", href: "https://github.com", note: "Code hosting & collaboration", icon: "fa6-brands:github" },
-			{ label: "MDN", href: "https://developer.mozilla.org", note: "Authoritative web docs", icon: "material-symbols:menu-book-rounded" },
-			{ label: "Stack Overflow", href: "https://stackoverflow.com", note: "Q&A and debugging" },
+			{
+				label: "GitHub",
+				href: "https://github.com",
+				note: "Code hosting & collaboration",
+				icon: "fa6-brands:github",
+			},
+			{
+				label: "MDN",
+				href: "https://developer.mozilla.org",
+				note: "Authoritative web docs",
+				icon: "material-symbols:menu-book-rounded",
+			},
+			{
+				label: "Stack Overflow",
+				href: "https://stackoverflow.com",
+				note: "Q&A and debugging",
+			},
 		],
 	},
 	{
@@ -53,9 +67,22 @@ export const compassData: CompassShelf[] = [
 		icon: "material-symbols:palette-outline-rounded",
 		blurb: "Colors, icons and inspiration",
 		entries: [
-			{ label: "Iconify", href: "https://icon-sets.iconify.design", note: "Searchable open-source icon sets" },
-			{ label: "Material Symbols", href: "https://fonts.google.com/icons", note: "Official M3 icon set", icon: "material-symbols:star-rounded" },
-			{ label: "Excalidraw", href: "https://excalidraw.com", note: "Hand-drawn whiteboard collaboration" },
+			{
+				label: "Iconify",
+				href: "https://icon-sets.iconify.design",
+				note: "Searchable open-source icon sets",
+			},
+			{
+				label: "Material Symbols",
+				href: "https://fonts.google.com/icons",
+				note: "Official M3 icon set",
+				icon: "material-symbols:star-rounded",
+			},
+			{
+				label: "Excalidraw",
+				href: "https://excalidraw.com",
+				note: "Hand-drawn whiteboard collaboration",
+			},
 		],
 	},
 	{
@@ -63,8 +90,16 @@ export const compassData: CompassShelf[] = [
 		name: "Tools",
 		icon: "material-symbols:build-outline-rounded",
 		entries: [
-			{ label: "Squoosh", href: "https://squoosh.app", note: "Image compression & conversion" },
-			{ label: "Regex101", href: "https://regex101.com", note: "Regex testing & debugging" },
+			{
+				label: "Squoosh",
+				href: "https://squoosh.app",
+				note: "Image compression & conversion",
+			},
+			{
+				label: "Regex101",
+				href: "https://regex101.com",
+				note: "Regex testing & debugging",
+			},
 		],
 	},
 	{
@@ -74,7 +109,11 @@ export const compassData: CompassShelf[] = [
 		entries: [
 			{ label: "Hacker News", href: "https://news.ycombinator.com" },
 			{ label: "V2EX", href: "https://www.v2ex.com" },
-			{ label: "Solidot", href: "https://www.solidot.org", note: "Tech and culture news" },
+			{
+				label: "Solidot",
+				href: "https://www.solidot.org",
+				note: "Tech and culture news",
+			},
 		],
 	},
 ];

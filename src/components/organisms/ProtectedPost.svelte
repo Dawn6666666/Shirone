@@ -1,35 +1,35 @@
 <script lang="ts">
-	/**
-	 * ProtectedPost.svelte — 文章加密业务有机体 (Svelte 5 Runes)
-	 * 职责：管理文章解锁状态、内存会话持久化与解密后 DOM 挂载
-	 */
-	import PasswordGate from "@components/organisms/PasswordGate.svelte";
-	import type { ProtectedPayload } from "@/types/protectedContent";
-	import { initPostDecryption } from "@utils/post-decryption";
+/**
+ * ProtectedPost.svelte — 文章加密业务有机体 (Svelte 5 Runes)
+ * 职责：管理文章解锁状态、内存会话持久化与解密后 DOM 挂载
+ */
+import PasswordGate from "@components/organisms/PasswordGate.svelte";
+import type { ProtectedPayload } from "@/types/protectedContent";
+import { initPostDecryption } from "@utils/post-decryption";
 
-	let {
-		payload,
-		scope,
-		hint = "",
-	}: {
-		payload: ProtectedPayload;
-		scope: string;
-		hint?: string;
-	} = $props();
+let {
+	payload,
+	scope,
+	hint = "",
+}: {
+	payload: ProtectedPayload;
+	scope: string;
+	hint?: string;
+} = $props();
 
-	let content = $state<string | null>(null);
-	let containerElement = $state<HTMLElement | null>(null);
+let content = $state<string | null>(null);
+let containerElement = $state<HTMLElement | null>(null);
 
-	function handleUnlocked(decryptedContent: string) {
-		content = decryptedContent;
+function handleUnlocked(decryptedContent: string) {
+	content = decryptedContent;
+}
+
+// 当解密内容挂载到 DOM 容器后，触发运行时协同器
+$effect(() => {
+	if (content !== null && containerElement) {
+		initPostDecryption(containerElement);
 	}
-
-	// 当解密内容挂载到 DOM 容器后，触发运行时协同器
-	$effect(() => {
-		if (content !== null && containerElement) {
-			initPostDecryption(containerElement);
-		}
-	});
+});
 </script>
 
 {#if content !== null}

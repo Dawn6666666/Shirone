@@ -68,7 +68,11 @@ const weekNames = $derived(
 	(() => {
 		const names: string[] = [];
 		for (let i = 0; i < 7; i++) {
-			names.push(new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(new Date(2026, 0, 4 + i)));
+			names.push(
+				new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(
+					new Date(2026, 0, 4 + i),
+				),
+			);
 		}
 		const s = weekStart % 7;
 		return [...names.slice(s), ...names.slice(0, s)];
@@ -76,22 +80,38 @@ const weekNames = $derived(
 );
 
 const monthTitle = $derived(
-	new Intl.DateTimeFormat(locale, { year: "numeric", month: "long" }).format(new Date(viewYear, viewMonth, 1)),
+	new Intl.DateTimeFormat(locale, { year: "numeric", month: "long" }).format(
+		new Date(viewYear, viewMonth, 1),
+	),
 );
 
 function prevMonth() {
-	if (viewMonth === 0) { viewYear--; viewMonth = 11; } else { viewMonth--; }
+	if (viewMonth === 0) {
+		viewYear--;
+		viewMonth = 11;
+	} else {
+		viewMonth--;
+	}
 }
 function nextMonth() {
-	if (viewMonth === 11) { viewYear++; viewMonth = 0; } else { viewMonth++; }
+	if (viewMonth === 11) {
+		viewYear++;
+		viewMonth = 0;
+	} else {
+		viewMonth++;
+	}
 }
 
 function inRange(iso: string): boolean {
 	if (!start || !end) return false;
 	return iso >= start && iso <= end;
 }
-function isStart(iso: string) { return iso === start; }
-function isEnd(iso: string) { return iso === end; }
+function isStart(iso: string) {
+	return iso === start;
+}
+function isEnd(iso: string) {
+	return iso === end;
+}
 
 function select(iso: string) {
 	if (!start || (start && end)) {

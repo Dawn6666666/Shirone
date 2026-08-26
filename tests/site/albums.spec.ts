@@ -16,7 +16,9 @@ test.describe("相册页响应式滚动", () => {
 			.toBe(true);
 
 		await page.evaluate(() => window.scrollTo(0, 700));
-		await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+		await expect
+			.poll(() => page.evaluate(() => window.scrollY))
+			.toBeGreaterThan(0);
 
 		await expect(page.locator("html")).not.toHaveAttribute(
 			"data-overlayscrollbars",
@@ -35,35 +37,50 @@ test.describe("受保护相册", () => {
 		const submit = page.getByRole("button", { name: "Unlock album" });
 		const visibility = page.getByRole("button", { name: "Show password" });
 
-		await expect(page.getByRole("heading", { name: "This album is protected" })).toBeVisible();
+		await expect(
+			page.getByRole("heading", { name: "This album is protected" }),
+		).toBeVisible();
 		await expect(page.getByText("Six digits", { exact: true })).toBeVisible();
 		await expect(input).toHaveAttribute("type", "password");
 		await expect(input).toHaveAttribute("autocomplete", "current-password");
 
 		await visibility.click();
 		await expect(input).toHaveAttribute("type", "text");
-		await expect(page.getByRole("button", { name: "Hide password" })).toBeVisible();
+		await expect(
+			page.getByRole("button", { name: "Hide password" }),
+		).toBeVisible();
 
 		await submit.click();
-		await expect(page.getByText("Enter a password", { exact: true })).toBeVisible();
+		await expect(
+			page.getByText("Enter a password", { exact: true }),
+		).toBeVisible();
 		await expect(input).toHaveAttribute("aria-invalid", "true");
 
 		await input.fill("000000");
-		await expect(page.getByText("Enter a password", { exact: true })).toBeHidden();
+		await expect(
+			page.getByText("Enter a password", { exact: true }),
+		).toBeHidden();
 		await submit.click();
-		await expect(page.getByText("That password could not unlock this album", { exact: true })).toBeVisible();
+		await expect(
+			page.getByText("That password could not unlock this album", {
+				exact: true,
+			}),
+		).toBeVisible();
 
 		await input.fill("123456");
 		await submit.click();
 		await expect(page.locator(".album-gallery__item")).toHaveCount(2);
-		await expect(page.locator(".album-gallery")).toHaveClass(/album-gallery--masonry/);
-		await expect(page.locator(".album-gallery")).not.toHaveClass(/album-gallery--grid/);
+		await expect(page.locator(".album-gallery")).toHaveClass(
+			/album-gallery--masonry/,
+		);
+		await expect(page.locator(".album-gallery")).not.toHaveClass(
+			/album-gallery--grid/,
+		);
 		const portrait = page.getByAltText("A protected vertical photograph");
 		const landscape = page.getByAltText("A protected garden landscape");
-		await expect(page.locator(".album-gallery__item img").first()).toHaveAttribute(
-			"alt",
-			"A protected vertical photograph",
-		);
+		await expect(
+			page.locator(".album-gallery__item img").first(),
+		).toHaveAttribute("alt", "A protected vertical photograph");
 		await expect
 			.poll(async () => {
 				const portraitBox = await portrait.boundingBox();
@@ -77,16 +94,18 @@ test.describe("受保护相册", () => {
 						'img[alt="A protected garden landscape"]',
 					) as HTMLImageElement | null;
 					return Boolean(
-						portraitImage
-						&& landscapeImage
-						&& portraitImage.naturalHeight > portraitImage.naturalWidth
-						&& landscapeImage.naturalWidth > landscapeImage.naturalHeight,
+						portraitImage &&
+							landscapeImage &&
+							portraitImage.naturalHeight > portraitImage.naturalWidth &&
+							landscapeImage.naturalWidth > landscapeImage.naturalHeight,
 					);
 				});
-				return naturalDirections
-					&& portraitBox.height > portraitBox.width
-					&& landscapeBox.width > landscapeBox.height
-					&& portraitBox.x <= landscapeBox.x;
+				return (
+					naturalDirections &&
+					portraitBox.height > portraitBox.width &&
+					landscapeBox.width > landscapeBox.height &&
+					portraitBox.x <= landscapeBox.x
+				);
 			})
 			.toBe(true);
 		await expect(page.locator(".password-gate")).toBeHidden();
@@ -94,7 +113,10 @@ test.describe("受保护相册", () => {
 			.poll(() =>
 				page.locator(".album-detail__gallery").evaluate((element) => {
 					const style = getComputedStyle(element);
-					return style.backgroundColor !== "rgba(0, 0, 0, 0)" && style.padding !== "0px";
+					return (
+						style.backgroundColor !== "rgba(0, 0, 0, 0)" &&
+						style.padding !== "0px"
+					);
 				}),
 			)
 			.toBe(true);

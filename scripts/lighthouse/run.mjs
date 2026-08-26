@@ -7,7 +7,10 @@ const command = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 function killPort4321() {
 	try {
 		if (process.platform === "win32") {
-			execSync('powershell -Command "Get-NetTCPConnection -LocalPort 4321 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"', { stdio: "ignore" });
+			execSync(
+				'powershell -Command "Get-NetTCPConnection -LocalPort 4321 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"',
+				{ stdio: "ignore" },
+			);
 		}
 	} catch {
 		// ignore
@@ -53,7 +56,9 @@ try {
 	await run(["astro", "preview", "stop"]).catch(() => undefined);
 	await run(["astro", "preview", "--host", "127.0.0.1", "--port", "4321"]);
 	await waitForServer("http://127.0.0.1:4321/");
-	console.log(`Preview server is running at http://127.0.0.1:4321/. Running Lighthouse CI (${device})...`);
+	console.log(
+		`Preview server is running at http://127.0.0.1:4321/. Running Lighthouse CI (${device})...`,
+	);
 	await run(["exec", "lhci", "autorun", "--config=lighthouserc.cjs"], {
 		LH_DEVICE: device,
 	});

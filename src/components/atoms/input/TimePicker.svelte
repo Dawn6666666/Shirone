@@ -66,7 +66,7 @@ function selectMinute(min: number) {
 
 function setPeriod(period: "am" | "pm") {
 	const isPm = period === "pm";
-	if ((hour >= 12) !== isPm) {
+	if (hour >= 12 !== isPm) {
 		hour = (hour + 12) % 24;
 		commit();
 	}
@@ -143,12 +143,22 @@ function pos(r: number, angle: number): string {
 const hourItems = $derived.by(() => {
 	const items: { v: number; label: string; r: number; angle: number }[] = [];
 	for (let h = 1; h <= 12; h++) {
-		items.push({ v: h, label: String(h), r: OUTER_R, angle: ((h % 12) / 12) * 360 });
+		items.push({
+			v: h,
+			label: String(h),
+			r: OUTER_R,
+			angle: ((h % 12) / 12) * 360,
+		});
 	}
 	if (!h12) {
 		for (let h = 13; h <= 24; h++) {
 			const v = h === 24 ? 0 : h;
-			items.push({ v, label: String(h), r: INNER_R, angle: ((h % 12) / 12) * 360 });
+			items.push({
+				v,
+				label: String(h),
+				r: INNER_R,
+				angle: ((h % 12) / 12) * 360,
+			});
 		}
 	}
 	return items;
@@ -157,7 +167,11 @@ const hourItems = $derived.by(() => {
 const minuteNumbers = $derived.by(() => {
 	const nums: { m: number; label: string; angle: number }[] = [];
 	for (let i = 0; i < 60; i += 5) {
-		nums.push({ m: i, label: String(i).padStart(2, "0"), angle: (i / 60) * 360 });
+		nums.push({
+			m: i,
+			label: String(i).padStart(2, "0"),
+			angle: (i / 60) * 360,
+		});
 	}
 	return nums;
 });
@@ -171,8 +185,12 @@ const minuteTicks = $derived.by(() => {
 	return ticks;
 });
 
-const trackAngle = $derived((stage === "hour" ? ((hour % 12) / 12) * 360 : (minute / 60) * 360) - 180);
-const trackLength = $derived(stage === "hour" && !h12 && (hour === 0 || hour >= 13) ? INNER_R : OUTER_R);
+const trackAngle = $derived(
+	(stage === "hour" ? ((hour % 12) / 12) * 360 : (minute / 60) * 360) - 180,
+);
+const trackLength = $derived(
+	stage === "hour" && !h12 && (hour === 0 || hour >= 13) ? INNER_R : OUTER_R,
+);
 
 const showMinuteHandle = $derived(stage === "minute" && minute % 5 !== 0);
 

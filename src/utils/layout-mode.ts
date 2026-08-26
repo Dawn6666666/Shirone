@@ -47,9 +47,7 @@ function setModeClasses(container: HTMLElement, mode: PostListMode): void {
 }
 
 /** 把访客偏好应用到位的容器（swup 内容替换后 / 首载兜底，无动画） */
-export function applyStoredLayoutMode(
-	container: HTMLElement | null,
-): void {
+export function applyStoredLayoutMode(container: HTMLElement | null): void {
 	if (!container) return;
 	setModeClasses(container, getStoredMode());
 	// 新容器需要重新挂接瀑布流（ResizeObserver 绑在旧容器上会随之失效）

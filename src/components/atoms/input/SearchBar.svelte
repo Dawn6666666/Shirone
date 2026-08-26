@@ -20,21 +20,21 @@ import Icon from "@iconify/svelte";
 import { onMount, tick, type Snippet } from "svelte";
 
 let {
-    expanded = $bindable(false),
-    query = $bindable(""),
-    placeholder = "搜索",
-    label = "搜索",
-    onsearch,
-    class: className = "",
-    children,
+	expanded = $bindable(false),
+	query = $bindable(""),
+	placeholder = "搜索",
+	label = "搜索",
+	onsearch,
+	class: className = "",
+	children,
 }: {
-    expanded?: boolean;
-    query?: string;
-    placeholder?: string;
-    label?: string;
-    onsearch?: (query: string) => void;
-    class?: string;
-    children?: Snippet;
+	expanded?: boolean;
+	query?: string;
+	placeholder?: string;
+	label?: string;
+	onsearch?: (query: string) => void;
+	class?: string;
+	children?: Snippet;
 } = $props();
 
 let inputEl: HTMLInputElement;
@@ -42,36 +42,36 @@ let rootEl: HTMLDivElement;
 
 // 点击 bar → 展开 + 聚焦输入框（官方 touch 模式 focus→expand）
 async function onFieldClick() {
-    expanded = true;
-    await tick();
-    inputEl?.focus();
+	expanded = true;
+	await tick();
+	inputEl?.focus();
 }
 
 // 回车搜索 / ESC 收起 / ArrowDown 进内容列表（官方 onPreviewKeyEvent）
 function onInputKeydown(e: KeyboardEvent) {
-    if (e.key === "Enter") {
-        onsearch?.(query);
-    } else if (e.key === "Escape") {
-        expanded = false;
-        inputEl?.blur();
-    } else if (e.key === "ArrowDown" && expanded) {
-        e.preventDefault();
-        const targets = rootEl?.querySelectorAll<HTMLElement>(
-            ".m3-search-bar__content a, .m3-search-bar__content button, .m3-search-bar__content [tabindex]",
-        );
-        targets?.[0]?.focus();
-    }
+	if (e.key === "Enter") {
+		onsearch?.(query);
+	} else if (e.key === "Escape") {
+		expanded = false;
+		inputEl?.blur();
+	} else if (e.key === "ArrowDown" && expanded) {
+		e.preventDefault();
+		const targets = rootEl?.querySelectorAll<HTMLElement>(
+			".m3-search-bar__content a, .m3-search-bar__content button, .m3-search-bar__content [tabindex]",
+		);
+		targets?.[0]?.focus();
+	}
 }
 
 // 点击外部收起（官方 onDismissRequest）
 function onDocMousedown(e: MouseEvent) {
-    const target = e.target as Node;
-    if (rootEl && !rootEl.contains(target)) expanded = false;
+	const target = e.target as Node;
+	if (rootEl && !rootEl.contains(target)) expanded = false;
 }
 
 onMount(() => {
-    document.addEventListener("mousedown", onDocMousedown);
-    return () => document.removeEventListener("mousedown", onDocMousedown);
+	document.addEventListener("mousedown", onDocMousedown);
+	return () => document.removeEventListener("mousedown", onDocMousedown);
 });
 </script>
 

@@ -6,13 +6,13 @@
  *      <Divider thickness="2px" color="var(--outline)" />
  */
 let {
-    vertical = false,
-    thickness = "1px",
-    color = "var(--outline-variant)",
+	vertical = false,
+	thickness = "1px",
+	color = "var(--outline-variant)",
 }: {
-    vertical?: boolean;
-    thickness?: string;
-    color?: string;
+	vertical?: boolean;
+	thickness?: string;
+	color?: string;
 } = $props();
 </script>
 

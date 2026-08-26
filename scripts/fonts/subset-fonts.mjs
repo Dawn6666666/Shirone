@@ -1,5 +1,12 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import {
+	existsSync,
+	mkdirSync,
+	renameSync,
+	rmSync,
+	statSync,
+	writeFileSync,
+} from "node:fs";
 import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fontConfig } from "../../src/config/fontConfig.ts";
@@ -58,13 +65,18 @@ export async function subsetAllFonts(options = {}) {
 	for (const variant of localVariants) {
 		const originalPath = join(projectRoot, variant.file);
 		if (!existsSync(originalPath)) {
-			throw new Error(`[subsetting] ❌ Source font file not found: ${originalPath}`);
+			throw new Error(
+				`[subsetting] ❌ Source font file not found: ${originalPath}`,
+			);
 		}
 
 		const ext = extname(variant.file);
 		const baseName = basename(variant.file, ext);
 		const outputPath = join(subsetDir, `${baseName}.subset.woff2`);
-		const tempOutputPath = join(subsetDir, `${baseName}.subset.${Date.now()}.tmp`);
+		const tempOutputPath = join(
+			subsetDir,
+			`${baseName}.subset.${Date.now()}.tmp`,
+		);
 
 		console.log(
 			`[subsetting] Processing ${baseName}${ext} -> ${baseName}.subset.woff2`,
@@ -88,7 +100,9 @@ export async function subsetAllFonts(options = {}) {
 			);
 
 			if (!existsSync(tempOutputPath) || statSync(tempOutputPath).size === 0) {
-				throw new Error(`Generated subset font file is empty or missing: ${tempOutputPath}`);
+				throw new Error(
+					`Generated subset font file is empty or missing: ${tempOutputPath}`,
+				);
 			}
 
 			const subsetBytes = statSync(tempOutputPath).size;

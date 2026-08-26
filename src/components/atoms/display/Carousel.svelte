@@ -66,7 +66,12 @@ function updateActive() {
 function onScrollerKeydown(e: KeyboardEvent) {
 	const el = containerEl;
 	if (!el) return;
-	if (e.key === "ArrowRight" || e.key === "ArrowLeft" || e.key === "Home" || e.key === "End") {
+	if (
+		e.key === "ArrowRight" ||
+		e.key === "ArrowLeft" ||
+		e.key === "Home" ||
+		e.key === "End"
+	) {
 		e.preventDefault();
 		if (e.key === "Home") {
 			el.scrollTo({ left: 0, behavior: "smooth" });
@@ -81,7 +86,10 @@ function onScrollerKeydown(e: KeyboardEvent) {
 		const gap = parseFloat(getComputedStyle(el).columnGap || "0");
 		const step = items[0].offsetWidth + gap;
 		const current = Math.round(el.scrollLeft / step);
-		const target = Math.max(0, Math.min(items.length - 1, current + (e.key === "ArrowRight" ? 1 : -1)));
+		const target = Math.max(
+			0,
+			Math.min(items.length - 1, current + (e.key === "ArrowRight" ? 1 : -1)),
+		);
 		el.scrollTo({ left: target * step, behavior: "smooth" });
 	}
 }

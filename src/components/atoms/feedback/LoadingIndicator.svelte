@@ -42,15 +42,21 @@ let {
 
 const isIndeterminate = $derived(progress === undefined);
 const morphs = $derived(
-	isIndeterminate ? loadingShapes.indeterminate.morphs : loadingShapes.determinate.morphs
+	isIndeterminate
+		? loadingShapes.indeterminate.morphs
+		: loadingShapes.determinate.morphs,
 );
 const shapeScale = $derived(
-	isIndeterminate ? loadingShapes.indeterminate.scale : loadingShapes.determinate.scale
+	isIndeterminate
+		? loadingShapes.indeterminate.scale
+		: loadingShapes.determinate.scale,
 );
 const indicatorColor = $derived(
-	color ?? (contained ? "var(--on-primary-container)" : "var(--primary)")
+	color ?? (contained ? "var(--on-primary-container)" : "var(--primary)"),
 );
-const bgColor = $derived(containerColor ?? (contained ? "var(--primary-container)" : "transparent"));
+const bgColor = $derived(
+	containerColor ?? (contained ? "var(--primary-container)" : "transparent"),
+);
 
 const VIEW = 48; // 官方 ContainerWidth/Height
 const ACTIVE = 38; // 官方 ActiveSize（38dp）
@@ -93,9 +99,13 @@ function buildPath(morph: MorphData, t: number): string {
 
 // ---- determinate：官方 activeMorphIndex/局部进度 + 逆时针旋转 -progress*180° ----
 const detProgress = $derived(Math.max(0, Math.min(1, progress ?? 0)));
-const detMorphIndex = $derived(Math.min(Math.floor(detProgress * morphs.length), morphs.length - 1));
+const detMorphIndex = $derived(
+	Math.min(Math.floor(detProgress * morphs.length), morphs.length - 1),
+);
 const detLocal = $derived(
-	detProgress === 1 && detMorphIndex === morphs.length - 1 ? 1 : (detProgress * morphs.length) % 1
+	detProgress === 1 && detMorphIndex === morphs.length - 1
+		? 1
+		: (detProgress * morphs.length) % 1,
 );
 const detPath = $derived(buildPath(morphs[detMorphIndex], detLocal));
 const detRotation = $derived(-detProgress * 180);

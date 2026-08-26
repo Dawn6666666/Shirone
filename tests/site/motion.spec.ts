@@ -42,15 +42,15 @@ test.describe("Site motion", () => {
 		const mid = await bodyHeight(page, 1);
 		expect(mid).toBeGreaterThan(0);
 
-			// 结束后归位 auto（内容完整高度）
-			await page.waitForTimeout(300);
-			const expanded = await bodyHeight(page, 1);
-			expect(expanded).toBeGreaterThan(mid);
-			await expect(
-				page.locator(
-					".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
-				),
-			).toHaveCount(4);
+		// 结束后归位 auto（内容完整高度）
+		await page.waitForTimeout(300);
+		const expanded = await bodyHeight(page, 1);
+		expect(expanded).toBeGreaterThan(mid);
+		await expect(
+			page.locator(
+				".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
+			),
+		).toHaveCount(4);
 	});
 
 	test("does not collapse animate on initial render or grouping changes", async ({
@@ -166,15 +166,15 @@ test.describe("Site motion", () => {
 			".m3-blog-archive__group:nth-child(2) .m3-blog-archive__header",
 		);
 
-			// 30ms 内即到位（无过渡中间值）
-			await page.waitForTimeout(30);
-			const height = await bodyHeight(page, 1);
-			expect(height).toBeGreaterThan(0);
-			await expect(
-				page.locator(
-					".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
-				),
-			).toHaveCount(4);
+		// 30ms 内即到位（无过渡中间值）
+		await page.waitForTimeout(30);
+		const height = await bodyHeight(page, 1);
+		expect(height).toBeGreaterThan(0);
+		await expect(
+			page.locator(
+				".m3-blog-archive__group:nth-child(2) .m3-blog-archive__item",
+			),
+		).toHaveCount(4);
 	});
 
 	test("toggles aria-expanded and hides content when collapsed", async ({
@@ -375,7 +375,6 @@ test.describe("sidebar pages filter (swup sync)", () => {
 		await waitStatsHidden(page, false);
 		expect(await statsTagIconHasInlinePath(page)).toBe(true);
 	});
-
 
 	test("rapid navigation keeps only the final page widgets visible", async ({
 		page,

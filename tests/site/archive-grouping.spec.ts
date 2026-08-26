@@ -10,7 +10,10 @@ import { expect, test } from "@playwright/test";
 test.describe("archive grouping switch", () => {
 	test.use({ viewport: { width: 1280, height: 900 } });
 
-	async function openArchive(page: import("@playwright/test").Page, path = "/archive/") {
+	async function openArchive(
+		page: import("@playwright/test").Page,
+		path = "/archive/",
+	) {
 		await page.goto(path, { waitUntil: "networkidle" });
 		await page.waitForTimeout(600);
 	}
@@ -81,11 +84,15 @@ test.describe("archive grouping switch", () => {
 
 		await page.getByRole("radio", { name: "By Year" }).focus();
 		await page.keyboard.press("ArrowRight");
-		await expect(page.getByRole("radio", { name: "By Category" })).toBeChecked();
+		await expect(
+			page.getByRole("radio", { name: "By Category" }),
+		).toBeChecked();
 		await page.keyboard.press("ArrowRight");
 		await expect(page.getByRole("radio", { name: "By Tag" })).toBeChecked();
 		await page.keyboard.press("ArrowLeft");
-		await expect(page.getByRole("radio", { name: "By Category" })).toBeChecked();
+		await expect(
+			page.getByRole("radio", { name: "By Category" }),
+		).toBeChecked();
 	});
 
 	test("URL filter is a scoped browse view: switch hidden, breadcrumb shown", async ({

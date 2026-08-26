@@ -59,14 +59,22 @@ function measureIndicator() {
 	const scrolled = root.scrollLeft; /* 指示器在滚动内容内，需用内容坐标 */
 	if (variant === "secondary") {
 		const tr = tab.getBoundingClientRect();
-		indicator = { left: tr.left - rr.left + scrolled, width: tr.width, ready: true };
+		indicator = {
+			left: tr.left - rr.left + scrolled,
+			width: tr.width,
+			ready: true,
+		};
 		return;
 	}
 	const content = tab.querySelector<HTMLElement>(".m3-tabs__tab-content");
 	if (!content) return;
 	const cr = content.getBoundingClientRect();
 	const width = Math.max(cr.width, 24);
-	indicator = { left: cr.left - rr.left + scrolled + (cr.width - width) / 2, width, ready: true };
+	indicator = {
+		left: cr.left - rr.left + scrolled + (cr.width - width) / 2,
+		width,
+		ready: true,
+	};
 }
 
 let scrolledOnce = false;
@@ -77,11 +85,18 @@ $effect(() => {
 	measureIndicator();
 	/* 延迟一拍再滚动：避开浏览器原生 focus 滚动（它会取消我们的 scrollTo） */
 	clearTimeout(scrollTimer);
-	scrollTimer = setTimeout(() => scrollActiveIntoView(scrolledOnce ? "smooth" : ("instant" as ScrollBehavior)), 0);
+	scrollTimer = setTimeout(
+		() =>
+			scrollActiveIntoView(
+				scrolledOnce ? "smooth" : ("instant" as ScrollBehavior),
+			),
+		0,
+	);
 	scrolledOnce = true;
 	const ro = new ResizeObserver(() => measureIndicator());
 	ro.observe(root);
-	for (const c of root.querySelectorAll<HTMLElement>(".m3-tabs__tab-content")) ro.observe(c);
+	for (const c of root.querySelectorAll<HTMLElement>(".m3-tabs__tab-content"))
+		ro.observe(c);
 	return () => {
 		clearTimeout(scrollTimer);
 		ro.disconnect();
@@ -97,7 +112,8 @@ function scrollActiveIntoView(behavior: ScrollBehavior = "smooth") {
 	if (!tab) return;
 	const rr = root.getBoundingClientRect();
 	const tr = tab.getBoundingClientRect();
-	const tabLeft = tr.left - rr.left + root.scrollLeft; /* 内容坐标，避免与滚动动画竞态 */
+	const tabLeft =
+		tr.left - rr.left + root.scrollLeft; /* 内容坐标，避免与滚动动画竞态 */
 	const tabWidth = tr.width;
 	const visible = root.clientWidth;
 	const maxScroll = root.scrollWidth - visible;

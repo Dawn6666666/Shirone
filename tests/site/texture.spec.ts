@@ -16,7 +16,10 @@ test.describe("M3E Ambient Texture & Pattern System", () => {
 		await expect(html).toHaveAttribute("data-texture-preset", "starlight");
 
 		const configCarrier = page.locator("#config-carrier");
-		await expect(configCarrier).toHaveAttribute("data-texture-preset", "starlight");
+		await expect(configCarrier).toHaveAttribute(
+			"data-texture-preset",
+			"starlight",
+		);
 		await expect(configCarrier).toHaveAttribute("data-texture-opacity", "0.12");
 	});
 
@@ -137,7 +140,9 @@ test.describe("M3E Ambient Texture & Pattern System", () => {
 		);
 
 		// 点击重置按钮
-		const resetBtn = page.locator('#display-setting button[aria-label="Reset to Default"]');
+		const resetBtn = page.locator(
+			'#display-setting button[aria-label="Reset to Default"]',
+		);
 		await expect(resetBtn).toBeVisible();
 		await resetBtn.click();
 
@@ -192,7 +197,9 @@ test.describe("M3E Ambient Texture & Pattern System", () => {
 		);
 	});
 
-	test("09. 当预设为 none 时图层完全脱离渲染（display: none / 0 绘制）", async ({ page }) => {
+	test("09. 当预设为 none 时图层完全脱离渲染（display: none / 0 绘制）", async ({
+		page,
+	}) => {
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 
 		await page.evaluate(() => {

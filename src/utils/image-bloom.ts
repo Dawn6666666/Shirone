@@ -4,7 +4,9 @@
 import { imageBloomConfig } from "@/config/imageBloomConfig";
 import type { ImageBloomConfig } from "@/types/imageBloomConfig";
 
-export function getBloomInlineVars(options?: Partial<ImageBloomConfig>): string {
+export function getBloomInlineVars(
+	options?: Partial<ImageBloomConfig>,
+): string {
 	const opts = { ...imageBloomConfig, ...options };
 	if (!opts.enable) return "";
 	return [

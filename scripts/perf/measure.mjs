@@ -68,7 +68,8 @@ async function measurePage(browser, baseUrl, pageDef) {
 	const metrics = await page.evaluate(() => {
 		const nav = performance.getEntriesByType("navigation")[0] || {};
 		const paint = performance.getEntriesByType("paint") || [];
-		const fcp = paint.find((p) => p.name === "first-contentful-paint")?.startTime || 0;
+		const fcp =
+			paint.find((p) => p.name === "first-contentful-paint")?.startTime || 0;
 
 		return {
 			ttfb: nav.responseStart || 0,
@@ -96,23 +97,34 @@ async function main() {
 	try {
 		await fetch(baseUrl);
 	} catch {
-		serverProcess = spawn(previewCmd, ["preview", "--host", "127.0.0.1", "--port", "4321"], {
-			stdio: "ignore",
-			shell: isWin,
-		});
+		serverProcess = spawn(
+			previewCmd,
+			["preview", "--host", "127.0.0.1", "--port", "4321"],
+			{
+				stdio: "ignore",
+				shell: isWin,
+			},
+		);
 	}
 
 	try {
 		await waitForServer(baseUrl + "/");
-		const browser = await chromium.launch({ channel: "chrome", headless: true });
+		const browser = await chromium.launch({
+			channel: "chrome",
+			headless: true,
+		});
 		const results = [];
 
-		console.log(`[perf:measure] Measuring ${TEST_PAGES.length} key pages on ${baseUrl}...`);
+		console.log(
+			`[perf:measure] Measuring ${TEST_PAGES.length} key pages on ${baseUrl}...`,
+		);
 		for (const p of TEST_PAGES) {
 			try {
 				const res = await measurePage(browser, baseUrl, p);
 				results.push(res);
-				console.log(`  ? ${p.name.padEnd(10)} | LCP: ${res.lcp.toFixed(1).padStart(5)}ms | CLS: ${res.cls.toFixed(4)} | FCP: ${res.fcp.toFixed(1).padStart(5)}ms | Total: ${res.durationMs}ms`);
+				console.log(
+					`  ? ${p.name.padEnd(10)} | LCP: ${res.lcp.toFixed(1).padStart(5)}ms | CLS: ${res.cls.toFixed(4)} | FCP: ${res.fcp.toFixed(1).padStart(5)}ms | Total: ${res.durationMs}ms`,
+				);
 			} catch (err) {
 				console.error(`  ? ${p.name} failed: ${err.message}`);
 			}

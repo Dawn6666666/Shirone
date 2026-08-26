@@ -111,7 +111,9 @@ $effect(() => {
 				// 全部项先恢复可见以便测量
 				containerEl
 					.querySelectorAll(".m3-button-group__item--hidden")
-					.forEach((el) => el.classList.remove("m3-button-group__item--hidden"));
+					.forEach((el) =>
+						el.classList.remove("m3-button-group__item--hidden"),
+					);
 				measure();
 			}
 		});
@@ -164,9 +166,7 @@ function onItemPointerUp() {
 }
 
 function isChecked(item: ButtonGroupItem) {
-	return multiple
-		? checkedValues.includes(item.value)
-		: value === item.value;
+	return multiple ? checkedValues.includes(item.value) : value === item.value;
 }
 
 function handleChange(item: ButtonGroupItem) {

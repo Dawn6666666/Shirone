@@ -1,23 +1,23 @@
 <script lang="ts">
-	/**
-	 * 页内大标题（可复用）：装饰图标 + 标题 + 可选副标题。
-	 * 前置装饰：大号 primary 线性图标直接置于标题前，无容器、无额外装饰，
-	 * 与站内线性图标语言统一。
-	 */
-	import Icon from "@iconify/svelte";
+/**
+ * 页内大标题（可复用）：装饰图标 + 标题 + 可选副标题。
+ * 前置装饰：大号 primary 线性图标直接置于标题前，无容器、无额外装饰，
+ * 与站内线性图标语言统一。
+ */
+import Icon from "@iconify/svelte";
 
-	let {
-		title = "",
-		subtitle = "",
-		icon = "",
-		class: className = "",
-	}: {
-		title: string;
-		subtitle?: string;
-		/** 标题左侧装饰图标（Iconify 名） */
-		icon?: string;
-		class?: string;
-	} = $props();
+let {
+	title = "",
+	subtitle = "",
+	icon = "",
+	class: className = "",
+}: {
+	title: string;
+	subtitle?: string;
+	/** 标题左侧装饰图标（Iconify 名） */
+	icon?: string;
+	class?: string;
+} = $props();
 </script>
 
 <div class="page-header {className}">

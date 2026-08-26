@@ -1,22 +1,22 @@
 <script lang="ts">
-	/**
-	 * 区块标题（可复用）：可选图标 + 标题 + 可选副标题。
-	 * 页面级大标题用 PageHeader；区块/卡片内的小标题用本组件。
-	 */
-	import Icon from "@iconify/svelte";
+/**
+ * 区块标题（可复用）：可选图标 + 标题 + 可选副标题。
+ * 页面级大标题用 PageHeader；区块/卡片内的小标题用本组件。
+ */
+import Icon from "@iconify/svelte";
 
-	let {
-		title = "",
-		subtitle = "",
-		icon = "",
-		class: className = "",
-	}: {
-		title: string;
-		subtitle?: string;
-		/** 标题左侧装饰图标（Iconify 名） */
-		icon?: string;
-		class?: string;
-	} = $props();
+let {
+	title = "",
+	subtitle = "",
+	icon = "",
+	class: className = "",
+}: {
+	title: string;
+	subtitle?: string;
+	/** 标题左侧装饰图标（Iconify 名） */
+	icon?: string;
+	class?: string;
+} = $props();
 </script>
 
 <div class="section-title {className}">

@@ -20,7 +20,8 @@ interface Props {
 const className = Astro.props.class;
 const style = Astro.props.style;
 const options = resolveMusicOptions(musicConfig);
-const configuredTracks = musicConfig.tracks ??
+const configuredTracks =
+	musicConfig.tracks ??
 	(musicConfig.provider === "local" || musicConfig.provider === "mixed"
 		? musicTracks
 		: []);

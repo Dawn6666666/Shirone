@@ -5,7 +5,10 @@ function isBannerAsset(value: string): boolean {
 	return /\/assets\/(?:images\/)?banner\//.test(decodeURIComponent(value));
 }
 
-function isBannerVariant(value: string, variant: "desktop" | "mobile"): boolean {
+function isBannerVariant(
+	value: string,
+	variant: "desktop" | "mobile",
+): boolean {
 	return decodeURIComponent(value).includes(`/banner/${variant}/`);
 }
 
@@ -289,9 +292,7 @@ test.describe("banner wallpaper", () => {
 		const response = await request.get("/");
 		expect(response.ok()).toBe(true);
 		const html = await response.text();
-		expect(html).toContain(
-			"特別なことはないけど、君がいると十分です",
-		);
+		expect(html).toContain("特別なことはないけど、君がいると十分です");
 		expect(html).toContain("<picture");
 		expect(html).toContain('type="image/avif"');
 		expect(html).toContain("srcset=");
@@ -358,9 +359,9 @@ test.describe("banner wallpaper", () => {
 			"top",
 			/^[4-9]\d{2}(\.\d+)?px$/,
 		);
-		expect(requests.some((request) => isBannerVariant(request, "desktop"))).toBe(
-			true,
-		);
+		expect(
+			requests.some((request) => isBannerVariant(request, "desktop")),
+		).toBe(true);
 		expect(requests.some((request) => isBannerVariant(request, "mobile"))).toBe(
 			false,
 		);
@@ -421,10 +422,12 @@ test.describe("banner wallpaper", () => {
 		await expectWavesAnimated(page, true);
 		await expectBannerOverlap(page);
 		await expectWaveGeometry(page, "0.72");
-		expect(requests.some((request) => isBannerVariant(request, "mobile"))).toBe(true);
-		expect(requests.some((request) => isBannerVariant(request, "desktop"))).toBe(
-			false,
+		expect(requests.some((request) => isBannerVariant(request, "mobile"))).toBe(
+			true,
 		);
+		expect(
+			requests.some((request) => isBannerVariant(request, "desktop")),
+		).toBe(false);
 	});
 
 	test("tablet home keeps the full wave geometry at the desktop breakpoint", async ({

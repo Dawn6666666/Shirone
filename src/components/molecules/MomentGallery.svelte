@@ -1,136 +1,139 @@
 <script lang="ts">
-	/**
-	 * 动态图片画廊（分子）：两段式看图。
-	 * 网格态：按数量自适应（1 单图直进灯箱 / 2 与 4 双列方格 / 3 拼 1大+2小 /
-	 * 5+ 三列封顶 6 块 +N 折叠，桌面端限宽防格子过大）。
-	 * 查看器态：卡片内展开主舞台 + tonal 圆形前后切换 + 计数 chip + 缩略图条
-	 * （active 高亮并自动居中），点大图或「查看原图」经 Fancybox API 进灯箱轮播。
-	 * 键盘：←/→ 切换、Home/End 首尾、Esc 收起；开合带焦点管理与 emphasized 入场动效。
-	 */
-	import IconButton from "@components/atoms/action/IconButton.svelte";
-	import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import { openFancyboxGallery } from "@utils/fancybox-handler";
-	import { prefersReducedMotion } from "@utils/motion";
-	import type { MomentImage } from "@utils/content-utils";
-	import { tick } from "svelte";
+/**
+ * 动态图片画廊（分子）：两段式看图。
+ * 网格态：按数量自适应（1 单图直进灯箱 / 2 与 4 双列方格 / 3 拼 1大+2小 /
+ * 5+ 三列封顶 6 块 +N 折叠，桌面端限宽防格子过大）。
+ * 查看器态：卡片内展开主舞台 + tonal 圆形前后切换 + 计数 chip + 缩略图条
+ * （active 高亮并自动居中），点大图或「查看原图」经 Fancybox API 进灯箱轮播。
+ * 键盘：←/→ 切换、Home/End 首尾、Esc 收起；开合带焦点管理与 emphasized 入场动效。
+ */
+import IconButton from "@components/atoms/action/IconButton.svelte";
+import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { openFancyboxGallery } from "@utils/fancybox-handler";
+import { prefersReducedMotion } from "@utils/motion";
+import type { MomentImage } from "@utils/content-utils";
+import { tick } from "svelte";
 
-	let { images = [] as MomentImage[] }: { images?: MomentImage[] } = $props();
+let { images = [] as MomentImage[] }: { images?: MomentImage[] } = $props();
 
-	const MAX_TILES = 6;
+const MAX_TILES = 6;
 
-	let viewing = $state(false);
-	let index = $state(0);
-	let viewerEl: HTMLElement | undefined = $state();
-	let gridEl: HTMLElement | undefined = $state();
-	let thumbEls: HTMLElement[] = [];
-	/** 收起后焦点返回被点击的瓦片（记索引：开查看器时网格已卸载） */
-	let lastIndex = 0;
+let viewing = $state(false);
+let index = $state(0);
+let viewerEl: HTMLElement | undefined = $state();
+let gridEl: HTMLElement | undefined = $state();
+let thumbEls: HTMLElement[] = [];
+/** 收起后焦点返回被点击的瓦片（记索引：开查看器时网格已卸载） */
+let lastIndex = 0;
 
-	/** 瓦片图片加载进度：lazy 触发 loadstart 后才挂载指示器（离屏瓦片不空转 rAF） */
-	let startedTiles = $state(new Set<string>());
-	let loadedTiles = $state(new Set<string>());
+/** 瓦片图片加载进度：lazy 触发 loadstart 后才挂载指示器（离屏瓦片不空转 rAF） */
+let startedTiles = $state(new Set<string>());
+let loadedTiles = $state(new Set<string>());
 
-	const current = $derived(images[index] ?? images[0]);
-	const visibleImages = $derived(
-		images.length > MAX_TILES ? images.slice(0, MAX_TILES) : images,
+const current = $derived(images[index] ?? images[0]);
+const visibleImages = $derived(
+	images.length > MAX_TILES ? images.slice(0, MAX_TILES) : images,
+);
+const remainder = $derived(
+	images.length > MAX_TILES ? images.length - MAX_TILES : 0,
+);
+const gridVariant = $derived.by(() => {
+	if (images.length === 1) return "single";
+	/* 3 图走「1 大 + 2 小」拼图，避免双列网格的 2+1 孤儿行 */
+	if (images.length === 3) return "mosaic";
+	if (images.length <= 4) return "pair";
+	return "trio";
+});
+
+function openViewer(i: number) {
+	lastIndex = i;
+	index = i;
+	viewing = true;
+}
+
+async function collapseViewer() {
+	viewing = false;
+	// 等网格重新挂载后，把焦点还给当初点击的瓦片
+	await tick();
+	(gridEl?.children[lastIndex] as HTMLButtonElement | undefined)?.focus();
+}
+
+function openLightbox(i: number) {
+	void openFancyboxGallery(
+		images.map((image) => ({
+			src: image.src,
+			caption: image.alt || undefined,
+		})),
+		i,
 	);
-	const remainder = $derived(
-		images.length > MAX_TILES ? images.length - MAX_TILES : 0,
-	);
-	const gridVariant = $derived.by(() => {
-		if (images.length === 1) return "single";
-		/* 3 图走「1 大 + 2 小」拼图，避免双列网格的 2+1 孤儿行 */
-		if (images.length === 3) return "mosaic";
-		if (images.length <= 4) return "pair";
-		return "trio";
+}
+
+function go(delta: number) {
+	const next = index + delta;
+	if (next >= 0 && next < images.length) index = next;
+}
+
+function handleKeydown(event: KeyboardEvent) {
+	switch (event.key) {
+		case "ArrowLeft":
+			event.preventDefault();
+			go(-1);
+			break;
+		case "ArrowRight":
+			event.preventDefault();
+			go(1);
+			break;
+		case "Home":
+			event.preventDefault();
+			index = 0;
+			break;
+		case "End":
+			event.preventDefault();
+			index = images.length - 1;
+			break;
+		case "Escape":
+			event.preventDefault();
+			collapseViewer();
+			break;
+	}
+}
+
+function tileLabel(i: number) {
+	return `${i18n(I18nKey.openImage)} ${i + 1}`;
+}
+
+function thumbnailSrc(image: MomentImage) {
+	return image.thumbnailSrc ?? image.src;
+}
+
+function tileSizes(i: number) {
+	if (gridVariant === "single")
+		return "(max-width: 639px) calc(100vw - 6.25rem), 480px";
+	if (gridVariant === "pair")
+		return "(max-width: 639px) calc((100vw - 6.75rem) / 2), 240px";
+	if (gridVariant === "mosaic" && i === 0)
+		return "(max-width: 639px) calc((100vw - 6.75rem) * 0.66), 320px";
+	if (gridVariant === "mosaic")
+		return "(max-width: 639px) calc((100vw - 6.75rem) * 0.33), 160px";
+	return "(max-width: 639px) calc((100vw - 7.25rem) / 3), 200px";
+}
+
+// 打开时聚焦查看器容器（键盘立即可用）
+$effect(() => {
+	if (viewing) viewerEl?.focus();
+});
+
+// 缩略图条：active 项滚动居中（reduced-motion 直接跳转）
+$effect(() => {
+	if (!viewing) return;
+	thumbEls[index]?.scrollIntoView({
+		behavior: prefersReducedMotion() ? "auto" : "smooth",
+		block: "nearest",
+		inline: "center",
 	});
-
-	function openViewer(i: number) {
-		lastIndex = i;
-		index = i;
-		viewing = true;
-	}
-
-	async function collapseViewer() {
-		viewing = false;
-		// 等网格重新挂载后，把焦点还给当初点击的瓦片
-		await tick();
-		(gridEl?.children[lastIndex] as HTMLButtonElement | undefined)?.focus();
-	}
-
-	function openLightbox(i: number) {
-		void openFancyboxGallery(
-			images.map((image) => ({ src: image.src, caption: image.alt || undefined })),
-			i,
-		);
-	}
-
-	function go(delta: number) {
-		const next = index + delta;
-		if (next >= 0 && next < images.length) index = next;
-	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		switch (event.key) {
-			case "ArrowLeft":
-				event.preventDefault();
-				go(-1);
-				break;
-			case "ArrowRight":
-				event.preventDefault();
-				go(1);
-				break;
-			case "Home":
-				event.preventDefault();
-				index = 0;
-				break;
-			case "End":
-				event.preventDefault();
-				index = images.length - 1;
-				break;
-			case "Escape":
-				event.preventDefault();
-				collapseViewer();
-				break;
-		}
-	}
-
-	function tileLabel(i: number) {
-		return `${i18n(I18nKey.openImage)} ${i + 1}`;
-	}
-
-	function thumbnailSrc(image: MomentImage) {
-		return image.thumbnailSrc ?? image.src;
-	}
-
-	function tileSizes(i: number) {
-		if (gridVariant === "single")
-			return "(max-width: 639px) calc(100vw - 6.25rem), 480px";
-		if (gridVariant === "pair")
-			return "(max-width: 639px) calc((100vw - 6.75rem) / 2), 240px";
-		if (gridVariant === "mosaic" && i === 0)
-			return "(max-width: 639px) calc((100vw - 6.75rem) * 0.66), 320px";
-		if (gridVariant === "mosaic")
-			return "(max-width: 639px) calc((100vw - 6.75rem) * 0.33), 160px";
-		return "(max-width: 639px) calc((100vw - 7.25rem) / 3), 200px";
-	}
-
-	// 打开时聚焦查看器容器（键盘立即可用）
-	$effect(() => {
-		if (viewing) viewerEl?.focus();
-	});
-
-	// 缩略图条：active 项滚动居中（reduced-motion 直接跳转）
-	$effect(() => {
-		if (!viewing) return;
-		thumbEls[index]?.scrollIntoView({
-			behavior: prefersReducedMotion() ? "auto" : "smooth",
-			block: "nearest",
-			inline: "center",
-		});
-	});
+});
 </script>
 
 {#if viewing}

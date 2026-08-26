@@ -1,95 +1,99 @@
 <script lang="ts">
-	/**
-	 * 全站导航抽屉（M3 ModalNavigationDrawer 应用，自包含实现，不改原子）。
-	 * 顶部栏菜单按钮派发 site-drawer:toggle 事件开合；内容：
-	 *   一级导航（navBarConfig）+ 可折叠「分类」分组（多级扩展点）。
-	 * 链接由 Swup 自动接管，点击后收起抽屉；高亮与当前路由/分类筛选同步。
-	 */
-	import Icon from "@iconify/svelte";
-	import { navBarConfig } from "@/config/navBarConfig";
-	import { siteConfig } from "@/config";
-	import { onMount, tick } from "svelte";
-	import { resolveNavBarLinks, resolvePageKey } from "@utils/nav-utils";
-	import { url } from "@utils/url-utils";
+/**
+ * 全站导航抽屉（M3 ModalNavigationDrawer 应用，自包含实现，不改原子）。
+ * 顶部栏菜单按钮派发 site-drawer:toggle 事件开合；内容：
+ *   一级导航（navBarConfig）+ 可折叠「分类」分组（多级扩展点）。
+ * 链接由 Swup 自动接管，点击后收起抽屉；高亮与当前路由/分类筛选同步。
+ */
+import Icon from "@iconify/svelte";
+import { navBarConfig } from "@/config/navBarConfig";
+import { siteConfig } from "@/config";
+import { onMount, tick } from "svelte";
+import { resolveNavBarLinks, resolvePageKey } from "@utils/nav-utils";
+import { url } from "@utils/url-utils";
 
-	let open = $state(false);
-	let activePrimary = $state("");
-	const openGroups = $state<Record<string, boolean>>({});
+let open = $state(false);
+let activePrimary = $state("");
+const openGroups = $state<Record<string, boolean>>({});
 
-	const links = resolveNavBarLinks(navBarConfig.links);
+const links = resolveNavBarLinks(navBarConfig.links);
 
-	const primaryItems = links.map((link) => {
-		const key = link.name.toLowerCase();
-		return {
-			value: key,
-			label: link.name,
-			icon: link.icon,
-			href: link.url ? (link.external ? link.url : url(link.url)) : undefined,
-			external: !!link.external,
-			pageKey: link.pageKey ?? "",
-			children: link.children?.map((child) => ({
-				value: child.name.toLowerCase(),
-				label: child.name,
-				icon: child.icon,
-				href: child.url ? (child.external ? child.url : url(child.url)) : undefined,
-				external: !!child.external,
-				pageKey: child.pageKey ?? "",
-			})),
-		};
-	});
+const primaryItems = links.map((link) => {
+	const key = link.name.toLowerCase();
+	return {
+		value: key,
+		label: link.name,
+		icon: link.icon,
+		href: link.url ? (link.external ? link.url : url(link.url)) : undefined,
+		external: !!link.external,
+		pageKey: link.pageKey ?? "",
+		children: link.children?.map((child) => ({
+			value: child.name.toLowerCase(),
+			label: child.name,
+			icon: child.icon,
+			href: child.url
+				? child.external
+					? child.url
+					: url(child.url)
+				: undefined,
+			external: !!child.external,
+			pageKey: child.pageKey ?? "",
+		})),
+	};
+});
 
-	function syncFromRoute() {
-		const pageKey = resolvePageKey(new URL(window.location.href));
-		activePrimary = "";
-		for (const item of primaryItems) {
-			if (item.pageKey && item.pageKey === pageKey) {
-				activePrimary = item.value;
-				break;
-			}
-			const activeChild = item.children?.find(
-				(child) => child.pageKey && child.pageKey === pageKey,
-			);
-			if (activeChild) {
-				activePrimary = activeChild.value;
-				openGroups[item.value] = true;
-				break;
-			}
+function syncFromRoute() {
+	const pageKey = resolvePageKey(new URL(window.location.href));
+	activePrimary = "";
+	for (const item of primaryItems) {
+		if (item.pageKey && item.pageKey === pageKey) {
+			activePrimary = item.value;
+			break;
+		}
+		const activeChild = item.children?.find(
+			(child) => child.pageKey && child.pageKey === pageKey,
+		);
+		if (activeChild) {
+			activePrimary = activeChild.value;
+			openGroups[item.value] = true;
+			break;
 		}
 	}
+}
 
-	// 点击链接后收起抽屉；外部链接不改变路由，高亮已由路由同步维护
-	function handleNavClick() {
-		open = false;
-	}
+// 点击链接后收起抽屉；外部链接不改变路由，高亮已由路由同步维护
+function handleNavClick() {
+	open = false;
+}
 
-	function toggleGroup(group: string) {
-		openGroups[group] = !openGroups[group];
-	}
+function toggleGroup(group: string) {
+	openGroups[group] = !openGroups[group];
+}
 
-	onMount(() => {
-		syncFromRoute();
-		const onToggle = () => {
-			open = !open;
-			if (open) {
-				tick().then(() => {
-					drawerEl?.querySelector<HTMLElement>("a, button")?.focus();
-				});
-			}
-		};
-		const onKey = (e: KeyboardEvent) => {
-			if (e.key === "Escape") open = false;
-		};
-		document.addEventListener("site-drawer:toggle", onToggle);
-		document.addEventListener("swup:content:replace", syncFromRoute);
-		window.addEventListener("keydown", onKey);
-		return () => {
-			document.removeEventListener("site-drawer:toggle", onToggle);
-			document.removeEventListener("swup:content:replace", syncFromRoute);
-			window.removeEventListener("keydown", onKey);
-		};
-	});
+onMount(() => {
+	syncFromRoute();
+	const onToggle = () => {
+		open = !open;
+		if (open) {
+			tick().then(() => {
+				drawerEl?.querySelector<HTMLElement>("a, button")?.focus();
+			});
+		}
+	};
+	const onKey = (e: KeyboardEvent) => {
+		if (e.key === "Escape") open = false;
+	};
+	document.addEventListener("site-drawer:toggle", onToggle);
+	document.addEventListener("swup:content:replace", syncFromRoute);
+	window.addEventListener("keydown", onKey);
+	return () => {
+		document.removeEventListener("site-drawer:toggle", onToggle);
+		document.removeEventListener("swup:content:replace", syncFromRoute);
+		window.removeEventListener("keydown", onKey);
+	};
+});
 
-	let drawerEl: HTMLElement | undefined = $state();
+let drawerEl: HTMLElement | undefined = $state();
 </script>
 
 <div

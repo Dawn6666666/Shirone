@@ -39,7 +39,11 @@ let {
 	/** 错误提示（非空进入 error 态） */
 	error?: string;
 	/** 选中选项回调 */
-	onselect?: (option: { value: string; label: string; leading?: string }) => void;
+	onselect?: (option: {
+		value: string;
+		label: string;
+		leading?: string;
+	}) => void;
 	/** 文本变化回调 */
 	onchange?: (value: string) => void;
 	class?: string;

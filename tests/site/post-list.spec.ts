@@ -32,9 +32,7 @@ test.describe("文章列表布局模式", () => {
 
 	test("SSR 输出站点默认 list 容器类", async ({ page }) => {
 		await page.goto("/");
-		await expect(page.locator("#post-list")).toHaveClass(
-			/m3e-post-list--list/,
-		);
+		await expect(page.locator("#post-list")).toHaveClass(/m3e-post-list--list/);
 		await expect(page.locator("#post-list")).not.toHaveClass(
 			/m3e-post-list--grid/,
 		);
@@ -58,9 +56,7 @@ test.describe("文章列表布局模式", () => {
 			)
 			.toBe("grid");
 		await page.reload();
-		await expect(page.locator("#post-list")).toHaveClass(
-			/m3e-post-list--grid/,
-		);
+		await expect(page.locator("#post-list")).toHaveClass(/m3e-post-list--grid/);
 	});
 
 	test("设置面板切换到 grid：容器切换 + 偏好写入 localStorage", async ({
@@ -74,9 +70,7 @@ test.describe("文章列表布局模式", () => {
 		const gridLabel = page.locator("#display-setting").getByText("Grid");
 		await gridLabel.waitFor({ state: "visible", timeout: 10_000 });
 		await gridLabel.click();
-		await expect(page.locator("#post-list")).toHaveClass(
-			/m3e-post-list--grid/,
-		);
+		await expect(page.locator("#post-list")).toHaveClass(/m3e-post-list--grid/);
 		expect(
 			await page.evaluate(() => localStorage.getItem("post-list-mode")),
 		).toBe("grid");
@@ -96,9 +90,7 @@ test.describe("文章列表布局模式", () => {
 		// 偏好类保留（回到宽屏时生效），窄屏下容器按 flex 单列渲染
 		await expect(container).toHaveClass(/m3e-post-list--grid/);
 		await expect
-			.poll(() =>
-				container.evaluate((el) => getComputedStyle(el).display),
-			)
+			.poll(() => container.evaluate((el) => getComputedStyle(el).display))
 			.toBe("flex");
 	});
 
@@ -160,13 +152,9 @@ test.describe("文章列表布局模式", () => {
 		const gridLabel = page.locator("#display-setting").getByText("Grid");
 		await gridLabel.waitFor({ state: "visible", timeout: 10_000 });
 		await gridLabel.click();
-		await expect(page.locator("#post-list")).toHaveClass(
-			/m3e-post-list--grid/,
-		);
+		await expect(page.locator("#post-list")).toHaveClass(/m3e-post-list--grid/);
 		// FLIP 被 reduced-motion 折叠：卡片上无正在播放/待播的动画
 		// （已结束但 fill:forwards 的 onload 动画不计入；页面级常驻动画排除）
-		await expect
-			.poll(() => page.evaluate(runningCardAnimations))
-			.toBe(0);
+		await expect.poll(() => page.evaluate(runningCardAnimations)).toBe(0);
 	});
 });

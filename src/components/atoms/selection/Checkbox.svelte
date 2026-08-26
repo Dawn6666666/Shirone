@@ -7,15 +7,15 @@
  *      <Checkbox bind:checked={tri} label="Mixed" triState />
  */
 let {
-    checked = $bindable(false),
-    disabled = false,
-    label = "",
-    triState = false,
+	checked = $bindable(false),
+	disabled = false,
+	label = "",
+	triState = false,
 }: {
-    checked?: boolean | null;
-    disabled?: boolean;
-    label?: string;
-    triState?: boolean;
+	checked?: boolean | null;
+	disabled?: boolean;
+	label?: string;
+	triState?: boolean;
 } = $props();
 
 let inputEl: HTMLInputElement;
@@ -23,18 +23,18 @@ let inputEl: HTMLInputElement;
 // 同步原生 input 状态（triState 时 checked 与 indeterminate 都要显式设置，
 // 因 null 与 false 的 checked===true 相同，Svelte 不会自动重置浏览器点击后的值）
 $effect(() => {
-    if (!inputEl) return;
-    inputEl.checked = checked === true;
-    inputEl.indeterminate = triState && checked === null;
+	if (!inputEl) return;
+	inputEl.checked = checked === true;
+	inputEl.indeterminate = triState && checked === null;
 });
 
 function handleChange() {
-    if (triState) {
-        // false → true → null → false 循环
-        checked = checked === false ? true : checked === true ? null : false;
-    } else {
-        checked = inputEl.checked;
-    }
+	if (triState) {
+		// false → true → null → false 循环
+		checked = checked === false ? true : checked === true ? null : false;
+	} else {
+		checked = inputEl.checked;
+	}
 }
 </script>
 

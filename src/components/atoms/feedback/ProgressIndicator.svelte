@@ -32,81 +32,88 @@
  *      <ProgressIndicator variant="linear" wavy progress={0.6} />   ← 官方 wavy 线性
  *      <ProgressIndicator variant="circular" wavy />                ← 官方 wavy 圆形
  */
-import { buildLinearWavePath, buildCircularStarPath, circularWavyVertexCount, cubicBezier } from "@utils/wavy-progress";
+import {
+	buildLinearWavePath,
+	buildCircularStarPath,
+	circularWavyVertexCount,
+	cubicBezier,
+} from "@utils/wavy-progress";
 import { untrack } from "svelte";
 
-	let {
-		variant = "linear",
-		progress,
-		label = "加载中",
-		showStop = true,
-		showThumb = false,
-		containerWidth = undefined as number | undefined,
-		indeterminate = "dual",
-		color = "var(--primary)",
-		trackColor = "var(--surface-container-highest)",
-		ariaHidden = false,
-		strokeCap = "round",
-		gapSize = 4,
-		size = undefined as number | undefined,
-		strokeWidth = 4,
-		wavy = false,
-		wavelength = 0,
-		waveSpeed = 0,
-		amplitude,
-		class: className = "",
-	}: {
-		variant?: "linear" | "circular";
-		/** 0-1 定值；undefined = indeterminate */
-		progress?: number;
-		label?: string;
-		/** determinate linear 填充末端 stop 圆点（官方 StopSize 4dp），默认显示 */
-		showStop?: boolean;
-		/** determinate wavy 线性模式下在当前位置绘制一体化 Thumb 手柄 */
-		showThumb?: boolean;
-		/** 外部显式传入的容器宽度；若未传入则默认使用内部测量宽度或 240px 官方标准宽度 */
-		containerWidth?: number;
-		/** indeterminate 动画变体（linear：dual 双线官方默认 / wave 波浪 / single 单线；
+let {
+	variant = "linear",
+	progress,
+	label = "加载中",
+	showStop = true,
+	showThumb = false,
+	containerWidth = undefined as number | undefined,
+	indeterminate = "dual",
+	color = "var(--primary)",
+	trackColor = "var(--surface-container-highest)",
+	ariaHidden = false,
+	strokeCap = "round",
+	gapSize = 4,
+	size = undefined as number | undefined,
+	strokeWidth = 4,
+	wavy = false,
+	wavelength = 0,
+	waveSpeed = 0,
+	amplitude,
+	class: className = "",
+}: {
+	variant?: "linear" | "circular";
+	/** 0-1 定值；undefined = indeterminate */
+	progress?: number;
+	label?: string;
+	/** determinate linear 填充末端 stop 圆点（官方 StopSize 4dp），默认显示 */
+	showStop?: boolean;
+	/** determinate wavy 线性模式下在当前位置绘制一体化 Thumb 手柄 */
+	showThumb?: boolean;
+	/** 外部显式传入的容器宽度；若未传入则默认使用内部测量宽度或 240px 官方标准宽度 */
+	containerWidth?: number;
+	/** indeterminate 动画变体（linear：dual 双线官方默认 / wave 波浪 / single 单线；
 		    circular：dual 官方弧伸缩 / single 固定弧 / wave 官方带弧度旋转组合） */
-		indeterminate?: "dual" | "wave" | "single";
-		/** active 指示器颜色（官方 color 参数） */
-		color?: string;
-		/** 仅作为视觉层时隐藏辅助技术语义，由外层交互控件提供标签。 */
-		ariaHidden?: boolean;
-		/** 轨道颜色（官方 trackColor 参数） */
-		trackColor?: string;
-		/** 线端形状：round 圆头（官方默认）/ butt 平头 */
-		strokeCap?: "round" | "butt";
-		/** active 与 track 之间的间隙 px（官方 gapSize 参数，默认 4） */
-		gapSize?: number;
-		/** circular 直径 px（默认 40；wavy 模式默认 48 = 官方 WaveSize；thick 变体 52+8） */
-		size?: number;
-		/** circular 描边厚度 px（官方 ActiveThickness/TrackThickness 默认 4；thick 变体 8） */
-		strokeWidth?: number;
-		/** 官方 Wavy 形态：linear = 波浪条，circular = 48×48 圆↔星 morph */
-		wavy?: boolean;
-		/** 波长 px（默认：linear determinate 40 / indeterminate 20，circular 15） */
-		wavelength?: number;
-		/** 波速 px/s（默认 = wavelength，即每秒移动一个波长） */
-		waveSpeed?: number;
-		/** 振幅：number = 固定值（indeterminate 默认 1）；(progress)=>number = 按进度
+	indeterminate?: "dual" | "wave" | "single";
+	/** active 指示器颜色（官方 color 参数） */
+	color?: string;
+	/** 仅作为视觉层时隐藏辅助技术语义，由外层交互控件提供标签。 */
+	ariaHidden?: boolean;
+	/** 轨道颜色（官方 trackColor 参数） */
+	trackColor?: string;
+	/** 线端形状：round 圆头（官方默认）/ butt 平头 */
+	strokeCap?: "round" | "butt";
+	/** active 与 track 之间的间隙 px（官方 gapSize 参数，默认 4） */
+	gapSize?: number;
+	/** circular 直径 px（默认 40；wavy 模式默认 48 = 官方 WaveSize；thick 变体 52+8） */
+	size?: number;
+	/** circular 描边厚度 px（官方 ActiveThickness/TrackThickness 默认 4；thick 变体 8） */
+	strokeWidth?: number;
+	/** 官方 Wavy 形态：linear = 波浪条，circular = 48×48 圆↔星 morph */
+	wavy?: boolean;
+	/** 波长 px（默认：linear determinate 40 / indeterminate 20，circular 15） */
+	wavelength?: number;
+	/** 波速 px/s（默认 = wavelength，即每秒移动一个波长） */
+	waveSpeed?: number;
+	/** 振幅：number = 固定值（indeterminate 默认 1）；(progress)=>number = 按进度
 		    （determinate 默认官方 indicatorAmplitude：≤0.1 / ≥0.95 → 0，其余 → 1） */
-		amplitude?: number | ((progress: number) => number);
-		class?: string;
-	} = $props();
+	amplitude?: number | ((progress: number) => number);
+	class?: string;
+} = $props();
 
-	let measuredWidth = $state<number>(240);
-	const resolvedWidth = $derived(
-		containerWidth !== undefined && containerWidth > 0
-			? containerWidth
-			: measuredWidth > 0
-				? measuredWidth
-				: 240
-	);
+let measuredWidth = $state<number>(240);
+const resolvedWidth = $derived(
+	containerWidth !== undefined && containerWidth > 0
+		? containerWidth
+		: measuredWidth > 0
+			? measuredWidth
+			: 240,
+);
 
 // 响应式派生：progress 变化时实时重算（const 只算一次会导致滑块拖动不更新）
 const determinate = $derived(progress !== undefined && progress >= 0);
-const pct = $derived(determinate ? Math.max(0, Math.min(100, progress * 100)) : 0);
+const pct = $derived(
+	determinate ? Math.max(0, Math.min(100, progress * 100)) : 0,
+);
 // circular：动态尺寸（size 直径 / strokeWidth 厚度），wavy 默认 48（官方 WaveSize）
 const resolvedSize = $derived(size ?? (wavy ? 48 : 40));
 const circCenter = $derived(resolvedSize / 2);
@@ -117,64 +124,91 @@ const CIRC = $derived(2 * Math.PI * circR);
 const gapPx = $derived(gapSize + strokeWidth);
 
 /* ===================== wavy（官方 WavyProgressIndicator） ===================== */
-	const WAVY_LINEAR_H = 10; // 官方 WaveHeight
+const WAVY_LINEAR_H = 10; // 官方 WaveHeight
 
-	const wavyLinearWaveLength = $derived(wavelength > 0 ? wavelength : determinate ? 40 : 20);
-	const wavyLinearWaveSpeed = $derived(waveSpeed > 0 ? waveSpeed : wavyLinearWaveLength);
-	// 全宽路径 = 容器宽 + 左右各 2 个波长余量（官方 widthWithExtraPhase）
-	const wavyLinearPathW = $derived(resolvedWidth + wavyLinearWaveLength * 2);
-	// 振幅 0..1 直接重建路径（官方 scaleY 近似：controlY 按振幅缩放，stroke 保持 4dp）
-	const wavyLinearPathD = $derived(buildLinearWavePath(wavyLinearPathW, wavyLinearWaveLength, WAVY_LINEAR_H, strokeWidth, wavyAmp));
-	// pathLength=100 归一化：1px 宽度对应的归一化长度
-	const wavyLinearUnitsPerPx = $derived(100 / wavyLinearPathW);
-	const wavyCapW = $derived(strokeCap === "butt" ? 0 : strokeWidth / 2);
-	// determinate active 头位置（官方 barHead.coerceIn(capW, width-capW)）
-	const wavyLinearHeadPx = $derived(
-		determinate
-			? Math.max(0, Math.min(resolvedWidth - wavyCapW, Math.max(wavyCapW, progress * resolvedWidth)))
-			: 0
-	);
-	const wavyLinearHeadUnits = $derived(wavyLinearHeadPx * wavyLinearUnitsPerPx);
-	// 一个波长的像素偏移（用于 CSS 流动平移）
-	const wavyLinearShiftPx = $derived(wavyLinearWaveLength);
-	// 波流动画时长（官方 (wavelength/waveSpeed)*1000ms）
-	const wavyLinearFlowMs = $derived((wavyLinearWaveLength / wavyLinearWaveSpeed) * 1000);
-	// determinate track 起始 x（紧跟 head 后的 gap，无论滑到哪里都保持恒定间隙）
-	const wavyLinearTrackX1 = $derived(
-		(() => {
-			const head = wavyLinearHeadPx;
-			const cap = wavyCapW;
-			const effectiveGap = showThumb ? gapSize + 2 : gapSize;
-			return Math.min(resolvedWidth, Math.max(cap, head + effectiveGap));
-		})()
-	);
-	const wavyLinearTrackX2 = $derived(resolvedWidth - wavyCapW);
-	// determinate stop 圆点（官方 drawStopIndicator：右端 4dp，progress 接近末端时缩小消失）
-	const wavyStop = $derived(
-		(() => {
-			const stopMax = Math.min(strokeWidth, 4);
-			const offset = stopMax === strokeWidth ? 0 : strokeWidth / 4;
-			const baseX = resolvedWidth - stopMax - offset;
-			const progressX = wavyLinearHeadPx + wavyCapW;
-			let size = stopMax;
-			let x = baseX;
-			if (baseX <= progressX) {
-				size = Math.max(0, stopMax - (progressX - baseX));
-				x = progressX;
-			}
-			return { x: x + size / 2, size };
-		})()
-	);
+const wavyLinearWaveLength = $derived(
+	wavelength > 0 ? wavelength : determinate ? 40 : 20,
+);
+const wavyLinearWaveSpeed = $derived(
+	waveSpeed > 0 ? waveSpeed : wavyLinearWaveLength,
+);
+// 全宽路径 = 容器宽 + 左右各 2 个波长余量（官方 widthWithExtraPhase）
+const wavyLinearPathW = $derived(resolvedWidth + wavyLinearWaveLength * 2);
+// 振幅 0..1 直接重建路径（官方 scaleY 近似：controlY 按振幅缩放，stroke 保持 4dp）
+const wavyLinearPathD = $derived(
+	buildLinearWavePath(
+		wavyLinearPathW,
+		wavyLinearWaveLength,
+		WAVY_LINEAR_H,
+		strokeWidth,
+		wavyAmp,
+	),
+);
+// pathLength=100 归一化：1px 宽度对应的归一化长度
+const wavyLinearUnitsPerPx = $derived(100 / wavyLinearPathW);
+const wavyCapW = $derived(strokeCap === "butt" ? 0 : strokeWidth / 2);
+// determinate active 头位置（官方 barHead.coerceIn(capW, width-capW)）
+const wavyLinearHeadPx = $derived(
+	determinate
+		? Math.max(
+				0,
+				Math.min(
+					resolvedWidth - wavyCapW,
+					Math.max(wavyCapW, progress * resolvedWidth),
+				),
+			)
+		: 0,
+);
+const wavyLinearHeadUnits = $derived(wavyLinearHeadPx * wavyLinearUnitsPerPx);
+// 一个波长的像素偏移（用于 CSS 流动平移）
+const wavyLinearShiftPx = $derived(wavyLinearWaveLength);
+// 波流动画时长（官方 (wavelength/waveSpeed)*1000ms）
+const wavyLinearFlowMs = $derived(
+	(wavyLinearWaveLength / wavyLinearWaveSpeed) * 1000,
+);
+// determinate track 起始 x（紧跟 head 后的 gap，无论滑到哪里都保持恒定间隙）
+const wavyLinearTrackX1 = $derived(
+	(() => {
+		const head = wavyLinearHeadPx;
+		const cap = wavyCapW;
+		const effectiveGap = showThumb ? gapSize + 2 : gapSize;
+		return Math.min(resolvedWidth, Math.max(cap, head + effectiveGap));
+	})(),
+);
+const wavyLinearTrackX2 = $derived(resolvedWidth - wavyCapW);
+// determinate stop 圆点（官方 drawStopIndicator：右端 4dp，progress 接近末端时缩小消失）
+const wavyStop = $derived(
+	(() => {
+		const stopMax = Math.min(strokeWidth, 4);
+		const offset = stopMax === strokeWidth ? 0 : strokeWidth / 4;
+		const baseX = resolvedWidth - stopMax - offset;
+		const progressX = wavyLinearHeadPx + wavyCapW;
+		let size = stopMax;
+		let x = baseX;
+		if (baseX <= progressX) {
+			size = Math.max(0, stopMax - (progressX - baseX));
+			x = progressX;
+		}
+		return { x: x + size / 2, size };
+	})(),
+);
 
 // circular wavy：顶点数 = max(5, round(2πr/波长))，星形内半径 0.75 / 外角 0.35 smooth 0.4 / 内角 0.5
 const wavyCircWaveLength = $derived(wavelength > 0 ? wavelength : 15);
-const wavyCircWaveSpeed = $derived(waveSpeed > 0 ? waveSpeed : wavyCircWaveLength);
-const wavyCircNumVertices = $derived(circularWavyVertexCount(resolvedSize, strokeWidth, wavyCircWaveLength));
+const wavyCircWaveSpeed = $derived(
+	waveSpeed > 0 ? waveSpeed : wavyCircWaveLength,
+);
+const wavyCircNumVertices = $derived(
+	circularWavyVertexCount(resolvedSize, strokeWidth, wavyCircWaveLength),
+);
 // 官方 offset 动画时长 = (波长/波速)*1000*顶点数
-const wavyCircFlowMs = $derived((wavyCircWaveLength / wavyCircWaveSpeed) * 1000 * wavyCircNumVertices);
+const wavyCircFlowMs = $derived(
+	(wavyCircWaveLength / wavyCircWaveSpeed) * 1000 * wavyCircNumVertices,
+);
 
 // 官方 determinate 振幅回调：≤0.1 / ≥0.95 为 0（直线/圆），中间为 1（满波/满星）
-const officialIndicatorAmplitude = (p: number): number => (p <= 0.1 || p >= 0.95 ? 0 : 1);
+const officialIndicatorAmplitude = (p: number): number =>
+	p <= 0.1 || p >= 0.95 ? 0 : 1;
 
 const wavyAmpTarget = $derived(
 	wavy
@@ -185,7 +219,7 @@ const wavyAmpTarget = $derived(
 			: typeof amplitude === "number"
 				? amplitude
 				: 1
-		: 0
+		: 0,
 );
 
 // 初始振幅（SSR/首帧直接按当前 progress 得到正确形态，避免闪动）
@@ -193,7 +227,8 @@ function initialWavyAmp(): number {
 	if (!wavy) return 0;
 	if (typeof amplitude === "number") return amplitude;
 	const hasProgress = typeof progress === "number" && progress >= 0;
-	if (typeof amplitude === "function") return hasProgress ? amplitude(progress as number) : 1;
+	if (typeof amplitude === "function")
+		return hasProgress ? amplitude(progress as number) : 1;
 	return hasProgress ? officialIndicatorAmplitude(progress as number) : 1;
 }
 let wavyAmp = $state(initialWavyAmp());
@@ -219,7 +254,8 @@ $effect(() => {
 	if (Math.abs(target - current) < 0.001) return cleanup;
 	cleanup();
 	const from = current;
-	const easing = target > from ? cubicBezier(0.2, 0, 0, 1) : cubicBezier(0.3, 0, 0.8, 0.15);
+	const easing =
+		target > from ? cubicBezier(0.2, 0, 0, 1) : cubicBezier(0.3, 0, 0.8, 0.15);
 	const start = performance.now();
 	const duration = 500;
 	const step = (now: number): void => {
@@ -246,9 +282,8 @@ const wavyStarD = $derived(
 		cx: resolvedSize / 2,
 		cy: resolvedSize / 2,
 		amplitude: wavyAmp,
-	})
+	}),
 );
-
 </script>
 
 	{#if wavy && variant === "linear"}

@@ -56,10 +56,7 @@ describe("Feature Data & Resolver Tests", () => {
 		};
 		const resolved = resolveTimelineData(config);
 		assert.ok(!resolved.some((t) => t.title === "Senior Frontend Engineer"));
-		assert.equal(
-			resolved[0].title,
-			"Started Personal Blog & Tech Notes",
-		);
+		assert.equal(resolved[0].title, "Started Personal Blog & Tech Notes");
 	});
 
 	it("resolveDevicesData applies disabledIds correctly", () => {

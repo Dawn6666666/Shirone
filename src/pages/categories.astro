@@ -14,7 +14,10 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getCategoryList } from "@utils/content-utils";
 
 const categories = await getCategoryList();
-const totalPosts = categories.reduce((sum, category) => sum + category.count, 0);
+const totalPosts = categories.reduce(
+	(sum, category) => sum + category.count,
+	0,
+);
 const categorySummary = `${categories.length} ${i18n(I18nKey.categoriesCount)} · ${totalPosts} ${i18n(I18nKey.postsCount)}`;
 ---
 

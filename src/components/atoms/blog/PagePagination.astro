@@ -28,7 +28,12 @@ const {
 	totalPages,
 	buildUrl,
 	adjacent = 2,
-	labels = { prev: "Previous", next: "Next", page: "Page {page}", jump: "Jump" },
+	labels = {
+		prev: "Previous",
+		next: "Next",
+		page: "Page {page}",
+		jump: "Jump",
+	},
 	class: className,
 	style,
 } = Astro.props as Props;
@@ -63,7 +68,8 @@ if (r === totalPages - 2) pages.push(totalPages - 1);
 if (r < totalPages) pages.push(totalPages);
 
 const prevUrl = currentPage > 1 ? buildUrl(currentPage - 1) : undefined;
-const nextUrl = currentPage < totalPages ? buildUrl(currentPage + 1) : undefined;
+const nextUrl =
+	currentPage < totalPages ? buildUrl(currentPage + 1) : undefined;
 const jumpLabel = labels.jump;
 // 跳转链接模板：占位符 {page} 由客户端替换；第 1 页特殊（buildUrl(1) 可能是 "/"）
 const jumpTemplate = buildUrl(999_999).replace("999999", "{page}");

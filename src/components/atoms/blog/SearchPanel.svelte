@@ -1,34 +1,34 @@
 <script lang="ts">
-	import Icon from "@iconify/svelte";
+import Icon from "@iconify/svelte";
 
-	/**
-	 * M3E 博客原子 — SearchPanel 搜索结果面板。
-	 * 数据驱动：results 为 { url, title, excerpt }[]（excerpt 可含 <mark> 高亮）；
-	 * placeholder 传入时渲染面板内胶囊搜索输入（移动端，hideInputOnDesktop 时 lg+ 隐藏）。
-	 * 开合 / 定位由调用方通过 class 控制（float-panel float-panel-closed + 定位类），
-	 * 与 DisplaySettings 面板同款约定，Layout 的点击外部关闭可直接复用。
-	 */
-	export interface SearchResultItem {
-		url: string;
-		title: string;
-		excerpt: string;
-	}
+/**
+ * M3E 博客原子 — SearchPanel 搜索结果面板。
+ * 数据驱动：results 为 { url, title, excerpt }[]（excerpt 可含 <mark> 高亮）；
+ * placeholder 传入时渲染面板内胶囊搜索输入（移动端，hideInputOnDesktop 时 lg+ 隐藏）。
+ * 开合 / 定位由调用方通过 class 控制（float-panel float-panel-closed + 定位类），
+ * 与 DisplaySettings 面板同款约定，Layout 的点击外部关闭可直接复用。
+ */
+export interface SearchResultItem {
+	url: string;
+	title: string;
+	excerpt: string;
+}
 
-	let {
-		results = [],
-		query = $bindable(""),
-		placeholder = "",
-		hideInputOnDesktop = false,
-		id = "",
-		class: className = "",
-	}: {
-		results?: SearchResultItem[];
-		query?: string;
-		placeholder?: string;
-		hideInputOnDesktop?: boolean;
-		id?: string;
-		class?: string;
-	} = $props();
+let {
+	results = [],
+	query = $bindable(""),
+	placeholder = "",
+	hideInputOnDesktop = false,
+	id = "",
+	class: className = "",
+}: {
+	results?: SearchResultItem[];
+	query?: string;
+	placeholder?: string;
+	hideInputOnDesktop?: boolean;
+	id?: string;
+	class?: string;
+} = $props();
 </script>
 
 <div class="m3-blog-searchpanel {className}" {id}>

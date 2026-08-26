@@ -9,7 +9,16 @@
  */
 
 type Pt = { x: number; y: number };
-type Cubic = { x0: number; y0: number; c0x: number; c0y: number; c1x: number; c1y: number; x1: number; y1: number };
+type Cubic = {
+	x0: number;
+	y0: number;
+	c0x: number;
+	c0y: number;
+	c1x: number;
+	c1y: number;
+	x1: number;
+	y1: number;
+};
 
 const EPS = 1e-4;
 
@@ -38,7 +47,14 @@ function cubicLine(x0: number, y0: number, x1: number, y1: number): Cubic {
 	};
 }
 
-function cubicArc(cx: number, cy: number, x0: number, y0: number, x1: number, y1: number): Cubic {
+function cubicArc(
+	cx: number,
+	cy: number,
+	x0: number,
+	y0: number,
+	x1: number,
+	y1: number,
+): Cubic {
 	const p0d = dirv(x0 - cx, y0 - cy);
 	const p1d = dirv(x1 - cx, y1 - cy);
 	const rp0 = rot90(p0d);
@@ -47,8 +63,10 @@ function cubicArc(cx: number, cy: number, x0: number, y0: number, x1: number, y1
 	const cosa = dot(p0d, p1d);
 	if (cosa > 0.999) return cubicLine(x0, y0, x1, y1);
 	const k =
-		(dist(x0 - cx, y0 - cy) * (4 / 3) * (Math.sqrt(2 * (1 - cosa)) - Math.sqrt(1 - cosa * cosa))) /
-		(1 - cosa) *
+		((dist(x0 - cx, y0 - cy) *
+			(4 / 3) *
+			(Math.sqrt(2 * (1 - cosa)) - Math.sqrt(1 - cosa * cosa))) /
+			(1 - cosa)) *
 		(clockwise ? 1 : -1);
 	return {
 		x0,
@@ -63,7 +81,16 @@ function cubicArc(cx: number, cy: number, x0: number, y0: number, x1: number, y1
 }
 
 function reverseCubic(c: Cubic): Cubic {
-	return { x0: c.x1, y0: c.y1, c0x: c.c1x, c0y: c.c1y, c1x: c.c0x, c1y: c.c0y, x1: c.x0, y1: c.y0 };
+	return {
+		x0: c.x1,
+		y0: c.y1,
+		c0x: c.c1x,
+		c0y: c.c1y,
+		c1x: c.c0x,
+		c1y: c.c0y,
+		x1: c.x0,
+		y1: c.y0,
+	};
 }
 
 function lineIntersection(p0: Pt, d0: Pt, p1: Pt, d1: Pt): Pt | null {
@@ -83,7 +110,13 @@ interface CornerResult {
 	getCubics(allowedCut0: number, allowedCut1: number): Cubic[];
 }
 
-function roundedCorner(p0: Pt, p1: Pt, p2: Pt, radius: number, smoothing: number): CornerResult {
+function roundedCorner(
+	p0: Pt,
+	p1: Pt,
+	p2: Pt,
+	radius: number,
+	smoothing: number,
+): CornerResult {
 	const v01 = sub(p0, p1);
 	const v21 = sub(p2, p1);
 	const d01 = dist(v01.x, v01.y);
@@ -99,13 +132,17 @@ function roundedCorner(p0: Pt, p1: Pt, p2: Pt, radius: number, smoothing: number
 	const d2 = scl(v21, 1 / d21);
 	const cosAngle = dot(d1, d2);
 	const sinAngle = Math.sqrt(1 - cosAngle * cosAngle);
-	const expectedRoundCut = sinAngle > 1e-3 ? (radius * (cosAngle + 1)) / sinAngle : 0;
+	const expectedRoundCut =
+		sinAngle > 1e-3 ? (radius * (cosAngle + 1)) / sinAngle : 0;
 	const expectedCut = (1 + smoothing) * expectedRoundCut;
 
 	const calcSmoothing = (allowedCut: number): number => {
 		if (allowedCut > expectedCut) return smoothing;
 		if (allowedCut > expectedRoundCut) {
-			return (smoothing * (allowedCut - expectedRoundCut)) / (expectedCut - expectedRoundCut);
+			return (
+				(smoothing * (allowedCut - expectedRoundCut)) /
+				(expectedCut - expectedRoundCut)
+			);
 		}
 		return 0;
 	};
@@ -120,12 +157,19 @@ function roundedCorner(p0: Pt, p1: Pt, p2: Pt, radius: number, smoothing: number
 		actualR: number,
 	): Cubic => {
 		const sideDir = dirv(sideStart.x - p1.x, sideStart.y - p1.y);
-		const curveStart = add(p1, scl(sideDir, actualRoundCut * (1 + smoothingValue)));
+		const curveStart = add(
+			p1,
+			scl(sideDir, actualRoundCut * (1 + smoothingValue)),
+		);
 		const mid = scl(add(circleHit, otherCircleHit), 0.5);
 		const p = add(scl(circleHit, 1 - smoothingValue), scl(mid, smoothingValue));
-		const curveEnd = add(center, scl(dirv(p.x - center.x, p.y - center.y), actualR));
+		const curveEnd = add(
+			center,
+			scl(dirv(p.x - center.x, p.y - center.y), actualR),
+		);
 		const tangent = rot90(sub(curveEnd, center));
-		const anchorEnd = lineIntersection(sideStart, sideDir, curveEnd, tangent) ?? circleHit;
+		const anchorEnd =
+			lineIntersection(sideStart, sideDir, curveEnd, tangent) ?? circleHit;
 		const anchorStart = scl(add(curveStart, scl(anchorEnd, 2)), 1 / 3);
 		return {
 			x0: curveStart.x,
@@ -151,12 +195,16 @@ function roundedCorner(p0: Pt, p1: Pt, p2: Pt, radius: number, smoothing: number
 			const s0 = calcSmoothing(allowedCut0);
 			const s1 = calcSmoothing(allowedCut1);
 			const actualR = (radius * actualRoundCut) / expectedRoundCut;
-			const centerDist = Math.sqrt(actualR * actualR + actualRoundCut * actualRoundCut);
+			const centerDist = Math.sqrt(
+				actualR * actualR + actualRoundCut * actualRoundCut,
+			);
 			const center = add(p1, scl(dirv(d1.x + d2.x, d1.y + d2.y), centerDist));
 			const hit0 = add(p1, scl(d1, actualRoundCut));
 			const hit2 = add(p1, scl(d2, actualRoundCut));
 			const f0 = flanking(actualRoundCut, s0, p0, hit0, hit2, center, actualR);
-			const f2 = reverseCubic(flanking(actualRoundCut, s1, p2, hit2, hit0, center, actualR));
+			const f2 = reverseCubic(
+				flanking(actualRoundCut, s1, p2, hit2, hit0, center, actualR),
+			);
 			return [f0, cubicArc(center.x, center.y, f0.x1, f0.y1, f2.x0, f2.y0), f2];
 		},
 	};
@@ -170,7 +218,13 @@ const fmt = (v: number): string => (Math.round(v * 100) / 100).toString();
  * controlY = (height - strokeWidth) * amplitude（amplitude 0..1：0 = 直线居中，1 = 满波），
  * 再 translate(0, height/2) 居中。pathWidth 需含左右 2 个波长余量。
  */
-export function buildLinearWavePath(pathWidth: number, wavelength: number, height: number, strokeWidth: number, amplitude = 1): string {
+export function buildLinearWavePath(
+	pathWidth: number,
+	wavelength: number,
+	height: number,
+	strokeWidth: number,
+	amplitude = 1,
+): string {
 	const halfWavelength = wavelength / 2;
 	const controlY = (height - strokeWidth) * amplitude;
 	let d = `M 0 ${fmt(height / 2)}`;
@@ -211,29 +265,54 @@ export interface CircularStarOptions {
  * （等价官方 Morph 在 track 圆与 star 之间插值），角圆化参数固定。
  */
 export function buildCircularStarPath(opts: CircularStarOptions): string {
-	const { numVertices: n, innerRadius, outerRounding, outerSmoothing, innerRounding, radius, cx, cy } = opts;
+	const {
+		numVertices: n,
+		innerRadius,
+		outerRounding,
+		outerSmoothing,
+		innerRounding,
+		radius,
+		cx,
+		cy,
+	} = opts;
 	const amplitude = Math.max(0, Math.min(1, opts.amplitude));
 	const innerR = 1 - amplitude * (1 - innerRadius);
 	const verts: Pt[] = [];
 	for (let i = 0; i < n; i++) {
 		const ao = ((2 * Math.PI) / n) * i;
-		verts.push({ x: cx + Math.cos(ao) * radius, y: cy + Math.sin(ao) * radius });
+		verts.push({
+			x: cx + Math.cos(ao) * radius,
+			y: cy + Math.sin(ao) * radius,
+		});
 		const ai = ((2 * Math.PI) / n) * (i + 0.5);
-		verts.push({ x: cx + Math.cos(ai) * radius * innerR, y: cy + Math.sin(ai) * radius * innerR });
+		verts.push({
+			x: cx + Math.cos(ai) * radius * innerR,
+			y: cy + Math.sin(ai) * radius * innerR,
+		});
 	}
 	const total = n * 2;
 	const corners = verts.map((v, i) => {
 		const prev = verts[(i + total - 1) % total];
 		const next = verts[(i + 1) % total];
 		const isOuter = i % 2 === 0;
-		return roundedCorner(prev, v, next, (isOuter ? outerRounding : innerRounding) * radius, isOuter ? outerSmoothing : 0);
+		return roundedCorner(
+			prev,
+			v,
+			next,
+			(isOuter ? outerRounding : innerRounding) * radius,
+			isOuter ? outerSmoothing : 0,
+		);
 	});
 	// 每条边能切多少（先保证圆化，再分配 smoothing 空间，官方 cutAdjusts）
 	const cutAdjusts: Array<[number, number]> = [];
 	for (let i = 0; i < total; i++) {
-		const rc = corners[i].expectedRoundCut + corners[(i + 1) % total].expectedRoundCut;
+		const rc =
+			corners[i].expectedRoundCut + corners[(i + 1) % total].expectedRoundCut;
 		const ec = corners[i].expectedCut + corners[(i + 1) % total].expectedCut;
-		const sideSize = dist(verts[i].x - verts[(i + 1) % total].x, verts[i].y - verts[(i + 1) % total].y);
+		const sideSize = dist(
+			verts[i].x - verts[(i + 1) % total].x,
+			verts[i].y - verts[(i + 1) % total].y,
+		);
 		if (rc > sideSize) cutAdjusts.push([sideSize / rc, 0]);
 		else if (ec > sideSize) cutAdjusts.push([1, (sideSize - rc) / (ec - rc)]);
 		else cutAdjusts.push([1, 1]);
@@ -241,8 +320,11 @@ export function buildCircularStarPath(opts: CircularStarOptions): string {
 	const cornerCubics = corners.map((c, i) => {
 		const a0 =
 			c.expectedRoundCut * cutAdjusts[(i + total - 1) % total][0] +
-			(c.expectedCut - c.expectedRoundCut) * cutAdjusts[(i + total - 1) % total][1];
-		const a1 = c.expectedRoundCut * cutAdjusts[i][0] + (c.expectedCut - c.expectedRoundCut) * cutAdjusts[i][1];
+			(c.expectedCut - c.expectedRoundCut) *
+				cutAdjusts[(i + total - 1) % total][1];
+		const a1 =
+			c.expectedRoundCut * cutAdjusts[i][0] +
+			(c.expectedCut - c.expectedRoundCut) * cutAdjusts[i][1];
 		return c.getCubics(a0, a1);
 	});
 	let d = "";
@@ -259,7 +341,11 @@ export function buildCircularStarPath(opts: CircularStarOptions): string {
 }
 
 /** 官方圆形顶点数：max(5, round(2πr / wavelength))，r = 容器/2 - stroke/2。 */
-export function circularWavyVertexCount(size: number, strokeWidth: number, wavelength: number): number {
+export function circularWavyVertexCount(
+	size: number,
+	strokeWidth: number,
+	wavelength: number,
+): number {
 	const r = size / 2 - strokeWidth / 2;
 	return Math.max(5, Math.round((2 * Math.PI * r) / wavelength));
 }
@@ -269,7 +355,12 @@ function bez(t: number, a: number, b: number): number {
 	return 3 * (1 - t) * (1 - t) * t * a + 3 * (1 - t) * t * t * b + t * t * t;
 }
 
-export function cubicBezier(x1: number, y1: number, x2: number, y2: number): (t: number) => number {
+export function cubicBezier(
+	x1: number,
+	y1: number,
+	x2: number,
+	y2: number,
+): (t: number) => number {
 	return (t: number): number => {
 		if (t <= 0) return 0;
 		if (t >= 1) return 1;
@@ -278,7 +369,10 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number): (t:
 			const x = bez(u, x1, x2);
 			const err = x - t;
 			if (Math.abs(err) < 1e-6) break;
-			const dx = 3 * (1 - u) * (1 - u) * x1 + 6 * (1 - u) * u * (x2 - x1) + 3 * u * u * (1 - x2);
+			const dx =
+				3 * (1 - u) * (1 - u) * x1 +
+				6 * (1 - u) * u * (x2 - x1) +
+				3 * u * u * (1 - x2);
 			u = Math.max(0, Math.min(1, u - err / dx));
 		}
 		return bez(u, y1, y2);

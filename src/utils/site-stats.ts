@@ -4,7 +4,12 @@
  * 文章跑 render 提取 remark 字数，不做缓存会逐页重复开销）。
  */
 import { render } from "astro:content";
-import { getCategoryList, getSortedMoments, getSortedPosts, getTagList } from "./content-utils";
+import {
+	getCategoryList,
+	getSortedMoments,
+	getSortedPosts,
+	getTagList,
+} from "./content-utils";
 
 export interface SiteStats {
 	posts: number;
@@ -57,9 +62,8 @@ export async function getSiteStats(): Promise<SiteStats> {
 		days: Number.isFinite(earliest)
 			? Math.max(0, Math.floor((Date.now() - earliest) / DAY_MS))
 			: 0,
-		lastActivity: latestActivity > 0
-			? new Date(latestActivity).toISOString()
-			: null,
+		lastActivity:
+			latestActivity > 0 ? new Date(latestActivity).toISOString() : null,
 	};
 	return cache;
 }

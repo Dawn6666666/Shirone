@@ -22,8 +22,12 @@ test.describe("友链页", () => {
 		await expect(first).toHaveAttribute("href", "https://mizuki.mysqil.com");
 		await expect(first).toHaveAttribute("target", "_blank");
 		await expect(first).toContainText("Mizuki");
-		await expect(first).toContainText("Another Fuwari-based blog theme with docs");
-		await expect(first.locator(".friend-card__tag").first()).toHaveText("#Blog");
+		await expect(first).toContainText(
+			"Another Fuwari-based blog theme with docs",
+		);
+		await expect(first.locator(".friend-card__tag").first()).toHaveText(
+			"#Blog",
+		);
 	});
 
 	test("使用站点统一的友链视觉结构", async ({ page }) => {
@@ -34,10 +38,14 @@ test.describe("友链页", () => {
 		// PostCard 式箭头（chevron，hover 右滑）
 		await expect(page.locator(".friend-card__arrow")).toHaveCount(FRIEND_COUNT);
 		// 官方 Chips 原子（filter 形态）承担标签筛选
-		await expect(page.locator(".friend-section__chips .m3-chip--filter")).toHaveCount(4);
+		await expect(
+			page.locator(".friend-section__chips .m3-chip--filter"),
+		).toHaveCount(4);
 		// 换链说明为 PageHeader 副标题
 		await expect(page.locator(".page-header__subtitle")).toBeVisible();
-		await expect(page.locator(".page-header__subtitle")).toContainText("Link exchange");
+		await expect(page.locator(".page-header__subtitle")).toContainText(
+			"Link exchange",
+		);
 	});
 
 	test("筛选状态同步到 URL（?q= / ?tag=）", async ({ page }) => {
@@ -49,7 +57,9 @@ test.describe("友链页", () => {
 		await expect(page).toHaveURL(/[?&]tag=Blog/);
 	});
 
-	test("单选标签筛选（再点取消恢复全部，aria-pressed 同步）", async ({ page }) => {
+	test("单选标签筛选（再点取消恢复全部，aria-pressed 同步）", async ({
+		page,
+	}) => {
 		const blogFilter = page.getByRole("button", { name: "Blog", exact: true });
 		await blogFilter.click();
 		await expect(blogFilter).toHaveAttribute("aria-pressed", "true");
@@ -81,21 +91,31 @@ test.describe("友链页 Swup 导航", () => {
 			await expect(page.locator(".friend-card")).toHaveCount(FRIEND_COUNT);
 			await expect(list).toHaveCSS("display", "grid");
 			await expect(list).toHaveCSS("gap", "16px");
-			await expect(list).toHaveCSS("grid-template-columns", /\d+(\.\d+)?px \d+(\.\d+)?px/);
+			await expect(list).toHaveCSS(
+				"grid-template-columns",
+				/\d+(\.\d+)?px \d+(\.\d+)?px/,
+			);
 
-			const blogFilter = page.getByRole("button", { name: "Blog", exact: true });
+			const blogFilter = page.getByRole("button", {
+				name: "Blog",
+				exact: true,
+			});
 			await blogFilter.click();
 			const loading = page.locator(".friend-section__loading");
 			const indicator = loading.locator(".m3-loading");
 			await expect(loading).toBeVisible();
 			await expect(indicator).toHaveCSS("width", "64px");
 			await expect(indicator).toHaveCSS("height", "64px");
-			const centers = await Promise.all([loading.boundingBox(), indicator.boundingBox()]);
+			const centers = await Promise.all([
+				loading.boundingBox(),
+				indicator.boundingBox(),
+			]);
 			expect(centers[0]).not.toBeNull();
 			expect(centers[1]).not.toBeNull();
 			expect(
 				Math.abs(
-					centers[0]!.x + centers[0]!.width / 2 -
+					centers[0]!.x +
+						centers[0]!.width / 2 -
 						(centers[1]!.x + centers[1]!.width / 2),
 				),
 			).toBeLessThanOrEqual(1);

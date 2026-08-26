@@ -1,17 +1,17 @@
 <script lang="ts">
-	import Avatar from "@components/atoms/display/Avatar.svelte";
-	import Icon from "@iconify/svelte";
-	import type { FriendItem } from "../../data/friends";
+import Avatar from "@components/atoms/display/Avatar.svelte";
+import Icon from "@iconify/svelte";
+import type { FriendItem } from "../../data/friends";
 
-	let { friend }: { friend: FriendItem } = $props();
+let { friend }: { friend: FriendItem } = $props();
 
-	const host = $derived.by(() => {
-		try {
-			return new URL(friend.siteurl).hostname.replace(/^www\./, "");
-		} catch {
-			return friend.siteurl;
-		}
-	});
+const host = $derived.by(() => {
+	try {
+		return new URL(friend.siteurl).hostname.replace(/^www\./, "");
+	} catch {
+		return friend.siteurl;
+	}
+});
 </script>
 
 <a

@@ -119,11 +119,15 @@ test.describe("music sidebar architecture", () => {
 
 		await page.goto("/", { waitUntil: "networkidle" });
 		expect(metingRequests).toBe(0);
-		await page.locator("[data-music-player] .music-player__playlist-toggle").click();
+		await page
+			.locator("[data-music-player] .music-player__playlist-toggle")
+			.click();
 		await expect.poll(() => metingRequests).toBe(1);
 	});
 
-	test("local covers are emitted as optimized Astro assets", async ({ page }) => {
+	test("local covers are emitted as optimized Astro assets", async ({
+		page,
+	}) => {
 		test.skip(
 			musicConfig.provider !== "local" && musicConfig.provider !== "mixed",
 			"Local configuration is not using local tracks",

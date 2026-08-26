@@ -25,15 +25,10 @@ export interface SnackbarDetail {
 	icon?: string;
 }
 
-export function showSnackbar(
-	message: string,
-	options?: SnackbarOptions,
-): void {
+export function showSnackbar(message: string, options?: SnackbarOptions): void {
 	if (typeof window === "undefined") return;
 	const detail: SnackbarDetail = { message };
 	if (options?.action) detail.action = options.action;
 	if (options?.icon) detail.icon = options.icon;
-	window.dispatchEvent(
-		new CustomEvent(SNACKBAR_EVENT, { detail }),
-	);
+	window.dispatchEvent(new CustomEvent(SNACKBAR_EVENT, { detail }));
 }

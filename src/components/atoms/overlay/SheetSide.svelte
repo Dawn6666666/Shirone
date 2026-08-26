@@ -40,9 +40,11 @@ let lastFocused: HTMLElement | null = null;
 function getFocusables(): HTMLElement[] {
 	const panel = panelEl;
 	if (!panel) return [];
-	return [...panel.querySelectorAll<HTMLElement>(
-		'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-	)].filter((el) => el.offsetParent !== null);
+	return [
+		...panel.querySelectorAll<HTMLElement>(
+			'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+		),
+	].filter((el) => el.offsetParent !== null);
 }
 
 /** 打开时：聚焦面板 + 焦点陷阱（Tab 循环）；关闭后焦点返还触发元素（官方 Modal Sheet） */

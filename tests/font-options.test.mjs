@@ -45,9 +45,21 @@ describe("Font Configuration & Resolver Tests", () => {
 					role: "body",
 					source: "fontsource",
 					variants: [
-						{ file: "@fontsource/roboto/400.css", weight: 400, style: "normal" },
-						{ file: "@fontsource/roboto/500.css", weight: 500, style: "normal" },
-						{ file: "@fontsource/roboto/700.css", weight: 700, style: "normal" },
+						{
+							file: "@fontsource/roboto/400.css",
+							weight: 400,
+							style: "normal",
+						},
+						{
+							file: "@fontsource/roboto/500.css",
+							weight: 500,
+							style: "normal",
+						},
+						{
+							file: "@fontsource/roboto/700.css",
+							weight: 700,
+							style: "normal",
+						},
 					],
 					fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 					display: "swap",
@@ -59,7 +71,11 @@ describe("Font Configuration & Resolver Tests", () => {
 					role: "mono",
 					source: "fontsource",
 					variants: [
-						{ file: "@fontsource-variable/jetbrains-mono/index.css", weight: "100 800", style: "normal" },
+						{
+							file: "@fontsource-variable/jetbrains-mono/index.css",
+							weight: "100 800",
+							style: "normal",
+						},
 					],
 					fallback: ["ui-monospace", "monospace"],
 					display: "swap",
@@ -85,7 +101,9 @@ describe("Font Configuration & Resolver Tests", () => {
 		const imports = getFontsourceImports(resolved);
 		assert.equal(imports.length, 4);
 		assert.ok(imports.includes("@fontsource/roboto/400.css"));
-		assert.ok(imports.includes("@fontsource-variable/jetbrains-mono/index.css"));
+		assert.ok(
+			imports.includes("@fontsource-variable/jetbrains-mono/index.css"),
+		);
 
 		const style = createFontRoleStyle(resolved);
 		assert.match(style, /--font-body:\s*"Roboto";/);
@@ -192,13 +210,26 @@ describe("Font Configuration & Resolver Tests", () => {
 							family: "Google Sans",
 							role: "body",
 							source: "local",
-							variants: [{ file: "https://fonts.gstatic.com/s/roboto.woff2", weight: 400, style: "normal" }],
+							variants: [
+								{
+									file: "https://fonts.gstatic.com/s/roboto.woff2",
+									weight: 400,
+									style: "normal",
+								},
+							],
 							fallback: ["sans-serif"],
 							display: "swap",
 							preload: false,
 						},
 					],
-					subsetting: { enable: false, includeContent: false, includeI18n: false, includeConfig: false, includeCommon: true, allowRemoteText: false },
+					subsetting: {
+						enable: false,
+						includeContent: false,
+						includeI18n: false,
+						includeConfig: false,
+						includeCommon: true,
+						allowRemoteText: false,
+					},
 					budget: { maxTotalBytes: 4194304, maxFamilyBytes: 2097152 },
 				}),
 			/local fonts must be font files under src\/assets\/fonts/,
@@ -215,7 +246,13 @@ describe("Font Configuration & Resolver Tests", () => {
 							family: "Roboto",
 							role: "body",
 							source: "fontsource",
-							variants: [{ file: "@fontsource/roboto/400.css", weight: 400, style: "normal" }],
+							variants: [
+								{
+									file: "@fontsource/roboto/400.css",
+									weight: 400,
+									style: "normal",
+								},
+							],
 							fallback: ["sans-serif"],
 							display: "swap",
 							preload: false,
@@ -225,13 +262,26 @@ describe("Font Configuration & Resolver Tests", () => {
 							family: "Lato",
 							role: "body",
 							source: "fontsource",
-							variants: [{ file: "@fontsource/lato/400.css", weight: 400, style: "normal" }],
+							variants: [
+								{
+									file: "@fontsource/lato/400.css",
+									weight: 400,
+									style: "normal",
+								},
+							],
 							fallback: ["sans-serif"],
 							display: "swap",
 							preload: false,
 						},
 					],
-					subsetting: { enable: false, includeContent: false, includeI18n: false, includeConfig: false, includeCommon: true, allowRemoteText: false },
+					subsetting: {
+						enable: false,
+						includeContent: false,
+						includeI18n: false,
+						includeConfig: false,
+						includeCommon: true,
+						allowRemoteText: false,
+					},
 					budget: { maxTotalBytes: 4194304, maxFamilyBytes: 2097152 },
 				}),
 			/role body is already defined/,

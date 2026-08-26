@@ -1,37 +1,37 @@
 <script lang="ts">
-	/** 技能页主体（有机体）：配置数据筛选与技能卡片编排。 */
-	import Chips from "@components/atoms/action/Chips.svelte";
-	import Card from "@components/atoms/display/Card.svelte";
-	import PageHeader from "@components/molecules/PageHeader.svelte";
-	import SkillCard from "@components/molecules/SkillCard.svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import type { SkillCategory, SkillItem } from "@/types/skillsConfig";
+/** 技能页主体（有机体）：配置数据筛选与技能卡片编排。 */
+import Chips from "@components/atoms/action/Chips.svelte";
+import Card from "@components/atoms/display/Card.svelte";
+import PageHeader from "@components/molecules/PageHeader.svelte";
+import SkillCard from "@components/molecules/SkillCard.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import type { SkillCategory, SkillItem } from "@/types/skillsConfig";
 
-	let {
-		categories = [] as SkillCategory[],
-		items = [] as SkillItem[],
-	}: { categories?: SkillCategory[]; items?: SkillItem[] } = $props();
+let {
+	categories = [] as SkillCategory[],
+	items = [] as SkillItem[],
+}: { categories?: SkillCategory[]; items?: SkillItem[] } = $props();
 
-	let selectedCategory = $state("");
-	const enabledItems = $derived(items.filter((item) => item.enable !== false));
-	const activeCategories = $derived(
-		categories.filter((category) =>
-			enabledItems.some((item) => item.category === category.key),
-		),
-	);
-	const categoryItems = $derived(
-		activeCategories.map((category) => ({
-			value: category.key,
-			label: category.label,
-			leadingIcon: category.icon ?? "",
-		})),
-	);
-	const filteredItems = $derived(
-		selectedCategory
-			? enabledItems.filter((item) => item.category === selectedCategory)
-			: enabledItems,
-	);
+let selectedCategory = $state("");
+const enabledItems = $derived(items.filter((item) => item.enable !== false));
+const activeCategories = $derived(
+	categories.filter((category) =>
+		enabledItems.some((item) => item.category === category.key),
+	),
+);
+const categoryItems = $derived(
+	activeCategories.map((category) => ({
+		value: category.key,
+		label: category.label,
+		leadingIcon: category.icon ?? "",
+	})),
+);
+const filteredItems = $derived(
+	selectedCategory
+		? enabledItems.filter((item) => item.category === selectedCategory)
+		: enabledItems,
+);
 </script>
 
 <Card color="var(--card-bg)" radius="l" class="skills-section px-8 py-6">

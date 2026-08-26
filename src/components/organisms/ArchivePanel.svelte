@@ -1,179 +1,185 @@
 <script lang="ts">
-	/**
-	 * 归档面板：分组切换（SegmentedButton，按年 / 按分类 / 按标签）+ 时间轴列表（组折叠见 ArchiveList 原子）。
-	 * URL 参数（?category= / ?tag= / ?uncategorized）是定向浏览视图：隐藏分组切换，
-	 * 顶部显示筛选头（面包屑）——索引页链接 › 当前筛选值，一键回溯到分类/标签索引页；
-	 * 无筛选时显示分组切换，可按年 / 按分类 / 按标签切换全量归档的分组。
-	 */
-	import ArchiveList, {
-		type ArchiveGroup,
-		type ArchiveItem,
-	} from "@components/atoms/blog/ArchiveList.svelte";
-	import Card from "@components/atoms/display/Card.svelte";
-	import SegmentedButton from "@components/atoms/selection/SegmentedButton.svelte";
-	import Icon from "@iconify/svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import { getPostUrlBySlug, url } from "@utils/url-utils";
-	import { onMount } from "svelte";
+/**
+ * 归档面板：分组切换（SegmentedButton，按年 / 按分类 / 按标签）+ 时间轴列表（组折叠见 ArchiveList 原子）。
+ * URL 参数（?category= / ?tag= / ?uncategorized）是定向浏览视图：隐藏分组切换，
+ * 顶部显示筛选头（面包屑）——索引页链接 › 当前筛选值，一键回溯到分类/标签索引页；
+ * 无筛选时显示分组切换，可按年 / 按分类 / 按标签切换全量归档的分组。
+ */
+import ArchiveList, {
+	type ArchiveGroup,
+	type ArchiveItem,
+} from "@components/atoms/blog/ArchiveList.svelte";
+import Card from "@components/atoms/display/Card.svelte";
+import SegmentedButton from "@components/atoms/selection/SegmentedButton.svelte";
+import Icon from "@iconify/svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { getPostUrlBySlug, url } from "@utils/url-utils";
+import { onMount } from "svelte";
 
-	interface Post {
-		slug: string;
-		data: {
-			title: string;
-			tags: string[];
-			category: string | null;
-			published: Date;
-		};
+interface Post {
+	slug: string;
+	data: {
+		title: string;
+		tags: string[];
+		category: string | null;
+		published: Date;
+	};
+}
+
+let { sortedPosts = [] as Post[] }: { sortedPosts?: Post[] } = $props();
+
+let category = $state("");
+let tag = $state("");
+let uncategorized = $state(false);
+/** 分组维度（SegmentedButton 驱动）：year / category / tag，string 以匹配 bind:value */
+let groupBy = $state<string>("year");
+let restoredCollapsed = $state<Record<string, boolean> | undefined>(undefined);
+
+const COLLAPSED_STORAGE_KEY = "shirone:archive-collapsed";
+
+function collapsedViewKey() {
+	if (uncategorized) return `${groupBy}:uncategorized`;
+	if (category) return `${groupBy}:category:${category}`;
+	if (tag) return `${groupBy}:tag:${tag}`;
+	return groupBy;
+}
+
+function readCollapsedState() {
+	try {
+		const stored = JSON.parse(
+			localStorage.getItem(COLLAPSED_STORAGE_KEY) ?? "{}",
+		) as Record<string, Record<string, boolean>>;
+		restoredCollapsed = stored[collapsedViewKey()];
+	} catch {
+		restoredCollapsed = undefined;
 	}
+}
 
-	let { sortedPosts = [] as Post[] }: { sortedPosts?: Post[] } = $props();
-
-	let category = $state("");
-	let tag = $state("");
-	let uncategorized = $state(false);
-	/** 分组维度（SegmentedButton 驱动）：year / category / tag，string 以匹配 bind:value */
-	let groupBy = $state<string>("year");
-	let restoredCollapsed = $state<Record<string, boolean> | undefined>(undefined);
-
-	const COLLAPSED_STORAGE_KEY = "shirone:archive-collapsed";
-
-	function collapsedViewKey() {
-		if (uncategorized) return `${groupBy}:uncategorized`;
-		if (category) return `${groupBy}:category:${category}`;
-		if (tag) return `${groupBy}:tag:${tag}`;
-		return groupBy;
+function persistCollapsedState(next: Record<string, boolean>) {
+	try {
+		const stored = JSON.parse(
+			localStorage.getItem(COLLAPSED_STORAGE_KEY) ?? "{}",
+		) as Record<string, Record<string, boolean>>;
+		stored[collapsedViewKey()] = next;
+		localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(stored));
+	} catch {
+		// Storage can be unavailable in privacy-restricted contexts.
 	}
+}
 
-	function readCollapsedState() {
-		try {
-			const stored = JSON.parse(
-				localStorage.getItem(COLLAPSED_STORAGE_KEY) ?? "{}",
-			) as Record<string, Record<string, boolean>>;
-			restoredCollapsed = stored[collapsedViewKey()];
-		} catch {
-			restoredCollapsed = undefined;
-		}
-	}
-
-	function persistCollapsedState(next: Record<string, boolean>) {
-		try {
-			const stored = JSON.parse(
-				localStorage.getItem(COLLAPSED_STORAGE_KEY) ?? "{}",
-			) as Record<string, Record<string, boolean>>;
-			stored[collapsedViewKey()] = next;
-			localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(stored));
-		} catch {
-			// Storage can be unavailable in privacy-restricted contexts.
-		}
-	}
-
-	/** 筛选头数据：类别（决定索引链接）+ 展示值；无筛选为 null */
-	const filterCrumb = $derived.by(() => {
-		if (uncategorized) {
-			return {
-				href: url("/categories/"),
-				label: i18n(I18nKey.categories),
-				value: i18n(I18nKey.uncategorized),
-			};
-		}
-		if (category) {
-			return {
-				href: url("/categories/"),
-				label: i18n(I18nKey.categories),
-				value: category,
-			};
-		}
-		if (tag) {
-			return {
-				href: url("/tags/"),
-				label: i18n(I18nKey.tags),
-				value: `#${tag}`,
-			};
-		}
-		return null;
-	});
-
-	const groupOptions = [
-		{ value: "year", label: i18n(I18nKey.archiveGroupYear) },
-		{ value: "category", label: i18n(I18nKey.archiveGroupCategory) },
-		{ value: "tag", label: i18n(I18nKey.archiveGroupTag) },
-	];
-
-	/** 筛选后的文章（分组维度与之正交，均在下方消费） */
-	const filtered = $derived(
-		sortedPosts.filter((p) => {
-			if (uncategorized && p.data.category) return false;
-			if (category && p.data.category !== category) return false;
-			if (tag && !p.data.tags.includes(tag)) return false;
-			return true;
-		}),
-	);
-
-	function formatDate(date: Date) {
-		const month = (date.getMonth() + 1).toString().padStart(2, "0");
-		const day = date.getDate().toString().padStart(2, "0");
-		return `${month}-${day}`;
-	}
-
-	function toItem(post: Post): ArchiveItem {
+/** 筛选头数据：类别（决定索引链接）+ 展示值；无筛选为 null */
+const filterCrumb = $derived.by(() => {
+	if (uncategorized) {
 		return {
-			title: post.data.title,
-			href: getPostUrlBySlug(post.slug),
-			date: formatDate(post.data.published),
-			category: post.data.category ?? undefined,
-			tags: post.data.tags,
+			href: url("/categories/"),
+			label: i18n(I18nKey.categories),
+			value: i18n(I18nKey.uncategorized),
 		};
 	}
-
-	function countLabel(count: number) {
-		return `${count} ${i18n(count === 1 ? I18nKey.postCount : I18nKey.postsCount)}`;
-	}
-
-	/** 按当前分组维度构建组；组内保持筛选后顺序（时间倒序）。 */
-	const groups = $derived.by((): ArchiveGroup[] => {
-		if (filtered.length === 0) return [];
-		const buckets = new Map<string, ArchiveItem[]>();
-		const add = (key: string, item: ArchiveItem) => {
-			const list = buckets.get(key);
-			if (list) list.push(item);
-			else buckets.set(key, [item]);
+	if (category) {
+		return {
+			href: url("/categories/"),
+			label: i18n(I18nKey.categories),
+			value: category,
 		};
-		if (groupBy === "category") {
-			for (const p of filtered) {
-				add(p.data.category ?? i18n(I18nKey.uncategorized), toItem(p));
-			}
-		} else if (groupBy === "tag") {
-			for (const p of filtered) {
-				for (const t of p.data.tags) add(`#${t}`, toItem(p));
-			}
-		} else {
-			for (const p of filtered) {
-				add(String(p.data.published.getFullYear()), toItem(p));
-			}
-		}
-		const list = [...buckets.entries()].map(([id, items]) => ({ id, title: id, items }));
-		if (groupBy === "year") {
-			return list.sort((a, b) => Number(b.title) - Number(a.title));
-		}
-		return list.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
-	});
+	}
+	if (tag) {
+		return {
+			href: url("/tags/"),
+			label: i18n(I18nKey.tags),
+			value: `#${tag}`,
+		};
+	}
+	return null;
+});
 
-	onMount(() => {
-		const params = new URLSearchParams(window.location.search);
-		category = params.get("category") || "";
-		tag = params.get("tag") || "";
-		uncategorized = params.has("uncategorized");
-		readCollapsedState();
-	});
+const groupOptions = [
+	{ value: "year", label: i18n(I18nKey.archiveGroupYear) },
+	{ value: "category", label: i18n(I18nKey.archiveGroupCategory) },
+	{ value: "tag", label: i18n(I18nKey.archiveGroupTag) },
+];
 
-	$effect(() => {
-		groupBy;
-		category;
-		tag;
-		uncategorized;
-		if (typeof window !== "undefined") readCollapsedState();
-	});
+/** 筛选后的文章（分组维度与之正交，均在下方消费） */
+const filtered = $derived(
+	sortedPosts.filter((p) => {
+		if (uncategorized && p.data.category) return false;
+		if (category && p.data.category !== category) return false;
+		if (tag && !p.data.tags.includes(tag)) return false;
+		return true;
+	}),
+);
+
+function formatDate(date: Date) {
+	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	const day = date.getDate().toString().padStart(2, "0");
+	return `${month}-${day}`;
+}
+
+function toItem(post: Post): ArchiveItem {
+	return {
+		title: post.data.title,
+		href: getPostUrlBySlug(post.slug),
+		date: formatDate(post.data.published),
+		category: post.data.category ?? undefined,
+		tags: post.data.tags,
+	};
+}
+
+function countLabel(count: number) {
+	return `${count} ${i18n(count === 1 ? I18nKey.postCount : I18nKey.postsCount)}`;
+}
+
+/** 按当前分组维度构建组；组内保持筛选后顺序（时间倒序）。 */
+const groups = $derived.by((): ArchiveGroup[] => {
+	if (filtered.length === 0) return [];
+	const buckets = new Map<string, ArchiveItem[]>();
+	const add = (key: string, item: ArchiveItem) => {
+		const list = buckets.get(key);
+		if (list) list.push(item);
+		else buckets.set(key, [item]);
+	};
+	if (groupBy === "category") {
+		for (const p of filtered) {
+			add(p.data.category ?? i18n(I18nKey.uncategorized), toItem(p));
+		}
+	} else if (groupBy === "tag") {
+		for (const p of filtered) {
+			for (const t of p.data.tags) add(`#${t}`, toItem(p));
+		}
+	} else {
+		for (const p of filtered) {
+			add(String(p.data.published.getFullYear()), toItem(p));
+		}
+	}
+	const list = [...buckets.entries()].map(([id, items]) => ({
+		id,
+		title: id,
+		items,
+	}));
+	if (groupBy === "year") {
+		return list.sort((a, b) => Number(b.title) - Number(a.title));
+	}
+	return list.sort((a, b) =>
+		a.title.toLowerCase().localeCompare(b.title.toLowerCase()),
+	);
+});
+
+onMount(() => {
+	const params = new URLSearchParams(window.location.search);
+	category = params.get("category") || "";
+	tag = params.get("tag") || "";
+	uncategorized = params.has("uncategorized");
+	readCollapsedState();
+});
+
+$effect(() => {
+	groupBy;
+	category;
+	tag;
+	uncategorized;
+	if (typeof window !== "undefined") readCollapsedState();
+});
 </script>
 
 <Card color="var(--card-bg)" radius="l" class="archive-panel px-8 py-6">

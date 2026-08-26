@@ -1,43 +1,43 @@
 <script lang="ts">
-	/**
-	 * 动态卡片（分子）：单条动态的展示单元。
-	 * <article> 语义（非整卡链接）；头像/作者名链到作者页；
-	 * 正文为构建期渲染的 HTML（复用全局 .custom-md 排版）；
-	 * 图片交给 MomentGallery（网格 + 内联查看器两段式，灯箱走 Fancybox）。
-	 */
-	import Avatar from "@components/atoms/display/Avatar.svelte";
-	import Icon from "@components/atoms/display/Icon.svelte";
-	import MomentGallery from "@components/molecules/MomentGallery.svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import { formatDateToYYYYMMDDHHmm } from "@utils/date-utils";
-	import { reveal } from "@utils/motion";
-	import type { MomentItem } from "@utils/content-utils";
+/**
+ * 动态卡片（分子）：单条动态的展示单元。
+ * <article> 语义（非整卡链接）；头像/作者名链到作者页；
+ * 正文为构建期渲染的 HTML（复用全局 .custom-md 排版）；
+ * 图片交给 MomentGallery（网格 + 内联查看器两段式，灯箱走 Fancybox）。
+ */
+import Avatar from "@components/atoms/display/Avatar.svelte";
+import Icon from "@components/atoms/display/Icon.svelte";
+import MomentGallery from "@components/molecules/MomentGallery.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { formatDateToYYYYMMDDHHmm } from "@utils/date-utils";
+import { reveal } from "@utils/motion";
+import type { MomentItem } from "@utils/content-utils";
 
-	export type MomentAuthor = {
-		name: string;
-		avatar: string;
-		avatarSrcset?: string;
-		avatarWidth?: number;
-		avatarHeight?: number;
-		url: string;
-	};
+export type MomentAuthor = {
+	name: string;
+	avatar: string;
+	avatarSrcset?: string;
+	avatarWidth?: number;
+	avatarHeight?: number;
+	url: string;
+};
 
-	let {
-		moment,
-		author,
-		/** stagger 入场延迟 ms（由列表传入：第 i 项 i × step） */
-		delay = 0,
-		class: className = "",
-	}: {
-		moment: MomentItem;
-		author: MomentAuthor;
-		delay?: number;
-		class?: string;
-	} = $props();
+let {
+	moment,
+	author,
+	/** stagger 入场延迟 ms（由列表传入：第 i 项 i × step） */
+	delay = 0,
+	class: className = "",
+}: {
+	moment: MomentItem;
+	author: MomentAuthor;
+	delay?: number;
+	class?: string;
+} = $props();
 
-	const publishedAt = $derived(new Date(moment.published));
-	const timeText = $derived(formatDateToYYYYMMDDHHmm(publishedAt));
+const publishedAt = $derived(new Date(moment.published));
+const timeText = $derived(formatDateToYYYYMMDDHHmm(publishedAt));
 </script>
 
 <article class="moment-card {className}" id="moment-{moment.id}" use:reveal={{ delay }}>

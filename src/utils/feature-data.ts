@@ -20,10 +20,38 @@ export function filterByDisabledKeys<T>(
 	items: readonly T[],
 	disabledKeys?: readonly string[],
 	getKey: (item: T) => string = (item) =>
-		(item as unknown as { key?: string; id?: string; name?: string; title?: string }).key ??
-		(item as unknown as { key?: string; id?: string; name?: string; title?: string }).id ??
-		(item as unknown as { key?: string; id?: string; name?: string; title?: string }).name ??
-		(item as unknown as { key?: string; id?: string; name?: string; title?: string }).title ??
+		(
+			item as unknown as {
+				key?: string;
+				id?: string;
+				name?: string;
+				title?: string;
+			}
+		).key ??
+		(
+			item as unknown as {
+				key?: string;
+				id?: string;
+				name?: string;
+				title?: string;
+			}
+		).id ??
+		(
+			item as unknown as {
+				key?: string;
+				id?: string;
+				name?: string;
+				title?: string;
+			}
+		).name ??
+		(
+			item as unknown as {
+				key?: string;
+				id?: string;
+				name?: string;
+				title?: string;
+			}
+		).title ??
 		"",
 ): T[] {
 	if (!disabledKeys || disabledKeys.length === 0) {

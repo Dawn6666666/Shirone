@@ -9,7 +9,8 @@ const maxTotalBytes = Number(
 	process.env.FONT_MAX_TOTAL_BYTES ?? resolvedFontOptions.budget.maxTotalBytes,
 );
 const maxFamilyBytes = Number(
-	process.env.FONT_MAX_FAMILY_BYTES ?? resolvedFontOptions.budget.maxFamilyBytes,
+	process.env.FONT_MAX_FAMILY_BYTES ??
+		resolvedFontOptions.budget.maxFamilyBytes,
 );
 
 async function walk(directory) {

@@ -43,8 +43,7 @@ export const skillsData: SkillItem[] = [
 	},
 	{
 		name: "Vue",
-		description:
-			"Progressive component authoring for rapid single-page apps.",
+		description: "Progressive component authoring for rapid single-page apps.",
 		icon: "simple-icons:vuedotjs",
 		category: "frontend",
 		level: "intermediate",
@@ -58,8 +57,7 @@ export const skillsData: SkillItem[] = [
 	},
 	{
 		name: "Sass",
-		description:
-			"Nesting, variables, and mixins for maintainable stylesheets.",
+		description: "Nesting, variables, and mixins for maintainable stylesheets.",
 		icon: "simple-icons:sass",
 		category: "frontend",
 		level: "intermediate",

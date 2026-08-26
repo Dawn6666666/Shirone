@@ -3,7 +3,7 @@ import Icon from "@iconify/svelte";
 
 /**
  * M3E Button — M3 按钮原子（官方 Button 移植，token 对齐 v0.192 md-comp-{filled,elevated,filled-tonal,outlined,text}-button + latest 尺寸变体）：
- * - 五种官方变体：filled（primary 实底 + on-primary）/ elevated（surface-container-low + primary，默认 elevation-1）/ 
+ * - 五种官方变体：filled（primary 实底 + on-primary）/ elevated（surface-container-low + primary，默认 elevation-1）/
  *   tonal（secondary-container 实底）/ outlined（透明 + outline 描边）/ text（透明无描边）；
  * - 尺寸对齐 latest：xsmall 32/图标20、small 40/20（默认）、medium 56/24、large 96/32、xlarge 136/40；
  * - 可选 leading 图标（Iconify，18px 基础，随尺寸缩放）；label-large 文本；

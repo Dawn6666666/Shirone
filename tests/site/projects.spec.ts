@@ -67,10 +67,14 @@ test.describe("项目页", () => {
 		await expect(page.locator('widget-layout[data-id="tags"]')).toBeVisible();
 	});
 
-	test("分类筛选会同步项目数量与可见卡片（含 LoadingIndicator 过渡）", async ({ page }) => {
+	test("分类筛选会同步项目数量与可见卡片（含 LoadingIndicator 过渡）", async ({
+		page,
+	}) => {
 		await page.getByRole("button", { name: "Android", exact: true }).click();
 		// 三段过渡的指示器阶段（contained LoadingIndicator 出现在内容区）
-		await expect(page.locator(".projects-section__loading .m3-loading--contained")).toBeVisible();
+		await expect(
+			page.locator(".projects-section__loading .m3-loading--contained"),
+		).toBeVisible();
 		await expect(page.locator(".project-card")).toHaveCount(2);
 		await expect(page.locator(".projects-section__count")).toHaveText(
 			"2 projects",

@@ -65,9 +65,11 @@ let lastFocused: HTMLElement | null = null;
 function getFocusables(): HTMLElement[] {
 	const dialog = dialogEl;
 	if (!dialog) return [];
-	return [...dialog.querySelectorAll<HTMLElement>(
-		'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-	)].filter((el) => el.offsetParent !== null);
+	return [
+		...dialog.querySelectorAll<HTMLElement>(
+			'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+		),
+	].filter((el) => el.offsetParent !== null);
 }
 
 $effect(() => {
@@ -83,7 +85,10 @@ $effect(() => {
 		if (e.shiftKey && (activeIdx === 0 || activeIdx === -1)) {
 			e.preventDefault();
 			last.focus();
-		} else if (!e.shiftKey && (activeIdx === items.length - 1 || activeIdx === -1)) {
+		} else if (
+			!e.shiftKey &&
+			(activeIdx === items.length - 1 || activeIdx === -1)
+		) {
 			e.preventDefault();
 			first.focus();
 		}

@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("top app bar content alignment", () => {
-	test("centers navigation while keeping the blog title on the left", async ({ page }) => {
+	test("centers navigation while keeping the blog title on the left", async ({
+		page,
+	}) => {
 		await page.goto("/", { waitUntil: "domcontentloaded" });
 
 		const content = page.locator("#navbar > div").first();

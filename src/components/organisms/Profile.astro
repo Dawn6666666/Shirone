@@ -29,7 +29,9 @@ let avatarSrcset: string | undefined;
 let avatarWidth: number | undefined;
 let avatarHeight: number | undefined;
 if (typeof avatarAsset !== "string") {
-	const widths = [128, 256, 384, 512].filter((width) => width <= avatarAsset.width);
+	const widths = [128, 256, 384, 512].filter(
+		(width) => width <= avatarAsset.width,
+	);
 	const candidates = await Promise.all(
 		widths.map(async (width) => ({
 			width,

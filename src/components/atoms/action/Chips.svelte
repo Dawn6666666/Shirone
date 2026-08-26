@@ -63,7 +63,8 @@ let {
 } = $props();
 
 function isSelected(item: ChipItem): boolean {
-	if (variant === "filter") return multiple ? values.includes(item.value) : value === item.value;
+	if (variant === "filter")
+		return multiple ? values.includes(item.value) : value === item.value;
 	return value === item.value;
 }
 

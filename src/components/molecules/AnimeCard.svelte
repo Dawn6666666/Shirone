@@ -1,33 +1,35 @@
 <script lang="ts">
-	/**
-	 * 番剧卡片（分子）：2:3 封面 + 状态 tonal pill + 评分 + 追番进度。
-	 * - cover 省略时显示主题色渐变占位（tv 水印），补图前不破版；
-	 * - link 存在时整张封面可点（外链），悬停显示播放层；否则封面为纯展示块；
-	 * - watching 状态渲染 ProgressIndicator（linear determinate）+ watched/total 文本；
-	 * - 状态语义色经 inline --anime-status-color 注入（ANIME_STATUS_META 的 M3E 角色映射），
-	 *   避免动态 class 触发 Svelte unused-CSS 剥离（见 rules/pitfalls.md 1.6）。
-	 */
-	import Icon from "@iconify/svelte";
-	import ProgressIndicator from "@components/atoms/feedback/ProgressIndicator.svelte";
-	import { i18n } from "@i18n/translation";
-	import { reveal } from "@utils/motion";
-	import { ANIME_STATUS_META } from "@utils/anime/status";
-	import type { AnimeItem } from "../../data/anime";
+/**
+ * 番剧卡片（分子）：2:3 封面 + 状态 tonal pill + 评分 + 追番进度。
+ * - cover 省略时显示主题色渐变占位（tv 水印），补图前不破版；
+ * - link 存在时整张封面可点（外链），悬停显示播放层；否则封面为纯展示块；
+ * - watching 状态渲染 ProgressIndicator（linear determinate）+ watched/total 文本；
+ * - 状态语义色经 inline --anime-status-color 注入（ANIME_STATUS_META 的 M3E 角色映射），
+ *   避免动态 class 触发 Svelte unused-CSS 剥离（见 rules/pitfalls.md 1.6）。
+ */
+import Icon from "@iconify/svelte";
+import ProgressIndicator from "@components/atoms/feedback/ProgressIndicator.svelte";
+import { i18n } from "@i18n/translation";
+import { reveal } from "@utils/motion";
+import { ANIME_STATUS_META } from "@utils/anime/status";
+import type { AnimeItem } from "../../data/anime";
 
-	let {
-		anime,
-		/** stagger 入场延迟 ms（由列表传入：第 i 项 i × step） */
-		delay = 0,
-	}: { anime: AnimeItem; delay?: number } = $props();
+let {
+	anime,
+	/** stagger 入场延迟 ms（由列表传入：第 i 项 i × step） */
+	delay = 0,
+}: { anime: AnimeItem; delay?: number } = $props();
 
-	const statusMeta = $derived(ANIME_STATUS_META[anime.status]);
-	const isWatching = $derived(anime.status === "watching");
-	const progressRatio = $derived(
-		anime.progress.total > 0
-			? Math.min(anime.progress.watched / anime.progress.total, 1)
-			: 0,
-	);
-	const metaLine = $derived([anime.year, anime.studio].filter(Boolean).join(" · "));
+const statusMeta = $derived(ANIME_STATUS_META[anime.status]);
+const isWatching = $derived(anime.status === "watching");
+const progressRatio = $derived(
+	anime.progress.total > 0
+		? Math.min(anime.progress.watched / anime.progress.total, 1)
+		: 0,
+);
+const metaLine = $derived(
+	[anime.year, anime.studio].filter(Boolean).join(" · "),
+);
 </script>
 
 <article

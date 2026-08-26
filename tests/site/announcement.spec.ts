@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Announcement Widget", () => {
-	test("renders announcement with title, content, link, and close functionality", async ({ page }) => {
+	test("renders announcement with title, content, link, and close functionality", async ({
+		page,
+	}) => {
 		await page.goto("/", { waitUntil: "networkidle" });
 		await page.evaluate(() => {
 			localStorage.removeItem("announcementClosed");
@@ -18,8 +20,12 @@ test.describe("Announcement Widget", () => {
 		await closeBtn.click();
 		await expect(announcement).toBeHidden();
 
-		const isClosed = await page.evaluate(() => localStorage.getItem("announcementClosed"));
-		const closedTime = await page.evaluate(() => localStorage.getItem("announcementClosedTime"));
+		const isClosed = await page.evaluate(() =>
+			localStorage.getItem("announcementClosed"),
+		);
+		const closedTime = await page.evaluate(() =>
+			localStorage.getItem("announcementClosedTime"),
+		);
 		expect(isClosed).toBe("true");
 		expect(Number(closedTime)).toBeGreaterThan(0);
 
@@ -36,7 +42,9 @@ test.describe("Announcement Widget", () => {
 		// 重新加载页面，验证公告重新展示且 localStorage 状态已重置
 		await page.reload({ waitUntil: "networkidle" });
 		await expect(announcement).toBeVisible();
-		const clearedClosed = await page.evaluate(() => localStorage.getItem("announcementClosed"));
+		const clearedClosed = await page.evaluate(() =>
+			localStorage.getItem("announcementClosed"),
+		);
 		expect(clearedClosed).toBeNull();
 	});
 });

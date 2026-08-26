@@ -68,7 +68,9 @@ test.describe("sidebar calendar widget", () => {
 		expect((await title(page).textContent())?.trim()).toBe(initial);
 	});
 
-	test("prev/next skip empty months and disable at boundaries", async ({ page }) => {
+	test("prev/next skip empty months and disable at boundaries", async ({
+		page,
+	}) => {
 		await openHome(page);
 
 		// 当前月（2026-08）无文：一次 prev 直达最近有文月（2024-05）
@@ -76,23 +78,36 @@ test.describe("sidebar calendar widget", () => {
 		await page.waitForTimeout(300);
 		expect((await title(page).textContent())?.trim()).toBe("May 2024");
 		// 2024-05 之后无有文月：next 禁用
-		await expect(calendar(page).locator('[aria-label="Next month"]')).toBeDisabled();
+		await expect(
+			calendar(page).locator('[aria-label="Next month"]'),
+		).toBeDisabled();
 
 		// 继续 prev：2024-04 → 2023-10 → 2023-08 → 2022-07
-		for (const expected of ["April 2024", "October 2023", "August 2023", "July 2022"]) {
+		for (const expected of [
+			"April 2024",
+			"October 2023",
+			"August 2023",
+			"July 2022",
+		]) {
 			await prevBtn(page).click();
 			await page.waitForTimeout(250);
 			expect((await title(page).textContent())?.trim()).toBe(expected);
 		}
 		// 最早有文月：prev 禁用
-		await expect(calendar(page).locator('[aria-label="Previous month"]')).toBeDisabled();
+		await expect(
+			calendar(page).locator('[aria-label="Previous month"]'),
+		).toBeDisabled();
 	});
 
-	test("expands and collapses post list on post-day click", async ({ page }) => {
+	test("expands and collapses post list on post-day click", async ({
+		page,
+	}) => {
 		await openHome(page);
 		await gotoMonth(page, "May 2024");
 
-		const postDay = calendar(page).locator(".m3-calendar__day--has-posts").first();
+		const postDay = calendar(page)
+			.locator(".m3-calendar__day--has-posts")
+			.first();
 		await expect(postDay).toBeVisible();
 		await expect(postDay).toHaveAttribute("aria-label", "2024-05-01，1 篇文章");
 
@@ -121,11 +136,11 @@ test.describe("sidebar calendar widget", () => {
 		await openHome(page);
 		await gotoMonth(page, "May 2024");
 
-		const postDay = calendar(page).locator(".m3-calendar__day--has-posts").first();
+		const postDay = calendar(page)
+			.locator(".m3-calendar__day--has-posts")
+			.first();
 		await postDay.click();
 		// 瞬切：无 240ms 高度过渡等待，文章立即可见
-		await expect(
-			calendar(page).locator(".m3-calendar__post a"),
-		).toHaveCount(1);
+		await expect(calendar(page).locator(".m3-calendar__post a")).toHaveCount(1);
 	});
 });

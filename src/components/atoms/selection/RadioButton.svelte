@@ -5,20 +5,20 @@
  * 用法：<RadioButton bind:checked={selected} label="Option A" />
  */
 let {
-    checked = $bindable(false),
-    disabled = false,
-    label = "",
-    onchange = () => {},
+	checked = $bindable(false),
+	disabled = false,
+	label = "",
+	onchange = () => {},
 }: {
-    checked?: boolean;
-    disabled?: boolean;
-    label?: string;
-    onchange?: () => void;
+	checked?: boolean;
+	disabled?: boolean;
+	label?: string;
+	onchange?: () => void;
 } = $props();
 
 function handleChange() {
-    checked = true;
-    onchange();
+	checked = true;
+	onchange();
 }
 </script>
 

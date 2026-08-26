@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Icon from "@iconify/svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import type { AlbumIndexItem } from "@/types/album";
+import Icon from "@iconify/svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import type { AlbumIndexItem } from "@/types/album";
 
-	let { album }: { album: AlbumIndexItem } = $props();
+let { album }: { album: AlbumIndexItem } = $props();
 </script>
 
 <article class="album-card">

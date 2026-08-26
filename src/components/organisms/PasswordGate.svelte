@@ -1,96 +1,96 @@
 <script lang="ts">
-	import Button from "@components/atoms/action/Button.svelte";
-	import IconButton from "@components/atoms/action/IconButton.svelte";
-	import TextField from "@components/atoms/input/TextField.svelte";
-	import Icon from "@iconify/svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import { decryptProtectedContent } from "@utils/password-protection";
-	import {
-		protectedPayloadId,
-		readProtectedSession,
-		writeProtectedSession,
-	} from "@utils/protected-session";
-	import type { ProtectedPayload } from "@/types/protectedContent";
-	import { onMount } from "svelte";
+import Button from "@components/atoms/action/Button.svelte";
+import IconButton from "@components/atoms/action/IconButton.svelte";
+import TextField from "@components/atoms/input/TextField.svelte";
+import Icon from "@iconify/svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { decryptProtectedContent } from "@utils/password-protection";
+import {
+	protectedPayloadId,
+	readProtectedSession,
+	writeProtectedSession,
+} from "@utils/protected-session";
+import type { ProtectedPayload } from "@/types/protectedContent";
+import { onMount } from "svelte";
 
-	let {
-		payload,
-		scope,
-		hint = "",
-		title = "",
-		description = "",
-		headingIcon = "",
-		onunlocked,
-	}: {
-		payload: ProtectedPayload;
-		scope: string;
-		hint?: string;
-		title?: string;
-		description?: string;
-		headingIcon?: string;
-		onunlocked: (content: string) => void;
-	} = $props();
+let {
+	payload,
+	scope,
+	hint = "",
+	title = "",
+	description = "",
+	headingIcon = "",
+	onunlocked,
+}: {
+	payload: ProtectedPayload;
+	scope: string;
+	hint?: string;
+	title?: string;
+	description?: string;
+	headingIcon?: string;
+	onunlocked: (content: string) => void;
+} = $props();
 
-	let password = $state("");
-	let error = $state("");
-	let loading = $state(false);
-	let passwordVisible = $state(false);
+let password = $state("");
+let error = $state("");
+let loading = $state(false);
+let passwordVisible = $state(false);
 
-	const isPostScope = scope.startsWith("post:");
-	const resolvedTitle =
-		title ||
-		(isPostScope
-			? i18n(I18nKey.postPasswordTitle)
-			: i18n(I18nKey.albumPasswordTitle));
-	const resolvedDescription =
-		description ||
-		(isPostScope
-			? i18n(I18nKey.postPasswordDescription)
-			: i18n(I18nKey.albumPasswordDescription));
-	const resolvedHeadingIcon =
-		headingIcon ||
-		(isPostScope
-			? "material-symbols:article-outline-rounded"
-			: "material-symbols:photo-library-outline-rounded");
+const isPostScope = scope.startsWith("post:");
+const resolvedTitle =
+	title ||
+	(isPostScope
+		? i18n(I18nKey.postPasswordTitle)
+		: i18n(I18nKey.albumPasswordTitle));
+const resolvedDescription =
+	description ||
+	(isPostScope
+		? i18n(I18nKey.postPasswordDescription)
+		: i18n(I18nKey.albumPasswordDescription));
+const resolvedHeadingIcon =
+	headingIcon ||
+	(isPostScope
+		? "material-symbols:article-outline-rounded"
+		: "material-symbols:photo-library-outline-rounded");
 
-	const inputId = `password-gate-${scope.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-	const headingId = `${inputId}-title`;
-	const payloadId = protectedPayloadId(payload);
-	const expectedContentType = isPostScope ? "text/html" : "application/json";
+const inputId = `password-gate-${scope.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+const headingId = `${inputId}-title`;
+const payloadId = protectedPayloadId(payload);
+const expectedContentType = isPostScope ? "text/html" : "application/json";
 
-	onMount(() => {
-		if (payload.contentType !== expectedContentType) return;
-		const session = readProtectedSession(scope, payloadId);
-		if (session) onunlocked(session.content);
-	});
+onMount(() => {
+	if (payload.contentType !== expectedContentType) return;
+	const session = readProtectedSession(scope, payloadId);
+	if (session) onunlocked(session.content);
+});
 
-	function clearError() {
-		if (error) error = "";
+function clearError() {
+	if (error) error = "";
+}
+
+async function unlock() {
+	if (!password.trim()) {
+		error = isPostScope
+			? i18n(I18nKey.postPasswordRequired)
+			: i18n(I18nKey.albumPasswordRequired);
+		return;
 	}
-
-	async function unlock() {
-		if (!password.trim()) {
-			error = isPostScope
-				? i18n(I18nKey.postPasswordRequired)
-				: i18n(I18nKey.albumPasswordRequired);
-			return;
-		}
-		error = "";
-		loading = true;
-		try {
-			if (payload.contentType !== expectedContentType) throw new Error();
-			const content = await decryptProtectedContent(payload, password, scope);
-			writeProtectedSession(scope, payloadId, content);
-			onunlocked(content);
-		} catch {
-			error = isPostScope
-				? i18n(I18nKey.postPasswordInvalid)
-				: i18n(I18nKey.albumPasswordInvalid);
-		} finally {
-			loading = false;
-		}
+	error = "";
+	loading = true;
+	try {
+		if (payload.contentType !== expectedContentType) throw new Error();
+		const content = await decryptProtectedContent(payload, password, scope);
+		writeProtectedSession(scope, payloadId, content);
+		onunlocked(content);
+	} catch {
+		error = isPostScope
+			? i18n(I18nKey.postPasswordInvalid)
+			: i18n(I18nKey.albumPasswordInvalid);
+	} finally {
+		loading = false;
 	}
+}
 </script>
 
 <section

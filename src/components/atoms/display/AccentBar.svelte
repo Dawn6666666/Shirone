@@ -1,31 +1,31 @@
 <script lang="ts">
-	/**
-	 * M3E AccentBar — 标题左侧竖线装饰原子。
-	 * 原始站点设计：4px 圆角竖线（primary），置于标题左侧作强调。
-	 * 纯装饰（aria-hidden），尺寸 small/medium/large，颜色 / 圆角可用 token 覆盖。
-	 * 定位由调用方负责（absolute / flex 首项均可）。
-	 */
-	let {
-		/** 高度：small 16 / medium 20 / large 24 */
-		size = "medium",
-		/** 覆盖颜色（token 或色值），默认 var(--primary) */
-		color = "",
-		/** 覆盖圆角（默认 6px） */
-		radius = "",
-		class: className = "",
-	}: {
-		size?: "small" | "medium" | "large";
-		color?: string;
-		radius?: string;
-		class?: string;
-	} = $props();
+/**
+ * M3E AccentBar — 标题左侧竖线装饰原子。
+ * 原始站点设计：4px 圆角竖线（primary），置于标题左侧作强调。
+ * 纯装饰（aria-hidden），尺寸 small/medium/large，颜色 / 圆角可用 token 覆盖。
+ * 定位由调用方负责（absolute / flex 首项均可）。
+ */
+let {
+	/** 高度：small 16 / medium 20 / large 24 */
+	size = "medium",
+	/** 覆盖颜色（token 或色值），默认 var(--primary) */
+	color = "",
+	/** 覆盖圆角（默认 6px） */
+	radius = "",
+	class: className = "",
+}: {
+	size?: "small" | "medium" | "large";
+	color?: string;
+	radius?: string;
+	class?: string;
+} = $props();
 
-	const style = [
-		color ? `--m3e-accent-bar-color: ${color}` : "",
-		radius ? `--m3e-accent-bar-radius: ${radius}` : "",
-	]
-		.filter(Boolean)
-		.join(";");
+const style = [
+	color ? `--m3e-accent-bar-color: ${color}` : "",
+	radius ? `--m3e-accent-bar-radius: ${radius}` : "",
+]
+	.filter(Boolean)
+	.join(";");
 </script>
 
 <span

@@ -1,116 +1,118 @@
 <script lang="ts">
-	/**
-	 * 动态页主体（有机体）：页头 + 搜索/标签筛选 + 动态流 + 加载更多。
-	 * 数据由页面层构建期渲染后以 props 传入（零运行时请求）；
-	 * 筛选状态同步 URL（?q= / ?tag=），与友链页同一交互语言。
-	 */
-	import Button from "@components/atoms/action/Button.svelte";
-	import Chips from "@components/atoms/action/Chips.svelte";
-	import Card from "@components/atoms/display/Card.svelte";
-	import Icon from "@components/atoms/display/Icon.svelte";
-	import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
-	import TextField from "@components/atoms/input/TextField.svelte";
-	import MomentCard, { type MomentAuthor } from "@components/molecules/MomentCard.svelte";
-	import PageHeader from "@components/molecules/PageHeader.svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import { initFancybox } from "@utils/fancybox-handler";
-	import type { MomentItem } from "@utils/content-utils";
-	import { onMount } from "svelte";
+/**
+ * 动态页主体（有机体）：页头 + 搜索/标签筛选 + 动态流 + 加载更多。
+ * 数据由页面层构建期渲染后以 props 传入（零运行时请求）；
+ * 筛选状态同步 URL（?q= / ?tag=），与友链页同一交互语言。
+ */
+import Button from "@components/atoms/action/Button.svelte";
+import Chips from "@components/atoms/action/Chips.svelte";
+import Card from "@components/atoms/display/Card.svelte";
+import Icon from "@components/atoms/display/Icon.svelte";
+import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
+import TextField from "@components/atoms/input/TextField.svelte";
+import MomentCard, {
+	type MomentAuthor,
+} from "@components/molecules/MomentCard.svelte";
+import PageHeader from "@components/molecules/PageHeader.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { initFancybox } from "@utils/fancybox-handler";
+import type { MomentItem } from "@utils/content-utils";
+import { onMount } from "svelte";
 
-	let {
-		moments = [] as MomentItem[],
-		author = { name: "", avatar: "", url: "/about/" } as MomentAuthor,
-	}: { moments?: MomentItem[]; author?: MomentAuthor } = $props();
+let {
+	moments = [] as MomentItem[],
+	author = { name: "", avatar: "", url: "/about/" } as MomentAuthor,
+}: { moments?: MomentItem[]; author?: MomentAuthor } = $props();
 
-	const MOMENTS_PAGE_SIZE = 10;
+const MOMENTS_PAGE_SIZE = 10;
 
-	let query = $state("");
-	let selectedTag = $state("");
-	let shownCount = $state(MOMENTS_PAGE_SIZE);
-	let initialized = false;
-	/** 分类（标签）筛选过渡三段态：loading 展示指示器 → out 指示器淡出 → idle 列表 stagger 揭幕 */
-	type FilterPhase = "idle" | "loading" | "out";
-	let phase = $state<FilterPhase>("idle");
-	let phaseTimers: ReturnType<typeof setTimeout>[] = [];
+let query = $state("");
+let selectedTag = $state("");
+let shownCount = $state(MOMENTS_PAGE_SIZE);
+let initialized = false;
+/** 分类（标签）筛选过渡三段态：loading 展示指示器 → out 指示器淡出 → idle 列表 stagger 揭幕 */
+type FilterPhase = "idle" | "loading" | "out";
+let phase = $state<FilterPhase>("idle");
+let phaseTimers: ReturnType<typeof setTimeout>[] = [];
 
-	const tagItems = $derived(
-		Array.from(new Set(moments.flatMap((moment) => moment.tags)))
-			.sort((a, b) => a.localeCompare(b))
-			.map((tag) => ({ value: tag, label: tag })),
-	);
+const tagItems = $derived(
+	Array.from(new Set(moments.flatMap((moment) => moment.tags)))
+		.sort((a, b) => a.localeCompare(b))
+		.map((tag) => ({ value: tag, label: tag })),
+);
 
-	/** HTML → 纯文本（搜索用），构建一次避免每键重复解析 */
-	const searchTexts = $derived.by(() => {
-		const map = new Map<string, string>();
-		for (const moment of moments) {
-			const plain = moment.html.replace(/<[^>]+>/g, " ");
-			map.set(
-				moment.id,
-				[plain, moment.location, ...moment.tags].join(" ").toLowerCase(),
-			);
-		}
-		return map;
-	});
-
-	const filtered = $derived.by(() => {
-		const normalizedQuery = query.trim().toLowerCase();
-
-		return moments.filter((moment) => {
-			if (selectedTag && !moment.tags.includes(selectedTag)) return false;
-			if (!normalizedQuery) return true;
-			return (searchTexts.get(moment.id) ?? "").includes(normalizedQuery);
-		});
-	});
-
-	const visibleMoments = $derived(filtered.slice(0, shownCount));
-	const hasMore = $derived(filtered.length > shownCount);
-
-	function countLabel(count: number) {
-		return `${count} ${i18n(I18nKey.momentsCounts)}`;
+/** HTML → 纯文本（搜索用），构建一次避免每键重复解析 */
+const searchTexts = $derived.by(() => {
+	const map = new Map<string, string>();
+	for (const moment of moments) {
+		const plain = moment.html.replace(/<[^>]+>/g, " ");
+		map.set(
+			moment.id,
+			[plain, moment.location, ...moment.tags].join(" ").toLowerCase(),
+		);
 	}
+	return map;
+});
 
-	/** 分类（标签）筛选：指示器展示 → 淡出 → 列表 stagger 揭幕 */
-	function onTagChange() {
-		phaseTimers.forEach(clearTimeout);
-		phase = "loading";
-		phaseTimers = [
-			setTimeout(() => (phase = "out"), 300),
-			setTimeout(() => (phase = "idle"), 300 + 150),
-		];
-	}
+const filtered = $derived.by(() => {
+	const normalizedQuery = query.trim().toLowerCase();
 
-	// 筛选变化时重置已加载数（读依赖注册在前，避免首次 return 后失联）
-	$effect(() => {
-		const q = query;
-		const t = selectedTag;
-		if (!initialized) return;
-		shownCount = MOMENTS_PAGE_SIZE;
+	return moments.filter((moment) => {
+		if (selectedTag && !moment.tags.includes(selectedTag)) return false;
+		if (!normalizedQuery) return true;
+		return (searchTexts.get(moment.id) ?? "").includes(normalizedQuery);
 	});
+});
 
-	// 筛选状态同步到 URL（?q= / ?tag=），刷新/分享/回退保留
-	$effect(() => {
-		const q = query;
-		const t = selectedTag;
-		if (!initialized) return;
-		const params = new URLSearchParams(window.location.search);
-		params.delete("q");
-		params.delete("tag");
-		if (q) params.set("q", q);
-		if (t) params.set("tag", t);
-		const qs = params.toString();
-		history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
-	});
+const visibleMoments = $derived(filtered.slice(0, shownCount));
+const hasMore = $derived(filtered.length > shownCount);
 
-	onMount(() => {
-		const params = new URLSearchParams(window.location.search);
-		query = params.get("q") || "";
-		selectedTag = params.get("tag") || "";
-		initialized = true;
-		// 图片灯箱：client:only 岛挂载晚于全局 init，此处确保 [data-fancybox] 已绑定
-		initFancybox();
-		return () => phaseTimers.forEach(clearTimeout);
-	});
+function countLabel(count: number) {
+	return `${count} ${i18n(I18nKey.momentsCounts)}`;
+}
+
+/** 分类（标签）筛选：指示器展示 → 淡出 → 列表 stagger 揭幕 */
+function onTagChange() {
+	phaseTimers.forEach(clearTimeout);
+	phase = "loading";
+	phaseTimers = [
+		setTimeout(() => (phase = "out"), 300),
+		setTimeout(() => (phase = "idle"), 300 + 150),
+	];
+}
+
+// 筛选变化时重置已加载数（读依赖注册在前，避免首次 return 后失联）
+$effect(() => {
+	const q = query;
+	const t = selectedTag;
+	if (!initialized) return;
+	shownCount = MOMENTS_PAGE_SIZE;
+});
+
+// 筛选状态同步到 URL（?q= / ?tag=），刷新/分享/回退保留
+$effect(() => {
+	const q = query;
+	const t = selectedTag;
+	if (!initialized) return;
+	const params = new URLSearchParams(window.location.search);
+	params.delete("q");
+	params.delete("tag");
+	if (q) params.set("q", q);
+	if (t) params.set("tag", t);
+	const qs = params.toString();
+	history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+});
+
+onMount(() => {
+	const params = new URLSearchParams(window.location.search);
+	query = params.get("q") || "";
+	selectedTag = params.get("tag") || "";
+	initialized = true;
+	// 图片灯箱：client:only 岛挂载晚于全局 init，此处确保 [data-fancybox] 已绑定
+	initFancybox();
+	return () => phaseTimers.forEach(clearTimeout);
+});
 </script>
 
 <Card color="var(--card-bg)" radius="l" class="moment-section px-8 py-6">

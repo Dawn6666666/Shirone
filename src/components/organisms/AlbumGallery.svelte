@@ -1,61 +1,62 @@
 <script lang="ts">
-	import Icon from "@iconify/svelte";
-	import I18nKey from "@i18n/i18nKey";
-		import { i18n } from "@i18n/translation";
-		import { openFancyboxGallery } from "@utils/fancybox-handler";
-		import type { AlbumLayout, AlbumPhoto } from "@/types/album";
+import Icon from "@iconify/svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { openFancyboxGallery } from "@utils/fancybox-handler";
+import type { AlbumLayout, AlbumPhoto } from "@/types/album";
 
-	let {
-		photos = [] as AlbumPhoto[],
-		layout = "masonry" as AlbumLayout,
-		columns = 3,
-	}: {
-		photos?: AlbumPhoto[];
-		layout?: AlbumLayout;
-		columns?: 2 | 3 | 4;
-	} = $props();
+let {
+	photos = [] as AlbumPhoto[],
+	layout = "masonry" as AlbumLayout,
+	columns = 3,
+}: {
+	photos?: AlbumPhoto[];
+	layout?: AlbumLayout;
+	columns?: 2 | 3 | 4;
+} = $props();
 
-	let measuredRatios = $state<Record<string, number>>({});
+let measuredRatios = $state<Record<string, number>>({});
 
-	function photoRatio(photo: AlbumPhoto): number | undefined {
-		if (photo.width && photo.height) return photo.width / photo.height;
-		return measuredRatios[photo.id];
-	}
+function photoRatio(photo: AlbumPhoto): number | undefined {
+	if (photo.width && photo.height) return photo.width / photo.height;
+	return measuredRatios[photo.id];
+}
 
-	function orientationPriority(photo: AlbumPhoto): number {
-		const value = photoRatio(photo);
-		if (value === undefined || value === 1) return 1;
-		return value < 1 ? 0 : 2;
-	}
+function orientationPriority(photo: AlbumPhoto): number {
+	const value = photoRatio(photo);
+	if (value === undefined || value === 1) return 1;
+	return value < 1 ? 0 : 2;
+}
 
-	const visiblePhotos = $derived.by(() => {
-		if (layout !== "masonry") return photos;
-		return photos
-			.map((photo, index) => ({ photo, index }))
-			.sort((a, b) =>
-				orientationPriority(a.photo) - orientationPriority(b.photo)
-				|| a.index - b.index,
-			)
-			.map(({ photo }) => photo);
-	});
+const visiblePhotos = $derived.by(() => {
+	if (layout !== "masonry") return photos;
+	return photos
+		.map((photo, index) => ({ photo, index }))
+		.sort(
+			(a, b) =>
+				orientationPriority(a.photo) - orientationPriority(b.photo) ||
+				a.index - b.index,
+		)
+		.map(({ photo }) => photo);
+});
 
-	function rememberNaturalRatio(photo: AlbumPhoto, event: Event) {
-		if (photo.width && photo.height) return;
-		const image = event.currentTarget as HTMLImageElement;
-		if (!image.naturalWidth || !image.naturalHeight) return;
-		measuredRatios[photo.id] = image.naturalWidth / image.naturalHeight;
-	}
+function rememberNaturalRatio(photo: AlbumPhoto, event: Event) {
+	if (photo.width && photo.height) return;
+	const image = event.currentTarget as HTMLImageElement;
+	if (!image.naturalWidth || !image.naturalHeight) return;
+	measuredRatios[photo.id] = image.naturalWidth / image.naturalHeight;
+}
 
-	function openPhoto(event: MouseEvent, photo: AlbumPhoto) {
-		event.preventDefault();
-		event.stopPropagation();
-		void openFancyboxGallery([{ src: photo.src }]);
-	}
+function openPhoto(event: MouseEvent, photo: AlbumPhoto) {
+	event.preventDefault();
+	event.stopPropagation();
+	void openFancyboxGallery([{ src: photo.src }]);
+}
 
-	function ratio(photo: AlbumPhoto): string {
-		const value = photoRatio(photo);
-		return value === undefined ? "4 / 3" : String(value);
-	}
+function ratio(photo: AlbumPhoto): string {
+	const value = photoRatio(photo);
+	return value === undefined ? "4 / 3" : String(value);
+}
 </script>
 
 {#if visiblePhotos.length > 0}

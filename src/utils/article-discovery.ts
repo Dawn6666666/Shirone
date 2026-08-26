@@ -39,7 +39,8 @@ function comparePublishedThenSlug(
 	a: DiscoverableArticle,
 	b: DiscoverableArticle,
 ): number {
-	const dateDifference = b.data.published.getTime() - a.data.published.getTime();
+	const dateDifference =
+		b.data.published.getTime() - a.data.published.getTime();
 	return dateDifference || a.slug.localeCompare(b.slug);
 }
 
@@ -116,8 +117,7 @@ export function selectRandomArticles<T extends DiscoverableArticle>(
 			rank: stableHash(`${current.slug}\u0000${article.slug}`),
 		}))
 		.sort(
-			(a, b) =>
-				a.rank - b.rank || a.article.slug.localeCompare(b.article.slug),
+			(a, b) => a.rank - b.rank || a.article.slug.localeCompare(b.article.slug),
 		)
 		.slice(0, limit)
 		.map(({ article }) => article);

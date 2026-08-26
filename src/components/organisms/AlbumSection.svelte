@@ -1,69 +1,74 @@
 <script lang="ts">
-	import Card from "@components/atoms/display/Card.svelte";
-	import Chips from "@components/atoms/action/Chips.svelte";
-	import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
-	import TextField from "@components/atoms/input/TextField.svelte";
-	import AlbumCard from "@components/molecules/AlbumCard.svelte";
-	import PageHeader from "@components/molecules/PageHeader.svelte";
-	import Icon from "@iconify/svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import type { AlbumIndexItem } from "@/types/album";
-	import { onMount } from "svelte";
+import Card from "@components/atoms/display/Card.svelte";
+import Chips from "@components/atoms/action/Chips.svelte";
+import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
+import TextField from "@components/atoms/input/TextField.svelte";
+import AlbumCard from "@components/molecules/AlbumCard.svelte";
+import PageHeader from "@components/molecules/PageHeader.svelte";
+import Icon from "@iconify/svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import type { AlbumIndexItem } from "@/types/album";
+import { onMount } from "svelte";
 
-	let { albums = [] as AlbumIndexItem[] }: { albums?: AlbumIndexItem[] } = $props();
-	let query = $state("");
-	let selectedTag = $state("");
-	let initialized = false;
-	type FilterPhase = "idle" | "loading" | "out";
-	let phase = $state<FilterPhase>("idle");
-	let phaseTimers: ReturnType<typeof setTimeout>[] = [];
+let { albums = [] as AlbumIndexItem[] }: { albums?: AlbumIndexItem[] } =
+	$props();
+let query = $state("");
+let selectedTag = $state("");
+let initialized = false;
+type FilterPhase = "idle" | "loading" | "out";
+let phase = $state<FilterPhase>("idle");
+let phaseTimers: ReturnType<typeof setTimeout>[] = [];
 
-	const tagItems = $derived(
-		Array.from(new Set(albums.flatMap((album) => album.tags)))
-			.sort((a, b) => a.localeCompare(b))
-			.map((tag) => ({ value: tag, label: tag })),
+const tagItems = $derived(
+	Array.from(new Set(albums.flatMap((album) => album.tags)))
+		.sort((a, b) => a.localeCompare(b))
+		.map((tag) => ({ value: tag, label: tag })),
+);
+
+const filtered = $derived.by(() => {
+	const normalized = query.trim().toLowerCase();
+	return albums.filter((album) => {
+		if (selectedTag && !album.tags.includes(selectedTag)) return false;
+		if (!normalized) return true;
+		return [album.title, album.description, album.location, ...album.tags]
+			.join(" ")
+			.toLowerCase()
+			.includes(normalized);
+	});
+});
+
+function onTagChange() {
+	phaseTimers.forEach(clearTimeout);
+	phase = "loading";
+	phaseTimers = [
+		setTimeout(() => (phase = "out"), 300),
+		setTimeout(() => (phase = "idle"), 450),
+	];
+}
+
+$effect(() => {
+	if (!initialized) return;
+	const params = new URLSearchParams(window.location.search);
+	params.delete("q");
+	params.delete("albumTag");
+	if (query.trim()) params.set("q", query.trim());
+	if (selectedTag) params.set("albumTag", selectedTag);
+	const search = params.toString();
+	history.replaceState(
+		null,
+		"",
+		search ? `?${search}` : window.location.pathname,
 	);
+});
 
-	const filtered = $derived.by(() => {
-		const normalized = query.trim().toLowerCase();
-		return albums.filter((album) => {
-			if (selectedTag && !album.tags.includes(selectedTag)) return false;
-			if (!normalized) return true;
-			return [album.title, album.description, album.location, ...album.tags]
-					.join(" ")
-					.toLowerCase()
-					.includes(normalized);
-		});
-	});
-
-	function onTagChange() {
-		phaseTimers.forEach(clearTimeout);
-		phase = "loading";
-		phaseTimers = [
-			setTimeout(() => (phase = "out"), 300),
-			setTimeout(() => (phase = "idle"), 450),
-		];
-	}
-
-	$effect(() => {
-		if (!initialized) return;
-		const params = new URLSearchParams(window.location.search);
-		params.delete("q");
-		params.delete("albumTag");
-		if (query.trim()) params.set("q", query.trim());
-		if (selectedTag) params.set("albumTag", selectedTag);
-		const search = params.toString();
-		history.replaceState(null, "", search ? `?${search}` : window.location.pathname);
-	});
-
-	onMount(() => {
-		const params = new URLSearchParams(window.location.search);
-		query = params.get("q") || "";
-		selectedTag = params.get("albumTag") || "";
-		initialized = true;
-		return () => phaseTimers.forEach(clearTimeout);
-	});
+onMount(() => {
+	const params = new URLSearchParams(window.location.search);
+	query = params.get("q") || "";
+	selectedTag = params.get("albumTag") || "";
+	initialized = true;
+	return () => phaseTimers.forEach(clearTimeout);
+});
 </script>
 
 <Card color="var(--card-bg)" radius="l" class="album-section px-8 py-6">

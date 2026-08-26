@@ -73,8 +73,15 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 		let searchResults: SearchResult[] = [];
 
 		if (import.meta.env.PROD) {
-			if (!window.pagefind && typeof (window as unknown as { __loadPagefind?: () => Promise<unknown> }).__loadPagefind === "function") {
-				await (window as unknown as { __loadPagefind: () => Promise<unknown> }).__loadPagefind();
+			if (
+				!window.pagefind &&
+				typeof (
+					window as unknown as { __loadPagefind?: () => Promise<unknown> }
+				).__loadPagefind === "function"
+			) {
+				await (
+					window as unknown as { __loadPagefind: () => Promise<unknown> }
+				).__loadPagefind();
 				pagefindLoaded = typeof window.pagefind?.search === "function";
 			}
 			if (pagefindLoaded && window.pagefind) {

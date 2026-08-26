@@ -65,9 +65,10 @@ function handleKeydown(e: KeyboardEvent) {
 		const list = query ? filteredSuggestions : history;
 		if (!list.length) return;
 		e.preventDefault();
-		activeIndex = e.key === "ArrowDown"
-			? (activeIndex + 1) % list.length
-			: (activeIndex - 1 + list.length) % list.length;
+		activeIndex =
+			e.key === "ArrowDown"
+				? (activeIndex + 1) % list.length
+				: (activeIndex - 1 + list.length) % list.length;
 		return;
 	}
 	if (e.key === "Enter" && activeIndex >= 0) {
@@ -91,7 +92,11 @@ function clear() {
 
 /** 输入时过滤后的建议项 */
 const filteredSuggestions = $derived(
-	query ? suggestions.filter((s) => s.label.toLowerCase().includes(query.toLowerCase())) : [],
+	query
+		? suggestions.filter((s) =>
+				s.label.toLowerCase().includes(query.toLowerCase()),
+			)
+		: [],
 );
 
 /** 打开时自动聚焦输入框（官方 SearchBar 行为） */
@@ -101,7 +106,9 @@ $effect(() => {
 
 /** 是否有内容可展示：历史（空查询）/ 过滤后的建议 / 自定义插槽；无内容时不渲染横线与内容区（对齐 SearchBar 优化） */
 const hasContent = $derived(
-	(!query && history.length > 0) || filteredSuggestions.length > 0 || !!children,
+	(!query && history.length > 0) ||
+		filteredSuggestions.length > 0 ||
+		!!children,
 );
 
 /** cubic-bezier(x1,y1,x2,y2) easing：Newton-Raphson + 二分求解 */
@@ -144,7 +151,10 @@ const standardAccelerate = cubicBezier(0.3, 0, 1, 1);
 const standardDecelerate = cubicBezier(0, 0, 0, 1);
 
 /** open 进入：docked = fade + expandVertically，fullScreen = fade */
-function searchViewIntro(node: HTMLElement, { fullScreen }: { fullScreen: boolean }): TransitionConfig {
+function searchViewIntro(
+	node: HTMLElement,
+	{ fullScreen }: { fullScreen: boolean },
+): TransitionConfig {
 	const height = node.offsetHeight;
 	return {
 		duration: 600,
@@ -158,7 +168,10 @@ function searchViewIntro(node: HTMLElement, { fullScreen }: { fullScreen: boolea
 }
 
 /** open 退出：docked = fade + shrinkVertically，fullScreen = fade */
-function searchViewOutro(node: HTMLElement, { fullScreen }: { fullScreen: boolean }): TransitionConfig {
+function searchViewOutro(
+	node: HTMLElement,
+	{ fullScreen }: { fullScreen: boolean },
+): TransitionConfig {
 	const height = node.offsetHeight;
 	return {
 		duration: 350,

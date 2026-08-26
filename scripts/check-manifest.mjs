@@ -82,7 +82,9 @@ for (const a of atoms) {
 	}
 	const pathCategory = a.file.split("/")[0];
 	if (a.category !== pathCategory) {
-		errors.push(`分类不一致：${a.file} 标注 ${a.category}，路径为 ${pathCategory}`);
+		errors.push(
+			`分类不一致：${a.file} 标注 ${a.category}，路径为 ${pathCategory}`,
+		);
 	}
 }
 
@@ -108,7 +110,9 @@ for (const a of atoms) {
 console.log(`atoms 总数: ${atoms.length}（磁盘 ${onDisk.length}）`);
 console.log(`tier: ${JSON.stringify(byTier)}`);
 console.log(`category: ${JSON.stringify(byCat)}`);
-console.log(`landed: ${landed}/${atoms.length} = ${Math.round((landed / atoms.length) * 100)}%`);
+console.log(
+	`landed: ${landed}/${atoms.length} = ${Math.round((landed / atoms.length) * 100)}%`,
+);
 
 if (errors.length) {
 	console.error(`\n发现 ${errors.length} 处不一致：`);

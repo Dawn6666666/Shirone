@@ -56,7 +56,9 @@ let menuEl = $state<HTMLDivElement>();
 let typeahead = $state("");
 let typeaheadTimer: ReturnType<typeof setTimeout> | undefined;
 
-const selectedLabel = $derived(items.find((t) => t.value === value)?.label ?? "");
+const selectedLabel = $derived(
+	items.find((t) => t.value === value)?.label ?? "",
+);
 
 function select(v: string) {
 	if (v === value) return;

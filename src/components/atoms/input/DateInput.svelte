@@ -43,7 +43,9 @@ $effect(() => {
 
 // 输入时自动格式化：YYYY/MM/DD 分段
 function onInput(e: Event) {
-	const raw = (e.target as HTMLInputElement).value.replace(/[^\d]/g, "").slice(0, 8);
+	const raw = (e.target as HTMLInputElement).value
+		.replace(/[^\d]/g, "")
+		.slice(0, 8);
 	let out = "";
 	for (let i = 0; i < raw.length; i++) {
 		if (i === 4 || i === 6) out += "/";
@@ -56,13 +58,19 @@ function onInput(e: Event) {
 function validate(s: string): string {
 	const m = s.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
 	if (!m) return "格式应为 YYYY/MM/DD";
-	const y = +m[1], mo = +m[2], d = +m[3];
+	const y = +m[1],
+		mo = +m[2],
+		d = +m[3];
 	const [minY = 1900, maxY = new Date().getFullYear()] = yearRange ?? [];
 	if (y < minY || y > maxY) return `年份需在 ${minY}-${maxY} 之间`;
 	if (mo < 1 || mo > 12) return "月份无效";
 	if (d < 1 || d > 31) return "日期无效";
 	const dt = new Date(y, mo - 1, d);
-	if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) {
+	if (
+		dt.getFullYear() !== y ||
+		dt.getMonth() !== mo - 1 ||
+		dt.getDate() !== d
+	) {
 		return "不是有效日期";
 	}
 	return "";

@@ -21,7 +21,9 @@ test.describe("时间线页", () => {
 
 		const featuredItem = page.locator(".timeline-card--featured").first();
 		await expect(featuredItem).toBeVisible();
-		await expect(featuredItem.locator(".timeline-card__featured-pill")).toBeVisible();
+		await expect(
+			featuredItem.locator(".timeline-card__featured-pill"),
+		).toBeVisible();
 		await expect(featuredItem.locator(".timeline-card__title")).toContainText(
 			"Shirone Theme M3E Major Architecture Upgrade",
 		);

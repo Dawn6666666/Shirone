@@ -22,9 +22,18 @@ let {
 	style = "",
 }: {
 	/** 列定义：{ key, title, sortable?, align? } */
-	columns?: { key: string; title: string; sortable?: boolean; align?: "start" | "center" | "end" }[];
+	columns?: {
+		key: string;
+		title: string;
+		sortable?: boolean;
+		align?: "start" | "center" | "end";
+	}[];
 	/** 行数据：{ id, cells: Record<key, string>, disabled? } */
-	rows?: { id: string | number; cells: Record<string, string>; disabled?: boolean }[];
+	rows?: {
+		id: string | number;
+		cells: Record<string, string>;
+		disabled?: boolean;
+	}[];
 	/** 是否显示复选列 */
 	selectable?: boolean;
 	/** 选中行 id 数组（$bindable） */
@@ -36,7 +45,11 @@ let {
 	/** footer 支持文本 */
 	footer?: string;
 	/** 行点击回调 */
-	onclick?: (row: { id: string | number; cells: Record<string, string>; disabled?: boolean }) => void;
+	onclick?: (row: {
+		id: string | number;
+		cells: Record<string, string>;
+		disabled?: boolean;
+	}) => void;
 	/** 排序列点击回调：({ key, direction }) */
 	onsort?: (detail: { key: string; direction: "asc" | "desc" }) => void;
 	class?: string;
@@ -49,7 +62,11 @@ function handleSort(col: { key: string; title: string; sortable?: boolean }) {
 	onsort?.({ key: col.key, direction: dir });
 }
 
-function handleRowClick(row: { id: string | number; cells: Record<string, string>; disabled?: boolean }) {
+function handleRowClick(row: {
+	id: string | number;
+	cells: Record<string, string>;
+	disabled?: boolean;
+}) {
 	if (row.disabled) return;
 	onclick?.(row);
 }
@@ -71,7 +88,11 @@ function toggleAll() {
 }
 
 function cellAlign(col: { align?: "start" | "center" | "end" }) {
-	return col.align === "center" ? "center" : col.align === "end" ? "end" : "start";
+	return col.align === "center"
+		? "center"
+		: col.align === "end"
+			? "end"
+			: "start";
 }
 </script>
 

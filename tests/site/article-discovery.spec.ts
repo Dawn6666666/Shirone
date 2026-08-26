@@ -121,10 +121,9 @@ test.describe("article discovery utilities", () => {
 			article("unrelated", { tags: ["Cooking"], category: "Life" }),
 		];
 
-		expect(selectRelatedArticles(current, candidates, 5).map((item) => item.slug)).toEqual([
-			"tag-match",
-			"category-match",
-		]);
+		expect(
+			selectRelatedArticles(current, candidates, 5).map((item) => item.slug),
+		).toEqual(["tag-match", "category-match"]);
 	});
 
 	test("ranks rarer shared tags higher and resolves ties deterministically", () => {
@@ -146,9 +145,11 @@ test.describe("article discovery utilities", () => {
 		);
 		expect(result[0].slug).toBe("rare-match");
 		expect(result.map((item) => item.slug)).toEqual(
-			selectRelatedArticles(current, [commonSecond, rare, current, common], 3).map(
-				(item) => item.slug,
-			),
+			selectRelatedArticles(
+				current,
+				[commonSecond, rare, current, common],
+				3,
+			).map((item) => item.slug),
 		);
 	});
 
@@ -195,7 +196,9 @@ test.describe("article discovery utilities", () => {
 });
 
 test.describe("article discovery page", () => {
-	test("renders unique SSR links after chronological navigation", async ({ request }) => {
+	test("renders unique SSR links after chronological navigation", async ({
+		request,
+	}) => {
 		const response = await request.get("/posts/guide/");
 		expect(response.ok()).toBe(true);
 		const html = await response.text();
@@ -207,32 +210,44 @@ test.describe("article discovery page", () => {
 		);
 	});
 
-	test("excludes the current post and duplicates across both lanes", async ({ page }) => {
+	test("excludes the current post and duplicates across both lanes", async ({
+		page,
+	}) => {
 		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
-		const links = page.locator("[data-article-discovery] .article-discovery-item__link");
+		const links = page.locator(
+			"[data-article-discovery] .article-discovery-item__link",
+		);
 		await expect(links.first()).toBeVisible();
 		const linkState = await links.evaluateAll((elements) => ({
 			hrefs: elements.map((element) => element.getAttribute("href")),
-			useStateLayer: elements.every((element) => element.classList.contains("m3-state-layer")),
+			useStateLayer: elements.every((element) =>
+				element.classList.contains("m3-state-layer"),
+			),
 		}));
 		expect(linkState.hrefs).not.toContain("/posts/guide/");
 		expect(new Set(linkState.hrefs).size).toBe(linkState.hrefs.length);
 		expect(linkState.useStateLayer).toBe(true);
 	});
 
-	test("sits inside the article container and does not overflow on a narrow viewport", async ({ page }) => {
+	test("sits inside the article container and does not overflow on a narrow viewport", async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
 		const discovery = page.locator("[data-article-discovery]");
 		await expect(discovery).toBeVisible();
 		const layout = await discovery.evaluate((element) => ({
-			insidePost: Boolean(document.querySelector("#post-container")?.contains(element)),
+			insidePost: Boolean(
+				document.querySelector("#post-container")?.contains(element),
+			),
 			overflows: element.scrollWidth > element.clientWidth,
 		}));
 		expect(layout).toEqual({ insidePost: true, overflows: false });
 	});
 
-	test("expands the production single-lane modifier across the desktop grid", async ({ page }) => {
+	test("expands the production single-lane modifier across the desktop grid", async ({
+		page,
+	}) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
 		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
 		const lanes = page.locator(".article-discovery__lanes");
@@ -244,10 +259,14 @@ test.describe("article discovery page", () => {
 			element.classList.add("article-discovery__lanes--single");
 			element.querySelector("[data-discovery-random]")?.remove();
 			const gridWidth = element.getBoundingClientRect().width;
-			const laneWidth = element.firstElementChild?.getBoundingClientRect().width ?? 0;
+			const laneWidth =
+				element.firstElementChild?.getBoundingClientRect().width ?? 0;
 			return {
-				hasModifier: element.classList.contains("article-discovery__lanes--single"),
-				columnCount: getComputedStyle(element).gridTemplateColumns.split(" ").length,
+				hasModifier: element.classList.contains(
+					"article-discovery__lanes--single",
+				),
+				columnCount:
+					getComputedStyle(element).gridTemplateColumns.split(" ").length,
 				widthDifference: Math.abs(gridWidth - laneWidth),
 			};
 		});
@@ -256,7 +275,9 @@ test.describe("article discovery page", () => {
 		expect(layout.widthDifference).toBeLessThan(1);
 	});
 
-	test("replaces discovery content after Swup article navigation", async ({ page }) => {
+	test("replaces discovery content after Swup article navigation", async ({
+		page,
+	}) => {
 		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
 		const firstLink = page
 			.locator("[data-article-discovery] .article-discovery-item__link")
@@ -264,11 +285,15 @@ test.describe("article discovery page", () => {
 		const target = await firstLink.getAttribute("href");
 		expect(target).toBeTruthy();
 		await firstLink.click();
-		await expect(page).toHaveURL(new RegExp(`${target?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
+		await expect(page).toHaveURL(
+			new RegExp(`${target?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`),
+		);
 		await expect(page.locator("[data-article-discovery]")).toBeVisible();
 		const hrefs = await page
 			.locator("[data-article-discovery] .article-discovery-item__link")
-			.evaluateAll((elements) => elements.map((element) => element.getAttribute("href")));
+			.evaluateAll((elements) =>
+				elements.map((element) => element.getAttribute("href")),
+			);
 		expect(hrefs).not.toContain(target);
 	});
 });

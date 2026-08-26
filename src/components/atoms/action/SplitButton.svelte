@@ -16,21 +16,21 @@
 import Icon from "@iconify/svelte";
 
 let {
-    variant = "filled",
-    size = "s",
-    menuOpen = $bindable(false),
-    disabled = false,
-    onclick = () => {},
-    trailingLabel = "更多操作",
-    class: className = "",
+	variant = "filled",
+	size = "s",
+	menuOpen = $bindable(false),
+	disabled = false,
+	onclick = () => {},
+	trailingLabel = "更多操作",
+	class: className = "",
 }: {
-    variant?: "filled" | "tonal" | "outlined" | "elevated";
-    size?: "xs" | "s" | "m" | "l" | "xl";
-    menuOpen?: boolean;
-    disabled?: boolean;
-    onclick?: () => void;
-    trailingLabel?: string;
-    class?: string;
+	variant?: "filled" | "tonal" | "outlined" | "elevated";
+	size?: "xs" | "s" | "m" | "l" | "xl";
+	menuOpen?: boolean;
+	disabled?: boolean;
+	onclick?: () => void;
+	trailingLabel?: string;
+	class?: string;
 } = $props();
 </script>
 

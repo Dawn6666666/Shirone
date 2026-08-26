@@ -1,90 +1,90 @@
 <script lang="ts">
-	import Chips from "@components/atoms/action/Chips.svelte";
-	import Card from "@components/atoms/display/Card.svelte";
-	import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
-	import TextField from "@components/atoms/input/TextField.svelte";
-	import FriendCard from "@components/molecules/FriendCard.svelte";
-	import PageHeader from "@components/molecules/PageHeader.svelte";
-	import Icon from "@iconify/svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import { onMount } from "svelte";
-	import type { FriendItem } from "../../data/friends";
+import Chips from "@components/atoms/action/Chips.svelte";
+import Card from "@components/atoms/display/Card.svelte";
+import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
+import TextField from "@components/atoms/input/TextField.svelte";
+import FriendCard from "@components/molecules/FriendCard.svelte";
+import PageHeader from "@components/molecules/PageHeader.svelte";
+import Icon from "@iconify/svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { onMount } from "svelte";
+import type { FriendItem } from "../../data/friends";
 
-	let { friends = [] as FriendItem[] }: { friends?: FriendItem[] } = $props();
+let { friends = [] as FriendItem[] }: { friends?: FriendItem[] } = $props();
 
-	let query = $state("");
-	let selectedTag = $state("");
-	let initialized = false;
-	/** 标签筛选过渡三段态：loading 展示指示器 → out 指示器淡出 → idle 列表揭幕（与动态页同语言） */
-	type FilterPhase = "idle" | "loading" | "out";
-	let phase = $state<FilterPhase>("idle");
-	let phaseTimers: ReturnType<typeof setTimeout>[] = [];
+let query = $state("");
+let selectedTag = $state("");
+let initialized = false;
+/** 标签筛选过渡三段态：loading 展示指示器 → out 指示器淡出 → idle 列表揭幕（与动态页同语言） */
+type FilterPhase = "idle" | "loading" | "out";
+let phase = $state<FilterPhase>("idle");
+let phaseTimers: ReturnType<typeof setTimeout>[] = [];
 
-	const tagItems = $derived(
-		Array.from(new Set(friends.flatMap((friend) => friend.tags)))
-			.sort((a, b) => a.localeCompare(b))
-			.map((tag) => ({ value: tag, label: tag })),
-	);
+const tagItems = $derived(
+	Array.from(new Set(friends.flatMap((friend) => friend.tags)))
+		.sort((a, b) => a.localeCompare(b))
+		.map((tag) => ({ value: tag, label: tag })),
+);
 
-	const filtered = $derived.by(() => {
-		const normalizedQuery = query.trim().toLowerCase();
+const filtered = $derived.by(() => {
+	const normalizedQuery = query.trim().toLowerCase();
 
-		return friends.filter((friend) => {
-			if (selectedTag && !friend.tags.includes(selectedTag)) return false;
-			if (!normalizedQuery) return true;
+	return friends.filter((friend) => {
+		if (selectedTag && !friend.tags.includes(selectedTag)) return false;
+		if (!normalizedQuery) return true;
 
-			let searchableHost = friend.siteurl;
-			try {
-				searchableHost = new URL(friend.siteurl).hostname;
-			} catch {
-				/* Keep the original URL when it cannot be parsed. */
-			}
+		let searchableHost = friend.siteurl;
+		try {
+			searchableHost = new URL(friend.siteurl).hostname;
+		} catch {
+			/* Keep the original URL when it cannot be parsed. */
+		}
 
-			return [friend.title, friend.desc, searchableHost, ...friend.tags].some(
-				(value) => value.toLowerCase().includes(normalizedQuery),
-			);
-		});
+		return [friend.title, friend.desc, searchableHost, ...friend.tags].some(
+			(value) => value.toLowerCase().includes(normalizedQuery),
+		);
 	});
+});
 
-	const visibleCount = $derived(filtered.length);
+const visibleCount = $derived(filtered.length);
 
-	function countLabel(count: number) {
-		return `${count} ${i18n(count === 1 ? I18nKey.friendsCount : I18nKey.friendsCounts)}`;
-	}
+function countLabel(count: number) {
+	return `${count} ${i18n(count === 1 ? I18nKey.friendsCount : I18nKey.friendsCounts)}`;
+}
 
-	/** 标签筛选：指示器展示 → 淡出 → 列表重新揭幕（与动态页同语言） */
-	function onTagChange() {
-		phaseTimers.forEach(clearTimeout);
-		phase = "loading";
-		phaseTimers = [
-			setTimeout(() => (phase = "out"), 300),
-			setTimeout(() => (phase = "idle"), 300 + 150),
-		];
-	}
+/** 标签筛选：指示器展示 → 淡出 → 列表重新揭幕（与动态页同语言） */
+function onTagChange() {
+	phaseTimers.forEach(clearTimeout);
+	phase = "loading";
+	phaseTimers = [
+		setTimeout(() => (phase = "out"), 300),
+		setTimeout(() => (phase = "idle"), 300 + 150),
+	];
+}
 
-	// 筛选状态同步到 URL（?q= / ?tag=），刷新/分享/回退保留
-	$effect(() => {
-		// 先读依赖（无论是否初始化都注册），避免首次 return 后不再追踪
-		const q = query;
-		const t = selectedTag;
-		if (!initialized) return;
-		const params = new URLSearchParams(window.location.search);
-		params.delete("q");
-		params.delete("tag");
-		if (q) params.set("q", q);
-		if (t) params.set("tag", t);
-		const qs = params.toString();
-		history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
-	});
+// 筛选状态同步到 URL（?q= / ?tag=），刷新/分享/回退保留
+$effect(() => {
+	// 先读依赖（无论是否初始化都注册），避免首次 return 后不再追踪
+	const q = query;
+	const t = selectedTag;
+	if (!initialized) return;
+	const params = new URLSearchParams(window.location.search);
+	params.delete("q");
+	params.delete("tag");
+	if (q) params.set("q", q);
+	if (t) params.set("tag", t);
+	const qs = params.toString();
+	history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+});
 
-	onMount(() => {
-		const params = new URLSearchParams(window.location.search);
-		query = params.get("q") || "";
-		selectedTag = params.get("tag") || "";
-		initialized = true;
-		return () => phaseTimers.forEach(clearTimeout);
-	});
+onMount(() => {
+	const params = new URLSearchParams(window.location.search);
+	query = params.get("q") || "";
+	selectedTag = params.get("tag") || "";
+	initialized = true;
+	return () => phaseTimers.forEach(clearTimeout);
+});
 </script>
 
 <Card color="var(--card-bg)" radius="l" class="friend-section px-8 py-6">

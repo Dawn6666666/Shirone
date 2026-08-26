@@ -1,153 +1,153 @@
 <script lang="ts">
-	/**
-	 * 番剧页主体（有机体）：页头 + 状态筛选 chips + 实时搜索 + 双布局（grid/list）+ 加载更多。
-	 * 数据由页面层经 utils/anime-data.getAnimeList() 构建期取得后以 props 传入；
-	 * 筛选状态与搜索同步 URL（?status= / ?q=），与友链/动态/相册页同一交互语言。
-	 *
-	 * 布局形态：番剧页独立偏好（localStorage `shirone:anime-layout-mode`，默认 grid 海报网格），
-	 * 不与博客文章列表偏好耦合；工具栏提供快速切换按钮，切类后逐卡 FLIP 平移。
-	 */
-	import Button from "@components/atoms/action/Button.svelte";
-	import Chips from "@components/atoms/action/Chips.svelte";
-	import Card from "@components/atoms/display/Card.svelte";
-	import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
-	import TextField from "@components/atoms/input/TextField.svelte";
-	import AnimeCard from "@components/molecules/AnimeCard.svelte";
-	import PageHeader from "@components/molecules/PageHeader.svelte";
-	import Icon from "@iconify/svelte";
-	import I18nKey from "@i18n/i18nKey";
-	import { i18n } from "@i18n/translation";
-	import { ANIME_STATUS_META } from "@utils/anime/status";
-	import { flipFromRect } from "@utils/motion";
-	import type { AnimeItem } from "../../data/anime";
-	import { onMount } from "svelte";
+/**
+ * 番剧页主体（有机体）：页头 + 状态筛选 chips + 实时搜索 + 双布局（grid/list）+ 加载更多。
+ * 数据由页面层经 utils/anime-data.getAnimeList() 构建期取得后以 props 传入；
+ * 筛选状态与搜索同步 URL（?status= / ?q=），与友链/动态/相册页同一交互语言。
+ *
+ * 布局形态：番剧页独立偏好（localStorage `shirone:anime-layout-mode`，默认 grid 海报网格），
+ * 不与博客文章列表偏好耦合；工具栏提供快速切换按钮，切类后逐卡 FLIP 平移。
+ */
+import Button from "@components/atoms/action/Button.svelte";
+import Chips from "@components/atoms/action/Chips.svelte";
+import Card from "@components/atoms/display/Card.svelte";
+import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
+import TextField from "@components/atoms/input/TextField.svelte";
+import AnimeCard from "@components/molecules/AnimeCard.svelte";
+import PageHeader from "@components/molecules/PageHeader.svelte";
+import Icon from "@iconify/svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { ANIME_STATUS_META } from "@utils/anime/status";
+import { flipFromRect } from "@utils/motion";
+import type { AnimeItem } from "../../data/anime";
+import { onMount } from "svelte";
 
-	export type AnimeLayoutMode = "grid" | "list";
+export type AnimeLayoutMode = "grid" | "list";
 
-	let { animes = [] as AnimeItem[] }: { animes?: AnimeItem[] } = $props();
+let { animes = [] as AnimeItem[] }: { animes?: AnimeItem[] } = $props();
 
-	const ANIME_PAGE_SIZE = 12;
-	const ANIME_LAYOUT_KEY = "shirone:anime-layout-mode";
+const ANIME_PAGE_SIZE = 12;
+const ANIME_LAYOUT_KEY = "shirone:anime-layout-mode";
 
-	let query = $state("");
-	let selectedStatus = $state("");
-	let shownCount = $state(ANIME_PAGE_SIZE);
-	let initialized = false;
-	/** 状态筛选过渡三段态：loading 展示指示器 → out 指示器淡出 → idle 列表 stagger 揭幕 */
-	type FilterPhase = "idle" | "loading" | "out";
-	let phase = $state<FilterPhase>("idle");
-	let phaseTimers: ReturnType<typeof setTimeout>[] = [];
+let query = $state("");
+let selectedStatus = $state("");
+let shownCount = $state(ANIME_PAGE_SIZE);
+let initialized = false;
+/** 状态筛选过渡三段态：loading 展示指示器 → out 指示器淡出 → idle 列表 stagger 揭幕 */
+type FilterPhase = "idle" | "loading" | "out";
+let phase = $state<FilterPhase>("idle");
+let phaseTimers: ReturnType<typeof setTimeout>[] = [];
 
-	/** 布局形态：番剧页专属独立偏好，默认海报网格 (grid) */
-	let listMode = $state<AnimeLayoutMode>("grid");
-	let listEl = $state<HTMLElement | null>(null);
+/** 布局形态：番剧页专属独立偏好，默认海报网格 (grid) */
+let listMode = $state<AnimeLayoutMode>("grid");
+let listEl = $state<HTMLElement | null>(null);
 
-	const LIST_MODE_CLASS: Record<AnimeLayoutMode, string> = {
-		grid: "anime-list--grid",
-		list: "anime-list--list",
-	};
+const LIST_MODE_CLASS: Record<AnimeLayoutMode, string> = {
+	grid: "anime-list--grid",
+	list: "anime-list--list",
+};
 
-	/** 状态筛选 chips：只列数据中出现的状态（单选，再点取消 = 全部） */
-	const statusItems = $derived(
-		Array.from(new Set(animes.map((anime) => anime.status))).map((status) => ({
-			value: status,
-			label: i18n(ANIME_STATUS_META[status].key),
-			leadingIcon: ANIME_STATUS_META[status].icon,
-		})),
+/** 状态筛选 chips：只列数据中出现的状态（单选，再点取消 = 全部） */
+const statusItems = $derived(
+	Array.from(new Set(animes.map((anime) => anime.status))).map((status) => ({
+		value: status,
+		label: i18n(ANIME_STATUS_META[status].key),
+		leadingIcon: ANIME_STATUS_META[status].icon,
+	})),
+);
+
+const filtered = $derived.by(() => {
+	const normalizedQuery = query.trim().toLowerCase();
+	return animes.filter((anime) => {
+		if (selectedStatus && anime.status !== selectedStatus) return false;
+		if (!normalizedQuery) return true;
+		return [
+			anime.title,
+			anime.description ?? "",
+			anime.studio ?? "",
+			anime.year,
+			...anime.genres,
+		].some((val) => val.toLowerCase().includes(normalizedQuery));
+	});
+});
+
+const visibleAnimes = $derived(filtered.slice(0, shownCount));
+const hasMore = $derived(filtered.length > shownCount);
+
+function countLabel(count: number) {
+	return `${count} ${i18n(I18nKey.animeCounts)}`;
+}
+
+/** 状态筛选：指示器展示 → 淡出 → 网格 stagger 揭幕 */
+function onStatusChange() {
+	phaseTimers.forEach(clearTimeout);
+	phase = "loading";
+	phaseTimers = [
+		setTimeout(() => (phase = "out"), 300),
+		setTimeout(() => (phase = "idle"), 300 + 150),
+	];
+}
+
+function readStoredLayoutMode(): AnimeLayoutMode {
+	try {
+		const stored = localStorage.getItem(ANIME_LAYOUT_KEY);
+		if (stored === "list" || stored === "grid") return stored;
+	} catch {
+		/* Ignore local storage access failure */
+	}
+	return "grid";
+}
+
+/** 切布局：切类前记录卡片位置，下一帧逐卡 FLIP 平移（reduced-motion 跳变） */
+function switchLayoutMode(mode: AnimeLayoutMode) {
+	if (mode === listMode) return;
+	const cards = Array.from(
+		listEl?.querySelectorAll<HTMLElement>(".anime-card") ?? [],
 	);
-
-	const filtered = $derived.by(() => {
-		const normalizedQuery = query.trim().toLowerCase();
-		return animes.filter((anime) => {
-			if (selectedStatus && anime.status !== selectedStatus) return false;
-			if (!normalizedQuery) return true;
-			return [
-				anime.title,
-				anime.description ?? "",
-				anime.studio ?? "",
-				anime.year,
-				...anime.genres,
-			].some((val) => val.toLowerCase().includes(normalizedQuery));
-		});
-	});
-
-	const visibleAnimes = $derived(filtered.slice(0, shownCount));
-	const hasMore = $derived(filtered.length > shownCount);
-
-	function countLabel(count: number) {
-		return `${count} ${i18n(I18nKey.animeCounts)}`;
+	const before = cards.map((card) => card.getBoundingClientRect());
+	listMode = mode;
+	try {
+		localStorage.setItem(ANIME_LAYOUT_KEY, mode);
+	} catch {
+		/* Ignore local storage access failure */
 	}
+	requestAnimationFrame(() => {
+		cards.forEach((card, index) => flipFromRect(card, before[index], 400));
+	});
+}
 
-	/** 状态筛选：指示器展示 → 淡出 → 网格 stagger 揭幕 */
-	function onStatusChange() {
+// 筛选/搜索变化时重置已加载数
+$effect(() => {
+	const s = selectedStatus;
+	const q = query;
+	if (!initialized) return;
+	shownCount = ANIME_PAGE_SIZE;
+});
+
+// 筛选状态与搜索词同步到 URL（?status= / ?q=），刷新/分享/回退保留
+$effect(() => {
+	const s = selectedStatus;
+	const q = query;
+	if (!initialized) return;
+	const params = new URLSearchParams(window.location.search);
+	params.delete("status");
+	params.delete("q");
+	if (s) params.set("status", s);
+	if (q.trim()) params.set("q", q.trim());
+	const qs = params.toString();
+	history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+});
+
+onMount(() => {
+	const params = new URLSearchParams(window.location.search);
+	selectedStatus = params.get("status") || "";
+	query = params.get("q") || "";
+	listMode = readStoredLayoutMode();
+	initialized = true;
+	return () => {
 		phaseTimers.forEach(clearTimeout);
-		phase = "loading";
-		phaseTimers = [
-			setTimeout(() => (phase = "out"), 300),
-			setTimeout(() => (phase = "idle"), 300 + 150),
-		];
-	}
-
-	function readStoredLayoutMode(): AnimeLayoutMode {
-		try {
-			const stored = localStorage.getItem(ANIME_LAYOUT_KEY);
-			if (stored === "list" || stored === "grid") return stored;
-		} catch {
-			/* Ignore local storage access failure */
-		}
-		return "grid";
-	}
-
-	/** 切布局：切类前记录卡片位置，下一帧逐卡 FLIP 平移（reduced-motion 跳变） */
-	function switchLayoutMode(mode: AnimeLayoutMode) {
-		if (mode === listMode) return;
-		const cards = Array.from(
-			listEl?.querySelectorAll<HTMLElement>(".anime-card") ?? [],
-		);
-		const before = cards.map((card) => card.getBoundingClientRect());
-		listMode = mode;
-		try {
-			localStorage.setItem(ANIME_LAYOUT_KEY, mode);
-		} catch {
-			/* Ignore local storage access failure */
-		}
-		requestAnimationFrame(() => {
-			cards.forEach((card, index) => flipFromRect(card, before[index], 400));
-		});
-	}
-
-	// 筛选/搜索变化时重置已加载数
-	$effect(() => {
-		const s = selectedStatus;
-		const q = query;
-		if (!initialized) return;
-		shownCount = ANIME_PAGE_SIZE;
-	});
-
-	// 筛选状态与搜索词同步到 URL（?status= / ?q=），刷新/分享/回退保留
-	$effect(() => {
-		const s = selectedStatus;
-		const q = query;
-		if (!initialized) return;
-		const params = new URLSearchParams(window.location.search);
-		params.delete("status");
-		params.delete("q");
-		if (s) params.set("status", s);
-		if (q.trim()) params.set("q", q.trim());
-		const qs = params.toString();
-		history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
-	});
-
-	onMount(() => {
-		const params = new URLSearchParams(window.location.search);
-		selectedStatus = params.get("status") || "";
-		query = params.get("q") || "";
-		listMode = readStoredLayoutMode();
-		initialized = true;
-		return () => {
-			phaseTimers.forEach(clearTimeout);
-		};
-	});
+	};
+});
 </script>
 
 <Card color="var(--card-bg)" radius="l" class="anime-section px-8 py-6">

@@ -30,31 +30,31 @@ import {
 } from "@utils/menu-bus";
 
 let {
-    expanded = $bindable(false),
-    icon = "material-symbols:add",
-    iconExpanded = "material-symbols:close",
-    label = "",
-    size = "small",
-    align = "end",
-    containerColor = "var(--primary-container)",
-    containerContentColor = "var(--on-primary-container)",
-    menuItemColor = "var(--primary-container)",
-    menuItemContentColor = "var(--on-primary-container)",
-    exclusive = true,
-    class: className = "",
+	expanded = $bindable(false),
+	icon = "material-symbols:add",
+	iconExpanded = "material-symbols:close",
+	label = "",
+	size = "small",
+	align = "end",
+	containerColor = "var(--primary-container)",
+	containerContentColor = "var(--on-primary-container)",
+	menuItemColor = "var(--primary-container)",
+	menuItemContentColor = "var(--on-primary-container)",
+	exclusive = true,
+	class: className = "",
 }: {
-    expanded?: boolean;
-    icon?: string;
-    iconExpanded?: string;
-    label?: string;
-    size?: "small" | "medium" | "large";
-    align?: "end" | "start" | "center";
-    containerColor?: string;
-    containerContentColor?: string;
-    menuItemColor?: string;
-    menuItemContentColor?: string;
-    exclusive?: boolean;
-    class?: string;
+	expanded?: boolean;
+	icon?: string;
+	iconExpanded?: string;
+	label?: string;
+	size?: "small" | "medium" | "large";
+	align?: "end" | "start" | "center";
+	containerColor?: string;
+	containerContentColor?: string;
+	menuItemColor?: string;
+	menuItemContentColor?: string;
+	exclusive?: boolean;
+	class?: string;
 } = $props();
 
 const instanceId = nextMenuInstanceId();
@@ -73,7 +73,7 @@ let progress = $state(0);
 let rafId: number | null = null;
 
 $effect(() => {
-    const target = expanded ? 1 : 0;
+	const target = expanded ? 1 : 0;
 	untrack(() => {
 		const from = progress;
 		if (from === target) return;
@@ -82,49 +82,49 @@ $effect(() => {
 			return;
 		}
 		const DURATION = 300;
-        const start = performance.now();
-        // emphasized-decelerate 近似：cubic-bezier(0.05, 0.7, 0.1, 1)
-        const ease = (t: number) => 1 - Math.pow(1 - t, 2.5);
-        const tick = (now: number) => {
-            const t = Math.min((now - start) / DURATION, 1);
-            progress = from + (target - from) * ease(t);
-            rafId = t < 1 ? requestAnimationFrame(tick) : null;
-        };
-        rafId = requestAnimationFrame(tick);
-    });
-    return () => {
-        if (rafId !== null) cancelAnimationFrame(rafId);
-        rafId = null;
-    };
+		const start = performance.now();
+		// emphasized-decelerate 近似：cubic-bezier(0.05, 0.7, 0.1, 1)
+		const ease = (t: number) => 1 - Math.pow(1 - t, 2.5);
+		const tick = (now: number) => {
+			const t = Math.min((now - start) / DURATION, 1);
+			progress = from + (target - from) * ease(t);
+			rafId = t < 1 ? requestAnimationFrame(tick) : null;
+		};
+		rafId = requestAnimationFrame(tick);
+	});
+	return () => {
+		if (rafId !== null) cancelAnimationFrame(rafId);
+		rafId = null;
+	};
 });
 
 // 键盘焦点：展开时 Tab / ArrowDown 进入第一个菜单项（官方 onKeyEvent）
 function onFabKeydown(e: KeyboardEvent) {
-    if (!expanded) return;
-    if ((e.key === "Tab" && !e.shiftKey) || e.key === "ArrowDown") {
-        e.preventDefault();
-        const itemsEl = fabMenuEl?.querySelector(".m3-fab-menu__items");
-        const first = itemsEl?.querySelector<HTMLElement>(".m3-fab-menu-item");
-        first?.focus();
-    }
+	if (!expanded) return;
+	if ((e.key === "Tab" && !e.shiftKey) || e.key === "ArrowDown") {
+		e.preventDefault();
+		const itemsEl = fabMenuEl?.querySelector(".m3-fab-menu__items");
+		const first = itemsEl?.querySelector<HTMLElement>(".m3-fab-menu-item");
+		first?.focus();
+	}
 }
 
 let fabMenuEl: HTMLDivElement;
 
 // 互斥单开：展开时广播，其他同总线实例自动收起
 $effect(() => {
-    if (!exclusive || !expanded) return;
-    const t = setTimeout(() => announceMenuOpened(instanceId), 0);
-    return () => clearTimeout(t);
+	if (!exclusive || !expanded) return;
+	const t = setTimeout(() => announceMenuOpened(instanceId), 0);
+	return () => clearTimeout(t);
 });
 
 onMount(() => {
-    const onExclusive = (e: Event) => {
-        const detail = (e as CustomEvent).detail;
-        if (detail?.instanceId !== instanceId && expanded) expanded = false;
-    };
-    document.addEventListener(MENU_EXCLUSIVE_EVENT, onExclusive);
-    return () => document.removeEventListener(MENU_EXCLUSIVE_EVENT, onExclusive);
+	const onExclusive = (e: Event) => {
+		const detail = (e as CustomEvent).detail;
+		if (detail?.instanceId !== instanceId && expanded) expanded = false;
+	};
+	document.addEventListener(MENU_EXCLUSIVE_EVENT, onExclusive);
+	return () => document.removeEventListener(MENU_EXCLUSIVE_EVENT, onExclusive);
 });
 </script>
 

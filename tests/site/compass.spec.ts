@@ -33,7 +33,9 @@ test.describe("站点罗盘页", () => {
 		await expect(page.locator(".compass-tile")).toHaveCount(ENTRY_COUNT);
 	});
 
-	test("渲染分组与瓷砖（SectionTitle 标题行 / 每组条数 / 外链 / 图标三态）", async ({ page }) => {
+	test("渲染分组与瓷砖（SectionTitle 标题行 / 每组条数 / 外链 / 图标三态）", async ({
+		page,
+	}) => {
 		// 4 个分组 section，每组 tile 数与示例数据一致；标题行为站内 SectionTitle
 		for (const key of SHELF_KEYS) {
 			await expect(page.locator(`section[data-shelf="${key}"]`)).toHaveCount(1);
@@ -69,7 +71,9 @@ test.describe("站点罗盘页", () => {
 		await expect(first.locator(".compass-tile__icon svg")).toHaveCount(1, {
 			timeout: 15_000,
 		});
-		const withIcon = page.locator('section[data-shelf="dev"] .compass-tile').nth(1);
+		const withIcon = page
+			.locator('section[data-shelf="dev"] .compass-tile')
+			.nth(1);
 		await expect(withIcon.locator(".compass-tile__icon svg")).toHaveCount(1, {
 			timeout: 15_000,
 		});
@@ -79,18 +83,25 @@ test.describe("站点罗盘页", () => {
 		await expect(noIcon.locator(".compass-tile__letter")).toHaveText("S");
 		await expect(noIcon.locator(".compass-tile__icon svg")).toHaveCount(0);
 		// 计数行
-		await expect(page.locator(".compass-section__count")).toHaveText("11 sites");
+		await expect(page.locator(".compass-section__count")).toHaveText(
+			"11 sites",
+		);
 	});
 
 	test("分组筛选：chips 单选过滤（三段 Loading 过渡 + 再点取消恢复，URL ?group= 同步）", async ({
 		page,
 	}) => {
-		const designChip = page.getByRole("button", { name: "Design", exact: true });
+		const designChip = page.getByRole("button", {
+			name: "Design",
+			exact: true,
+		});
 		// 选中 → 三段过渡（contained 指示器展示后淡出），收敛后只剩该组 + aria-pressed + URL 同步
 		await designChip.click();
 		await expect(designChip).toHaveAttribute("aria-pressed", "true");
 		await expect(page).toHaveURL(/[?&]group=design/);
-		await expect(page.locator(".compass-section__loading .m3-loading--contained")).toBeVisible();
+		await expect(
+			page.locator(".compass-section__loading .m3-loading--contained"),
+		).toBeVisible();
 		await expect(page.locator(".compass-tile")).toHaveCount(3);
 		await expect(page.locator(".compass-section__loading")).toHaveCount(0);
 		await expect(page.locator('section[data-shelf="design"]')).toBeVisible();
@@ -106,12 +117,13 @@ test.describe("站点罗盘页", () => {
 
 	test("深链恢复筛选（?group=tools）与未知分组空态", async ({ page }) => {
 		await page.goto("/compass/?group=tools");
-		await expect(page.getByRole("button", { name: "Tools", exact: true })).toHaveAttribute(
-			"aria-pressed",
-			"true",
-		);
+		await expect(
+			page.getByRole("button", { name: "Tools", exact: true }),
+		).toHaveAttribute("aria-pressed", "true");
 		await expect(page.locator(".compass-tile")).toHaveCount(2);
-		await expect(page.locator(".compass-tile__label").first()).toHaveText("Squoosh");
+		await expect(page.locator(".compass-tile__label").first()).toHaveText(
+			"Squoosh",
+		);
 		// 未知分组值 → 空态文案
 		await page.goto("/compass/?group=nonsense");
 		await expect(page.locator(".compass-section__empty")).toBeVisible();
@@ -122,7 +134,9 @@ test.describe("站点罗盘页", () => {
 
 	test("搜索过滤（label / 域名命中，?q= 同步，清空恢复）", async ({ page }) => {
 		// 站内顶栏搜索框同名 placeholder，限定罗盘页内搜索框
-		const search = page.locator('.compass-section__search input[type="search"]');
+		const search = page.locator(
+			'.compass-section__search input[type="search"]',
+		);
 		// 域名片段命中 GitHub（label 与 hostname 均含 github）
 		await search.fill("github");
 		await expect(page).toHaveURL(/[?&]q=github/);
@@ -162,7 +176,9 @@ test.describe("站点罗盘页", () => {
 	test("侧栏 widget 在罗盘页照常渲染（pages 过滤对齐 friends/moments/anime）", async ({
 		page,
 	}) => {
-		await expect(page.locator('widget-layout[data-id="categories"]')).toBeVisible();
+		await expect(
+			page.locator('widget-layout[data-id="categories"]'),
+		).toBeVisible();
 		await expect(page.locator('widget-layout[data-id="tags"]')).toBeVisible();
 	});
 });
