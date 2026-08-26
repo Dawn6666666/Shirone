@@ -227,6 +227,8 @@ pnpm.cmd fonts:check
 pnpm.cmd fonts:subset
 ```
 
+子集化由项目依赖中的 HarfBuzz WebAssembly 实现，安装 pnpm 依赖后即可运行；构建机不需要额外安装 Python 或 `fontTools`。
+
 ### 4. 生产字体门禁
 
 `pnpm.cmd build` 在构建结束后自动运行 `pnpm.cmd fonts:check`。检查器会同时验证：

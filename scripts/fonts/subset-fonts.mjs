@@ -1,7 +1,7 @@
-import { execFileSync } from "node:child_process";
 import {
 	existsSync,
 	mkdirSync,
+	readFileSync,
 	renameSync,
 	rmSync,
 	statSync,
@@ -9,11 +9,16 @@ import {
 } from "node:fs";
 import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import subsetFont from "subset-font";
 import { fontConfig } from "../../src/config/fontConfig.ts";
 import { collectAllText } from "./text-collector.mjs";
 
 const projectRoot = fileURLToPath(new URL("../../", import.meta.url));
 const subsetDir = join(projectRoot, "src/assets/fonts/.subset");
+
+export function createWoff2Subset(sourceFont, text) {
+	return subsetFont(sourceFont, text, { targetFormat: "woff2" });
+}
 
 export async function subsetAllFonts(options = {}) {
 	const force = options.force ?? false;
@@ -84,20 +89,9 @@ export async function subsetAllFonts(options = {}) {
 		const startTime = Date.now();
 
 		try {
-			execFileSync(
-				"python",
-				[
-					"-m",
-					"fontTools.subset",
-					originalPath,
-					`--text-file=${charsetFile}`,
-					`--output-file=${tempOutputPath}`,
-					"--flavor=woff2",
-					"--layout-features=*",
-					"--desubroutinize",
-				],
-				{ stdio: "pipe" },
-			);
+			const sourceFont = readFileSync(originalPath);
+			const subsetBuffer = await createWoff2Subset(sourceFont, allText);
+			writeFileSync(tempOutputPath, subsetBuffer);
 
 			if (!existsSync(tempOutputPath) || statSync(tempOutputPath).size === 0) {
 				throw new Error(
