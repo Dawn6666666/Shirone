@@ -1,107 +1,195 @@
-# 🍥Fuwari  
-![Node.js >= 20](https://img.shields.io/badge/node.js-%3E%3D20-brightgreen) 
-![pnpm >= 9](https://img.shields.io/badge/pnpm-%3E%3D9-blue) 
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-saicaca%2Ffuwari-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAyCAYAAAAnWDnqAAAAAXNSR0IArs4c6QAAA05JREFUaEPtmUtyEzEQhtWTQyQLHNak2AB7ZnyXZMEjXMGeK/AIi+QuHrMnbChYY7MIh8g01fJoopFb0uhhEqqcbWTp06/uv1saEDv4O3n3dV60RfP947Mm9/SQc0ICFQgzfc4CYZoTPAswgSJCCUJUnAAoRHOAUOcATwbmVLWdGoH//PB8mnKqScAhsD0kYP3j/Yt5LPQe2KvcXmGvRHcDnpxfL2zOYJ1mFwrryWTz0advv1Ut4CJgf5uhDuDj5eUcAUoahrdY/56ebRWeraTjMt/00Sh3UDtjgHtQNHwcRGOC98BJEAEymycmYcWwOprTgcB6VZ5JK5TAJ+fXGLBm3FDAmn6oPPjR4rKCAoJCal2eAiQp2x0vxTPB3ALO2CRkwmDy5WohzBDwSEFKRwPbknEggCPB/imwrycgxX2NzoMCHhPkDwqYMr9tRcP5qNrMZHkVnOjRMWwLCcr8ohBVb1OMjxLwGCvjTikrsBOiA6fNyCrm8V1rP93iVPpwaE+gO0SsWmPiXB+jikdf6SizrT5qKasx5j8ABbHpFTx+vFXp9EnYQmLx02h1QTTrl6eDqxLnGjporxl3NL3agEvXdT0WmEost648sQOYAeJS9Q7bfUVoMGnjo4AZdUMQku50McDcMWcBPvr0SzbTAFDfvJqwLzgxwATnCgnp4wDl6Aa+Ax283gghmj+vj7feE2KBBRMW3FzOpLOADl0Isb5587h/U4gGvkt5v60Z1VLG8BhYjbzRwyQZemwAd6cCR5/XFWLYZRIMpX39AR0tjaGGiGzLVyhse5C9RKC6ai42ppWPKiBagOvaYk8lO7DajerabOZP46Lby5wKjw1HCRx7p9sVMOWGzb/vA1hwiWc6jm3MvQDTogQkiqIhJV0nBQBTU+3okKCFDy9WwferkHjtxib7t3xIUQtHxnIwtx4mpg26/HfwVNVDb4oI9RHmx5WGelRVlrtiw43zboCLaxv46AZeB3IlTkwouebTr1y2NjSpHz68WNFjHvupy3q8TFn3Hos2IAk4Ju5dCo8B3wP7VPr/FGaKiG+T+v+TQqIrOqMTL1VdWV1DdmcbO8KXBz6esmYWYKPwDL5b5FA1a0hwapHiom0r/cKaoqr+27/XcrS5UwSMbQAAAABJRU5ErkJggg==)](https://deepwiki.com/saicaca/fuwari)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsaicaca%2Ffuwari.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsaicaca%2Ffuwari?ref=badge_shield&issueType=license)
+<div align="center">
 
-A static blog template built with [Astro](https://astro.build).
+# Shirone
 
-[**🖥️ Live Demo (Vercel)**](https://fuwari.vercel.app)
+<sub>✦ Where stories gather color, and every page begins with a little spell. ✦</sub>
 
-![Preview Image](https://raw.githubusercontent.com/saicaca/resource/main/fuwari/home.png)
+An expressive, anime-inspired blog theme built on Material 3.
 
-🌏 README in
-[**中文**](https://github.com/saicaca/fuwari/blob/main/docs/README.zh-CN.md) /
-[**日本語**](https://github.com/saicaca/fuwari/blob/main/docs/README.ja.md) /
-[**한국어**](https://github.com/saicaca/fuwari/blob/main/docs/README.ko.md) /
-[**Español**](https://github.com/saicaca/fuwari/blob/main/docs/README.es.md) /
-[**ไทย**](https://github.com/saicaca/fuwari/blob/main/docs/README.th.md) /
-[**Tiếng Việt**](https://github.com/saicaca/fuwari/blob/main/docs/README.vi.md) /
-[**Bahasa Indonesia**](https://github.com/saicaca/fuwari/blob/main/docs/README.id.md) (Provided by the community and may not always be up-to-date)
+Crafted by [matsuzaka-yuki](https://github.com/matsuzaka-yuki)
 
-## ✨ Features
+[Live demo](https://shirone.mysqil.com/) · [Documentation](./docs/) · [Report an issue](https://github.com/LyraVoid/Shirone/issues)
 
-- [x] Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com)
-- [x] Smooth animations and page transitions
-- [x] Light / dark mode
-- [x] Customizable theme colors & banner
-- [x] Responsive design
-- [x] Search functionality with [Pagefind](https://pagefind.app/)
-- [x] [Markdown extended features](https://github.com/saicaca/fuwari?tab=readme-ov-file#-markdown-extended-syntax)
-- [x] Table of contents
-- [x] RSS feed
+[English](./README.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)
 
-## 🚀 Getting Started
+![Node.js >= 22.12](https://img.shields.io/badge/Node.js-%3E%3D22.12-5FA04E?logo=nodedotjs&logoColor=white)
+![pnpm 9](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
+![Astro 7](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-3DA639.svg)](./LICENSE)
 
-1. Create your blog repository:
-    - [Generate a new repository](https://github.com/saicaca/fuwari/generate) from this template or fork this repository.
-    - Or run one of the following commands:
-       ```sh
-       npm create fuwari@latest
-       yarn create fuwari
-       pnpm create fuwari@latest
-       bun create fuwari@latest
-       deno run -A npm:create-fuwari@latest
-       ```
-2. To edit your blog locally, clone your repository, run `pnpm install` to install dependencies.
-    - Install [pnpm](https://pnpm.io) `npm install -g pnpm` if you haven't.
-3. Edit the config file `src/config.ts` to customize your blog.
-4. Run `pnpm new-post <filename>` to create a new post and edit it in `src/content/posts/`.
-5. Deploy your blog to Vercel, Netlify, GitHub Pages, etc. following [the guides](https://docs.astro.build/en/guides/deploy/). You need to edit the site configuration in `astro.config.mjs` before deployment.
+</div>
 
-## 📝 Frontmatter of Posts
+![Shirone homepage](./public/assets/projects/shirone.webp)
+
+<table>
+  <tr>
+    <td align="center"><strong>Chromatic Spell</strong><br><sub>Dynamic HCT palettes that respond to light, mood, and choice.</sub></td>
+    <td align="center"><strong>Seamless Passage</strong><br><sub>Swup navigation keeps the surrounding world gently in motion.</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Story Grimoire</strong><br><sub>Markdown, MDX, math, diagrams, code, and images in one writing flow.</sub></td>
+    <td align="center"><strong>Quiet by Design</strong><br><sub>SSR-first, accessible, and truly weightless when features are disabled.</sub></td>
+  </tr>
+</table>
+
+> [!IMPORTANT]
+> Shirone is currently in alpha. Configuration and component APIs may change before the first stable release.
+
+## ✦ A Small Spell for Every Story
+
+Shirone is a static personal blog theme built with Astro 7, Svelte 5, Tailwind CSS 4, and Stylus. Its magic is not a layer of spectacle: it lives in colors that shift with light and mood, pages that turn without breaking the atmosphere, and small details that make a personal corner of the web feel alive.
+
+Behind that softness is a token-driven Material 3 Expressive component system. Content is rendered server-side, while Swup provides smooth in-site navigation and keeps the surrounding application shell alive between pages.
+
+The theme is designed for long-form writing as well as personal collections such as moments, albums, anime lists, friends, projects, skills, and timelines.
+
+## ✦ Inside the Grimoire
+
+- Dynamic HCT color palettes with Material 3 and Material 3 Expressive specifications
+- Light and dark themes, banner and solid backgrounds, optional textures, and visitor display preferences
+- Responsive layouts with configurable single or dual sidebars
+- Smooth Swup navigation with a persistent shell, route progress, and reduced-motion support
+- Markdown and MDX content with math, Mermaid, admonitions, enhanced code blocks, and image galleries
+- Full-text search powered by Pagefind, plus RSS and sitemap output
+- Article table of contents, related posts, sharing, encryption, and optional comments
+- Dedicated pages for archives, categories, tags, friends, moments, anime, albums, projects, skills, and timelines
+- Ten built-in interface locales
+- SSR-first output, keyboard-friendly interactions, and accessibility testing
+- Optional integrations follow a zero-burden rule: when disabled, they add no external requests, DOM, layout shift, or main-bundle code
+
+## Quick Start
+
+### Requirements
+
+- [Node.js](https://nodejs.org/) 22.12 or newer
+- [pnpm](https://pnpm.io/) 9.x (the repository pins `pnpm@9.14.4`)
+
+### Run locally
+
+```bash
+git clone https://github.com/LyraVoid/Shirone.git
+cd Shirone
+corepack enable
+pnpm install
+pnpm dev
+```
+
+Open `http://localhost:4321` in your browser.
+
+On Windows PowerShell installations where script execution is restricted, use `pnpm.cmd` and `npx.cmd` instead.
+
+### Customize your site
+
+1. Set the canonical URL, title, language, theme, banner, and display options in `src/config/siteConfig.ts`.
+2. Update the profile and navigation in `src/config/profileConfig.ts` and `src/config/navBarConfig.ts`.
+3. Review the feature-specific files in `src/config/`; their inline comments document defaults and supported values.
+4. Replace the sample posts, personal data, and media under `src/content/`, `src/data/`, and `public/`.
+5. Create a post with `pnpm new-post <filename>`, then edit it under `src/content/posts/`.
+
+See [`src/config/README.md`](./src/config/README.md) for the complete configuration contract.
+
+## Main Configuration
+
+| File | Purpose |
+| --- | --- |
+| `src/config/siteConfig.ts` | Site URL, identity, locale, dynamic color, banner, texture, TOC, and display settings |
+| `src/config/profileConfig.ts` | Author profile and social links |
+| `src/config/navBarConfig.ts` | Main navigation |
+| `src/config/sidebarConfig.ts` | Sidebar layout, widgets, and page filters |
+| `src/config/postListConfig.ts` | Pagination and list/grid presentation |
+| `src/config/articleConfig.ts` | Update notice, related posts, and article sharing |
+| `src/config/commentConfig.ts` | Optional comment provider |
+| `src/config/musicConfig.ts` | Optional local, custom, Meting, or mixed music source |
+| `src/config/animeConfig.ts` | Anime page and local/Bangumi/Bilibili snapshot source |
+
+## Writing a Post
+
+Posts live in `src/content/posts/` and may be Markdown or MDX. A minimal frontmatter block looks like this:
 
 ```yaml
 ---
-title: My First Blog Post
-published: 2023-09-09
-updated: 2023-10-12 # Optional; drives the last-updated notice
-description: This is the first post of my new Astro blog.
-image: ./cover.jpg
-tags: [Foo, Bar]
-category: Front-end
+title: My First Post
+published: 2026-08-26
+description: A short summary shown in post lists and metadata.
+image: ./cover.webp
+tags: [Astro, Notes]
+category: Writing
 draft: false
-lang: jp      # Set only if the post's language differs from the site's language in `config.ts`
 ---
 ```
 
-## 🧩 Markdown Extended Syntax
+Frequently used optional fields include `updated`, `pinned`, `comment`, `lang`, `encrypted`, `password`, `passwordHint`, and `hideHomeContent`. Images may be remote URLs, absolute paths from `public/`, or paths relative to the post file.
 
-In addition to Astro's default support for [GitHub Flavored Markdown](https://github.github.com/gfm/), several extra Markdown features are included:
+## Commands
 
-- Admonitions ([Preview and Usage](https://fuwari.vercel.app/posts/markdown-extended/#admonitions))
-- GitHub repository cards ([Preview and Usage](https://fuwari.vercel.app/posts/markdown-extended/#github-repository-cards))
-- Enhanced code blocks with Expressive Code ([Preview](https://fuwari.vercel.app/posts/expressive-code/) / [Docs](https://expressive-code.com/))
+| Command | Action |
+| --- | --- |
+| `pnpm dev` | Start the development server |
+| `pnpm new-post <filename>` | Create a new post |
+| `pnpm check` | Run Astro diagnostics |
+| `pnpm type-check` | Run TypeScript checks |
+| `pnpm check:manifest` | Validate the component manifest |
+| `pnpm test` | Run the Playwright test suite |
+| `pnpm build` | Build the site and Pagefind index into `dist/` |
+| `pnpm preview` | Preview the production build |
+| `pnpm lighthouse` | Run the desktop production audit |
 
-## ⚡ Commands
+## Deployment
 
-All commands are run from the root of the project, from a terminal:
+Shirone produces a static `dist/` directory and can be deployed to Vercel, Netlify, GitHub Pages, or any static hosting service.
 
-| Command                    | Action                                              |
-|:---------------------------|:----------------------------------------------------|
-| `pnpm install`             | Installs dependencies                               |
-| `pnpm dev`                 | Starts local dev server at `localhost:4321`         |
-| `pnpm build`               | Build your production site to `./dist/`             |
-| `pnpm preview`             | Preview your build locally, before deploying        |
-| `pnpm check`               | Run checks for errors in your code                  |
-| `pnpm format`              | Format your code using Biome                        |
-| `pnpm new-post <filename>` | Create a new post                                   |
-| `pnpm astro ...`           | Run CLI commands like `astro add`, `astro check`    |
-| `pnpm astro --help`        | Get help using the Astro CLI                        |
+Before deploying, update `site` and `base` in `src/config/siteConfig.ts`, then run:
 
-## 🔦 Lighthouse Audits
+```bash
+pnpm install --frozen-lockfile
+pnpm check
+pnpm type-check
+pnpm check:manifest
+pnpm build
+```
 
-Run the production Lighthouse workflow with `pnpm.cmd lighthouse`. Device-specific
-entries are available as `pnpm.cmd lighthouse:desktop` and
-`pnpm.cmd lighthouse:mobile`. See [docs/lighthouse.md](docs/lighthouse.md)
-for the audit matrix, thresholds, report locations, and troubleshooting guidance.
+Use `pnpm build` as the build command and `dist` as the output directory. More details are available in [`INDEX.md`](./INDEX.md).
 
-## ✏️ Contributing
+## Documentation
 
-Check out the [Contributing Guide](https://github.com/saicaca/fuwari/blob/main/CONTRIBUTING.md) for details on how to contribute to this project.
+- [`src/config/README.md`](./src/config/README.md) - configuration reference
+- [`docs/m3e-standard.md`](./docs/m3e-standard.md) - design tokens and component standard
+- [`docs/atomic-structure.md`](./docs/atomic-structure.md) - component layers and dependency rules
+- [`docs/sidebar-system.md`](./docs/sidebar-system.md) - sidebar orchestration and Swup synchronization
+- [`docs/on-demand-loading.md`](./docs/on-demand-loading.md) - zero-burden optional features
+- [`docs/font-system.md`](./docs/font-system.md) - font configuration and production subsetting
 
-## 📄 License
+## Contributing
 
-This project is licensed under the MIT License.
+Issues and pull requests are welcome. For substantial features or visual changes, please open an issue or discussion first. Read [`CONTRIBUTING.md`](./CONTRIBUTING.md) and the repository rules before submitting code, keep each pull request focused, and use Conventional Commits.
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsaicaca%2Ffuwari.svg?type=large&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsaicaca%2Ffuwari?ref=badge_large&issueType=license)
+## Acknowledgements
+
+Shirone began as a refactor of [Fuwari](https://github.com/saicaca/fuwari) by [saicaca](https://github.com/saicaca). Its current M3E design system, component architecture, page modules, and orchestration are developed as Shirone. Thanks to the Fuwari project and its contributors for the original foundation.
+
+## Contributors
+
+Every contribution adds a new line to Shirone's spellbook. Thank you to everyone who helps this little world grow.
+
+<div align="center">
+  <a href="https://github.com/LyraVoid/Shirone/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=LyraVoid/Shirone" alt="Shirone contributors" />
+  </a>
+</div>
+
+## Star Trail
+
+<div align="center">
+  <a href="https://star-history.com/#LyraVoid/Shirone&amp;Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=LyraVoid/Shirone&amp;type=Date&amp;theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=LyraVoid/Shirone&amp;type=Date" />
+      <img alt="Shirone Star History chart" src="https://api.star-history.com/svg?repos=LyraVoid/Shirone&amp;type=Date" />
+    </picture>
+  </a>
+  <p><sub>Each star is a spark that helps Shirone shine a little farther.</sub></p>
+</div>
+
+## License
+
+Shirone is released under the [MIT License](./LICENSE). The repository retains the original copyright notice required by that license.
