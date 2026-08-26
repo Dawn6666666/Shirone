@@ -20,8 +20,8 @@ export interface TimelineLink {
 
 /** 单个时间线事件 / 里程碑节点。 */
 export interface TimelineItem {
-	/** 独立开关；关闭后不参与渲染与计数。 */
-	enable: boolean;
+	/** 可选独立开关；关闭后不参与渲染与计数（优先使用 config.disabledTitles）。 */
+	enable?: boolean;
 	/** 节点标题（事件、职位或里程碑名称）。 */
 	title: string;
 	/** 时间或时间范围（如 "2026.08", "2024.09 – 2026.06"）。 */
@@ -46,12 +46,18 @@ export interface TimelineItem {
 	featured?: boolean;
 }
 
-/** 时间线页配置。 */
+/** 时间线页配置（行为层）。 */
 export interface TimelineConfig {
 	/** 页面总开关；关闭后隐藏导航入口并将 /timeline/ 重定向到 404。 */
 	enable: boolean;
-	/** 筛选分类清单。 */
+	/** 筛选分类清单（决定 Chips 顺序）。 */
 	categories: TimelineCategory[];
-	/** 时间线条目清单（建议按时间倒序排列）。 */
-	items: TimelineItem[];
+	/** 排序方向：默认按时间倒序 "desc"；可选 "asc"。 */
+	order?: "desc" | "asc";
+	/** 可选被禁用的节点标题列表。 */
+	disabledTitles?: string[];
+	/** 兼容通用 disabledKeys 别名。 */
+	disabledKeys?: string[];
+	/** 可选自定义数据（向后兼容；默认读取 src/data/timeline.ts）。 */
+	items?: TimelineItem[];
 }

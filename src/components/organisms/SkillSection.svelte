@@ -14,7 +14,7 @@
 	}: { categories?: SkillCategory[]; items?: SkillItem[] } = $props();
 
 	let selectedCategory = $state("");
-	const enabledItems = $derived(items.filter((item) => item.enable));
+	const enabledItems = $derived(items.filter((item) => item.enable !== false));
 	const activeCategories = $derived(
 		categories.filter((category) =>
 			enabledItems.some((item) => item.category === category.key),

@@ -299,7 +299,7 @@ variables.styl  --mc-* → 语义令牌（--primary、--surface-container-low…
 | `src/utils/share-poster.ts` | 分享海报生成底层工具：动态按需加载 qrcode、读取当前主题色快照、Canvas 2D 绘制固定宽度、内容高度的海报并输出 PNG Blob |
 | `src/components/organisms/MomentSection.svelte` | 动态页主体（搜索/标签筛选/加载更多 + Fancybox 接线） |
 | `src/components/molecules/SkillCard.svelte` | 技能单项展示：图标、说明、离散等级标签与四段语义化 meter，不使用伪精确百分比 |
-| `src/components/organisms/SkillSection.svelte` | 技能页编排：消费 `skillsConfig` 传入的数据，过滤关闭项并提供分类 chips 筛选 |
+| `src/components/organisms/SkillSection.svelte` | 技能页编排：消费传入的技能数据与分类清单，过滤关闭项并提供分类 chips 筛选 |
 | `src/components/molecules/AlbumCard.astro` / `AlbumCard.svelte` | 相册索引卡片（静态 SSR / 交互增强版本） |
 | `src/components/organisms/AlbumSection.svelte` | 相册索引页编排（筛选、排序与卡片列表） |
 | `src/components/organisms/AlbumGallery.svelte` | 相册详情画廊（grid / masonry、方向排序、原始比例与 Fancybox） |

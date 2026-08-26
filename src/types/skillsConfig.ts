@@ -11,10 +11,10 @@ export interface SkillCategory {
 	icon?: string;
 }
 
-/** 单项技能。 */
+/** 单项技能条目。 */
 export interface SkillItem {
-	/** 独立开关；关闭后不参与渲染与计数。 */
-	enable: boolean;
+	/** 可选独立开关；关闭后不参与渲染与计数（优先使用 config.disabledNames）。 */
+	enable?: boolean;
 	name: string;
 	description?: string;
 	icon?: string;
@@ -22,10 +22,16 @@ export interface SkillItem {
 	level: SkillLevel;
 }
 
-/** 技能页配置。 */
+/** 技能页配置（行为层）。 */
 export interface SkillsConfig {
 	/** 页面总开关；关闭后隐藏导航入口并将 /skills/ 重定向到 404。 */
 	enable: boolean;
+	/** 分类列表（决定 Chips 显示顺序）。 */
 	categories: SkillCategory[];
-	items: SkillItem[];
+	/** 可选被禁用的技能名称列表。 */
+	disabledNames?: string[];
+	/** 兼容通用 disabledKeys 别名。 */
+	disabledKeys?: string[];
+	/** 可选自定义数据（向后兼容；默认读取 src/data/skills.ts）。 */
+	items?: SkillItem[];
 }

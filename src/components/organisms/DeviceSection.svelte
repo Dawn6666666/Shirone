@@ -33,7 +33,7 @@ type FilterPhase = "idle" | "loading" | "out";
 let phase = $state<FilterPhase>("idle");
 let phaseTimers: ReturnType<typeof setTimeout>[] = [];
 
-const enabledItems = $derived(items.filter((item) => item.enable));
+const enabledItems = $derived(items.filter((item) => item.enable !== false));
 const activeCategories = $derived(
 	categories.filter((category) =>
 		enabledItems.some((item) => item.category === category.key),

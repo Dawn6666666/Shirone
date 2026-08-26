@@ -24,7 +24,7 @@ let {
 
 let selectedCategory = $state("");
 
-const enabledItems = $derived(items.filter((item) => item.enable));
+const enabledItems = $derived(items.filter((item) => item.enable !== false));
 
 const categoryMap = $derived(
 	new Map(categories.map((c) => [c.key, { label: c.label, icon: c.icon }])),

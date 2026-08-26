@@ -21,6 +21,20 @@
    **禁止走 barrel**，否则形成 `index → navBar → translation → index` 环。
 4. `astro.config.mjs` 在 Astro 配置层运行，用相对路径 `./src/config/<file>.ts` 导入。
 
+## 配置（Behavior）与数据（Content）分层原则
+
+Shirone 遵循「配置管行为，数据管内容」的清晰分层架构：
+
+- **`src/config/*Config.ts`**：控制**展示行为与页面能力**（页面总开关 `enable`、分类显示顺序 `categories`、单项禁用列表 `disabledKeys`、排序方向 `order`、源切换与服务凭据）；
+- **`src/data/*.ts`**：承载**具体的站点内容实体**（项目条目 `projects.ts`、技能清单 `skills.ts`、时间线节点 `timeline.ts`、设备列表 `devices.ts`、友链 `friends.ts`、罗盘 `compass.ts`、番剧 `anime.ts` 与本地音乐 `music.ts`）；
+- **`src/utils/feature-data.ts`**：提供构建期纯函数，将 config 的过滤/排序等行为规则应用到对应 data 实体集合上，输出给页面/组件。
+
+| 判别问题 | 归属 | 处理方式 |
+|---|---|---|
+| 它控制「页面是否开启 / 排序 / 凭据」？ | **Config** | 写在 `src/config/*Config.ts`（如 `enable: boolean`, `categories`, `order`） |
+| 它是「站点要展示的具体条目与说明」？ | **Data** | 写在 `src/data/*.ts`（如 `ProjectItem[]`, `SkillItem[]`, `TimelineItem[]`） |
+| 单项内容的停用 / 过滤？ | **Config** | 在 config 中声明 `disabledKeys`（或对应 ID 列表），data 保持纯净内容 |
+
 ## 新增一个配置项 / 配置文件
 
 1. 类型定义加入 `src/types/<domain>Config.ts`（新领域则新建文件，字段带中文注释说明语义与默认值）；
@@ -49,10 +63,11 @@
 | `postListConfig.ts` | 文章列表：分页大小 + 布局（list/grid 模式、封面位置、grid 卡片宽度档位） |
 | `articleConfig.ts` | 文章详情：最后更新提示、延伸阅读（相关/随机文章抽样）、以及文章尾部分享区块（总开关、海报生成与封面配置） |
 | `commentConfig.ts` | 评论系统：全局开关（默认关闭）、Provider 选择（Twikoo 等）、视口懒加载与服务凭据配置 |
-| `skillsConfig.ts` | 技能页：页面总开关、分类清单、技能数据、单项开关与离散熟练度；关闭页面时导航入口同步隐藏 |
-| `projectsConfig.ts` | 项目页：页面总开关、分类清单、项目阶段、技术栈、封面（可选，无封面回退图标瓷砖）与外部链接；关闭页面时导航入口同步隐藏 |
-| `timelineConfig.ts` | 时间线页：页面总开关、分类清单、事件/里程碑节点数据、单项开关与重点标记；关闭页面时导航入口同步隐藏 |
-| `animeConfig.ts` | 番剧页与外部追番数据源：数据源选择（本地 / Bangumi 快照 / Bilibili 快照）、失败降级、提供方凭据环境配置与快照生命周期管理 |
+| `skillsConfig.ts` | 技能页行为控制：页面总开关、分类清单与单项禁用列表（技能内容维护在 `src/data/skills.ts`）；关闭页面时导航入口同步隐藏 |
+| `projectsConfig.ts` | 项目页行为控制：页面总开关、分类清单与单项禁用列表（项目内容维护在 `src/data/projects.ts`）；关闭页面时导航入口同步隐藏 |
+| `timelineConfig.ts` | 时间线页行为控制：页面总开关、分类清单、排序方向与单项禁用列表（时间线内容维护在 `src/data/timeline.ts`）；关闭页面时导航入口同步隐藏 |
+| `devicesConfig.ts` | 设备页行为控制：页面总开关、场景分类清单与单项禁用列表（设备清单维护在 `src/data/devices.ts`）；关闭页面时导航入口同步隐藏 |
+| `animeConfig.ts` | 番剧页与外部追番数据源：数据源选择（本地 / Bangumi 快照 / Bilibili 快照）、失败降级、提供方凭据环境配置与快照生命周期管理（本地番剧维护在 `src/data/anime.ts`） |
 
 非首页 Banner 的标题、说明和可选日期由各页面通过 `MainGridLayout` 提供，并在 Swup 导航后从被替换的主内容容器同步。该上下文默认显示、不设配置开关；说明为空或与标题相同时自动省略，移动端非首页仍沿用紧凑布局并隐藏 Banner。
 

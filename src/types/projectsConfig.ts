@@ -13,8 +13,8 @@ export interface ProjectCategory {
 
 /** 单个项目条目。 */
 export interface ProjectItem {
-	/** 独立开关；关闭后不参与渲染与计数。 */
-	enable: boolean;
+	/** 可选独立开关；关闭后不参与渲染与计数（优先使用 config.disabledKeys）。 */
+	enable?: boolean;
 	/** 稳定标识，用作列表 key 与测试选择器。 */
 	key: string;
 	title: string;
@@ -36,10 +36,14 @@ export interface ProjectItem {
 	year?: string;
 }
 
-/** 项目页配置。 */
+/** 项目页配置（行为层）。 */
 export interface ProjectsConfig {
 	/** 页面总开关；关闭后隐藏导航入口并将 /projects/ 重定向到 404。 */
 	enable: boolean;
+	/** 分类列表（决定 Chips 显示顺序）。 */
 	categories: ProjectCategory[];
-	items: ProjectItem[];
+	/** 可选被禁用的项目 key 列表。 */
+	disabledKeys?: string[];
+	/** 可选自定义数据（向后兼容；默认读取 src/data/projects.ts）。 */
+	items?: ProjectItem[];
 }
