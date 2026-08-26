@@ -329,6 +329,7 @@ function downloadPoster() {
 
 :global(.article-share-dialog)
 	width: 100%
+	/* !important boundary: Dialog owns the scoped default width; its public class API lets ArticleShare own this variant width. */
 	max-width: unquote("min(36rem, calc(100vw - 2rem))") !important
 	max-height: calc(100dvh - 2rem)
 	display: flex
@@ -336,7 +337,7 @@ function downloadPoster() {
 
 :global(.article-share-dialog .m3-dialog__content)
 	min-height: 0
-	overflow-y: auto
+	overflow: visible
 
 .share-dialog-content
 	display: flex
@@ -344,15 +345,12 @@ function downloadPoster() {
 	align-items: center
 	justify-content: center
 	width: 100%
-	aspect-ratio: 10 / 9
-	max-height: unquote("min(56dvh, 30rem)")
 
 .share-poster-preview
 	display: flex
 	align-items: center
 	justify-content: center
 	width: 100%
-	height: 100%
 	box-sizing: border-box
 	padding: var(--m3e-space-2)
 	background: var(--surface-container-low)
@@ -361,7 +359,7 @@ function downloadPoster() {
 
 	&__img
 		display: block
-		max-height: unquote("min(56dvh, 620px)")
+		max-height: calc(100dvh - 16rem)
 		max-width: 100%
 		width: auto
 		height: auto

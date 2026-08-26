@@ -144,6 +144,33 @@ test.describe("article share page integration", () => {
 		expect(dimensions.naturalHeight).toBeGreaterThanOrEqual(900);
 		expect(dimensions.naturalHeight).toBeLessThan(1300);
 
+		const previewLayout = await dialog.evaluate((element) => {
+			const content = element.querySelector<HTMLElement>(".m3-dialog__content");
+			const body = element.querySelector<HTMLElement>(".share-dialog-content");
+			const preview = element.querySelector<HTMLElement>(
+				".share-poster-preview",
+			);
+			const image = element.querySelector<HTMLImageElement>(
+				".share-poster-preview__img",
+			);
+			if (!content || !body || !preview || !image) {
+				throw new Error("Share poster preview is incomplete");
+			}
+			return {
+				contentOverflowY: getComputedStyle(content).overflowY,
+				contentOverflows: content.scrollHeight > content.clientHeight + 1,
+				bodyAspectRatio: getComputedStyle(body).aspectRatio,
+				previewHeight: preview.getBoundingClientRect().height,
+				imageHeight: image.getBoundingClientRect().height,
+			};
+		});
+		expect(previewLayout.contentOverflowY).toBe("visible");
+		expect(previewLayout.contentOverflows).toBe(false);
+		expect(previewLayout.bodyAspectRatio).toBe("auto");
+		expect(previewLayout.previewHeight).toBeGreaterThan(
+			previewLayout.imageHeight,
+		);
+
 		// Download button should be enabled in the 2-column grid
 		const downloadBtn = dialog.locator(
 			".share-dialog-actions .m3-button--filled",
