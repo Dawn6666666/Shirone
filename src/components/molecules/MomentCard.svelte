@@ -6,8 +6,8 @@
 	 * 图片交给 MomentGallery（网格 + 内联查看器两段式，灯箱走 Fancybox）。
 	 */
 	import Avatar from "@components/atoms/display/Avatar.svelte";
+	import Icon from "@components/atoms/display/Icon.svelte";
 	import MomentGallery from "@components/molecules/MomentGallery.svelte";
-	import Icon from "@iconify/svelte";
 	import I18nKey from "@i18n/i18nKey";
 	import { i18n } from "@i18n/translation";
 	import { formatDateToYYYYMMDDHHmm } from "@utils/date-utils";
@@ -17,6 +17,9 @@
 	export type MomentAuthor = {
 		name: string;
 		avatar: string;
+		avatarSrcset?: string;
+		avatarWidth?: number;
+		avatarHeight?: number;
 		url: string;
 	};
 
@@ -41,7 +44,16 @@
 	<header class="moment-card__header">
 		<a class="moment-card__author" href={author.url}>
 			<!-- 作者名紧邻头像可读，头像按装饰图处理（避免与 aria-label 冗余） -->
-			<Avatar src={author.avatar} alt="" size={40} shape="circle" />
+			<Avatar
+				src={author.avatar}
+				srcset={author.avatarSrcset}
+				sizes="40px"
+				width={author.avatarWidth}
+				height={author.avatarHeight}
+				alt=""
+				size={40}
+				shape="circle"
+			/>
 			<span class="moment-card__name">{author.name}</span>
 		</a>
 
@@ -53,7 +65,7 @@
 			{/if}
 			{#if moment.pinned}
 				<span class="moment-card__badge moment-card__badge--pinned">
-					<Icon icon="material-symbols:push-pin-rounded" aria-hidden="true" />
+					<Icon icon="material-symbols:keep-rounded" aria-hidden="true" />
 					{i18n(I18nKey.pinned)}
 				</span>
 			{/if}

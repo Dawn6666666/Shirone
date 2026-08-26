@@ -367,7 +367,7 @@ const stylePreviews = $derived(
         {#if displayConfig.reduceMotion}
             <div class="p-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <Icon icon="material-symbols:motion-photos-off-outline-rounded" class="text-lg text-[var(--primary)]" />
+                    <Icon icon="material-symbols:motion-photos-off" class="text-lg text-[var(--primary)]" />
                     <span class="text-sm font-bold text-[var(--on-surface)]">{i18n(I18nKey.reduceMotion)}</span>
                 </div>
                 <Switch bind:checked={motionReduced} label={i18n(I18nKey.reduceMotion)} icons />

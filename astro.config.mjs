@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { basename, extname } from "node:path";
+import { fileURLToPath } from "node:url";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
@@ -228,6 +229,19 @@ export default defineConfig({
 		processor: siteMarkdownProcessor,
 	},
 	vite: {
+		resolve: {
+			alias: [
+				{
+					find: /^@iconify\/svelte$/,
+					replacement: fileURLToPath(
+						new URL(
+							"./src/components/atoms/display/Icon.svelte",
+							import.meta.url,
+						),
+					),
+				},
+			],
+		},
 		plugins: [optionalMusicSidebarPlugin, tailwindcss()],
 		optimizeDeps: {
 			include: [

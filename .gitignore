@@ -38,8 +38,13 @@ src/data/anime-snapshots/*.json
 public/assets/anime/covers/*
 !public/assets/anime/covers/.gitkeep
 
+# generated responsive moment thumbnails
+public/assets/moments/thumbnails/*
+!public/assets/moments/thumbnails/.gitkeep
+
 # local tooling artifacts
 .zcode/
+.codex-*.log
 research/
 
 # playwright

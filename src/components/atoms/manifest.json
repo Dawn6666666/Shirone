@@ -27,6 +27,7 @@
 		{ "name": "AccentBar", "file": "display/AccentBar.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true },
 		{ "name": "MetaIcon", "file": "display/MetaIcon.astro", "category": "display", "tier": "A", "source": "原创", "landed": true },
 		{ "name": "Avatar", "file": "display/Avatar.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true },
+		{ "name": "Icon", "file": "display/Icon.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true, "note": "Iconify 本地最小数据离线渲染器，禁止运行时 API 回源" },
 		{ "name": "Badge", "file": "display/Badge.svelte", "category": "display", "tier": "B", "source": "移植", "landed": false, "note": "评论/通知徽标，P2" },
 		{ "name": "BadgedBox", "file": "display/BadgedBox.svelte", "category": "display", "tier": "B", "source": "移植", "landed": false, "note": "徽标锚定容器，P2" },
 		{ "name": "Card", "file": "display/Card.svelte", "category": "display", "tier": "A", "source": "移植", "landed": true },
@@ -38,7 +39,7 @@
 		{ "name": "PanelStack", "file": "display/PanelStack.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true, "note": "安卓设置风格分段堆叠面板（段间透明间隙），Theme Color 弹窗已落地" },
 		{ "name": "Skeleton", "file": "display/Skeleton.svelte", "category": "display", "tier": "A", "source": "原创", "landed": true },
 
-		{ "name": "LoadingIndicator", "file": "feedback/LoadingIndicator.svelte", "category": "feedback", "tier": "A", "source": "移植", "landed": true, "note": "文章封面懒加载 + 动态筛选过渡 + 画廊瓦片加载 overlay" },
+		{ "name": "LoadingIndicator", "file": "feedback/LoadingIndicator.svelte", "category": "feedback", "tier": "A", "source": "移植", "landed": true, "note": "动态筛选过渡 + 画廊瓦片加载 overlay；文章封面使用零 JS 静态占位" },
 		{ "name": "ProgressIndicator", "file": "feedback/ProgressIndicator.svelte", "category": "feedback", "tier": "A", "source": "移植", "landed": true },
 		{ "name": "PullToRefresh", "file": "feedback/PullToRefresh.svelte", "category": "feedback", "tier": "C", "source": "移植", "landed": false, "note": "无博客落地场景" },
 

@@ -258,7 +258,7 @@
 	{:else}
 		<div class="anime-section__empty">
 			{#if animes.length === 0}
-				<Icon icon="material-symbols:live-tv-off-outline-rounded" aria-hidden="true" />
+				<Icon icon="material-symbols:tv-off-outline-rounded" aria-hidden="true" />
 				<span>{i18n(I18nKey.animeSyncEmpty)}</span>
 			{:else}
 				<Icon icon="material-symbols:search-off-outline-rounded" aria-hidden="true" />
