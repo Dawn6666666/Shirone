@@ -52,6 +52,10 @@ const { remarkPluginFrontmatter } = await render(entry);
 
 // 解析封面：本地相对路径 → 构建产物 URL（与 ImageWrapper 同法）
 let coverUrl = image;
+let coverSrcset: string | undefined;
+let coverAvifSrcset: string | undefined;
+let coverWidth: number | undefined;
+let coverHeight: number | undefined;
 if (image) {
 	const isLocal = !(
 		image.startsWith("/") ||
@@ -73,12 +77,35 @@ if (image) {
 		if (file) {
 			const mod = await file();
 			try {
-				const optimized = await getImage({
-					src: mod,
-					format: "webp",
-					width: 720,
-				});
-				coverUrl = optimized.src;
+				const widths = [
+					...new Set([
+						...[320, 480, 640].filter((width) => width <= mod.width),
+						Math.min(mod.width, 640),
+					]),
+				].sort((a, b) => a - b);
+				const createCandidates = async (
+					format: "avif" | "webp",
+					quality: number,
+				) =>
+					Promise.all(
+						widths.map(async (width) => ({
+							width,
+							image: await getImage({ src: mod, format, width, quality }),
+						})),
+					);
+				const [avif, webp] = await Promise.all([
+					createCandidates("avif", 55),
+					createCandidates("webp", 68),
+				]);
+				coverUrl = webp.at(-1)?.image.src ?? mod.src;
+				coverSrcset = webp
+					.map(({ image, width }) => `${image.src} ${width}w`)
+					.join(", ");
+				coverAvifSrcset = avif
+					.map(({ image, width }) => `${image.src} ${width}w`)
+					.join(", ");
+				coverWidth = mod.width;
+				coverHeight = mod.height;
 			} catch {
 				coverUrl = (mod as unknown as { src: string }).src;
 			}
@@ -110,6 +137,11 @@ const excerpt =
 	title={title}
 	description={excerpt}
 	image={coverUrl}
+	imageSrcset={coverSrcset}
+	imageAvifSrcset={coverAvifSrcset}
+	imageSizes="(max-width: 767px) calc(100vw - 4rem), (min-width: 1280px) 342px, 28vw"
+	imageWidth={coverWidth}
+	imageHeight={coverHeight}
 	published={formatDateToYYYYMMDD(published)}
 	updated={updated ? formatDateToYYYYMMDD(updated) : undefined}
 	pinned={pinned}

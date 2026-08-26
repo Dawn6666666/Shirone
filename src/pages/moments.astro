@@ -1,16 +1,44 @@
 ---
+import { getImage } from "astro:assets";
 import MomentSection from "@components/organisms/MomentSection.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { profileConfig } from "@/config";
-import { resolveAsset } from "@utils/asset-utils";
+import { resolveImageAsset } from "@utils/asset-utils";
 import { getSortedMoments } from "@utils/content-utils";
 
 const moments = await getSortedMoments();
+const avatarAsset = await resolveImageAsset(profileConfig.avatar ?? "");
+let avatar = typeof avatarAsset === "string" ? avatarAsset : avatarAsset.src;
+let avatarSrcset: string | undefined;
+let avatarWidth: number | undefined;
+let avatarHeight: number | undefined;
+if (typeof avatarAsset !== "string") {
+	const candidates = await Promise.all(
+		[64, 96].map(async (width) => ({
+			width,
+			image: await getImage({
+				src: avatarAsset,
+				width,
+				format: "webp",
+				quality: 72,
+			}),
+		})),
+	);
+	avatar = candidates[0].image.src;
+	avatarSrcset = candidates
+		.map(({ image, width }) => `${image.src} ${width}w`)
+		.join(", ");
+	avatarWidth = avatarAsset.width;
+	avatarHeight = avatarAsset.height;
+}
 const author = {
 	name: profileConfig.name,
-	avatar: await resolveAsset(profileConfig.avatar ?? ""),
+	avatar,
+	avatarSrcset,
+	avatarWidth,
+	avatarHeight,
 	url: "/about/",
 };
 ---

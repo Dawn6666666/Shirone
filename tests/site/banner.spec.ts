@@ -1,7 +1,13 @@
 import { expect, test } from "@playwright/test";
 import { resolveBannerState } from "../../src/utils/banner-state";
 
-const BANNER_ASSET = /\/assets\/banner\//;
+function isBannerAsset(value: string): boolean {
+	return /\/assets\/(?:images\/)?banner\//.test(decodeURIComponent(value));
+}
+
+function isBannerVariant(value: string, variant: "desktop" | "mobile"): boolean {
+	return decodeURIComponent(value).includes(`/banner/${variant}/`);
+}
 
 async function waitForBannerState(
 	page: import("@playwright/test").Page,
@@ -282,9 +288,15 @@ test.describe("banner wallpaper", () => {
 	}) => {
 		const response = await request.get("/");
 		expect(response.ok()).toBe(true);
-		expect(await response.text()).toContain(
+		const html = await response.text();
+		expect(html).toContain(
 			"特別なことはないけど、君がいると十分です",
 		);
+		expect(html).toContain("<picture");
+		expect(html).toContain('type="image/avif"');
+		expect(html).toContain("srcset=");
+		expect(html).toContain('fetchpriority="high"');
+		expect(html).not.toContain("/assets/banner/desktop/1.webp");
 	});
 
 	test("desktop exposes subtitle typewriter controls", async ({ page }) => {
@@ -327,7 +339,7 @@ test.describe("banner wallpaper", () => {
 	}) => {
 		const requests: string[] = [];
 		page.on("request", (request) => {
-			if (BANNER_ASSET.test(request.url())) requests.push(request.url());
+			if (isBannerAsset(request.url())) requests.push(request.url());
 		});
 
 		await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -346,12 +358,17 @@ test.describe("banner wallpaper", () => {
 			"top",
 			/^[4-9]\d{2}(\.\d+)?px$/,
 		);
-		expect(requests.some((request) => request.includes("/desktop/"))).toBe(
+		expect(requests.some((request) => isBannerVariant(request, "desktop"))).toBe(
 			true,
 		);
-		expect(requests.some((request) => request.includes("/mobile/"))).toBe(
+		expect(requests.some((request) => isBannerVariant(request, "mobile"))).toBe(
 			false,
 		);
+		expect(
+			await page
+				.locator(".banner-stage__image--front")
+				.evaluate((image) => image.getAnimations().length),
+		).toBe(0);
 	});
 
 	test("desktop progress moves below the app bar after leaving the Banner", async ({
@@ -377,7 +394,7 @@ test.describe("banner wallpaper", () => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		const requests: string[] = [];
 		page.on("request", (request) => {
-			if (BANNER_ASSET.test(request.url())) requests.push(request.url());
+			if (isBannerAsset(request.url())) requests.push(request.url());
 		});
 
 		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
@@ -396,7 +413,7 @@ test.describe("banner wallpaper", () => {
 		await page.setViewportSize({ width: 390, height: 844 });
 		const requests: string[] = [];
 		page.on("request", (request) => {
-			if (BANNER_ASSET.test(request.url())) requests.push(request.url());
+			if (isBannerAsset(request.url())) requests.push(request.url());
 		});
 
 		await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -404,8 +421,8 @@ test.describe("banner wallpaper", () => {
 		await expectWavesAnimated(page, true);
 		await expectBannerOverlap(page);
 		await expectWaveGeometry(page, "0.72");
-		expect(requests.some((request) => request.includes("/mobile/"))).toBe(true);
-		expect(requests.some((request) => request.includes("/desktop/"))).toBe(
+		expect(requests.some((request) => isBannerVariant(request, "mobile"))).toBe(true);
+		expect(requests.some((request) => isBannerVariant(request, "desktop"))).toBe(
 			false,
 		);
 	});
@@ -421,7 +438,7 @@ test.describe("banner wallpaper", () => {
 		await expectWaveGeometry(page, "1");
 	});
 
-	test("solid preference persists and avoids all banner requests", async ({
+	test("solid preference persists after SSR banner discovery", async ({
 		page,
 	}) => {
 		await page.addInitScript(() =>
@@ -429,7 +446,7 @@ test.describe("banner wallpaper", () => {
 		);
 		const requests: string[] = [];
 		page.on("request", (request) => {
-			if (BANNER_ASSET.test(request.url())) requests.push(request.url());
+			if (isBannerAsset(request.url())) requests.push(request.url());
 		});
 
 		await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -437,7 +454,8 @@ test.describe("banner wallpaper", () => {
 		await expect(page.locator("#banner-wrapper")).toBeHidden();
 		await expect(page.locator(".banner-waves")).toBeHidden();
 		await expectCompactTop(page);
-		expect(requests).toEqual([]);
+		expect(requests).toHaveLength(1);
+		expect(isBannerVariant(requests[0], "desktop")).toBe(true);
 	});
 
 	test("display settings switches modes immediately and persists", async ({

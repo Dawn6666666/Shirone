@@ -7,6 +7,18 @@ import { expect, test } from "@playwright/test";
 test.describe("Site post", () => {
 	test.use({ viewport: { width: 1280, height: 900 } });
 
+	test("guide cover is eager and responsive", async ({ page }) => {
+		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
+
+		const picture = page.locator("#post-cover picture");
+		const image = picture.locator("img");
+		await expect(picture.locator('source[type="image/avif"]')).toHaveCount(1);
+		await expect(picture.locator('source[type="image/webp"]')).toHaveCount(1);
+		await expect(image).toHaveAttribute("loading", "eager");
+		await expect(image).toHaveAttribute("fetchpriority", "high");
+		await expect(image).toHaveAttribute("srcset", /360w.*720w.*1080w.*1440w/);
+	});
+
 	test("copy link writes the post URL and shows a snackbar", async ({
 		page,
 		context,

@@ -121,6 +121,7 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 						<Component
 							widget={widget}
 							headings={widget.type === "toc" ? headings : undefined}
+							priority={widget.type === "profile" && currentPage === "about"}
 						/>
 					</div>
 				);
@@ -147,6 +148,7 @@ const hasVisibleSticky = stickyWidgets.some(isVisible);
 						<Component
 							widget={widget}
 							headings={widget.type === "toc" ? headings : undefined}
+							priority={widget.type === "profile" && currentPage === "about"}
 							class="onload-animation"
 							style={`animation-delay: ${animationDelay(index)}`}
 						/>

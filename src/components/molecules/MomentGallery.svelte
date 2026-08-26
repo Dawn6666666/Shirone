@@ -101,6 +101,22 @@
 		return `${i18n(I18nKey.openImage)} ${i + 1}`;
 	}
 
+	function thumbnailSrc(image: MomentImage) {
+		return image.thumbnailSrc ?? image.src;
+	}
+
+	function tileSizes(i: number) {
+		if (gridVariant === "single")
+			return "(max-width: 639px) calc(100vw - 6.25rem), 480px";
+		if (gridVariant === "pair")
+			return "(max-width: 639px) calc((100vw - 6.75rem) / 2), 240px";
+		if (gridVariant === "mosaic" && i === 0)
+			return "(max-width: 639px) calc((100vw - 6.75rem) * 0.66), 320px";
+		if (gridVariant === "mosaic")
+			return "(max-width: 639px) calc((100vw - 6.75rem) * 0.33), 160px";
+		return "(max-width: 639px) calc((100vw - 7.25rem) / 3), 200px";
+	}
+
 	// 打开时聚焦查看器容器（键盘立即可用）
 	$effect(() => {
 		if (viewing) viewerEl?.focus();
@@ -194,7 +210,14 @@
 					aria-current={i === index}
 					onclick={() => (index = i)}
 				>
-					<img src={image.src} alt="" loading="lazy" decoding="async" />
+					<img
+						src={thumbnailSrc(image)}
+						srcset={image.thumbnailSrcset}
+						sizes="56px"
+						alt=""
+						loading="lazy"
+						decoding="async"
+					/>
 				</button>
 			{/each}
 		</div>
@@ -216,7 +239,9 @@
 					</span>
 				{/if}
 				<img
-					src={image.src}
+					src={thumbnailSrc(image)}
+					srcset={image.thumbnailSrcset}
+					sizes={tileSizes(i)}
 					alt={image.alt}
 					loading="lazy"
 					decoding="async"

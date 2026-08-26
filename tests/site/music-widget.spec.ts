@@ -99,6 +99,46 @@ test.describe("music sidebar architecture", () => {
 		});
 		expect(hasMusicStyles).toBe(false);
 	});
+
+	test("mixed provider does not request Meting before playback or playlist intent", async ({
+		page,
+	}) => {
+		test.skip(
+			musicConfig.provider !== "mixed",
+			"Local configuration is not using the mixed provider",
+		);
+		let metingRequests = 0;
+		await page.route("**/meting/**", async (route) => {
+			metingRequests += 1;
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: "[]",
+			});
+		});
+
+		await page.goto("/", { waitUntil: "networkidle" });
+		expect(metingRequests).toBe(0);
+		await page.locator("[data-music-player] .music-player__playlist-toggle").click();
+		await expect.poll(() => metingRequests).toBe(1);
+	});
+
+	test("local covers are emitted as optimized Astro assets", async ({ page }) => {
+		test.skip(
+			musicConfig.provider !== "local" && musicConfig.provider !== "mixed",
+			"Local configuration is not using local tracks",
+		);
+
+		await page.goto("/");
+		const cover = page.locator("[data-music-player] .music-player__cover img");
+		const src = await cover.getAttribute("src");
+		const srcset = await cover.getAttribute("srcset");
+		expect(src).toMatch(/^\/(?:_astro\/|_image\/\?)/);
+		expect(src).not.toContain("/assets/music/cover/");
+		expect(srcset).toContain(" 64w, ");
+		expect(srcset).toContain(" 128w");
+		await expect(cover).toHaveAttribute("sizes", "52px");
+	});
 });
 
 test.describe("music sidebar client", () => {
@@ -263,10 +303,12 @@ test.describe("music sidebar client", () => {
 		expect(creations).toBe(1);
 	});
 
-	test("meting mode dynamically fetches tracks and hydates playlist smoothly", async ({
+	test("meting mode waits for user intent before fetching and hydrates the playlist", async ({
 		page,
 	}) => {
+		let metingRequests = 0;
 		await page.route("**/meting/**", async (route) => {
+			metingRequests += 1;
 			await route.fulfill({
 				status: 200,
 				contentType: "application/json",
@@ -298,6 +340,9 @@ test.describe("music sidebar client", () => {
 			defaultMode: "sequence",
 		});
 
+		expect(metingRequests).toBe(0);
+		const toggle = page.locator(".music-player__playlist-toggle");
+		await toggle.click();
 		await expect(
 			page.locator("#music-client-test-host .music-player__metadata strong"),
 		).toHaveText("Remote Anime Song", { timeout: 5000 });
@@ -305,8 +350,7 @@ test.describe("music sidebar client", () => {
 			page.locator("#music-client-test-host .music-player__metadata > span"),
 		).toHaveText("Remote Singer");
 
-		const toggle = page.locator(".music-player__playlist-toggle");
-		await toggle.click();
+		expect(metingRequests).toBe(1);
 		await expect(page.locator("#sidebar-music-playlist")).toBeVisible();
 		await expect(
 			page.getByRole("button", { name: /Second Remote Song/ }),

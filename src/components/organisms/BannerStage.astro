@@ -1,6 +1,7 @@
 ---
+import { getImage } from "astro:assets";
 import BannerWaves from "@components/molecules/BannerWaves.astro";
-import { resolveAsset } from "@utils/asset-utils";
+import { resolveImageAsset } from "@utils/asset-utils";
 import { url } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import { siteConfig } from "@/config";
@@ -26,17 +27,70 @@ const initialLabel =
 		? normalizedTitle
 		: siteConfig.banner.homeText.title;
 
-const resolveBannerUrl = async (src: string) => {
-	const resolved = await resolveAsset(src);
-	return resolved.startsWith("/") ? url(resolved) : resolved;
+interface ResponsiveBannerImage {
+	fallback: string;
+	avifSrcset: string;
+	webpSrcset: string;
+	width?: number;
+	height?: number;
+}
+
+const optimizeBannerImage = async (
+	src: string,
+	viewport: "desktop" | "mobile",
+): Promise<ResponsiveBannerImage> => {
+	const resolved = await resolveImageAsset(src);
+	if (typeof resolved === "string") {
+		return {
+			fallback: resolved.startsWith("/") ? url(resolved) : resolved,
+			avifSrcset: "",
+			webpSrcset: "",
+		};
+	}
+
+	const requestedWidths =
+		viewport === "desktop" ? [1280, 1600, 1920] : [640, 828, 1080];
+	const widths = [
+		...new Set([
+			...requestedWidths.filter((width) => width <= resolved.width),
+			Math.min(requestedWidths.at(-1) ?? resolved.width, resolved.width),
+		]),
+	].sort((a, b) => a - b);
+	const createCandidates = async (format: "avif" | "webp", quality: number) =>
+		Promise.all(
+			widths.map(async (width) => ({
+				width,
+				image: await getImage({ src: resolved, width, format, quality }),
+			})),
+		);
+	const [avif, webp] = await Promise.all([
+		createCandidates("avif", 55),
+		createCandidates("webp", 68),
+	]);
+	const fallback = webp.at(-1)?.image.src ?? resolved.src;
+	return {
+		fallback,
+		avifSrcset: avif
+			.map(({ image, width }) => `${image.src} ${width}w`)
+			.join(", "),
+		webpSrcset: webp
+			.map(({ image, width }) => `${image.src} ${width}w`)
+			.join(", "),
+		width: resolved.width,
+		height: resolved.height,
+	};
 };
 
-const desktopImages = await Promise.all(
-	siteConfig.banner.src.desktop.map(resolveBannerUrl),
+const desktopResponsiveImages = await Promise.all(
+	siteConfig.banner.src.desktop.map((src) =>
+		optimizeBannerImage(src, "desktop"),
+	),
 );
-const mobileImages = await Promise.all(
-	siteConfig.banner.src.mobile.map(resolveBannerUrl),
+const mobileResponsiveImages = await Promise.all(
+	siteConfig.banner.src.mobile.map((src) => optimizeBannerImage(src, "mobile")),
 );
+const desktopImages = desktopResponsiveImages.map(({ fallback }) => fallback);
+const mobileImages = mobileResponsiveImages.map(({ fallback }) => fallback);
 const dimOpacity = Math.min(Math.max(siteConfig.banner.dim.opacity, 0), 1);
 const rawSubtitles = siteConfig.banner.homeText.subtitle;
 const subtitleArray = Array.isArray(rawSubtitles)
@@ -52,6 +106,10 @@ const carouselAnimation = siteConfig.banner.carousel?.animation ?? "ken-burns";
 const initialDesktopSrc = desktopImages[0] ?? "";
 const initialMobileSrc = mobileImages[0] ?? "";
 const initialSrc = initialDesktopSrc || initialMobileSrc;
+const initialDesktopImage = desktopResponsiveImages[0];
+const initialMobileImage = mobileResponsiveImages[0];
+const initialImage = initialDesktopImage ?? initialMobileImage;
+const initialMobileBanner = page === "home";
 ---
 
 <section
@@ -77,15 +135,37 @@ const initialSrc = initialDesktopSrc || initialMobileSrc;
 	data-subtitle-typewriter-pause-time={String(Math.max(typewriter.pauseTime ?? 2000, 0))}
 >
 	<div class="banner-stage__media" aria-hidden="true">
-		<img
-			class="banner-stage__image banner-stage__image--front banner-stage__image--active"
-			src={initialSrc || undefined}
-			fetchpriority="high"
-			loading="eager"
-			decoding="async"
-			alt=""
-			style={`object-position: ${siteConfig.banner.position ?? "center"};`}
-		/>
+		<picture>
+			{initialDesktopImage?.avifSrcset && (
+				<source media="(min-width: 1024px)" type="image/avif" srcset={initialDesktopImage.avifSrcset} sizes="100vw" />
+			)}
+			{initialDesktopImage?.webpSrcset && (
+				<source media="(min-width: 1024px)" type="image/webp" srcset={initialDesktopImage.webpSrcset} sizes="100vw" />
+			)}
+			{initialDesktopImage && !initialDesktopImage.avifSrcset && !initialDesktopImage.webpSrcset && (
+				<source media="(min-width: 1024px)" srcset={initialDesktopImage.fallback} />
+			)}
+			{initialMobileBanner && initialMobileImage?.avifSrcset && (
+				<source media="(max-width: 1023.98px)" type="image/avif" srcset={initialMobileImage.avifSrcset} sizes="100vw" />
+			)}
+			{initialMobileBanner && initialMobileImage?.webpSrcset && (
+				<source media="(max-width: 1023.98px)" type="image/webp" srcset={initialMobileImage.webpSrcset} sizes="100vw" />
+			)}
+			{initialMobileBanner && initialMobileImage && !initialMobileImage.avifSrcset && !initialMobileImage.webpSrcset && (
+				<source media="(max-width: 1023.98px)" srcset={initialMobileImage.fallback} />
+			)}
+			<img
+				class="banner-stage__image banner-stage__image--front banner-stage__image--active"
+				src={initialMobileBanner ? initialSrc || undefined : undefined}
+				width={initialImage?.width}
+				height={initialImage?.height}
+				fetchpriority="high"
+				loading="eager"
+				decoding="async"
+				alt=""
+				style={`object-position: ${siteConfig.banner.position ?? "center"};`}
+			/>
+		</picture>
 		<img class="banner-stage__image banner-stage__image--back" alt="" />
 	</div>
 	{siteConfig.banner.dim.enable && (
@@ -400,13 +480,21 @@ const initialSrc = initialDesktopSrc || initialMobileSrc;
 	function preloadNext(images: string[], index: number) {
 		if (images.length < 2) return;
 		const schedulePreload = () => {
-			runtime.preloaded = new Image();
-			runtime.preloaded.src = images[(index + 1) % images.length];
+			const load = () => {
+				runtime.preloaded = new Image();
+				runtime.preloaded.src = images[(index + 1) % images.length];
+			};
+			if (typeof window.requestIdleCallback === "function") {
+				window.requestIdleCallback(load, { timeout: 3000 });
+			} else {
+				window.setTimeout(load, 1500);
+			}
 		};
-		if (typeof window.requestIdleCallback === "function") {
-			window.requestIdleCallback(schedulePreload, { timeout: 3000 });
+		const current = layers[runtime.activeLayer];
+		if (current && !current.complete) {
+			current.addEventListener("load", schedulePreload, { once: true });
 		} else {
-			window.setTimeout(schedulePreload, 1500);
+			schedulePreload();
 		}
 	}
 
@@ -462,12 +550,16 @@ const initialSrc = initialDesktopSrc || initialMobileSrc;
 		const preset = getAnimationPreset();
 
 		runtime.layerMotions[nextLayer]?.cancel();
-		runtime.layerMotions[nextLayer] = playBannerMotion({
-			element: next,
-			preset,
-			index: runtime.activeIndex,
-			durationMs: motionDuration,
-		});
+		const startMotion = () => {
+			if (runtime.activeLayer !== nextLayer || prefersReducedMotion()) return;
+			runtime.layerMotions[nextLayer]?.cancel();
+			runtime.layerMotions[nextLayer] = playBannerMotion({
+				element: next,
+				preset,
+				index: runtime.activeIndex,
+				durationMs: motionDuration,
+			});
+		};
 
 		if (immediate || prefersReducedMotion()) {
 			for (let i = 0; i < layers.length; i += 1) {
@@ -487,6 +579,7 @@ const initialSrc = initialDesktopSrc || initialMobileSrc;
 			previous.classList.add("banner-stage__image--fading");
 		}
 		runtime.activeLayer = nextLayer;
+		if (!immediate) startMotion();
 	}
 
 	function scheduleRotation(images: string[]) {

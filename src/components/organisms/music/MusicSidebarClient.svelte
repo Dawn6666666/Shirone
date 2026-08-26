@@ -122,7 +122,6 @@ onMount(() => {
 		unsubscribe = runtime.subscribe((next) => {
 			snapshot = next;
 		});
-		void runtime.initialize();
 	});
 	return () => {
 		active = false;
@@ -140,6 +139,11 @@ function cycleMode(): void {
 	const modes: PlaybackMode[] = ["sequence", "repeat-one", "shuffle"];
 	const index = modes.indexOf(snapshot.mode);
 	runtime?.setMode(modes[(index + 1) % modes.length]);
+}
+
+function togglePlaylist(): void {
+	playlistOpen = !playlistOpen;
+	if (playlistOpen) void runtime?.initialize();
 }
 
 function onProgressPointerDown(): void {
@@ -181,6 +185,10 @@ function setVolume(event: Event): void {
 				{#if snapshot.currentTrack?.cover}
 					<img
 						src={snapshot.currentTrack.cover}
+						srcset={snapshot.currentTrack.coverSrcset}
+						sizes={snapshot.currentTrack.coverSizes}
+						width={snapshot.currentTrack.coverWidth}
+						height={snapshot.currentTrack.coverHeight}
 						alt=""
 						loading="lazy"
 						decoding="async"
@@ -285,7 +293,7 @@ function setVolume(event: Event): void {
 					size="medium"
 					toggle
 					checked={playing}
-					disabled={!hasTracks}
+					disabled={!hasTracks && options.provider !== "meting"}
 					onclick={() => void runtime?.toggle()}
 				/>
 			</Tooltip>
@@ -306,8 +314,8 @@ function setVolume(event: Event): void {
 					class="music-player__playlist-toggle"
 					ariaExpanded={playlistOpen}
 					ariaControls={playlistId}
-					disabled={!hasTracks}
-					onclick={() => (playlistOpen = !playlistOpen)}
+					disabled={!hasTracks && options.provider !== "meting"}
+					onclick={togglePlaylist}
 				/>
 			</Tooltip>
 		</div>

@@ -120,6 +120,9 @@ export async function getCategoryList(): Promise<Category[]> {
 export type MomentImage = {
 	src: string;
 	alt: string;
+	/** Responsive list thumbnail; the original src remains the viewer/lightbox source. */
+	thumbnailSrc?: string;
+	thumbnailSrcset?: string;
 };
 
 export type MomentItem = {
@@ -140,6 +143,25 @@ export type MomentItem = {
 let momentsRendererPromise: ReturnType<
 	typeof siteMarkdownProcessor.createRenderer
 > | null = null;
+
+const MOMENT_THUMBNAIL_WIDTHS = [192, 384, 640] as const;
+
+function withMomentThumbnails(image: MomentImage): MomentImage {
+	const match = image.src.match(/^\/images\/moments\/(.+)\.([^./]+)$/i);
+	if (!match) return image;
+	const [, relativePath] = match;
+	const candidates = MOMENT_THUMBNAIL_WIDTHS.map((width) => ({
+		width,
+		src: `/assets/moments/thumbnails/${relativePath}-${width}.webp`,
+	}));
+	return {
+		...image,
+		thumbnailSrc: candidates.find(({ width }) => width === 384)?.src,
+		thumbnailSrcset: candidates
+			.map(({ src, width }) => `${src} ${width}w`)
+			.join(", "),
+	};
+}
 
 export async function getSortedMoments(): Promise<MomentItem[]> {
 	const entries = await getCollection("moments", ({ data }) => {
@@ -169,7 +191,7 @@ export async function getSortedMoments(): Promise<MomentItem[]> {
 				location: entry.data.location,
 				mood: entry.data.mood,
 				tags: entry.data.tags,
-				images: entry.data.images,
+				images: entry.data.images.map(withMomentThumbnails),
 			} satisfies MomentItem;
 		}),
 	);

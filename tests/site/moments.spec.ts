@@ -26,6 +26,10 @@ test.describe("动态页", () => {
 		// 作者区（头像 + 名字）链到关于页
 		await expect(first.locator(".moment-card__author")).toHaveAttribute("href", "/about/");
 		await expect(first.locator(".moment-card__name")).toHaveText("Shirone");
+		await expect(first.locator(".moment-card__author img")).toHaveAttribute(
+			"srcset",
+			/ 64w, .* 96w/,
+		);
 		// 时间为 <time datetime>，倒序排列
 		await expect(first.locator("time.moment-card__time")).toHaveAttribute(
 			"datetime",
@@ -53,6 +57,15 @@ test.describe("动态页", () => {
 		const trio = page.locator(".moment-card__gallery--trio");
 		await expect(trio.locator(".moment-card__tile")).toHaveCount(6);
 		await expect(trio.locator(".moment-card__more")).toHaveText("+1");
+		const thumbnail = mosaic.locator(".moment-card__tile img").first();
+		await expect(thumbnail).toHaveAttribute(
+			"src",
+			/assets\/moments\/thumbnails\/.*-384\.webp/,
+		);
+		await expect(thumbnail).toHaveAttribute(
+			"srcset",
+			/-192\.webp 192w.*-640\.webp 640w/,
+		);
 	});
 
 	test("两段式看图：瓦片 → 内联查看器（切换/键盘/收起/焦点返回）", async ({ page }) => {
@@ -61,6 +74,10 @@ test.describe("动态页", () => {
 		const viewer = page.locator(".moment-viewer");
 		await expect(viewer).toBeVisible();
 		await expect(viewer.locator(".moment-viewer__counter")).toHaveText("1 / 3");
+		await expect(viewer.locator(".moment-viewer__stage-btn img")).toHaveAttribute(
+			"src",
+			/images\/moments\//,
+		);
 		// 缩略图条 3 项，首项 active
 		await expect(viewer.locator(".moment-viewer__thumb")).toHaveCount(3);
 		await expect(viewer.locator(".moment-viewer__thumb--active")).toHaveCount(1);

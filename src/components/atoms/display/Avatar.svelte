@@ -5,6 +5,12 @@
 	 */
 	let {
 		src = "",
+		srcset,
+		sizes,
+		width,
+		height,
+		loading = "lazy",
+		fetchPriority,
 		alt = "",
 		/** 直径（px），默认 40 */
 		size = 40,
@@ -15,6 +21,12 @@
 		class: className = "",
 	}: {
 		src?: string;
+		srcset?: string;
+		sizes?: string;
+		width?: number;
+		height?: number;
+		loading?: "lazy" | "eager";
+		fetchPriority?: "high" | "low" | "auto";
 		alt?: string;
 		size?: number;
 		shape?: "circle" | "rounded" | "square";
@@ -34,7 +46,18 @@
 	aria-label={alt || undefined}
 >
 	{#if src && !failed}
-		<img src={src} alt={alt} loading="lazy" onerror={() => (failed = true)} />
+		<img
+			src={src}
+			{srcset}
+			{sizes}
+			{width}
+			{height}
+			alt={alt}
+			{loading}
+			fetchpriority={fetchPriority}
+			decoding="async"
+			onerror={() => (failed = true)}
+		/>
 	{:else}
 		<span class="m3-avatar__fallback">{initial}</span>
 	{/if}

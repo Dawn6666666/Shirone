@@ -26,6 +26,11 @@ export interface TrackDescriptor {
 	readonly artist?: string;
 	readonly source: string;
 	readonly cover?: string;
+	/** 构建期生成的封面候选；远程 Meting 曲目保持为空。 */
+	readonly coverSrcset?: string;
+	readonly coverSizes?: string;
+	readonly coverWidth?: number;
+	readonly coverHeight?: number;
 	readonly duration?: number;
 }
 
