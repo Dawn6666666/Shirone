@@ -8,6 +8,19 @@ import { test, expect } from "@playwright/test";
  * 若图标消失，改回 icon prop 就会让本文件失败。
  */
 test.describe("SSR 图标渲染", () => {
+	test("首页及设置交互不请求 Iconify API", async ({ page }) => {
+		const requests: string[] = [];
+		page.on("request", (request) => {
+			if (request.url().startsWith("https://api.iconify.design/")) {
+				requests.push(request.url());
+			}
+		});
+		await page.goto("/", { waitUntil: "networkidle" });
+		await page.locator("#display-settings-switch").click();
+		await expect(page.locator("#display-settings-switch svg")).toBeVisible();
+		expect(requests).toEqual([]);
+	});
+
 	test("首页顶栏按钮图标可见（移动端汉堡 + 桌面端设置）", async ({ page }) => {
 		// 移动视口：汉堡按钮可见
 		await page.setViewportSize({ width: 375, height: 720 });

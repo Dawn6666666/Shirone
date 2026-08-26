@@ -209,13 +209,13 @@ window.__loadPagefind = function() {
 function bindSearchTriggers() {
 	const triggers = [
 		document.getElementById('search-input-desktop'),
-		document.getElementById('search-switch'),
-		document.querySelector('.top-app-bar__search-shell')
+		document.getElementById('search-switch')
 	];
 	for (const el of triggers) {
 		if (!el) continue;
+		if (el.dataset.pagefindBound === 'true') continue;
+		el.dataset.pagefindBound = 'true';
 		el.addEventListener('focus', window.__loadPagefind, { once: true, passive: true });
-		el.addEventListener('pointerenter', window.__loadPagefind, { once: true, passive: true });
 		el.addEventListener('click', window.__loadPagefind, { once: true, passive: true });
 	}
 }
