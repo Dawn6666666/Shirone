@@ -226,14 +226,14 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 		&:active
 			transform: scale(0.96)
 
-		&--current
+		&-current
 			font-weight: 700
 			color: var(--primary)
 
-		&--sep
+		&-sep
 			color: var(--on-surface-variant)
 
-		&--total
+		&-total
 			color: var(--on-surface-variant)
 			font-variant-numeric: tabular-nums
 
@@ -308,24 +308,26 @@ const pageLabel = (p: number) => labels.page.replace("{page}", String(p));
 		);
 		if (!btn) return;
 
+		const current = btn.dataset.current || "1";
 		const total = Number(btn.dataset.total || "1");
 		const template = btn.dataset.hrefTemplate || "";
 		const first = btn.dataset.hrefFirst || "/";
 		const btnLabel = btn.getAttribute("aria-label") || "";
 
-		const restore = () => {
-			const wrapper = btn.parentElement;
-			if (!wrapper) return;
-			const input = wrapper.querySelector(".m3-blog-pagination__jump-input");
-			if (input) input.replaceWith(btn);
-		};
-
 		const input = document.createElement("input");
 		input.type = "text";
 		input.inputMode = "numeric";
 		input.maxLength = String(total).length;
+		input.value = current;
 		input.className = "m3-blog-pagination__jump-input";
 		input.setAttribute("aria-label", btnLabel);
+
+		const restore = () => {
+			if (input.parentElement) {
+				input.replaceWith(btn);
+			}
+		};
+
 		btn.replaceWith(input);
 		input.focus();
 		input.select();
