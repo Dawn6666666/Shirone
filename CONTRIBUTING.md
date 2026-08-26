@@ -1,21 +1,150 @@
+# Contributing to Shirone
 
-# Contributing
+Thank you for your interest in Shirone. Contributions of all sizes are welcome, including bug reports, documentation improvements, translations, accessibility fixes, performance work, and new features that benefit the theme as a whole.
 
-Thank you for your interest in contributing!
+## Ways to Contribute
 
-## Before You Start
+- Report a reproducible bug.
+- Improve documentation or translations.
+- Fix accessibility, responsive layout, or browser compatibility issues.
+- Add tests for existing behavior.
+- Propose a feature that fits Shirone's direction as an expressive, content-focused blog theme.
 
-If you plan to make major changes (especially new features or design changes), please open an issue or discussion before starting work. This helps ensure your effort aligns with the project's direction.
+If you are planning a large feature, visual redesign, breaking configuration change, new dependency, or third-party integration, please open an issue or discussion first. This gives maintainers and contributors a chance to agree on the direction before implementation begins.
 
-## Submitting Code
+Changes that only replace the demo profile, posts, links, or artwork for one personal site are best kept in your own fork.
 
-Please keep each pull request focused on a single purpose. Avoid mixing unrelated changes in one PR, as this can make reviewing and merging code more difficult.
+## Local Development
 
-Please use the [Conventional Commits](https://www.conventionalcommits.org/) format for your commit messages whenever possible. This keeps our history clear and consistent.
-
-Before submitting code, please run the appropriate commands to check for errors and format your code.
+You will need Node.js 22.12 or newer and pnpm 9.x. The repository currently pins `pnpm@9.14.4`.
 
 ```bash
-pnpm check
-pnpm format
+git clone https://github.com/<your-name>/Shirone.git
+cd Shirone
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
 ```
+
+The development server is available at `http://localhost:4321` by default.
+
+On Windows PowerShell, use `pnpm.cmd` and `npx.cmd` if the script execution policy prevents the commands above from running.
+
+## Project Guidelines
+
+Please keep changes focused and follow the patterns already used in the surrounding code. The following guidelines cover the parts of Shirone that most often affect contributions.
+
+### Components and data
+
+Shirone uses an atomic component structure:
+
+```text
+atoms -> molecules -> organisms -> layouts -> pages
+```
+
+Dependencies should follow this direction. Reusable UI belongs in the lower layers, while route state, content queries, browser persistence, and other application behavior belong in organisms, utilities, layouts, or pages.
+
+Use `@components/<layer>/<file>` for cross-layer imports. When adding, moving, or removing an atom, update `src/components/atoms/manifest.json` in the same change.
+
+See [`docs/atomic-structure.md`](./docs/atomic-structure.md) and [`rules/component-api.md`](./rules/component-api.md) for the complete component guidelines.
+
+### Rendering and navigation
+
+Static content should remain useful without client-side JavaScript. Hydrate an Astro component only when its interaction requires browser code, and use `astro-icon` for icons rendered on pure SSR paths.
+
+Shirone uses Swup for in-site navigation. Elements outside `#swup-container` remain mounted between pages, so route-dependent behavior must work both on a direct page load and after client navigation.
+
+When editing Svelte components, follow the syntax already used by that file and do not mix runes with legacy reactive syntax. Stylus selectors should also follow the existing structure to avoid accidental selector concatenation.
+
+### Design and accessibility
+
+For visual changes, read [`DESIGN.md`](./DESIGN.md) and [`docs/m3e-standard.md`](./docs/m3e-standard.md).
+
+- Use the existing semantic tokens for colors, typography, shapes, elevation, and motion.
+- Keep light and dark themes consistent.
+- Respect reduced-motion preferences.
+- Preserve keyboard access, visible focus, native semantics, and accessible names.
+- Avoid unrelated visual or formatting changes in the same pull request.
+
+Accessibility guidance is available in [`rules/a11y.md`](./rules/a11y.md).
+
+### Text and translations
+
+User-facing interface text must use the i18n system instead of being written directly in a component. Add new keys to `src/i18n/i18nKey.ts` and provide translations in every locale module under `src/i18n/languages/`. Keep placeholder names consistent across languages.
+
+Documentation translations should preserve commands, paths, links, and technical meaning while reading naturally in the target language.
+
+### Configuration and optional features
+
+Configuration values live in `src/config/`, with their shared types under `src/types/`. New optional fields should have backward-compatible defaults so existing sites and posts continue to build without migration work.
+
+Optional integrations must remain lightweight when disabled. A disabled feature should not render empty containers, request third-party resources, shift the layout, or add its SDK to the main bundle. Load external code only after the feature has been enabled and its configuration is valid.
+
+Read [`src/config/README.md`](./src/config/README.md) before changing configuration, and [`docs/on-demand-loading.md`](./docs/on-demand-loading.md) before adding an optional integration.
+
+## Testing Your Changes
+
+Run Astro diagnostics before submitting any code change:
+
+```bash
+npx astro check
+```
+
+It must complete with zero errors. On Windows PowerShell, run `npx.cmd astro check`.
+
+Choose the additional checks that match your change:
+
+| Change | Suggested checks |
+| --- | --- |
+| TypeScript or shared APIs | `pnpm type-check` |
+| Atom files or manifest metadata | `pnpm check:manifest` |
+| Source formatting | `pnpm exec biome ci ./src` |
+| Page or component behavior | The smallest relevant Playwright test, plus `tests/site/a11y.spec.ts` |
+| Icons | `npx playwright test tests/site/icons.spec.ts` |
+| Content processing or configuration | `pnpm build` |
+| Performance-sensitive work | `pnpm run perf:measure` and the relevant Lighthouse audit |
+
+For a focused site test, use:
+
+```bash
+npx playwright test tests/site/<spec>.spec.ts
+```
+
+`pnpm lint` and `pnpm format` modify files. Use `pnpm exec biome ci ./src` when you only want to check formatting without rewriting source files.
+
+UI changes should be checked at relevant desktop and mobile sizes in both light and dark themes. Include `tests/site/a11y.spec.ts`, and add screenshots to the pull request when the visual difference is intentional.
+
+## Commits
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) with a concise English subject:
+
+```text
+feat(search): add result filters
+fix(sidebar): sync widgets after navigation
+docs(config): clarify music provider setup
+test(article): cover encrypted post fallback
+refactor(theme): simplify token resolution
+```
+
+Keep each commit centered on one concern and review the staged diff before committing. Generated build output, test reports, local environment files, credentials, and unrelated personal content should not be included.
+
+## Pull Requests
+
+Before opening a pull request:
+
+1. Rebase or update your branch against the current default branch.
+2. Review the complete diff and remove unrelated changes.
+3. Run the checks relevant to your work.
+4. Confirm that existing configuration and content remain compatible.
+
+In the pull request description, explain:
+
+- what problem the change solves;
+- how the behavior changed;
+- which commands you used to verify it;
+- whether it affects configuration, accessibility, performance, or existing content;
+- which issue it closes, when applicable.
+
+For visual changes, include before-and-after screenshots and note the tested viewport and theme. A reviewer may ask for additional tests or documentation when a change affects shared components or public configuration.
+
+By submitting a contribution, you agree that it may be distributed under the repository's [MIT License](./LICENSE).
