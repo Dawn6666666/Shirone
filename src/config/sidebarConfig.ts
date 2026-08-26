@@ -1,13 +1,23 @@
 /**
  * 侧边栏布局配置（数据驱动编排）。
- * widget 编排：type 对应 SideBar.astro componentMap 中注册的组件，
- * slot 决定 top（固定顶部）还是 sticky（跟随滚动），
- * 渲染顺序 = 数组顺序（top 恒在 sticky 之前）。
- * arrangement 控制单/双栏：
- * - "single"（默认）：全部 widget 渲染进唯一侧栏；
- * - "dual"：column: "secondary" 的 widget 进入副栏（xl 1280px 起），
- *   lg→xl 之间自动退回单栏；side 决定主栏在左还是在右，副栏落对面。
- * 类型见 src/types/sidebarConfig.ts（判别联合，新增 widget 先扩展联合分支）。
+ *
+ * 【核心概念】
+ * 1. arrangement（侧栏编排模式）：
+ *    - "single"（单栏，默认）：所有 widget 放入主侧栏，适合紧凑布局（页框 85rem）；
+ *    - "dual"（双栏）：column: "secondary" 的 widget 放入副侧栏（视口 ≥ 1280px 展开三列，页框 96rem），
+ *      在 1024px~1279px 之间会自动优雅退化为单栏，无需手动适配。
+ * 2. side（主栏物理位置）：
+ *    - "left"：主侧栏在左侧（默认），dual 模式下副栏自动落右侧；
+ *    - "right"：主侧栏在右侧，dual 模式下副栏落左侧。
+ * 3. widget 属性：
+ *    - type：组件类型（"profile" | "music" | "announcement" | "categories" | "tags" | "stats" | "calendar" | "toc"）；
+ *    - enable：是否启用该 widget；
+ *    - slot："top"（固定在顶部）| "sticky"（页面滚动时吸顶跟随）；
+ *    - column："primary"（主栏，默认）| "secondary"（副栏，仅在 arrangement: "dual" 时生效）；
+ *    - pages：仅在指定页面展示（如 ["home", "post"]，省略时默认全页面展示）；
+ *    - collapseAfter：折叠阈值（适用于 categories/tags，超出条数显示展开按钮）。
+ *
+ * 类型定义见 src/types/sidebarConfig.ts。
  */
 import type { SidebarConfig } from "@/types/sidebarConfig";
 

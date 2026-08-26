@@ -1,9 +1,19 @@
 import type { PostCardWidth, PostListConfig } from "@/types/postListConfig";
 
 /**
- * 文章列表配置：分页大小与布局（list/grid × 封面位置 × 卡片宽度档位）。
- * 访客可在设置面板运行时切换 list/grid（localStorage `post-list-mode`，
- * 见 utils/layout-mode.ts），此处 mode 是站点默认值。
+ * 文章列表页配置：分页大小与排版布局。
+ *
+ * 【核心配置项】
+ * - pageSize：每页展示的文章数量（默认 8 篇）；
+ * - layout：
+ *   - mode："list"（经典纵向列表）| "grid"（双列/三列卡片网格）；
+ *   - cover："left"（封面在左）| "right"（封面在右，默认）；
+ *   - cardWidth（仅在 grid 模式下生效）：
+ *     - "compact"：紧凑卡片（最小宽 20rem，适合高密度展示）；
+ *     - "regular"：标准卡片（最小宽 24rem，默认推荐）；
+ *     - "relaxed"：宽松大卡（最小宽 28rem，突出大图）。
+ *
+ * 注意：访客可在前端显示设置面板中动态切换 list/grid，此处为站点初始默认值。
  */
 export const postListConfig: PostListConfig = {
 	pageSize: 8,

@@ -1,11 +1,14 @@
 import type { ProjectsConfig } from "@/types/projectsConfig";
 
 /**
- * 项目页配置（展示与行为控制）。
+ * 项目页行为与展示配置。
+ *
+ * 遵循「配置管行为，数据管内容」原则：
  * - enable：页面总开关；false 时导航入口同步隐藏，访问 /projects/ 跳转 404；
- * - categories：筛选分类，数组顺序即 chips 顺序；
- * - disabledKeys：可选被禁用的项目 key 列表；
- * - 具体项目数据维护在 src/data/projects.ts 中。
+ * - categories：筛选分类清单（数组顺序即页面顶部 Chips 顺序）；
+ * - disabledKeys：可选被禁用的项目 key 列表（例如 ["folkpatch"]）；
+ *
+ * 注：项目的具体内容数据（标题、描述、技术栈、链接、封面等）请在 `src/data/projects.ts` 中维护。
  */
 export const projectsConfig: ProjectsConfig = {
 	enable: true,
@@ -21,4 +24,5 @@ export const projectsConfig: ProjectsConfig = {
 			icon: "material-symbols:android-rounded",
 		},
 	],
+	// disabledKeys: [],
 };
