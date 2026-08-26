@@ -1,7 +1,7 @@
 # 项目规则
 
 > Shirone 项目的硬性约定与工作流。新增代码前必读。
-> 配套文档：`rules/pitfalls.md`（踩坑）、`rules/component-api.md`（组件 API 规范）、`rules/a11y.md`（无障碍与键盘交互）、`rules/visual-regression.md`（视觉回归）、`docs/m3e-standard.md`（组件标准）、`docs/atomic-structure.md`（分层规范）、`docs/performance-guidelines.md`（性能架构指南）、`rules/performance-rules.md`（性能开发硬性规则）。
+> 配套文档：`rules/pitfalls.md`（踩坑）、`rules/css-important.md`（CSS `!important` 使用规范）、`rules/component-api.md`（组件 API 规范）、`rules/a11y.md`（无障碍与键盘交互）、`rules/visual-regression.md`（视觉回归）、`docs/m3e-standard.md`（组件标准）、`docs/atomic-structure.md`（分层规范）、`docs/performance-guidelines.md`（性能架构指南）、`rules/performance-rules.md`（性能开发硬性规则）。
 
 ---
 
@@ -76,6 +76,7 @@ content/（Markdown 正文，仅 pages 引用）
 - **强制 Biome 格式化**：提交代码前**必须**运行 `pnpm format` 格式化所有代码文件，确保全仓代码缩进（tab）、引号（double）及导入顺序完全统一；CI 环境下执行 `pnpm exec biome ci ./src` 进行零写入校验。
 - **禁止硬编码**：色值、圆角、阴影、动效时长一律走 token（唯一例外：图片上的覆盖层用固定黑/白）。
 - **禁止散落的非令牌动效**：如 `transition: all 0.3s`、`animation: xxx 1s linear`。
+- **限制 `!important`**：仅允许用于不可控第三方/生成样式、明确的组件覆盖 API 或用户偏好边界，并遵循 `rules/css-important.md` 的作用域、注释和测试要求。
 - **禁止原子/分子引入业务副作用**：数据获取、localStorage、路由跳转属于有机体。
 
 ---

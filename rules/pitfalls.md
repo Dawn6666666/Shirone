@@ -48,7 +48,7 @@ svelte({
 
 **根因**：Svelte scoped 样式自带 class 哈希，specificity 为 `0,2,0`（如 `.m3-card.svelte-xxx`），而 Tailwind 工具类为 `0,1,0`。scoped 样式优先级更高。
 
-**解法**：覆盖 scoped 样式时用 Tailwind `!`（important）前缀。
+**解法**：先确认组件是否应提供正式 prop/variant；仅当调用方 `class` 是明确的公开覆盖 API、且 Svelte scope 稳定压过普通工具类时，才使用 Tailwind `!`（important）前缀。完整准入条件、注释与测试要求见 `rules/css-important.md`。
 
 **实际案例**：
 - 文章页标题 AccentBar：`hidden md:inline-block` → `!hidden md:!inline-block`（否则移动端竖线不隐藏）；

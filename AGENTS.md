@@ -21,6 +21,7 @@ Shirone is a blog theme built with Astro 7, Svelte 5, Tailwind 4, Stylus, and pn
 ## Required documents
 
 - `rules/pitfalls.md` — Svelte/Astro integration, Stylus, cache, and testing pitfalls.
+- `rules/css-important.md` — allowed CSS `!important` ownership boundaries, comments, and validation.
 - `rules/project-rules.md` — project conventions and commit policy.
 - `docs/atomic-structure.md` — component layering and ownership.
 - `docs/m3e-standard.md` — M3E tokens and component standard.
