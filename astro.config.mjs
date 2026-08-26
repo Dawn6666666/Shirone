@@ -60,8 +60,7 @@ const optionalMusicSidebarPlugin = {
 	},
 };
 
-const isBuildCommand =
-	process.env.NODE_ENV === "production" || process.argv.includes("build");
+const isBuildCommand = process.argv.includes("build");
 
 function resolveVariantSrc(file) {
 	if (isBuildCommand && resolvedFontOptions.subsetting?.enable) {
