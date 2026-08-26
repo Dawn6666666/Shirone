@@ -131,6 +131,122 @@ test.describe("MDX Support and M3E Integration", () => {
 		await expect(switchInput).not.toBeChecked();
 	});
 
+	test("markdown details stay within the reading column on narrow screens", async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto("/posts/mdx-showcase/", { waitUntil: "networkidle" });
+		await page.waitForFunction(
+			() =>
+				getComputedStyle(document.documentElement)
+					.getPropertyValue("--mc-primary")
+					.trim().length > 0,
+		);
+
+		const markdown = page.locator(".custom-md").first();
+		await markdown.evaluate((root) => {
+			const fixture = document.createElement("div");
+			fixture.dataset.markdownDetailFixture = "true";
+			fixture.style.width = "15rem";
+
+			const paragraph = document.createElement("p");
+			const link = document.createElement("a");
+			link.href = "#responsive-link";
+			link.textContent = `https://example.com/${"unbroken-segment-".repeat(12)}`;
+			paragraph.append(link);
+
+			const image = document.createElement("img");
+			image.alt = "Responsive test fixture";
+			image.width = 1200;
+			image.height = 400;
+			image.src =
+				"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='400'/%3E";
+
+			fixture.append(paragraph, image);
+			root.prepend(fixture);
+		});
+
+		const fixture = page.locator("[data-markdown-detail-fixture]");
+		const longLink = fixture.locator("a");
+		await expect(longLink).toHaveCSS("display", "inline");
+		const linkLineCount = await longLink.evaluate(
+			(element) => element.getClientRects().length,
+		);
+		expect(linkLineCount).toBeGreaterThan(1);
+
+		const image = fixture.locator("img");
+		await expect(image).toHaveCSS("display", "block");
+		await expect(image).toHaveCSS("max-width", "100%");
+		const imageFits = await image.evaluate(
+			(element) =>
+				element.getBoundingClientRect().width <=
+				(element.parentElement?.getBoundingClientRect().width ?? 0),
+		);
+		expect(imageFits).toBe(true);
+
+		const nestedTocItem = page
+			.locator('.m3-blog-toc__item[data-toc-depth="3"]')
+			.first();
+		await expect(nestedTocItem).toHaveCSS("padding-left", "24px");
+		await expect(nestedTocItem).toHaveCSS("margin-left", "0px");
+
+		const tableScroller = page.locator(".markdown-table-scroll").first();
+		await expect(tableScroller).toHaveAttribute("tabindex", "0");
+		await expect(tableScroller.locator("table")).toHaveCSS("margin-top", "0px");
+		await expect(tableScroller.locator("th").first()).toHaveCSS(
+			"padding-left",
+			"16px",
+		);
+		await expect(tableScroller.locator("td").first()).toHaveCSS(
+			"padding-left",
+			"16px",
+		);
+		const tableScrollsHorizontally = await tableScroller.evaluate(
+			(element) => element.scrollWidth > element.clientWidth,
+		);
+		expect(tableScrollsHorizontally).toBe(true);
+		await tableScroller.focus();
+		await page.keyboard.press("ArrowRight");
+		await expect
+			.poll(() => tableScroller.evaluate((element) => element.scrollLeft))
+			.toBeGreaterThan(0);
+
+		const formula = page.locator(".katex-display").first();
+		await formula.scrollIntoViewIfNeeded();
+		const formulaContainer = page
+			.locator(".katex-display-container:has(.katex-display)")
+			.first();
+		await expect(formulaContainer).toBeAttached();
+		await expect(formulaContainer).toHaveCSS("max-width", /.+/);
+		const formulaFits = await formulaContainer.evaluate(
+			(element) =>
+				element.getBoundingClientRect().right <=
+				(element.parentElement?.getBoundingClientRect().right ?? 0) + 1,
+		);
+		expect(formulaFits).toBe(true);
+
+		const githubCard = page.locator(".card-github").first();
+		await expect(githubCard).not.toHaveClass(/fetch-waiting/);
+		await expect(githubCard).toHaveClass(/m3-state-layer/);
+		await expect(githubCard).toHaveCSS("border-top-width", "0px");
+		const githubCardSurface = await githubCard.evaluate((element) => ({
+			background: getComputedStyle(element).backgroundColor,
+			token: getComputedStyle(document.documentElement)
+				.getPropertyValue("--license-block-bg")
+				.trim(),
+		}));
+		expect(githubCardSurface.background.replaceAll(" ", "")).toBe(
+			githubCardSurface.token.replaceAll(" ", ""),
+		);
+		await expect(githubCard).toHaveCSS("scale", "none");
+		await githubCard.hover();
+		await expect
+			.poll(() =>
+				githubCard.evaluate((element) => getComputedStyle(element).boxShadow),
+			)
+			.not.toBe("none");
+	});
+
 	test("RSS feed contains cleaned MDX content without raw exports or JSX leaks", async ({
 		page,
 	}) => {

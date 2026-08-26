@@ -31,6 +31,63 @@ test.describe("Markdown image grid gallery", () => {
 		page,
 	}) => {
 		const grids = await openPost(page);
+		const firstTableCode = page.locator(".custom-md table code").first();
+		await expect(firstTableCode).toHaveCSS("padding-left", "4px");
+		await expect(firstTableCode).toHaveCSS("padding-top", "0px");
+		await expect(firstTableCode).toHaveCSS("border-radius", "4px");
+		await expect(firstTableCode).toHaveCSS("font-size", "14px");
+		const inlineCodeMarkers = await firstTableCode.evaluate((element) => ({
+			before: getComputedStyle(element, "::before").content,
+			after: getComputedStyle(element, "::after").content,
+		}));
+		expect(inlineCodeMarkers).toEqual({ before: "none", after: "none" });
+
+		const codeFrames = page.locator(".custom-md .expressive-code .frame");
+		const copyButtons = page.locator(
+			".custom-md .expressive-code .frame > .copy-btn",
+		);
+		const codeFrameCount = await codeFrames.count();
+		expect(codeFrameCount).toBeGreaterThan(0);
+		await expect(copyButtons).toHaveCount(codeFrameCount);
+		const firstCodeFrame = codeFrames.first();
+		const copyButton = firstCodeFrame.locator(":scope > .copy-btn");
+		await expect(copyButton).toHaveCount(1);
+		await expect(copyButton).toHaveCSS("position", "absolute");
+		await expect(copyButton).toHaveCSS("width", "32px");
+		await expect(copyButton).toHaveCSS("height", "32px");
+		await expect(copyButton).toHaveCSS("padding", "0px");
+		await expect(copyButton).toHaveCSS("border-top-width", "1px");
+		await expect(copyButton).toHaveCSS(
+			"border-top-color",
+			/^(?!rgba\(0, 0, 0, 0\)$).+/,
+		);
+		const languageBadge = await firstCodeFrame.evaluate((frame) => {
+			const languageNode = frame.querySelector("[data-language]");
+			if (!languageNode) return null;
+			const style = getComputedStyle(languageNode, "::before");
+			return {
+				borderWidth: style.borderTopWidth,
+				borderColor: style.borderTopColor,
+				background: style.backgroundColor,
+				shadow: style.boxShadow,
+			};
+		});
+		expect(languageBadge).not.toBeNull();
+		expect(languageBadge?.borderWidth).toBe("1px");
+		expect(languageBadge?.borderColor).not.toBe("rgba(0, 0, 0, 0)");
+		expect(languageBadge?.background).not.toBe("rgba(0, 0, 0, 0)");
+		expect(languageBadge?.shadow).not.toBe("none");
+		const copyButtonOffset = await firstCodeFrame.evaluate((frame) => {
+			const button = frame.querySelector<HTMLElement>(":scope > .copy-btn");
+			if (!button) return null;
+			const frameRect = frame.getBoundingClientRect();
+			const buttonRect = button.getBoundingClientRect();
+			return {
+				top: buttonRect.top - frameRect.top,
+				right: frameRect.right - buttonRect.right,
+			};
+		});
+		expect(copyButtonOffset).toEqual({ top: 12, right: 12 });
 
 		// 最小语法网格：默认 3 列 / 16:10 / cover
 		const first = grids.nth(0);
@@ -67,24 +124,42 @@ test.describe("Markdown image grid gallery", () => {
 		expect(firstImageStyles.objectFit).toBe("cover");
 		expect(firstImageStyles.borderRadius).toBe("0px");
 		const geometry = await first.evaluate((element) => {
+			const item = element.querySelector<HTMLElement>(".image-grid__item");
 			const link = element.querySelector<HTMLElement>(".image-grid__link");
 			const img = element.querySelector<HTMLImageElement>(
 				".image-grid__link > img",
 			);
-			if (!link || !img) {
+			const caption = element.querySelector<HTMLElement>(
+				".image-grid__caption",
+			);
+			if (!item || !link || !img || !caption) {
 				throw new Error("image grid elements are missing");
 			}
 			const linkRect = link.getBoundingClientRect();
 			const imgRect = img.getBoundingClientRect();
+			const itemStyle = getComputedStyle(item);
+			const captionStyle = getComputedStyle(caption);
 			return {
 				linkAspect: linkRect.width / linkRect.height,
 				imgFillsWidth: Math.abs(imgRect.width - linkRect.width) <= 1,
 				imgFillsHeight: Math.abs(imgRect.height - linkRect.height) <= 1,
+				imgAlignedTop: Math.abs(imgRect.top - linkRect.top) <= 1,
+				imgAlignedLeft: Math.abs(imgRect.left - linkRect.left) <= 1,
+				itemMarginBlock: [itemStyle.marginTop, itemStyle.marginBottom],
+				captionMarginTop: captionStyle.marginTop,
+				captionFontSize: captionStyle.fontSize,
+				captionLineHeight: captionStyle.lineHeight,
 			};
 		});
 		expect(geometry.linkAspect).toBeCloseTo(16 / 10, 1);
 		expect(geometry.imgFillsWidth).toBe(true);
 		expect(geometry.imgFillsHeight).toBe(true);
+		expect(geometry.imgAlignedTop).toBe(true);
+		expect(geometry.imgAlignedLeft).toBe(true);
+		expect(geometry.itemMarginBlock).toEqual(["0px", "0px"]);
+		expect(geometry.captionMarginTop).toBe("8px");
+		expect(geometry.captionFontSize).toBe("12px");
+		expect(geometry.captionLineHeight).toBe("16px");
 		await expect(firstImage).toHaveAttribute("loading", "lazy");
 		await expect(firstImage).toHaveAttribute("decoding", "async");
 

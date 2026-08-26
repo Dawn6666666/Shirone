@@ -12,50 +12,74 @@
 
 /* 针对 Terminal / Header 标题栏的按钮垂直定位变量 */
 .expressive-code .frame {
-    --code-action-top: 0.75rem;
+    --code-action-top: var(--m3e-space-3);
+    --code-control-bg: var(--surface-container-high);
+    --code-control-bg-hover: var(--surface-container-highest);
+    --code-control-border: var(--outline-variant);
+    --code-control-color: var(--on-surface);
+}
+
+.expressive-code .frame pre[data-language]::before {
+    box-sizing: border-box;
+    border: 1px solid var(--code-control-border);
+    color: var(--code-control-color);
+    background: var(--code-control-bg);
+    box-shadow: var(--m3e-elevation-1);
+    font: var(--m3e-type-label-medium);
+    letter-spacing: 0;
 }
 
 .expressive-code .frame.is-terminal,
 .expressive-code .frame.has-title {
-    --code-action-top: calc(var(--button-spacing, 0px) + 0.25rem);
+    --code-action-top: calc(var(--button-spacing, 0px) + var(--m3e-space-1));
 }
 
-/* 官方复制按钮层级与定位规范 */
+/* !important boundary: Expressive Code owns generated copy-button offsets; Shirone owns control alignment within its frame. */
 .expressive-code .copy {
     top: var(--code-action-top) !important;
-    right: 0.75rem !important;
+    right: var(--m3e-space-3) !important;
     z-index: 20;
 }
 
 /* 自定义复制按钮保留兼容样式 */
 .expressive-code .copy-btn {
-    all: initial;
+    box-sizing: border-box;
     position: absolute;
     top: var(--code-action-top);
-    right: 0.75rem;
+    right: var(--m3e-space-3);
     z-index: 20;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.5rem;
-    background: var(--btn-regular-bg);
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
+    width: var(--m3e-space-8);
+    height: var(--m3e-space-8);
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--code-control-border);
+    border-radius: var(--shape-corner-s);
+    appearance: none;
+    color: var(--code-control-color);
+    background: var(--code-control-bg);
+    box-shadow: var(--m3e-elevation-1);
     cursor: pointer;
     opacity: 0;
     transition:
-        opacity 150ms ease,
-        background-color 150ms ease,
-        transform 150ms ease;
+        opacity var(--m3e-duration-short) var(--m3e-easing-standard),
+        background-color var(--m3e-duration-short) var(--m3e-easing-standard),
+        transform var(--m3e-duration-short) var(--m3e-easing-standard);
 }
 
 .expressive-code .copy-btn:hover {
-    background: var(--btn-regular-bg-hover);
+    background: var(--code-control-bg-hover);
 }
 
 .expressive-code .copy-btn:active {
     transform: scale(0.9);
+}
+
+.expressive-code .copy-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 /* 悬停 frame 时显示复制按钮 */
@@ -76,8 +100,8 @@
 
 .expressive-code .copy-btn .copy-icon,
 .expressive-code .copy-btn .success-icon {
-    fill: var(--btn-content);
-    transition: opacity 150ms ease;
+    fill: currentColor;
+    transition: opacity var(--m3e-duration-short) var(--m3e-easing-standard);
 }
 
 .expressive-code .copy-btn .copy-icon {
@@ -96,32 +120,42 @@
     opacity: 1;
 }
 
+.expressive-code .copy-btn.success {
+    border-color: var(--secondary);
+    color: var(--on-secondary-container);
+    background: var(--secondary-container);
+}
+
 /* 长代码块折叠（运行时由 code-collapse.ts 注入 .auto-collapsible） */
 .expressive-code.auto-collapsible .frame {
     position: relative;
 }
 
 .expressive-code.auto-collapsible .collapse-toggle-btn {
-    all: initial;
+    box-sizing: border-box;
     position: absolute;
     top: var(--code-action-top);
-    right: 3.5rem;
+    right: calc(var(--m3e-space-8) + var(--m3e-space-6));
     z-index: 20;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.5rem;
-    color: var(--btn-content);
-    background: var(--btn-regular-bg);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+    width: var(--m3e-space-8);
+    height: var(--m3e-space-8);
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--code-control-border);
+    border-radius: var(--shape-corner-s);
+    appearance: none;
+    color: var(--code-control-color);
+    background: var(--code-control-bg);
+    box-shadow: var(--m3e-elevation-1);
     cursor: pointer;
     opacity: 0;
     transition:
-        opacity 150ms ease,
-        background-color 150ms ease,
-        transform 150ms ease;
+        opacity var(--m3e-duration-short) var(--m3e-easing-standard),
+        background-color var(--m3e-duration-short) var(--m3e-easing-standard),
+        transform var(--m3e-duration-short) var(--m3e-easing-standard);
 }
 
 /* 折叠按钮与复制按钮一致：悬停/聚焦 frame 时才显示 */
@@ -131,18 +165,23 @@
 }
 
 .expressive-code.auto-collapsible .collapse-toggle-btn:hover {
-    background: var(--btn-regular-bg-hover);
+    background: var(--code-control-bg-hover);
 }
 
 .expressive-code.auto-collapsible .collapse-toggle-btn:active {
     transform: scale(0.9);
 }
 
+.expressive-code.auto-collapsible .collapse-toggle-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
 .expressive-code.auto-collapsible .collapse-toggle-btn svg {
     width: 1rem;
     height: 1rem;
     pointer-events: none;
-    transition: transform 200ms ease;
+    transition: transform var(--m3e-duration-medium) var(--m3e-easing-standard);
 }
 
 .expressive-code.auto-collapsible.collapsed .collapse-toggle-btn svg {
@@ -151,7 +190,7 @@
 
 .expressive-code.auto-collapsible .frame pre {
     position: relative;
-    transition: max-height 250ms ease;
+    transition: max-height var(--m3e-duration-medium) var(--m3e-easing-standard);
 }
 
 .expressive-code.auto-collapsible.collapsed .frame pre {
@@ -174,37 +213,23 @@
 /* 移动端：按钮更小与定位调整 */
 @media (width < 768px) {
     .expressive-code .frame {
-        --code-action-top: 0.5rem;
+        --code-action-top: var(--m3e-space-2);
     }
 
     .expressive-code .frame.is-terminal,
     .expressive-code .frame.has-title {
-        --code-action-top: calc(var(--button-spacing, 0px) + 0.25rem);
+        --code-action-top: calc(var(--button-spacing, 0px) + var(--m3e-space-1));
     }
 
     .expressive-code .copy-btn {
-        right: 0.5rem;
-        width: 1.75rem;
-        height: 1.75rem;
-    }
-
-    .expressive-code .copy-btn-icon {
-        width: 0.875rem;
-        height: 0.875rem;
+        right: var(--m3e-space-2);
     }
 
     .expressive-code.auto-collapsible .collapse-toggle-btn {
-        right: 3rem;
-        width: 1.75rem;
-        height: 1.75rem;
+        right: calc(var(--m3e-space-8) + var(--m3e-space-4));
     }
 
-    .expressive-code.auto-collapsible .collapse-toggle-btn svg {
-        width: 0.875rem;
-        height: 0.875rem;
-    }
-
-    /* 移动端不显示代码语言标记，节省空间 */
+    /* !important boundary: Expressive Code owns the generated language label; Shirone hides it in its narrow frame layout. */
     .expressive-code [data-language]::before {
         display: none !important;
     }

@@ -11,7 +11,9 @@
 @import "./transition.css" layer(components);
 @import "./scrollbar.css" layer(components);
 @import "./markdown.css" layer(components);
-@import "./expressive-code.css" layer(components);
+/* Expressive Code ships unlayered reset styles, so its scoped overrides must
+   also remain unlayered to participate in the same cascade. */
+@import "./expressive-code.css";
 @import "./toc.css" layer(components);
 @import "./image-bloom.css" layer(components);
 

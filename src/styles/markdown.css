@@ -27,11 +27,14 @@
   }
 
   a:not(.no-styling) {
-    @apply relative bg-none transition rounded-md p-1 -m-1 font-medium text-[var(--primary)]
+    @apply relative bg-none transition rounded-md font-medium text-[var(--primary)]
         underline decoration-[var(--link-underline)] decoration-1 decoration-dashed underline-offset-4;
+    padding: var(--m3e-space-1);
+    margin: calc(var(--m3e-space-1) * -1);
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
-    display: inline-block;
+    display: inline;
+    overflow-wrap: break-word;
 
     &:hover,
     &:active {
@@ -46,7 +49,7 @@
     @apply bg-[var(--inline-code-bg)] text-[var(--inline-code-color)] px-1 py-0.5 rounded-md overflow-hidden;
 
     font-family:
-      "JetBrains Mono Variable",
+      var(--m3e-font-mono-family),
       ui-monospace,
       SFMono-Regular,
       Menlo,
@@ -55,11 +58,12 @@
       Liberation Mono,
       Courier New,
       monospace;
+    /* !important boundary: Tailwind Typography owns generated code markers; Shirone's Markdown renderer suppresses them. */
     &:before {
-      content: none;
+      content: none !important;
     }
     &:after {
-      content: none;
+      content: none !important;
     }
 
     counter-reset: line;
@@ -107,31 +111,113 @@
   }
 
   .katex-display-container {
+    width: 100%;
     max-width: 100%;
     overflow-x: auto;
-    margin: 1em 0;
+    overflow-y: hidden;
+    margin: var(--m3e-space-4) 0;
+    padding: var(--m3e-space-2) 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
   }
 
   /* --- M3 表格：容器圆角 + 表头表面分层 + outline-variant 分隔线 --- */
-  table {
-    @apply w-full my-4 border-collapse overflow-hidden rounded-lg border border-[var(--outline-variant)];
+  .markdown-table-scroll {
+    width: 100%;
+    max-width: 100%;
+    margin: var(--m3e-space-4) 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    border-radius: var(--shape-corner-m);
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-bg) transparent;
+    -webkit-overflow-scrolling: touch;
 
+    &:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    &::-webkit-scrollbar {
+      height: var(--m3e-space-2);
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+      margin-inline: var(--m3e-space-2);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-bg);
+      border-radius: var(--shape-corner-full);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--scrollbar-bg-hover);
+    }
+
+    &::-webkit-scrollbar-thumb:active {
+      background: var(--scrollbar-bg-active);
+    }
+  }
+
+  table {
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--outline-variant);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--shape-corner-m);
+
+    /* !important boundary: Tailwind Typography owns prose cell spacing; the responsive table owns its cell geometry. */
     th {
-      @apply text-left px-4 py-2.5 bg-[var(--surface-container-high)] text-[var(--on-surface)] font-semibold;
+      @apply text-left bg-[var(--surface-container-high)] text-[var(--on-surface)] font-semibold;
+      padding: var(--m3e-space-3) var(--m3e-space-4) !important;
     }
 
     td {
-      @apply px-4 py-2 text-[var(--on-surface-variant)];
+      @apply text-[var(--on-surface-variant)];
+      padding: var(--m3e-space-2) var(--m3e-space-4) !important;
     }
 
     th,
     td {
       @apply border-b border-[var(--outline-variant)];
+      white-space: nowrap;
     }
 
     tr:last-child td {
       @apply border-b-0;
     }
+
+    /* !important boundary: Tailwind Typography owns prose code presentation; table cells own this compact code variant. */
+    :is(th, td) code {
+      padding: 0 var(--m3e-space-1) !important;
+      border-radius: var(--shape-corner-xs) !important;
+      background: color-mix(in oklab, var(--on-surface) 8%, transparent) !important;
+      color: var(--on-surface) !important;
+      font: var(--m3e-type-code) !important;
+      letter-spacing: 0;
+      white-space: nowrap;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+  }
+
+  /* !important boundary: Tailwind Typography owns prose table margins; the scroll wrapper owns table spacing. */
+  .markdown-table-scroll > table {
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+    margin: 0 !important;
   }
 
   /* --- 标题间距 --- */
@@ -141,8 +227,8 @@
 }
 
 /* --- Markdown 响应式图片画廊网格（:::grid 容器指令） ---
-   选择器叠加 .image-grid 保持足够特异性，覆盖 prose 排版与全局 img 规则，
-   全程不使用 !important；reduced-motion 由 main.css 的全局规则统一降级。 */
+   布局由 .image-grid 自身拥有；仅在 Tailwind Typography 生成规则稳定覆盖组件几何时
+   使用有边界说明的 !important。reduced-motion 由 main.css 的全局规则统一降级。 */
 .custom-md .image-grid {
   display: grid;
   grid-template-columns: repeat(var(--image-grid-columns, 3), minmax(0, 1fr));
@@ -150,11 +236,12 @@
   margin: var(--m3e-space-6) 0;
 }
 
+/* !important boundary: Tailwind Typography owns prose figure margins; image-grid owns item alignment. */
 .custom-md .image-grid .image-grid__item {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  margin: 0;
+  margin: 0 !important;
 }
 
 .custom-md .image-grid .image-grid__link {
@@ -178,16 +265,17 @@
   text-decoration: none;
 }
 
+/* !important boundary: Tailwind Typography owns prose image geometry; image-grid owns media fitting inside its frame. */
 .custom-md .image-grid .image-grid__link > img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
   aspect-ratio: auto;
-  border-radius: 0;
-  object-fit: var(--image-grid-fit, cover);
+  border-radius: 0 !important;
+  object-fit: var(--image-grid-fit, cover) !important;
   object-position: center;
   transition: transform var(--m3e-duration-medium) var(--m3e-easing-standard);
 }
@@ -196,11 +284,12 @@
   transform: scale(1.025);
 }
 
+/* !important boundary: Tailwind Typography owns prose figcaption metrics; image-grid owns its compact caption variant. */
 .custom-md .image-grid .image-grid__caption {
-  margin-top: auto;
-  padding-top: var(--m3e-space-2);
+  margin: var(--m3e-space-2) 0 0 !important;
+  padding: 0;
   color: var(--on-surface-variant);
-  font: var(--m3e-type-body-small);
+  font: var(--m3e-type-body-small) !important;
   text-align: center;
 }
 
