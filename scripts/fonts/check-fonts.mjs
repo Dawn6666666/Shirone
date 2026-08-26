@@ -82,6 +82,20 @@ try {
 		);
 	}
 
+	// Double-insurance: verify no uncompressed raw font files exist anywhere on disk in dist/ (except KaTeX)
+	const rawFontsOnDisk = allFiles.filter((file) => {
+		const ext = extname(file).toLowerCase();
+		if (ext !== ".ttf" && ext !== ".otf") return false;
+		if (/[/\\]KaTeX_[^/\\]+\.(?:ttf|otf)/i.test(file)) return false;
+		return true;
+	});
+
+	if (rawFontsOnDisk.length > 0) {
+		throw new Error(
+			`production dist/ contains uncompressed raw font files on disk:\n${rawFontsOnDisk.map((f) => `  - ${f}`).join("\n")}\nOnly optimized .woff2 fonts are permitted in dist/.`,
+		);
+	}
+
 	let totalBytes = 0;
 	const assetDetails = [];
 

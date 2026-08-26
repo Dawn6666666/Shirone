@@ -60,9 +60,12 @@ if (image) {
 		image.startsWith("data:")
 	);
 	if (isLocal) {
-		const files = import.meta.glob<ImageMetadata>("../../**", {
-			import: "default",
-		});
+		const files = import.meta.glob<ImageMetadata>(
+			"../../**/*.{png,jpg,jpeg,webp,avif,svg,gif}",
+			{
+				import: "default",
+			},
+		);
 		const normalizedPath = path
 			.normalize(path.join("../../", imageBasePath, image))
 			.replace(/\\/g, "/");
