@@ -67,3 +67,16 @@ lighthouse:collect 使用现有 dist 启动 preview，并将采集结果保存�
 5. 检查端口是否被旧 preview 占用：pnpm.cmd astro preview status；必要时执行 pnpm.cmd astro preview stop。
 
 Lighthouse 工作流目前只在本地运行，不修改 .github。CI 接入需要单独评审固定 Node/Chrome 环境、报告保留和隐私策略。
+
+## 资源专项审计
+
+图片、图标或第三方脚本优化后，除分数外还要检查实际请求。资源 URL 在 dev 与 production 中不同，因此必须以 `pnpm.cmd build` 生成的 preview 为准；不要把开发期 `/_image/?href=/@fs/...` 当成生产地址，也不要把 dev server 的 Sharp 错误直接解释为生产构建失败。
+
+专项检查至少包括：
+
+- 移动视口是否选择匹配尺寸的 `srcset` 候选，而不是下载桌面原图；
+- 初始请求是否仍访问 Iconify、Meting、搜索索引或其他可延迟资源；
+- 动态卡片是否使用缩略图，而查看器/灯箱仍使用原图；
+- 报告生成后 `git status --short` 是否保持干净。
+
+资产目录和生成器约定见 `docs/asset-pipeline.md`。

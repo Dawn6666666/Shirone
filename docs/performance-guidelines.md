@@ -2,6 +2,7 @@
 
 > Shirone 全站性能设计的核心准则与工程实践。
 > 配套规则：`rules/performance-rules.md`、`rules/project-rules.md`。
+> 本地图片、图标与生成资产的目录和构建契约见 `docs/asset-pipeline.md`。
 
 ---
 
@@ -44,6 +45,9 @@ Shirone 遵循 **「内容先行、布局稳定、平滑渐显、按需水合、
       import: "default",
   });
   ```
+- **区分源文件与派生文件**：可编辑原图放在 `src/assets/` 或有稳定公开 URL 需求的 `public/images/`；可重复生成的缩略图统一放在 `public/assets/<domain>/`，忽略生成文件并保留 `.gitkeep`。禁止把临时图片写到仓库根目录或原图目录。
+- **禁止持久化 Astro 内部 URL**：`/_image/`、`/@fs/` 和绝对磁盘路径只属于开发期图片服务，不得进入配置、内容或测试快照。
+- **原图与列表图分工**：列表、网格和缩略图条使用响应式派生图，查看器和下载入口保留原图。完整流程见 `docs/asset-pipeline.md`。
 
 ### 2.4 动效令牌收敛与平滑切页准则（兼顾动画与帧率）
 

@@ -20,6 +20,7 @@
 | --- | --- | --- |
 | 源码 | `src/` | 页面、布局、组件、Markdown 内容和运行时脚本。组件组合遵循 `atoms → molecules → organisms → layouts → pages`。 |
 | 配置 | `src/config/`、`src/types/`、`astro.config.mjs` | 设置站点 URL、`base` 路径、站点标识、语言、主题和功能开关。部署前优先检查 `src/config/siteConfig.ts` 与 `astro.config.mjs`。 |
+| 资产 | `src/assets/`、`public/images/`、`public/assets/` | 保存原始媒体，并在构建前生成可重复创建的响应式派生资源。目录边界见 `docs/asset-pipeline.md`。 |
 | 校验 | `rules/`、`tests/`、`scripts/` | 在发布前检查类型、Astro 产物、组件清单、无障碍和关键页面行为。 |
 | 构建 | `dist/`（生成目录） | `astro build` 生成的静态发布产物。不要手工编辑；每次发布都应从干净构建重新生成。 |
 | 托管 | 平台项目设置 | 使用仓库构建命令生成 `dist/`，将发布目录指向 `dist/`，并按平台要求配置站点域名与环境变量。 |
@@ -54,5 +55,6 @@ GitHub Actions 的 [`build.yml`](.github/workflows/build.yml) 在 Node.js 22/23 
 - [`src/config/README.md`](src/config/README.md)：配置契约
 - [`docs/atomic-structure.md`](docs/atomic-structure.md)：组件分层
 - [`docs/m3e-standard.md`](docs/m3e-standard.md)：M3E 令牌与组件标准
+- [`docs/asset-pipeline.md`](docs/asset-pipeline.md)：本地图片、离线图标与生成资产流水线
 - [`rules/project-rules.md`](rules/project-rules.md)：质量门禁与提交流程
 - [`rules/pitfalls.md`](rules/pitfalls.md)：Astro/Svelte、缓存与测试注意事项

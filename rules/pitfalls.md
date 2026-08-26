@@ -73,14 +73,15 @@ svelte({
 
 **现象**：Svelte 原子（如 IconButton）在**无 `client:*` 指令**的 Astro 页面（TopAppBar / Profile / 文章页）中，`icon` prop 渲染的图标消失，按钮只剩空圆。
 
-**根因**：`@iconify/svelte` 的 `Icon` 组件靠运行时 `loadIcon`（浏览器 API）加载图标数据；SSR 无 hydration 时数据永远为 null → 渲染空。astro-icon 是构建期收集数据、SSR 直出 svg，无此问题。
+**根因**：`@iconify/svelte` 的在线 `Icon` 组件靠运行时 `loadIcon`（浏览器 API）加载图标数据；SSR 无 hydration 时数据永远为 null → 渲染空，还可能在客户端请求 Iconify API。astro-icon 是构建期收集数据、SSR 直出 svg，无此问题。
 
 **解法**：
 - 静态 SSR 场景：用 `children` snippet 传 astro-icon 的 `<Icon>`（或任何已渲染 svg），**禁止**用 `icon` prop；
-- `icon` prop 只留给 `client:only` / `client:load` 场景；
+- 需要水合的 Svelte 场景：统一使用 `src/components/atoms/display/Icon.svelte`，它通过 `OfflineIcon` 消费 `src/generated/local-icon-collections.ts`，禁止业务组件直接导入在线 Iconify 组件；
+- 新增或改名图标后运行 `pnpm.cmd icons:generate`，无效图标名必须修正，不能依赖网络回退；
 - 组件 scoped CSS 里 `> :global(svg)` 会强制覆盖 children 图标的尺寸（如强制 24px 覆盖调用方 `text-[1.25rem]`）——尺寸规则只应作用于 `icon` prop 模式的图标容器（`.m3-icon-button__icon`），children 图标尺寸由调用方 class 控制。
 
-**防回归**：`tests/site/icons.spec.ts` 断言真实页面（首页/侧栏/文章页）SSR 输出 svg 可见；静态场景改回 `icon` prop 会立刻变红。
+**防回归**：`tests/site/icons.spec.ts` 断言真实页面（首页/侧栏/文章页）SSR 输出 svg 可见，并检查初始页面不请求 Iconify API；静态场景改回 `icon` prop 或交互场景绕过离线包装都会变红。
 
 ---
 
@@ -196,6 +197,19 @@ svelte({
 
 ---
 
+### 4.3 Markdown 扩展 DOM 存在但样式消失，不一定是缓存
+
+**现象**：Skills 等普通内容正常，但 About 页的 GitHub 卡片只剩无样式链接；检查 HTML 时 `.card-github` 节点仍然存在。
+
+**根因**：rehype 插件负责生成 DOM，`src/styles/markdown-extend.styl` 负责扩展卡片样式，两者是独立链路。若 `src/components/content/Markdown.astro` 遗漏全局样式导入，插件仍会生成正确 HTML，但卡片视觉完全丢失。这种情况清浏览器缓存不会解决。
+
+**解法**：
+- `Markdown.astro` 必须保留 `<style lang="stylus" is:global>` 对 `markdown-extend.styl` 的导入；
+- 先区分“DOM 未生成”和“CSS 未命中”：前者查插件与 Astro 内容缓存，后者查样式入口、全局作用域和 computed style；
+- 回归测试不能只断言 `.card-github` 存在，还要断言关键计算样式，例如 `display: block` 和无下划线链接。
+
+---
+
 ## 5. 测试
 
 ### 5.1 主题初始化后要等过渡收敛
@@ -300,3 +314,40 @@ snapshotPathTemplate: "{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg
 - 重命名后检查所有代码/测试/文档中的具体文件 URL，并运行相册回归测试。
 
 **教训**：相册文件名不是只影响磁盘可读性的内部细节，它是内容元数据和路由资源的一部分。
+
+---
+
+## 8. 本地资产流水线
+
+### 8.1 `/_image/?href=/@fs/...` 是开发期协议，不是可持久化 URL
+
+**现象**：直接访问 Astro 生成的 `/_image/` 地址时报 `MissingSharp`，或者把其中的 Windows 绝对路径误认为生产站点泄漏了错误资源地址。
+
+**根因**：Astro dev 用 `/_image` 路由和 `/@fs` 标识读取工作区文件，并调用 Sharp 转码。这是内部协议；Sharp 未安装、原生包未正确解析或 dev server 未重启都会使该路由失败。
+
+**解法**：
+- `sharp` 保持为项目直接依赖，安装或锁文件变化后重启 dev server；
+- 配置只保存源资产路径，组件通过 `resolveImageAsset()` / `getImage()` 产生 URL；
+- 禁止在配置、内容、测试快照中保存 `/_image`、`/@fs` 或绝对磁盘路径；
+- 最终结论以 `pnpm.cmd build` + production preview 为准。
+
+### 8.2 原图、派生图和构建缓存不能混放
+
+**现象**：优化后的临时图片散落在根目录或原图目录，`git status` 出现大量二进制文件；删掉原图后旧缩略图仍被页面引用。
+
+**根因**：没有区分可编辑源文件、可重复生成的派生文件和框架缓存，也没有让生成器负责过期产物清理。
+
+**解法**：
+- 原始资产放 `src/assets/` 或 `public/images/`；
+- 可重复生成的公开派生图放 `public/assets/<domain>/`，忽略目录内容并只跟踪 `.gitkeep`；
+- 生成器必须幂等、跳过有效输出并删除孤立产物；
+- `.astro/`、`dist/` 和 Lighthouse 报告始终保持忽略；
+- 完整目录契约见 `docs/asset-pipeline.md`。
+
+### 8.3 本地音乐封面必须在服务端解析后保留到客户端数据
+
+**现象**：配置了本地封面，但播放器显示空白、远端封面或未经优化的原图。
+
+**根因**：字符串相对路径没有进入 Astro 资产管线，或者 Meting 返回的数据在客户端合并时覆盖了已解析的本地 `cover` / `srcset`。
+
+**解法**：服务端先用 `resolveImageAsset()` 解析本地封面并生成 64/128 像素候选，再把完整封面字段传给客户端；合并远端歌单时，本地配置优先。测试既要断言图片可见，也要断言 URL 来自 `/_astro/` 或图片服务且初始页面没有 Meting 请求。

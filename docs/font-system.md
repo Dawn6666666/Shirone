@@ -1,6 +1,6 @@
 # 全站字体使用与配置指南
 
-Shirone 提供了一套全自动、类型安全且高性能的自托管字体系统。修改字体**无需改动任何 CSS、布局或组件**，只需要编辑单一配置文件：`src/config/fontConfig.ts`。
+Shirone 提供了一套全自动、类型安全且高性能的自托管字体系统。修改字体**无需改动任何 CSS、布局或组件**，只需要编辑单一配置文件：`src/config/fontConfig.ts`。本地 TTF/OTF 可以作为构建期子集化输入，但生产站点只允许交付优化后的 WOFF2。
 
 ---
 
@@ -213,8 +213,8 @@ pnpm.cmd fonts:check
 为了解决中文字体动辄 10MB~20MB 的首屏体积问题，系统内置了**自动化构建期子集化裁剪管道**：
 
 ### 1. Dev（开发）与 Build（构建）双模工作流
-- **`pnpm dev` 开发环境**：自动直连原始全量字体文件。在写文章时，输入的任何生僻汉字与假名都立即实时渲染，**零等待、极速 HMR**。
-- **`pnpm build` 生产构建**：自动触发 `pnpm fonts:subset`，将全站文字提取并生成极小体积的专属 `.subset.woff2`（通常仅 300KB ~ 600KB，体积减少 **96%+**）。
+- **`pnpm.cmd dev` 开发环境**：自动直连原始全量字体文件。在写文章时，输入的任何生僻汉字与假名都立即实时渲染，**零等待、极速 HMR**。
+- **`pnpm.cmd build` 生产构建**：自动触发字体子集化，将全站文字提取并生成专属 `.subset.woff2`。原始 TTF/OTF 只作为构建输入，不得复制到 `dist/` 或被生产 CSS 引用。
 
 ### 2. 涵盖所有音乐模式的文字采集
 文字采集器（`scripts/fonts/text-collector.mjs`）能自动识别 `musicConfig.provider`：
@@ -227,13 +227,24 @@ pnpm.cmd fonts:check
 pnpm.cmd fonts:subset
 ```
 
+### 4. 生产字体门禁
+
+`pnpm.cmd build` 在构建结束后自动运行 `pnpm.cmd fonts:check`。检查器会同时验证：
+
+- 生产 HTML/CSS 不引用远程字体 URL；
+- 生产 HTML/CSS 不引用原始 `.ttf` / `.otf`；
+- `dist/` 中不存在被意外复制的原始 `.ttf` / `.otf`（KaTeX 自带字体除外）；
+- 所有实际引用的自定义字体满足 `fontConfig.budget` 的单字体族和总量预算。
+
+因此不能只看网络面板中的一个字体文件，也不能仅检查 CSS。字体优化验收必须以完整生产构建和 `fonts:check` 结果为准。
+
 1. **为什么我的中文字体遇到某些字时会变回默认字体？**
    - 说明所选中文字体的汉字库不全（例如部分艺术字体仅包含简体常用 3500 字，缺少繁体字或日本汉字）。
    - 建议选用 GBK 全字符集或包含超全 CJK 字符的字体（如开源的思源黑体、霞鹜文楷、萝莉体等）。
 2. **为什么博客里的日文歌名或假名乱码/断层？**
    - 很多国内制作的艺术中文字体**完全没有绘制日文平假名与片假名**。
    - 如果你的博客包含日文歌曲或番剧页面，请务必确认字体包含 Hiragana (U+3040-U+309F) 与 Katakana (U+30A0-U+30FF) 字形。
-3. **为什么提示 `local fonts must be .woff2 files under src/assets/fonts`？**
-   - 系统为保证网页加载性能与体积，强制要求本地字体必须使用 `.woff2` 格式，且统一存放于 `src/assets/fonts/` 目录下。如果是 `.ttf` 或 `.otf`，请先转换为 `.woff2` 后再引入。
+3. **本地字体可以使用 `.ttf` 或 `.otf` 吗？**
+   - 可以作为 `subsetting.enable: true` 时的构建输入，但必须放在 `src/assets/fonts/`，并由生产构建转换为 `.subset.woff2`。如果关闭子集化，建议直接提供优化后的 `.woff2`；无论配置如何，生产 `dist/` 都不允许包含或引用原始 `.ttf` / `.otf`。
 4. **修改后页面字体没有刷新？**
    - 运行 `pnpm.cmd build` 重新编译，或在开发模式下刷新浏览器缓存（Ctrl + F5）。
