@@ -427,4 +427,66 @@ test.describe("Mermaid diagrams", () => {
 		await page.keyboard.press("Escape");
 		await expect(dialog).toBeHidden();
 	});
+
+	test("maintains readable contrast for edge labels and nodes in dark mode", async ({
+		page,
+	}) => {
+		await page.goto(DEMO_PATH, { waitUntil: "domcontentloaded" });
+		const diagrams = page.locator(".markdown-mermaid");
+		await expect
+			.poll(
+				() =>
+					diagrams.evaluateAll(
+						(elements) =>
+							elements.filter(
+								(element) => element.dataset.mermaidState === "ready",
+							).length,
+					),
+				{ timeout: 30_000 },
+			)
+			.toBe(14);
+
+		await page.evaluate(() => {
+			document.documentElement.classList.add("dark");
+		});
+		await expect
+			.poll(
+				() =>
+					diagrams.evaluateAll(
+						(elements) =>
+							elements.filter(
+								(element) =>
+									element.dataset.mermaidState === "ready" &&
+									element.dataset.mermaidTheme?.startsWith("dark|"),
+							).length,
+					),
+				{ timeout: 30_000 },
+			)
+			.toBe(14);
+
+		const flowchart = diagrams.first();
+		const edgeLabelInfo = await flowchart.evaluate((element) => {
+			const edgeLabels = Array.from(
+				element.querySelectorAll<HTMLElement>(".edgeLabel"),
+			);
+			return edgeLabels.map((el) => {
+				const style = getComputedStyle(el);
+				return {
+					color: style.color,
+					visibility: style.visibility,
+					display: style.display,
+				};
+			});
+		});
+		expect(edgeLabelInfo.length).toBeGreaterThan(0);
+		for (const label of edgeLabelInfo) {
+			expect(label.visibility).not.toBe("hidden");
+			expect(label.display).not.toBe("none");
+		}
+
+		expect(
+			(await new AxeBuilder({ page }).include(".markdown-mermaid").analyze())
+				.violations,
+		).toEqual([]);
+	});
 });

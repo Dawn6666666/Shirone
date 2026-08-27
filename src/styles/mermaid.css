@@ -73,6 +73,23 @@
 	margin-inline: auto;
 }
 
+.custom-md .markdown-mermaid__diagram .edgeLabel {
+	background-color: var(--surface-container-lowest);
+	color: var(--on-surface);
+}
+
+.custom-md .markdown-mermaid__diagram .edgeLabel rect,
+.custom-md .markdown-mermaid__diagram .edgeLabel .label-container {
+	fill: var(--surface-container-lowest);
+}
+
+.custom-md .markdown-mermaid__diagram .edgeLabel span,
+.custom-md .markdown-mermaid__diagram .edgeLabel text,
+.custom-md .markdown-mermaid__diagram .edgeLabel p {
+	color: var(--on-surface);
+	fill: var(--on-surface);
+}
+
 .custom-md .markdown-mermaid__transform {
 	position: absolute;
 	top: 50%;

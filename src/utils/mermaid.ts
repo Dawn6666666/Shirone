@@ -3,20 +3,29 @@ import type { MermaidInteractionController } from "./mermaid-interaction";
 const DIAGRAM_SELECTOR = ".markdown-mermaid[data-mermaid]";
 const THEME_PROPERTIES = [
 	"--mc-primary",
-	"--mc-on-primary-container",
+	"--mc-on-primary",
 	"--mc-primary-container",
+	"--mc-on-primary-container",
 	"--mc-secondary",
-	"--mc-on-secondary-container",
+	"--mc-on-secondary",
 	"--mc-secondary-container",
+	"--mc-on-secondary-container",
 	"--mc-tertiary",
-	"--mc-on-tertiary-container",
+	"--mc-on-tertiary",
 	"--mc-tertiary-container",
+	"--mc-on-tertiary-container",
 	"--mc-surface",
-	"--mc-surface-container-low",
 	"--mc-surface-container-lowest",
+	"--mc-surface-container-low",
+	"--mc-surface-container",
+	"--mc-surface-container-high",
 	"--mc-on-surface",
 	"--mc-on-surface-variant",
+	"--mc-outline",
 	"--mc-outline-variant",
+	"--mc-error",
+	"--mc-error-container",
+	"--mc-on-error-container",
 ] as const;
 
 let initialized = false;
@@ -50,33 +59,176 @@ function readTheme() {
 			styles.getPropertyValue(property).trim(),
 		]),
 	);
+	const isDark = root.classList.contains("dark");
 	const signature = [
-		root.classList.contains("dark") ? "dark" : "light",
+		isDark ? "dark" : "light",
 		...THEME_PROPERTIES.map((property) => values[property]),
 	].join("|");
 
-	return { values, signature };
+	return { isDark, values, signature };
 }
 
-function createThemeVariables(values: Record<string, string>) {
+function createThemeVariables(values: Record<string, string>, isDark: boolean) {
+	const surfaceLowest =
+		values["--mc-surface-container-lowest"] || (isDark ? "#0f0e0c" : "#ffffff");
+	const surfaceLow =
+		values["--mc-surface-container-low"] || (isDark ? "#1c1b18" : "#f7f2ee");
+	const surfaceContainer =
+		values["--mc-surface-container"] || (isDark ? "#201f1c" : "#f1ede7");
+	const surfaceHigh =
+		values["--mc-surface-container-high"] || (isDark ? "#2b2a26" : "#ebe7e1");
+	const onSurface =
+		values["--mc-on-surface"] || (isDark ? "#e6e1db" : "#1c1b18");
+	const onSurfaceVariant =
+		values["--mc-on-surface-variant"] || (isDark ? "#cdc4be" : "#4b4540");
+	const outline = values["--mc-outline"] || (isDark ? "#968e88" : "#7d7570");
+	const outlineVariant =
+		values["--mc-outline-variant"] || (isDark ? "#4b4540" : "#cdc4be");
+
+	const primary = values["--mc-primary"] || (isDark ? "#d0bcff" : "#6750a4");
+	const onPrimary =
+		values["--mc-on-primary"] || (isDark ? "#381e72" : "#ffffff");
+	const primaryContainer =
+		values["--mc-primary-container"] || (isDark ? "#4f378b" : "#eaddff");
+	const onPrimaryContainer =
+		values["--mc-on-primary-container"] || (isDark ? "#eaddff" : "#21005d");
+
+	const secondary =
+		values["--mc-secondary"] || (isDark ? "#ccc2dc" : "#625b71");
+	const secondaryContainer =
+		values["--mc-secondary-container"] || (isDark ? "#4a4458" : "#e8def8");
+	const onSecondaryContainer =
+		values["--mc-on-secondary-container"] || (isDark ? "#e8def8" : "#1d192b");
+
+	const tertiary = values["--mc-tertiary"] || (isDark ? "#efb8c8" : "#7d5260");
+	const tertiaryContainer =
+		values["--mc-tertiary-container"] || (isDark ? "#633b48" : "#ffd8e4");
+	const onTertiaryContainer =
+		values["--mc-on-tertiary-container"] || (isDark ? "#ffd8e4" : "#31111d");
+
+	const error = values["--mc-error"] || (isDark ? "#f2b8b5" : "#b3261e");
+	const errorContainer =
+		values["--mc-error-container"] || (isDark ? "#8c1d18" : "#f9dedc");
+
 	return {
+		darkMode: isDark,
 		fontFamily: getComputedStyle(document.body).fontFamily,
-		background: values["--mc-surface"],
-		primaryColor: values["--mc-primary-container"],
-		primaryTextColor: values["--mc-on-primary-container"],
-		primaryBorderColor: values["--mc-primary"],
-		secondaryColor: values["--mc-secondary-container"],
-		secondaryTextColor: values["--mc-on-secondary-container"],
-		secondaryBorderColor: values["--mc-secondary"],
-		tertiaryColor: values["--mc-tertiary-container"],
-		tertiaryTextColor: values["--mc-on-tertiary-container"],
-		tertiaryBorderColor: values["--mc-tertiary"],
-		lineColor: values["--mc-on-surface-variant"],
-		textColor: values["--mc-on-surface"],
-		mainBkg: values["--mc-primary-container"],
-		clusterBkg: values["--mc-surface-container-low"],
-		clusterBorder: values["--mc-outline-variant"],
-		edgeLabelBackground: values["--mc-surface-container-lowest"],
+		background: surfaceLowest,
+		mainBkg: primaryContainer,
+		textColor: onSurface,
+
+		// Primary / Node tokens
+		primaryColor: primaryContainer,
+		primaryTextColor: onPrimaryContainer,
+		primaryBorderColor: primary,
+		nodeBkg: primaryContainer,
+		nodeTextColor: onPrimaryContainer,
+		nodeBorder: primary,
+
+		// Secondary tokens
+		secondaryColor: secondaryContainer,
+		secondaryTextColor: onSecondaryContainer,
+		secondaryBorderColor: secondary,
+
+		// Tertiary tokens
+		tertiaryColor: tertiaryContainer,
+		tertiaryTextColor: onTertiaryContainer,
+		tertiaryBorderColor: tertiary,
+
+		// Lines & Arrows
+		lineColor: onSurfaceVariant,
+		arrowheadColor: onSurfaceVariant,
+		defaultLinkColor: onSurfaceVariant,
+
+		// Clusters & Subgraphs
+		clusterBkg: surfaceLow,
+		clusterBorder: outlineVariant,
+		titleColor: onSurface,
+
+		// Edge & Link labels (must contrast against diagram canvas)
+		edgeLabelBackground: surfaceLowest,
+		labelBackground: surfaceLowest,
+		labelTextColor: onSurface,
+
+		// Sequence diagram
+		actorBkg: primaryContainer,
+		actorBorder: primary,
+		actorTextColor: onPrimaryContainer,
+		actorLineColor: outlineVariant,
+		signalColor: onSurface,
+		signalTextColor: onSurface,
+		labelBoxBkgColor: surfaceContainer,
+		labelBoxBorderColor: outlineVariant,
+		loopTextColor: onSurface,
+		noteBkgColor: tertiaryContainer,
+		noteTextColor: onTertiaryContainer,
+		noteBorderColor: tertiary,
+		activationBkgColor: secondaryContainer,
+		activationBorderColor: secondary,
+		sequenceNumberColor: onPrimary,
+
+		// State diagram
+		stateBkg: primaryContainer,
+		stateLabelColor: onPrimaryContainer,
+		transitionColor: onSurfaceVariant,
+		transitionLabelColor: onSurface,
+		labelBackgroundColor: surfaceLowest,
+		altBackground: surfaceLowest,
+		compositeBackground: surfaceLow,
+		compositeBorder: outlineVariant,
+		compositeTitleBackground: surfaceContainer,
+		specialStateColor: primary,
+		innerEndBackground: onSurface,
+
+		// Class diagram
+		classText: onSurface,
+
+		// ER diagram
+		relationColor: onSurfaceVariant,
+		relationLabelColor: onSurface,
+		relationLabelBackground: surfaceLowest,
+		attributeBackgroundColorOdd: surfaceLowest,
+		attributeBackgroundColorEven: surfaceLow,
+
+		// GitGraph
+		branchLabelColor: onSurface,
+		gitBranchLabel0: onSurface,
+		gitBranchLabel1: onSurface,
+		gitBranchLabel2: onSurface,
+		gitBranchLabel3: onSurface,
+		gitBranchLabel4: onSurface,
+		gitBranchLabel5: onSurface,
+		gitBranchLabel6: onSurface,
+		gitBranchLabel7: onSurface,
+		tagLabelColor: onPrimaryContainer,
+		tagLabelBackground: primaryContainer,
+		tagLabelBorder: primary,
+		commitLabelColor: onSurface,
+		commitLabelBackground: surfaceLowest,
+
+		// Pie chart
+		pieTitleTextColor: onSurface,
+		pieLegendTextColor: onSurface,
+		pieStrokeColor: surfaceLowest,
+
+		// Gantt chart
+		gridColor: outlineVariant,
+		todayLineColor: error,
+		sectionBkgColor: surfaceLow,
+		altSectionBkgColor: surfaceLowest,
+		sectionBkgColor2: surfaceContainer,
+		taskBorderColor: primary,
+		taskBkgColor: primaryContainer,
+		taskTextColor: onPrimaryContainer,
+		taskTextLightColor: onSurface,
+		taskTextDarkColor: onSurface,
+		taskTextOutsideColor: onSurface,
+		activeTaskBorderColor: primary,
+		activeTaskBkgColor: primary,
+		doneTaskBkgColor: surfaceHigh,
+		doneTaskBorderColor: outline,
+		critBorderColor: error,
+		critBkgColor: errorContainer,
 	};
 }
 
@@ -150,7 +302,7 @@ async function renderDiagrams() {
 			securityLevel: "strict",
 			suppressErrorRendering: true,
 			theme: "base",
-			themeVariables: createThemeVariables(theme.values),
+			themeVariables: createThemeVariables(theme.values, theme.isDark),
 		});
 
 		for (const diagram of targets) {
@@ -230,12 +382,12 @@ async function renderDiagrams() {
 	}
 }
 
-export function scheduleMermaidRender() {
+export function scheduleMermaidRender(): void {
 	window.clearTimeout(renderTimer);
 	renderTimer = window.setTimeout(() => void renderDiagrams());
 }
 
-export function initMermaidDiagrams() {
+export function initMermaidDiagrams(): void {
 	if (initialized) return;
 	initialized = true;
 	lastThemeSignature = readTheme().signature;
