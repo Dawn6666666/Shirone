@@ -14,9 +14,11 @@ import { FileTreeComponent } from "../plugins/markdown/containers/rehype-file-tr
 import { StepsComponent } from "../plugins/markdown/containers/rehype-steps.mjs";
 import { remarkAdmonitions } from "../plugins/markdown/remark-admonitions.mjs";
 import { remarkContentAnnotations } from "../plugins/markdown/remark-content-annotations.mjs";
+import { remarkMarker } from "../plugins/markdown/remark-marker.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
+import { MarkerComponent } from "../plugins/rehype-component-marker.mjs";
 import { rehypeMarkdownImages } from "../plugins/rehype-markdown-images.mjs";
 import { rehypeResponsiveTables } from "../plugins/rehype-responsive-tables.mjs";
 import { parseDirectiveNode } from "../plugins/remark-directive-rehype.js";
@@ -32,6 +34,7 @@ export const siteRemarkPlugins = [
 	remarkEscapeNumericColons,
 	remarkContentAnnotations,
 	remarkAdmonitions,
+	remarkMarker,
 	remarkMath,
 	remarkFileTree,
 	remarkCodeTree,
@@ -65,6 +68,7 @@ export const siteRehypePlugins = [
 				caution: (x, y) => AdmonitionComponent(x, y, "caution"),
 				warning: (x, y) => AdmonitionComponent(x, y, "warning"),
 				"admonition-details": (x, y) => AdmonitionComponent(x, y, "details"),
+				"m3-mark": MarkerComponent,
 			},
 		},
 	],

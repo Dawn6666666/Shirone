@@ -460,6 +460,57 @@
 			"notes": ["非法或越界宽度令牌保留在 alt，不静默改写。"]
 		},
 		{
+			"id": "marker",
+			"name": "Marker Highlight",
+			"status": "stable",
+			"category": "inline-extension",
+			"source": "shirone",
+			"summary": "使用双等号高亮正文短语，并以可选语义变体表达不同强调层级。",
+			"forms": [
+				{
+					"kind": "inline",
+					"pattern": "==content==",
+					"example": "使用 ==主题主色强调== 标记核心结论。"
+				},
+				{
+					"kind": "inline-with-suffix",
+					"pattern": "==content=={.<variant>}",
+					"example": "==需要修正的条件=={.error}"
+				}
+			],
+			"attributes": [
+				{
+					"name": "variant",
+					"required": false,
+					"values": "primary | secondary | tertiary | error | tip",
+					"default": "primary"
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/remark-marker.mjs",
+				"src/plugins/rehype-component-marker.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/marker.css"],
+			"runtime": {
+				"mode": "none",
+				"modules": [],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/marker-highlights.md",
+				"docs/markdown-extensions.md"
+			],
+			"tests": [
+				"tests/plugins/markdown/inline/markers.test.mjs",
+				"tests/site/markers.spec.ts"
+			],
+			"notes": [
+				"代码围栏、行内代码、未知变体、空内容、未闭合语法和转义文本保留原文。",
+				"输出原生 mark 元素，使用主题 token 渲染，不增加 hydration、客户端模块或网络请求。"
+			]
+		},
+		{
 			"id": "math",
 			"name": "Math and KaTeX",
 			"status": "stable",

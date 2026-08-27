@@ -80,6 +80,18 @@ Admonition 支持现有方括号标题、GitHub Alert 与常用的空格标题�
 
 组件根节点使用 `not-prose`，内部段落、列表、引用、代码与折叠标题的几何由 `markdown/admonitions.css` 完整拥有。不要把提示容器重新改成 `blockquote`，也不要把样式追加回 `markdown-extend.styl`：前者会泄漏通用引用样式，后者会让新旧样式入口重复竞争。独立演示页位于 `src/content/posts/admonitions.md`。
 
+### 3.2 马克笔高亮
+
+Marker 使用 `==内容==` 为正文中的短语提供原生 `<mark>` 高亮；可选的语义后缀为 `.primary`、`.secondary`、`.tertiary`、`.error` 与 `.tip`：
+
+```markdown
+==默认使用主题主色==
+==次级强调=={.secondary}
+==需要修正的条件=={.error}
+```
+
+`remark-marker.mjs` 只在代码围栏和行内代码之外将作者语法改写为 text directive，再由 `rehype-component-marker.mjs` 输出带稳定 class 的语义化 `<mark>`。未知变体、空内容、未闭合语法和转义文本保留原文，避免不完整的文章内容被静默改写。样式位于 `markdown/marker.css`，只使用 M3E 语义色 token，不依赖客户端模块、动画或网络请求。独立演示页位于 `src/content/posts/marker-highlights.md`。
+
 ## 4. 缓存与刷新
 
 修改 remark/rehype 插件后，Astro dev 可能继续提供旧的 Markdown 编译结果。典型信号是：新 CSS 已出现，但插件新增的 class 或 DOM 结构不存在。
@@ -116,9 +128,10 @@ pnpm.cmd astro dev --port 4321
 4. 无障碍：运行最小组件用例及 `tests/site/a11y.spec.ts` 的相关页面。
 5. 构建验证：运行 `npx.cmd astro check` 与 `pnpm.cmd build`，不能只依赖 dev server 热更新结果。
 
-Admonitions、File Tree、Code Tree、Steps 与 Content Annotations 的对应覆盖位于：
+Admonitions、Marker、File Tree、Code Tree、Steps 与 Content Annotations 的对应覆盖位于：
 
 - `tests/plugins/markdown/containers/admonitions.test.mjs`
+- `tests/plugins/markdown/inline/markers.test.mjs`
 - `tests/plugins/markdown/containers/file-tree.test.mjs`
 - `tests/plugins/markdown/containers/code-tree.test.mjs`
 - `tests/plugins/markdown/containers/steps.test.mjs`
@@ -126,6 +139,7 @@ Admonitions、File Tree、Code Tree、Steps 与 Content Annotations 的对应覆
 - `tests/plugins/markdown/core/disclosure.test.mjs`
 - `tests/site/file-tree.spec.ts`
 - `tests/site/admonitions.spec.ts`
+- `tests/site/markers.spec.ts`
 - `tests/site/code-tree.spec.ts`
 - `tests/site/steps.spec.ts`
 - `tests/site/content-annotations.spec.ts`
