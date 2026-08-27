@@ -1,6 +1,10 @@
 # build output
 dist/
 
+# content repository working copy and provenance (see docs/content-separation.md)
+.content-src/
+content.lock.json
+
 # generated types
 .astro/
 
