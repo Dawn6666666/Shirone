@@ -7,6 +7,7 @@
 @import "./markdown/steps.css";
 @import "./markdown/content-annotations.css";
 @import "./markdown/marker.css";
+@import "./markdown/option-groups.css";
 
 .custom-md {
   h1 {

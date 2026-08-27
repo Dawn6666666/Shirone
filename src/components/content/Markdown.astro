@@ -18,4 +18,20 @@ const className = Astro.props.class;
 
 	initCodeCopyButtons();
 	initCodeTrees();
+
+	const OPTION_GROUP_SELECTOR = ".m3-option-group[data-option-group]";
+	const OPTION_GROUP_LOADER_BOUND = "optionGroupLoaderBound";
+	const initOptionGroupsWhenPresent = async () => {
+		if (!document.querySelector(OPTION_GROUP_SELECTOR)) return;
+		const { initOptionGroups } = await import("@utils/option-groups");
+		initOptionGroups();
+	};
+
+	if (document.documentElement.dataset[OPTION_GROUP_LOADER_BOUND] !== "true") {
+		document.documentElement.dataset[OPTION_GROUP_LOADER_BOUND] = "true";
+		void initOptionGroupsWhenPresent();
+		document.addEventListener("swup:content:replace", () => {
+			void initOptionGroupsWhenPresent();
+		});
+	}
 </script>

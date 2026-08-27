@@ -15,11 +15,16 @@ import {
 	rehypeCollapseGroups,
 } from "../plugins/markdown/containers/rehype-collapse-panels.mjs";
 import { FileTreeComponent } from "../plugins/markdown/containers/rehype-file-tree.mjs";
+import {
+	OptionGroupsComponent,
+	rehypeOptionGroupIds,
+} from "../plugins/markdown/containers/rehype-option-groups.mjs";
 import { StepsComponent } from "../plugins/markdown/containers/rehype-steps.mjs";
 import { remarkAdmonitions } from "../plugins/markdown/remark-admonitions.mjs";
 import { remarkCollapsePanels } from "../plugins/markdown/remark-collapse-panels.mjs";
 import { remarkContentAnnotations } from "../plugins/markdown/remark-content-annotations.mjs";
 import { remarkMarker } from "../plugins/markdown/remark-marker.mjs";
+import { remarkOptionGroups } from "../plugins/markdown/remark-option-groups.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
@@ -40,6 +45,7 @@ export const siteRemarkPlugins = [
 	remarkContentAnnotations,
 	remarkAdmonitions,
 	remarkCollapsePanels,
+	remarkOptionGroups,
 	remarkMarker,
 	remarkMath,
 	remarkFileTree,
@@ -59,11 +65,13 @@ export const siteRehypePlugins = [
 	rehypeKatex,
 	rehypeSlug,
 	rehypeCollapseGroups,
+	rehypeOptionGroupIds,
 	[
 		rehypeComponents,
 		{
 			components: {
 				collapse: CollapsePanelsComponent,
+				tabs: OptionGroupsComponent,
 				"file-tree": FileTreeComponent,
 				"code-tree": CodeTreeComponent,
 				steps: StepsComponent,

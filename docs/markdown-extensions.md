@@ -112,6 +112,28 @@ Collapse Panels 使用 `::: collapse` 包裹一个顶层无序列表，每个列
 
 渲染器组合 `core/disclosure.mjs` 输出原生 `<details>/<summary>`。手风琴通过文档内唯一的原生 `details[name]` 分组完成，不增加 hydration、客户端事件监听、模块或网络请求；普通模式允许多项同时展开。组件根节点使用 `not-prose`，紧凑连续面板、正文排版、窄屏间距、打印展开和 reduced-motion 降级由 `markdown/collapse-panels.css` 完整拥有。独立演示页位于 `src/content/posts/collapse-panels.md`。
 
+### 3.4 选项组
+
+Option Groups 使用 `::: tabs#同步标识` 容器和独占一行的 `@tab` 标记组织等价内容。`@tab:active` 指定初始项；标题末尾的 `#值` 提供稳定同步值，但不进入可见标题：
+
+```markdown
+::: tabs#runtime
+
+@tab Node.js#node
+
+Node.js 对应的完整 Markdown 正文。
+
+@tab:active **Bun**#bun
+
+Bun 对应的完整 Markdown 正文。
+
+:::
+```
+
+同步标识只接受字母、数字、点、下划线和连字符。具有相同标识且包含相同值的选项组会同步切换，并在读者主动切换后把该值写入独立的 `localStorage` 键；无标识的组互不影响。每组至少需要两个值不重复的选项，每个 `@tab` 标题后必须用空行分隔非空正文。标题支持行内 Markdown，正文支持完整块级 Markdown。前导混合内容、单选项、重复值、空正文或不完整结构会保留为普通 Markdown。
+
+SSR 输出不会预先隐藏任何面板，并重复输出每个面板标题，因此脚本不可用时仍能连续阅读全文。客户端模块只在页面实际包含 `.m3-option-group` 时动态加载，增强后才隐藏非活动面板并启用点击、方向键、Home/End、ARIA 状态、同 id 同步与记忆。初始化覆盖直接加载、Swup 内容替换和加密文章解锁；不使用 hydration、第三方依赖或网络请求。组件根节点使用 `not-prose`，选项栏保持单行并在自身范围内横向滑动；长标题截断但标签仍可点击，键盘切换只滚动该选项栏。窄屏边界和打印展开由 `markdown/option-groups.css` 完整拥有。独立演示页位于 `src/content/posts/option-groups.md`。
+
 ## 4. 缓存与刷新
 
 修改 remark/rehype 插件后，Astro dev 可能继续提供旧的 Markdown 编译结果。典型信号是：新 CSS 已出现，但插件新增的 class 或 DOM 结构不存在。
@@ -148,10 +170,11 @@ pnpm.cmd astro dev --port 4321
 4. 无障碍：运行最小组件用例及 `tests/site/a11y.spec.ts` 的相关页面。
 5. 构建验证：运行 `npx.cmd astro check` 与 `pnpm.cmd build`，不能只依赖 dev server 热更新结果。
 
-Admonitions、Collapse Panels、Marker、File Tree、Code Tree、Steps 与 Content Annotations 的对应覆盖位于：
+Admonitions、Collapse Panels、Option Groups、Marker、File Tree、Code Tree、Steps 与 Content Annotations 的对应覆盖位于：
 
 - `tests/plugins/markdown/containers/admonitions.test.mjs`
 - `tests/plugins/markdown/containers/collapse-panels.test.mjs`
+- `tests/plugins/markdown/containers/option-groups.test.mjs`
 - `tests/plugins/markdown/inline/markers.test.mjs`
 - `tests/plugins/markdown/containers/file-tree.test.mjs`
 - `tests/plugins/markdown/containers/code-tree.test.mjs`
@@ -161,6 +184,7 @@ Admonitions、Collapse Panels、Marker、File Tree、Code Tree、Steps 与 Conte
 - `tests/site/file-tree.spec.ts`
 - `tests/site/admonitions.spec.ts`
 - `tests/site/collapse-panels.spec.ts`
+- `tests/site/option-groups.spec.ts`
 - `tests/site/markers.spec.ts`
 - `tests/site/code-tree.spec.ts`
 - `tests/site/steps.spec.ts`

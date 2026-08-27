@@ -645,6 +645,65 @@
 			"notes": ["客户端初始化必须覆盖直接加载、Swup、主题变化和文章解密。"]
 		},
 		{
+			"id": "option-groups",
+			"name": "Option Groups",
+			"status": "stable",
+			"category": "container",
+			"source": "shirone",
+			"summary": "将多个完整 Markdown 片段渲染为可同步、可记忆且支持键盘操作的 M3E 选项组。",
+			"forms": [
+				{
+					"kind": "container-directive",
+					"pattern": "::: tabs[#sync-id] ... :::",
+					"example": "::: tabs#runtime\n\n@tab Node.js#node\n\nNode 正文。\n\n@tab:active Bun#bun\n\nBun 正文。\n\n:::"
+				}
+			],
+			"attributes": [
+				{
+					"name": "sync id",
+					"required": false,
+					"values": "letters, digits, dot, underscore, or hyphen after #",
+					"default": null
+				},
+				{
+					"name": "active marker",
+					"required": false,
+					"values": "@tab | @tab:active",
+					"default": "first tab"
+				},
+				{
+					"name": "option value",
+					"required": false,
+					"values": "text after the final # in a tab title",
+					"default": "plain title text"
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/remark-option-groups.mjs",
+				"src/plugins/markdown/containers/rehype-option-groups.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/option-groups.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/option-groups.ts"],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/option-groups.md",
+				"docs/markdown-extensions.md"
+			],
+			"tests": [
+				"tests/plugins/markdown/containers/option-groups.test.mjs",
+				"tests/site/option-groups.spec.ts"
+			],
+			"notes": [
+				"至少需要两个值不重复的选项且每个选项必须有独立正文；非法结构保留为普通 Markdown。",
+				"SSR 不隐藏任何面板；客户端增强后启用 ARIA tabs、同 id 同步与本地偏好记忆。",
+				"客户端初始化覆盖直接加载、Swup 内容替换和文章解密，且不产生网络请求。"
+			]
+		},
+		{
 			"id": "spoiler",
 			"name": "Inline Spoiler",
 			"status": "legacy",
