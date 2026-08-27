@@ -112,6 +112,33 @@ test.describe("文章加密交互与解密流", () => {
 		);
 		await expect(gate).toBeHidden();
 
+		const headingSpacing = await content.evaluate((root) => {
+			const rootStyles = getComputedStyle(document.documentElement);
+			return {
+				sectionSpace: rootStyles.getPropertyValue("--m3e-space-4").trim(),
+				compactSpace: rootStyles.getPropertyValue("--m3e-space-2").trim(),
+				headings: [
+					"password-protected-article",
+					"1-security-architecture-and-core-features",
+				].map((id) => {
+					const heading = root.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+					if (!heading) throw new Error(`Missing decrypted heading #${id}`);
+					const computed = getComputedStyle(heading);
+					return {
+						marginTop: computed.marginTop,
+						marginBottom: computed.marginBottom,
+					};
+				}),
+			};
+		});
+		expect(headingSpacing.headings).toEqual([
+			{ marginTop: "0px", marginBottom: headingSpacing.compactSpace },
+			{
+				marginTop: headingSpacing.sectionSpace,
+				marginBottom: headingSpacing.compactSpace,
+			},
+		]);
+
 		// 解密后运行时能力必须真实完成初始化，而不是只插入 HTML。
 		await expect(page.locator(".markdown-content pre").first()).toBeVisible();
 		await expect(

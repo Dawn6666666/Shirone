@@ -50,6 +50,7 @@
 ## 3. 样式入口
 
 - `src/styles/main.css` 全局导入 `src/styles/markdown.css`；后者再导入 `src/styles/markdown/*.css`。
+- `src/styles/markdown-typography.css` 是受限的 Typography 级联桥接入口：仅允许包含 `.markdown-content` 范围内、需要与 `@tailwindcss/typography` 同处 `utilities` 层的正文排版覆盖。不得把普通 Markdown 组件样式迁入该文件或借此建立新的通用优先级层。
 - `src/components/content/Markdown.astro` 以全局 Stylus 样式导入 `src/styles/markdown-extend.styl`，供历史 Markdown 扩展使用。
 - 新的独立小组件优先放入 `src/styles/markdown/`，由 `markdown.css` 显式导入；不要在文章、页面或插件生成的 HTML 中内联重复样式。
 - 颜色、圆角、字体、间距和动效使用项目 token。生成式组件 class 必须稳定，不能依赖随机 ID 作为样式契约。

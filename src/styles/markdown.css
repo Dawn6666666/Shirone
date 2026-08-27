@@ -225,7 +225,8 @@
 
   /* --- 标题间距 --- */
   :is(h1, h2, h3) {
-    @apply mt-4 mb-2;
+    margin-top: var(--m3e-space-4);
+    margin-bottom: var(--m3e-space-2);
   }
 }
 

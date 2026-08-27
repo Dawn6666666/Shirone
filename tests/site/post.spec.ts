@@ -7,6 +7,104 @@ import { expect, test } from "@playwright/test";
 test.describe("Site post", () => {
 	test.use({ viewport: { width: 1280, height: 900 } });
 
+	test("Markdown headings keep tokenized spacing after direct load and Swup navigation", async ({
+		page,
+	}) => {
+		const readHeadingSpacing = async (ids: string[]) =>
+			page
+				.locator(".markdown-content")
+				.first()
+				.evaluate((root, headingIds) => {
+					const rootStyles = getComputedStyle(document.documentElement);
+					return {
+						sectionSpace: rootStyles.getPropertyValue("--m3e-space-4").trim(),
+						compactSpace: rootStyles.getPropertyValue("--m3e-space-2").trim(),
+						headings: headingIds.map((id) => {
+							const heading = root.querySelector<HTMLElement>(`#${id}`);
+							if (!heading) throw new Error(`Missing Markdown heading #${id}`);
+							const computed = getComputedStyle(heading);
+							return {
+								id,
+								marginTop: computed.marginTop,
+								marginBottom: computed.marginBottom,
+							};
+						}),
+					};
+				}, ids);
+		const expectHeadingSpacing = async (ids: string[]) => {
+			const spacing = await readHeadingSpacing(ids);
+			expect(spacing.headings).toEqual(
+				ids.map((id, index) => ({
+					id,
+					marginTop: index === 0 ? "0px" : spacing.sectionSpace,
+					marginBottom: spacing.compactSpace,
+				})),
+			);
+		};
+		const waitForPageReady = async () => {
+			await page.waitForFunction(() =>
+				getComputedStyle(document.documentElement)
+					.getPropertyValue("--mc-primary")
+					.trim()
+					.startsWith("#"),
+			);
+			await page.waitForFunction(() =>
+				[...document.querySelectorAll(".onload-animation")].every((element) => {
+					if ((element as HTMLElement).offsetParent === null) return true;
+					return getComputedStyle(element).opacity === "1";
+				}),
+			);
+		};
+
+		await page.route("https://api.github.com/**", (route) =>
+			route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					description: "Markdown heading spacing test fixture.",
+					language: "TypeScript",
+					stargazers_count: 1,
+					forks: 1,
+					owner: {
+						avatar_url:
+							"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>",
+					},
+					license: { spdx_id: "MIT" },
+				}),
+			}),
+		);
+		await page.addInitScript(() => localStorage.setItem("theme", "light"));
+		await page.goto("/posts/markdown/", { waitUntil: "domcontentloaded" });
+		await waitForPageReady();
+		await expectHeadingSpacing([
+			"an-h1-header",
+			"an-h2-header",
+			"an-h3-header",
+		]);
+
+		await page.setViewportSize({ width: 390, height: 844 });
+		const schemeSwitch = page.locator("#scheme-switch");
+		await expect(schemeSwitch).toBeVisible({ timeout: 15_000 });
+		await schemeSwitch.click();
+		await expect(page.locator("html")).toHaveClass(/dark/);
+		await expectHeadingSpacing([
+			"an-h1-header",
+			"an-h2-header",
+			"an-h3-header",
+		]);
+
+		await page.waitForFunction(() => Boolean(window.swup?.hooks));
+		await page.evaluate(() =>
+			window.swup?.navigate("/posts/markdown-extended/"),
+		);
+		await expect(page).toHaveURL(/\/posts\/markdown-extended\/?$/);
+		await expect(
+			page.locator(".markdown-content #github-repository-cards"),
+		).toBeVisible();
+		await waitForPageReady();
+		await expectHeadingSpacing(["github-repository-cards", "mermaid-diagrams"]);
+	});
+
 	test("guide cover is eager and responsive", async ({ page }) => {
 		await page.goto("/posts/guide/", { waitUntil: "domcontentloaded" });
 
