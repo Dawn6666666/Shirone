@@ -20,6 +20,7 @@ import {
 	rehypeOptionGroupIds,
 } from "../plugins/markdown/containers/rehype-option-groups.mjs";
 import { StepsComponent } from "../plugins/markdown/containers/rehype-steps.mjs";
+import { remarkAbbreviations } from "../plugins/markdown/remark-abbreviations.mjs";
 import { remarkAdmonitions } from "../plugins/markdown/remark-admonitions.mjs";
 import { remarkCollapsePanels } from "../plugins/markdown/remark-collapse-panels.mjs";
 import { remarkContentAnnotations } from "../plugins/markdown/remark-content-annotations.mjs";
@@ -43,6 +44,7 @@ import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
 export const siteRemarkPlugins = [
 	remarkEscapeNumericColons,
 	remarkContentAnnotations,
+	remarkAbbreviations,
 	remarkAdmonitions,
 	remarkCollapsePanels,
 	remarkOptionGroups,

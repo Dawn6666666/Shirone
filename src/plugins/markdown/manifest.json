@@ -3,6 +3,57 @@
 	"note": "Shirone 已支持的自定义 Markdown 作者语法单一索引。只登记生产可用语法；研究计划与未落地能力不得提前加入。",
 	"syntaxes": [
 		{
+			"id": "abbreviation",
+			"name": "Abbreviation",
+			"status": "stable",
+			"category": "inline-extension",
+			"source": "shirone",
+			"summary": "使用标准缩写定义行，为当前文章中匹配的术语输出带完整释义的原生 abbr 元素。",
+			"forms": [
+				{
+					"kind": "block-definition",
+					"pattern": "*[TERM]: Full expansion",
+					"example": "*[SSR]: Server-Side Rendering\n\nSSR 输出可直接阅读。"
+				}
+			],
+			"attributes": [
+				{
+					"name": "term",
+					"required": true,
+					"values": "1-48 characters: letters, digits, period, underscore, plus, or hyphen",
+					"default": null
+				},
+				{
+					"name": "expansion",
+					"required": true,
+					"values": "non-empty single-line text",
+					"default": null
+				}
+			],
+			"implementation": ["src/plugins/markdown/remark-abbreviations.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/abbreviations.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/abbreviations.ts"],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/markdown-abbreviations.md",
+				"docs/markdown-extensions.md"
+			],
+			"tests": [
+				"tests/plugins/markdown/inline/abbreviations.test.mjs",
+				"tests/site/abbreviations.spec.ts"
+			],
+			"notes": [
+				"定义仅在当前文章内生效，定义行不会输出为正文；非法、空或重复定义保留为普通 Markdown。",
+				"普通文本与标准行内 Markdown 可匹配；代码、链接、图片和原始 HTML 保持作者原文。",
+				"输出原生 abbr 语义（不使用浏览器 title 气泡），释义用原生 Popover 顶层 + CSS Anchor 定位到缩写词，任何布局容器都不会裁剪。",
+				"只在使用者需要时动态加载客户端模块以绑定悬停/聚焦/触屏交互；纯 SSR 与禁用时零网络请求零 DOM 足迹。页面实际包含该功能时才加载。"
+			]
+		},
+		{
 			"id": "admonition",
 			"name": "Admonition",
 			"status": "stable",

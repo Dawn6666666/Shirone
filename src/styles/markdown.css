@@ -1,5 +1,6 @@
 @reference "tailwindcss";
 
+@import "./markdown/abbreviations.css";
 @import "./markdown/disclosures.css";
 @import "./markdown/admonitions.css";
 @import "./markdown/collapse-panels.css";

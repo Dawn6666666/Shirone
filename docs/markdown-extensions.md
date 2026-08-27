@@ -92,7 +92,20 @@ Marker 使用 `==内容==` 为正文中的短语提供原生 `<mark>` 高亮；�
 
 `remark-marker.mjs` 只在代码围栏和行内代码之外将作者语法改写为 text directive，再由 `rehype-component-marker.mjs` 输出带稳定 class 的语义化 `<mark>`。未知变体、空内容、未闭合语法和转义文本保留原文，避免不完整的文章内容被静默改写。样式位于 `markdown/marker.css`，只使用 M3E 语义色 token，不依赖客户端模块、动画或网络请求。独立演示页位于 `src/content/posts/marker-highlights.md`。
 
-### 3.3 折叠面板
+### 3.3 缩写词
+
+Abbreviations 使用标准定义行 `*[TERM]: Full expansion`，在当前文章内为正文中的同名术语输出原生 `<abbr>`：
+
+```markdown
+*[SSR]: Server-Side Rendering
+*[LCP]: Largest Contentful Paint
+
+SSR-first output should keep LCP stable.
+```
+
+术语须以字母或数字开始，后续仅允许字母、数字、句点、下划线、加号或连字符，最长 48 个字符。定义只在当前 Markdown 文档生效且不输出为正文；重复、非法或空定义保留为普通 Markdown。已定义术语可出现在普通文本和粗体等标准行内 Markdown 中，代码围栏、行内代码、链接、图片和原始 HTML 不会被改写。输出保留原生 `abbr` 语义与可访问名称，并以「原生 Popover 顶层 + CSS Anchor 定位」的 tooltip 在悬停、键盘聚焦或触屏点击时展示释义；因为气泡位于 top layer，越过正文边界的部分不会被侧栏或父级布局裁剪，也不使用浏览器原生 `title` 气泡。文档包含该语法时才动态加载 `src/utils/abbreviations.ts` 绑定交互；纯 SSR 与禁用时零客户端模块、hydration 或网络请求。独立演示页位于 `src/content/posts/markdown-abbreviations.md`。
+
+### 3.4 折叠面板
 
 Collapse Panels 使用 `::: collapse` 包裹一个顶层无序列表，每个列表项的首个段落是标题，空行后的块级内容是面板正文：
 
@@ -112,7 +125,7 @@ Collapse Panels 使用 `::: collapse` 包裹一个顶层无序列表，每个列
 
 渲染器组合 `core/disclosure.mjs` 输出原生 `<details>/<summary>`。手风琴通过文档内唯一的原生 `details[name]` 分组完成，不增加 hydration、客户端事件监听、模块或网络请求；普通模式允许多项同时展开。组件根节点使用 `not-prose`，紧凑连续面板、正文排版、窄屏间距、打印展开和 reduced-motion 降级由 `markdown/collapse-panels.css` 完整拥有。独立演示页位于 `src/content/posts/collapse-panels.md`。
 
-### 3.4 选项组
+### 3.5 选项组
 
 Option Groups 使用 `::: tabs#同步标识` 容器和独占一行的 `@tab` 标记组织等价内容。`@tab:active` 指定初始项；标题末尾的 `#值` 提供稳定同步值，但不进入可见标题：
 
@@ -173,6 +186,7 @@ pnpm.cmd astro dev --port 4321
 Admonitions、Collapse Panels、Option Groups、Marker、File Tree、Code Tree、Steps 与 Content Annotations 的对应覆盖位于：
 
 - `tests/plugins/markdown/containers/admonitions.test.mjs`
+- `tests/plugins/markdown/inline/abbreviations.test.mjs`
 - `tests/plugins/markdown/containers/collapse-panels.test.mjs`
 - `tests/plugins/markdown/containers/option-groups.test.mjs`
 - `tests/plugins/markdown/inline/markers.test.mjs`
@@ -183,6 +197,7 @@ Admonitions、Collapse Panels、Option Groups、Marker、File Tree、Code Tree�
 - `tests/plugins/markdown/core/disclosure.test.mjs`
 - `tests/site/file-tree.spec.ts`
 - `tests/site/admonitions.spec.ts`
+- `tests/site/abbreviations.spec.ts`
 - `tests/site/collapse-panels.spec.ts`
 - `tests/site/option-groups.spec.ts`
 - `tests/site/markers.spec.ts`

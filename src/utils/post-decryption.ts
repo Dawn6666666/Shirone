@@ -33,6 +33,11 @@ export function initPostDecryption(container: HTMLElement): void {
 			initOptionGroups(container);
 		});
 	}
+	if (container.querySelector("abbr.m3-abbreviation[data-abbreviation-expansion]")) {
+		void import("./abbreviations").then(({ initAbbreviations }) => {
+			initAbbreviations(container);
+		});
+	}
 
 	if (
 		typeof window !== "undefined" &&
