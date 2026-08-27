@@ -39,12 +39,41 @@ Shirone 遵循「配置管行为，数据管内容」的清晰分层架构：
 
 1. 类型定义加入 `src/types/<domain>Config.ts`（新领域则新建文件，字段带中文注释说明语义与默认值）；
 2. 值加入 `src/config/<domain>Config.ts`，保持注释完整——注释是配置的文档；
-3. 新文件在 `src/config/index.ts` barrel 注册导出；
+3. 新文件在 `src/config/index.ts` barrel 注册导出；用 `withUserConfig("<domain>", { ... })`
+   包住默认值字面量，并在 `scripts/content/config-domains.mjs` 登记该领域（见下文「用户覆盖层」）；
 4. **安全默认与零额外负担**：可选外部服务/重量级特性默认必须为关闭（如 `enable: false`）。在关闭或未配置时，必须满足「零外部请求、零占位 DOM、零性能损耗、零主包膨胀」的零额外负担要求；
    落地做法与验证方法见 `docs/on-demand-loading.md`；
 5. UI 文案走 `I18nKey` 枚举 + `i18n()`（如 `navBarConfig` 的用法），**不写死字符串**；
    新增 i18n key 必须同步补全 `src/i18n/languages/` 下全部 10 种语言；
 6. 跑 `npx.cmd astro check` 确认 0 错误 0 警告。
+
+## 用户覆盖层（内容仓 `config/*.yaml`）
+
+本目录的每个领域配置都把自己的字面量默认值交给 `withUserConfig()`：
+
+```typescript
+export const siteConfig: SiteConfig = withUserConfig("site", {
+	title: "Shirone",
+	// ...默认值连同注释一起留在代码仓
+});
+```
+
+`local` 模式下 `withUserConfig()` 原样返回默认值，零开销。`external` 模式下，
+内容仓 `config/site.yaml` 里的键会与默认值**深合并**（对象递归合并、数组整体替换）
+后返回，合并源是 `pnpm content:sync` 生成的 `src/user/user-config.ts`。
+
+因此本目录的定位没有变：**它是默认值与配置文档的唯一真源**，
+注释写得越清楚，内容仓那边越不需要猜。契约与 YAML 写法见
+[`docs/content-separation.md`](../../docs/content-separation.md) 的「配置覆盖」。
+
+新增配置领域时，除了本文下方的清单，还要在
+`scripts/content/config-domains.mjs` 补一行登记（领域名、YAML 文件名、类型），
+它同时驱动生成、校验与 `content:eject` 的起步文件；`tests/content-config.test.mjs`
+会检查登记表的文件名唯一且为 kebab-case。
+
+`navBarConfig` 是唯一不走 `withUserConfig()` 的领域：导航项要引用 `LinkPresets`
+并调用 `i18n()`，深合并只会得到一堆未解析的引用，因此它由 `resolveNavBarLinks()`
+把内容仓的声明式条目还原成 `NavBarLink`。
 
 ## 现有配置一览
 

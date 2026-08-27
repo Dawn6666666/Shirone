@@ -82,8 +82,9 @@ jobs:
         working-directory: theme
         run: pnpm install --frozen-lockfile --prefer-offline
 
-      # 第一关：目录结构、keep 冲突、写入构建期生成物路径等契约问题。
-      - name: Validate content structure
+      # 第一关：目录结构、keep 冲突、写入构建期生成物路径等契约问题，
+      # 外加 config/*.yaml 的类型校验（拼错的键、越界的枚举都会在这里失败）。
+      - name: Validate content structure and config
         working-directory: theme
         env:
           CONTENT_DIR: ${{ github.workspace }}/content

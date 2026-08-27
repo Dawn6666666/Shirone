@@ -122,8 +122,9 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
 
       # 独立成步，而不是依赖 `pnpm build` 内部再跑一次：
-      # 内容问题与构建问题因此在日志里天然分开，且 fonts:subset 需要内容已经就位。
-      - name: Materialize content
+      # 内容问题（含 config/*.yaml 的类型校验）与构建问题因此在日志里天然分开，
+      # 且 fonts:subset 需要内容与配置都已就位。
+      - name: Materialize content and config
         run: pnpm content:sync
 
       - name: Build site
