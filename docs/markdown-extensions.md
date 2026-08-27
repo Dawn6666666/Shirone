@@ -91,11 +91,13 @@ pnpm.cmd astro dev --port 4321
 4. 无障碍：运行最小组件用例及 `tests/site/a11y.spec.ts` 的相关页面。
 5. 构建验证：运行 `npx.cmd astro check` 与 `pnpm.cmd build`，不能只依赖 dev server 热更新结果。
 
-File Tree 的对应覆盖位于：
+File Tree 与 Code Tree 的对应覆盖位于：
 
 - `tests/plugins/markdown/containers/file-tree.test.mjs`
+- `tests/plugins/markdown/containers/code-tree.test.mjs`
 - `tests/plugins/markdown/core/disclosure.test.mjs`
 - `tests/site/file-tree.spec.ts`
+- `tests/site/code-tree.spec.ts`
 
 ## 7. 提交前检查
 
