@@ -1,6 +1,7 @@
 @reference "tailwindcss";
 
 @import "./markdown/disclosures.css";
+@import "./markdown/admonitions.css";
 @import "./markdown/trees.css";
 @import "./markdown/steps.css";
 @import "./markdown/content-annotations.css";

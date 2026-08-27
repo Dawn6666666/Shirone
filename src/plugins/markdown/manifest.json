@@ -8,12 +8,17 @@
 			"status": "stable",
 			"category": "container",
 			"source": "integration",
-			"summary": "使用容器指令或 GitHub alert blockquote 表达 note、tip、important、warning 与 caution。",
+			"summary": "使用容器指令或 GitHub alert blockquote 表达提示信息，并使用原生 details 提供可折叠补充内容。",
 			"forms": [
 				{
 					"kind": "container-directive",
 					"pattern": ":::<type>[可选标题] ... :::",
 					"example": ":::tip[提示]\n正文\n:::"
+				},
+				{
+					"kind": "container-directive",
+					"pattern": "::: <type> 可选标题 ... :::",
+					"example": "::: warning 部署前检查\n正文\n:::"
 				},
 				{
 					"kind": "blockquote",
@@ -25,7 +30,7 @@
 				{
 					"name": "type",
 					"required": true,
-					"values": "note | tip | important | warning | caution",
+					"values": "note | info | tip | important | warning | caution | details",
 					"default": null
 				},
 				{
@@ -35,23 +40,32 @@
 					"default": "type label"
 				}
 			],
-			"implementation": ["src/plugins/rehype-component-admonition.mjs"],
+			"implementation": [
+				"src/plugins/markdown/remark-admonitions.mjs",
+				"src/plugins/rehype-component-admonition.mjs"
+			],
 			"registeredIn": "src/utils/markdown-processor.mjs",
 			"styles": [
-				"src/styles/markdown-extend.styl",
+				"src/styles/markdown/admonitions.css",
 				"src/styles/variables.styl"
 			],
 			"runtime": {
-				"mode": "none",
+				"mode": "native",
 				"modules": [],
 				"network": []
 			},
 			"docs": [
-				"src/content/posts/markdown-extended.md",
-				"src/content/posts/guide/index.md"
+				"src/content/posts/admonitions.md",
+				"docs/markdown-extensions.md"
 			],
-			"tests": [],
-			"notes": ["两种输入统一进入同一 Admonition renderer。"]
+			"tests": [
+				"tests/plugins/markdown/containers/admonitions.test.mjs",
+				"tests/site/admonitions.spec.ts"
+			],
+			"notes": [
+				"方括号标题、空格标题与 GitHub Alert 统一进入同一 Admonition renderer。",
+				"details 使用原生 disclosure，无 hydration、客户端模块或网络请求。"
+			]
 		},
 		{
 			"id": "code-tree",

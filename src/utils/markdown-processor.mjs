@@ -4,7 +4,6 @@ import rehypeComponents from "rehype-components"; /* Render the custom directive
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import remarkDirective from "remark-directive"; /* Handle directives */
-import remarkGithubAdmonitionsToDirectives from "remark-github-admonitions-to-directives";
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
 import { siteConfig } from "../config/siteConfig.ts";
@@ -13,6 +12,7 @@ import { remarkFileTree } from "../plugins/markdown/code/remark-file-tree.mjs";
 import { CodeTreeComponent } from "../plugins/markdown/containers/rehype-code-tree.mjs";
 import { FileTreeComponent } from "../plugins/markdown/containers/rehype-file-tree.mjs";
 import { StepsComponent } from "../plugins/markdown/containers/rehype-steps.mjs";
+import { remarkAdmonitions } from "../plugins/markdown/remark-admonitions.mjs";
 import { remarkContentAnnotations } from "../plugins/markdown/remark-content-annotations.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
@@ -31,13 +31,13 @@ import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
 export const siteRemarkPlugins = [
 	remarkEscapeNumericColons,
 	remarkContentAnnotations,
+	remarkAdmonitions,
 	remarkMath,
 	remarkFileTree,
 	remarkCodeTree,
 	remarkMermaid,
 	remarkReadingTime,
 	remarkExcerpt,
-	remarkGithubAdmonitionsToDirectives,
 	remarkDirective,
 	remarkSectionize,
 	parseDirectiveNode,
@@ -59,10 +59,12 @@ export const siteRehypePlugins = [
 				github: GithubCardComponent,
 				grid: ImageGridComponent,
 				note: (x, y) => AdmonitionComponent(x, y, "note"),
+				info: (x, y) => AdmonitionComponent(x, y, "info"),
 				tip: (x, y) => AdmonitionComponent(x, y, "tip"),
 				important: (x, y) => AdmonitionComponent(x, y, "important"),
 				caution: (x, y) => AdmonitionComponent(x, y, "caution"),
 				warning: (x, y) => AdmonitionComponent(x, y, "warning"),
+				"admonition-details": (x, y) => AdmonitionComponent(x, y, "details"),
 			},
 		},
 	],
