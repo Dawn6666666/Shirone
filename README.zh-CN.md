@@ -156,6 +156,7 @@ pnpm build
 - [`src/config/README.md`](./src/config/README.md) - 配置参考
 - [`docs/m3e-standard.md`](./docs/m3e-standard.md) - 设计令牌与组件标准
 - [`docs/atomic-structure.md`](./docs/atomic-structure.md) - 组件分层与依赖规则
+- [`docs/markdown-extensions.md`](./docs/markdown-extensions.md) - Markdown 插件、样式、缓存与测试契约
 - [`docs/sidebar-system.md`](./docs/sidebar-system.md) - 侧栏编排与 Swup 同步
 - [`docs/on-demand-loading.md`](./docs/on-demand-loading.md) - 可选功能的零额外负担实现
 - [`docs/font-system.md`](./docs/font-system.md) - 字体配置与生产环境子集化

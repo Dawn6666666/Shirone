@@ -156,6 +156,7 @@ pnpm build
 - [`src/config/README.md`](./src/config/README.md) - 設定リファレンス
 - [`docs/m3e-standard.md`](./docs/m3e-standard.md) - デザイントークンとコンポーネント標準
 - [`docs/atomic-structure.md`](./docs/atomic-structure.md) - コンポーネント階層と依存ルール
+- [`docs/markdown-extensions.md`](./docs/markdown-extensions.md) - Markdown プラグイン、スタイル、キャッシュ、テスト規約
 - [`docs/sidebar-system.md`](./docs/sidebar-system.md) - サイドバー構成と Swup 同期
 - [`docs/on-demand-loading.md`](./docs/on-demand-loading.md) - 任意機能のゼロ負担実装
 - [`docs/font-system.md`](./docs/font-system.md) - フォント設定と本番用サブセット化

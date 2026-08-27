@@ -156,6 +156,7 @@ Use `pnpm build` as the build command and `dist` as the output directory. More d
 - [`src/config/README.md`](./src/config/README.md) - configuration reference
 - [`docs/m3e-standard.md`](./docs/m3e-standard.md) - design tokens and component standard
 - [`docs/atomic-structure.md`](./docs/atomic-structure.md) - component layers and dependency rules
+- [`docs/markdown-extensions.md`](./docs/markdown-extensions.md) - Markdown plugin, styling, cache, and testing contracts
 - [`docs/sidebar-system.md`](./docs/sidebar-system.md) - sidebar orchestration and Swup synchronization
 - [`docs/on-demand-loading.md`](./docs/on-demand-loading.md) - zero-burden optional features
 - [`docs/font-system.md`](./docs/font-system.md) - font configuration and production subsetting

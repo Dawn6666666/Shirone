@@ -55,6 +55,7 @@ GitHub Actions 的 [`build.yml`](.github/workflows/build.yml) 在 Node.js 22/23 
 - [`src/config/README.md`](src/config/README.md)：配置契约
 - [`docs/atomic-structure.md`](docs/atomic-structure.md)：组件分层
 - [`docs/m3e-standard.md`](docs/m3e-standard.md)：M3E 令牌与组件标准
+- [`docs/markdown-extensions.md`](docs/markdown-extensions.md)：Markdown 插件、样式所有权、缓存刷新与验证
 - [`docs/asset-pipeline.md`](docs/asset-pipeline.md)：本地图片、离线图标与生成资产流水线
 - [`rules/project-rules.md`](rules/project-rules.md)：质量门禁与提交流程
 - [`rules/pitfalls.md`](rules/pitfalls.md)：Astro/Svelte、缓存与测试注意事项

@@ -172,13 +172,20 @@ svelte({
 
 ### 4.1 rehype 插件改动不热更新（构建期缓存）
 
-**现象**：改了 `src/plugins/*.mjs`（如 github 卡片），dev server 页面 HTML 不变。
+**现象**：改了 `src/plugins/**/*.mjs`（如 File Tree 或 GitHub 卡片），dev server 页面 HTML 不变；即使重启 dev server，插件新增的 class 或 DOM 结构仍可能没有出现。
 
-**根因**：rehype 插件在 markdown 编译期运行，Astro dev 缓存了编译结果，改插件不触发重新编译。
+**根因**：rehype/remark 插件在 Markdown 编译期运行，Astro 的内容数据存储缓存了编译结果。只修改插件或样式文件不一定使文章内容缓存失效，因此新 CSS 可以已经加载，而页面仍使用旧 HTML。
 
-**解法**：重启 dev server（必要时清 `.astro/` 内容缓存）才能让页面重新编译。
+**解法**：停止 dev server，优先删除 `.astro/data-store.json`，再重启：
 
-**验证技巧**：插件生成的 HTML 常带随机 UUID（如 `GCxxxxxx`），可通过 UUID 是否变化判断是否重新编译。
+```powershell
+Remove-Item -LiteralPath ".astro\data-store.json" -Force
+pnpm.cmd astro dev --port 4321
+```
+
+若问题还包含 Svelte scope hash 或 Vite 产物不一致，再按 §6.4 清理 `node_modules/.vite` 和整个 `.astro`。不要把修改文章正文当作正式的缓存刷新方案；它只能用于临时确认缓存判断。
+
+**验证技巧**：直接检查插件预期生成的稳定 class、属性或 DOM 结构是否出现在页面中。若新 CSS 已生效但新 class 不存在，优先判断为 Markdown 内容缓存，而不是继续调整选择器。
 
 ---
 
@@ -207,6 +214,25 @@ svelte({
 - `Markdown.astro` 必须保留 `<style lang="stylus" is:global>` 对 `markdown-extend.styl` 的导入；
 - 先区分“DOM 未生成”和“CSS 未命中”：前者查插件与 Astro 内容缓存，后者查样式入口、全局作用域和 computed style；
 - 回归测试不能只断言 `.card-github` 存在，还要断言关键计算样式，例如 `display: block` 和无下划线链接。
+
+---
+
+### 4.4 Tailwind Typography 会介入 Markdown 小组件的内部布局
+
+**现象**：Markdown 小组件已经命中自己的 CSS，但 `ul`/`ol` 仍出现意外的 margin 或 padding；提高组件选择器权重后计算样式仍不改变。File Tree 曾把嵌套目录设为 `padding-inline-start: 8px`，浏览器实际仍得到 Typography 注入的约 `1.625em`。
+
+**根因**：`Markdown.astro` 的根容器带有 `.prose`，`@tailwindcss/typography` 会为正文列表、标题、链接等后代生成排版规则。同时 `src/styles/markdown.css` 通过 `@import ... layer(components)` 接入；当冲突规则处于不同 cascade layer 时，层顺序先于选择器 specificity 决定胜负，所以继续堆叠 class 不一定有效。
+
+**解法**：
+
+- 对拥有完整内部排版的生成式组件，在组件根节点添加 `not-prose`，明确退出 Typography 管理；
+- 组件 CSS 继续显式声明其根列表与嵌套列表的 `margin`、`padding`、`list-style`，不要依赖浏览器或 prose 默认值；
+- 只有正文型扩展继续继承 `.prose`；不要为了对抗 layer 使用 `!important`，也不要无止境提高选择器权重；
+- 在 SSR 单元测试中断言 `not-prose` 输出，在 Playwright 中断言关键 computed style 和无横向溢出。
+
+**排障顺序**：先看 DOM 是否为新版本，再看规则是否已进入样式表，最后看 computed style 的实际获胜声明。DOM 旧走 §4.1；规则缺失查样式入口；规则存在但值被覆盖才查 Typography、cascade layer 与 scope。
+
+完整契约见 `docs/markdown-extensions.md`。
 
 ---
 
