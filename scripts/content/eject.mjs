@@ -22,6 +22,16 @@ import {
 	writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
+import { stringify as stringifyYaml } from "yaml";
+import { profileConfig } from "../../src/config/profileConfig.ts";
+import { siteConfig } from "../../src/config/siteConfig.ts";
+import {
+	CONFIG_DIRECTORY,
+	CONFIG_DOMAINS,
+	FOOTER_HTML_SOURCE,
+	FOOTER_HTML_TARGET,
+	GENERATED_CONFIG_FILE,
+} from "./config-domains.mjs";
 import { MANIFEST_FILE, matchesAny, toPosix } from "./resolve-source.mjs";
 
 const ROOT = process.cwd();
@@ -55,6 +65,8 @@ const EXPORT_RULES = [
 const GITIGNORE_ENTRIES = [
 	"/src/content/",
 	"/src/data/*.ts",
+	`/${GENERATED_CONFIG_FILE}`,
+	`/${FOOTER_HTML_TARGET}`,
 	"/src/assets/images/",
 	"/public/images/",
 	"/public/assets/banner/",
@@ -139,17 +151,94 @@ function buildPlan() {
 	return plan;
 }
 
+/**
+ * 生成 `config/` 起步文件。
+ *
+ * 只导出「站点身份」——站点地址、标题、语言、博主资料。这些本来就该由内容仓拥有，
+ * 而且是使用者第一件要改的事。其余领域**刻意留空**：把当前默认值全量倒进内容仓，
+ * 等于把配置冻结在此刻的主题版本上，日后主题新增的默认值再也进不来。
+ */
+function writeConfigStarters(outAbsolute) {
+	const configDirectory = join(outAbsolute, CONFIG_DIRECTORY);
+	mkdirSync(configDirectory, { recursive: true });
+
+	const header = (file) =>
+		[
+			`# ${file} —— 覆盖主题的 src/config/${file.replace(/-([a-z])/g, (_, c) => c.toUpperCase()).replace(/\.yaml$/, "")}Config.ts`,
+			"# 只写想改的键，其余保持主题默认值（主题升级后新默认值会自动生效）。",
+			"",
+		].join("\n");
+
+	writeFileSync(
+		join(configDirectory, "site.yaml"),
+		header("site.yaml") +
+			stringifyYaml({
+				site: siteConfig.site,
+				base: siteConfig.base,
+				title: siteConfig.title,
+				subtitle: siteConfig.subtitle,
+				lang: siteConfig.lang,
+			}),
+	);
+
+	writeFileSync(
+		join(configDirectory, "profile.yaml"),
+		header("profile.yaml") +
+			stringifyYaml({
+				avatar: profileConfig.avatar,
+				name: profileConfig.name,
+				bio: profileConfig.bio,
+				links: profileConfig.links,
+			}),
+	);
+
+	const footerSource = join(ROOT, FOOTER_HTML_TARGET);
+	if (existsSync(footerSource)) {
+		copyFileSync(footerSource, join(configDirectory, FOOTER_HTML_SOURCE));
+	}
+
+	writeFileSync(
+		join(configDirectory, "README.md"),
+		[
+			"# 站点配置",
+			"",
+			"本目录的每个 YAML 文件覆盖主题里的一个配置领域，构建前由代码仓的",
+			"`pnpm content:sync` 编译成 `src/user/user-config.ts`，再与主题默认值深合并。",
+			"",
+			"- **只写想改的键。** 没写的键沿用主题默认值，主题升级时自动跟进。",
+			"- **对象递归合并，数组整体替换。** 想改清单里的一项，要把整个清单写全。",
+			"- **拼错的键会让构建失败**，并给出 `Did you mean ...?` 提示，不会被静默忽略。",
+			"",
+			"可用文件（默认值与逐项注释见代码仓 `src/config/`）：",
+			"",
+			"| 文件 | 覆盖的配置 |",
+			"| --- | --- |",
+			...CONFIG_DOMAINS.map(
+				(domain) => `| \`${domain.file}.yaml\` | \`${domain.key}Config\` |`,
+			),
+			`| \`${FOOTER_HTML_SOURCE}\` | 页脚注入的自定义 HTML（需同时在 \`footer.yaml\` 里 \`enable: true\`） |`,
+			"",
+			"`nav-bar.yaml` 是唯一的例外：导航项要引用主题内置预设并走 i18n，",
+			"因此写的是 `- preset: Home` / `- name: 留言板` 这种声明式条目，",
+			"完整写法见代码仓 `docs/content-separation.md`。",
+			"",
+		].join("\n"),
+	);
+}
+
 function writeStarterFiles(outAbsolute, plan) {
 	const postCount = plan.filter(
 		(item) => item.to.startsWith("content/posts/") && item.to.endsWith(".md"),
 	).length;
+
+	writeConfigStarters(outAbsolute);
 
 	writeFileSync(
 		join(outAbsolute, "README.md"),
 		[
 			"# Shirone Content",
 			"",
-			"这是 Shirone 站点的内容仓库，只保存文章、说说、页面数据实体和用户图片。",
+			"这是 Shirone 站点的内容仓库，只保存文章、说说、页面数据实体、站点配置和用户图片。",
 			"主题实现、依赖、构建与部署由代码仓库负责。",
 			"",
 			"## 目录边界",
@@ -157,6 +246,7 @@ function writeStarterFiles(outAbsolute, plan) {
 			"| 内容仓库 | 代码仓库物化路径 |",
 			"| --- | --- |",
 			"| `content/` | `src/content/` |",
+			"| `config/` | 编译进 `src/user/user-config.ts`（见本目录 README） |",
 			"| `data/` | `src/data/` |",
 			"| `assets/` | `src/assets/` |",
 			"| `public/` | `public/` |",
@@ -265,6 +355,8 @@ function untrackPaths() {
 	const pathspecs = [
 		"src/content",
 		"src/data/*.ts",
+		GENERATED_CONFIG_FILE,
+		FOOTER_HTML_TARGET,
 		"src/assets/images",
 		"public/images",
 		"public/assets/banner",

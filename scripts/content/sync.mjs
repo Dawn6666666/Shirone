@@ -26,6 +26,8 @@ import {
 	writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { CONFIG_DIRECTORY } from "./config-domains.mjs";
+import { syncUserConfig } from "./config-overlay.mjs";
 import {
 	LOCK_FILE,
 	matchesAny,
@@ -42,11 +44,16 @@ const ROOT = process.cwd();
 /** 遍历内容仓时始终跳过的目录名。 */
 const SKIPPED_DIRECTORIES = new Set([".git", "node_modules"]);
 
-/** 内容仓根目录下允许存在、但不参与物化的目录名（不产生告警）。 */
+/**
+ * 内容仓根目录下允许存在、但不走挂载表的目录名（不产生告警）。
+ *
+ * `config/` 不是普通拷贝：它会被编译成 `src/user/user-config.ts`，见 config-overlay.mjs。
+ */
 const NON_CONTENT_DIRECTORIES = new Set([
 	".git",
 	".github",
 	".vscode",
+	CONFIG_DIRECTORY,
 	"docs",
 	"node_modules",
 	"scripts",
@@ -265,7 +272,7 @@ function syncMount(sourceRoot, sourceDir, targetDir, resolved) {
 	return { copied, removed, files: sourceFiles.length };
 }
 
-function writeLockFile(resolved, sourceRoot, commit, mountStats) {
+function writeLockFile(resolved, sourceRoot, commit, mountStats, configFiles) {
 	const lock = {
 		schemaVersion: resolved.schemaVersion,
 		syncedAt: new Date().toISOString(),
@@ -279,6 +286,7 @@ function writeLockFile(resolved, sourceRoot, commit, mountStats) {
 					}
 				: { type: "path", path: toPosix(sourceRoot) },
 		mounts: mountStats,
+		config: configFiles,
 	};
 	if (!options.dryRun) {
 		writeFileSync(join(ROOT, LOCK_FILE), `${JSON.stringify(lock, null, 2)}\n`);
@@ -312,13 +320,27 @@ function runSync() {
 		totalRemoved += stats.removed;
 	}
 
-	if (Object.keys(mountStats).length === 0) {
+	// 配置覆盖必须在挂载之后：类型校验会读到内容仓刚物化过来的 src/data/*.ts。
+	const config = syncUserConfig({
+		root: ROOT,
+		sourceRoot,
+		dryRun: options.dryRun,
+		warn,
+	});
+
+	if (Object.keys(mountStats).length === 0 && config.files.length === 0) {
 		throw new Error(
-			`内容源 ${sourceRoot} 中没有任何可挂载目录（期望之一：${Object.keys(resolved.mounts).join(", ")}）。`,
+			`内容源 ${sourceRoot} 中没有任何可挂载目录（期望之一：${Object.keys(resolved.mounts).join(", ")}、${CONFIG_DIRECTORY}）。`,
 		);
 	}
 
-	const lock = writeLockFile(resolved, sourceRoot, commit, mountStats);
+	const lock = writeLockFile(
+		resolved,
+		sourceRoot,
+		commit,
+		mountStats,
+		config.files,
+	);
 	const totalFiles = Object.values(mountStats).reduce(
 		(sum, stats) => sum + stats.files,
 		0,
@@ -327,6 +349,7 @@ function runSync() {
 	log(
 		`${options.dryRun ? "[dry-run] " : ""}物化 ${totalFiles} 个文件` +
 			`（更新 ${totalCopied}，清理 ${totalRemoved}）` +
+			`${config.files.length > 0 ? `，配置覆盖 ${config.files.length} 个${config.changed ? "（已更新）" : ""}` : ""}` +
 			`${commit ? `，内容 commit ${commit.slice(0, 8)}` : ""}`,
 	);
 	if (skipped.length > 0) {

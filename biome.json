@@ -12,6 +12,7 @@
 			"!**/src/**/*.css",
 			"!**/src/public/**/*",
 			"!**/src/generated/**/*",
+			"!**/src/user/user-config.ts",
 			"!**/dist/**/*",
 			"!**/node_modules/**/*",
 			"!**/.content-src/**/*",
