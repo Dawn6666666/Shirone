@@ -1,5 +1,8 @@
 @reference "tailwindcss";
 
+@import "./markdown/disclosures.css";
+@import "./markdown/trees.css";
+
 .custom-md {
   h1 {
     @apply text-3xl;

@@ -1,0 +1,171 @@
+.custom-md .m3-file-tree {
+	margin: var(--m3e-space-6) 0;
+	overflow-x: auto;
+	border: 1px solid var(--outline-variant);
+	border-radius: var(--shape-corner-l);
+	background: var(--codeblock-bg);
+	color: var(--on-surface);
+	font: var(--m3e-type-code, var(--m3e-type-body-medium));
+	font-family: var(--font-mono, var(--m3e-font-mono-fallback));
+}
+
+.custom-md .m3-file-tree__header {
+	display: flex;
+	align-items: center;
+	gap: var(--m3e-space-1);
+	min-height: calc(var(--m3e-space-8) + var(--m3e-space-1));
+	padding: var(--m3e-space-1) var(--m3e-space-3);
+	border-bottom: 1px solid var(--outline-variant);
+	background: var(--codeblock-topbar-bg);
+	color: var(--on-surface);
+	font: var(--m3e-type-label-large);
+}
+
+.custom-md .m3-file-tree__title {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.custom-md .m3-file-tree__root,
+.custom-md .m3-file-tree__children {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.custom-md .m3-file-tree__root {
+	min-width: min(100%, 24rem);
+	padding: var(--m3e-space-1) var(--m3e-space-2);
+}
+
+.custom-md .m3-file-tree .m3-file-tree__children {
+	margin: 0;
+	margin-inline-start: var(--m3e-space-4);
+	padding: 0;
+	padding-inline-start: var(--m3e-space-2);
+	border-inline-start: 1px dashed var(--outline-variant);
+}
+
+.custom-md .m3-file-tree__node {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.custom-md .m3-file-tree__row {
+	display: grid;
+	grid-template-columns: var(--m3e-space-4) var(--m3e-space-4) var(--m3e-space-4) minmax(0, 1fr) minmax(0, 40%);
+	align-items: center;
+	gap: var(--m3e-space-1);
+	min-height: calc(var(--m3e-space-6) + var(--m3e-space-1));
+	padding: var(--m3e-space-1);
+	border-radius: var(--shape-corner-s);
+	transition: background-color var(--m3e-duration-short) var(--m3e-easing-standard);
+}
+
+.custom-md .m3-file-tree__disclosure-icon {
+	width: var(--m3e-space-4);
+	height: var(--m3e-space-4);
+}
+
+.custom-md .m3-file-tree__branch {
+	min-width: 0;
+}
+
+.custom-md .m3-file-tree__row:hover {
+	background: color-mix(in oklab, var(--on-surface) 8%, transparent);
+}
+
+.custom-md .m3-file-tree__diff {
+	color: var(--on-surface-variant);
+	font: var(--m3e-type-label-medium);
+	text-align: center;
+}
+
+.custom-md .m3-file-tree__icon {
+	display: block;
+	width: var(--m3e-space-4);
+	height: var(--m3e-space-4);
+	color: var(--on-surface-variant);
+}
+
+.custom-md .m3-file-tree__icon--primary {
+	color: var(--primary);
+}
+
+.custom-md .m3-file-tree__icon--secondary {
+	color: var(--secondary);
+}
+
+.custom-md .m3-file-tree__icon--tertiary {
+	color: var(--tertiary);
+}
+
+.custom-md .m3-file-tree__icon--error {
+	color: var(--error);
+}
+
+.custom-md .m3-file-tree__header-icon {
+	flex: 0 0 var(--m3e-space-5);
+}
+
+.custom-md .m3-file-tree__name {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.custom-md .m3-file-tree__comment {
+	justify-self: end;
+	min-width: 0;
+	max-width: 100%;
+	margin-inline-end: var(--m3e-space-1);
+	color: var(--on-surface-variant);
+	font: var(--m3e-type-body-small);
+	font-style: italic;
+	overflow-wrap: anywhere;
+	text-align: right;
+}
+
+.custom-md .m3-file-tree__node--emphasized > .m3-file-tree__row .m3-file-tree__name,
+.custom-md .m3-file-tree__node--directory > .m3-file-tree__row .m3-file-tree__name {
+	font-weight: 600;
+}
+
+.custom-md .m3-file-tree__node--added > .m3-file-tree__row {
+	background: color-mix(in oklab, var(--primary) 12%, transparent);
+}
+
+.custom-md .m3-file-tree__node--added > .m3-file-tree__row .m3-file-tree__diff,
+.custom-md .m3-file-tree__node--added > .m3-file-tree__row .m3-file-tree__name {
+	color: var(--primary);
+}
+
+.custom-md .m3-file-tree__node--deleted > .m3-file-tree__row {
+	background: color-mix(in oklab, var(--error) 10%, transparent);
+}
+
+.custom-md .m3-file-tree__node--deleted > .m3-file-tree__row .m3-file-tree__diff,
+.custom-md .m3-file-tree__node--deleted > .m3-file-tree__row .m3-file-tree__name {
+	color: var(--error);
+}
+
+.custom-md .m3-file-tree__node--deleted > .m3-file-tree__row .m3-file-tree__name {
+	text-decoration: line-through;
+}
+
+@media (max-width: 35.99rem) {
+	.custom-md .m3-file-tree__row {
+		grid-template-columns: var(--m3e-space-4) var(--m3e-space-4) var(--m3e-space-4) minmax(0, 1fr);
+	}
+
+	.custom-md .m3-file-tree__comment {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.custom-md .m3-file-tree__row {
+		transition: none;
+	}
+}

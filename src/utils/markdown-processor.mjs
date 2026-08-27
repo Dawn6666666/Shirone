@@ -8,6 +8,8 @@ import remarkGithubAdmonitionsToDirectives from "remark-github-admonitions-to-di
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
 import { siteConfig } from "../config/siteConfig.ts";
+import { remarkFileTree } from "../plugins/markdown/code/remark-file-tree.mjs";
+import { FileTreeComponent } from "../plugins/markdown/containers/rehype-file-tree.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
@@ -25,6 +27,7 @@ import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
 export const siteRemarkPlugins = [
 	remarkEscapeNumericColons,
 	remarkMath,
+	remarkFileTree,
 	remarkMermaid,
 	remarkReadingTime,
 	remarkExcerpt,
@@ -44,6 +47,7 @@ export const siteRehypePlugins = [
 		rehypeComponents,
 		{
 			components: {
+				"file-tree": FileTreeComponent,
 				github: GithubCardComponent,
 				grid: ImageGridComponent,
 				note: (x, y) => AdmonitionComponent(x, y, "note"),
