@@ -92,6 +92,26 @@ Marker 使用 `==内容==` 为正文中的短语提供原生 `<mark>` 高亮；�
 
 `remark-marker.mjs` 只在代码围栏和行内代码之外将作者语法改写为 text directive，再由 `rehype-component-marker.mjs` 输出带稳定 class 的语义化 `<mark>`。未知变体、空内容、未闭合语法和转义文本保留原文，避免不完整的文章内容被静默改写。样式位于 `markdown/marker.css`，只使用 M3E 语义色 token，不依赖客户端模块、动画或网络请求。独立演示页位于 `src/content/posts/marker-highlights.md`。
 
+### 3.3 折叠面板
+
+Collapse Panels 使用 `::: collapse` 包裹一个顶层无序列表，每个列表项的首个段落是标题，空行后的块级内容是面板正文：
+
+```markdown
+::: collapse accordion
+- :+ 默认展开的标题
+
+  支持段落、列表、引用和代码块。
+
+- 第二个标题
+
+  打开此项时，手风琴组中的上一项自动关闭。
+:::
+```
+
+容器选项 `expand` 默认展开所有普通面板；在 `accordion` 模式中只默认展开第一项。条目标题前缀 `:+` / `:-` 分别覆盖当前条目的初始展开或折叠状态，手风琴只采用第一个 `:+`。解析器只接受一个顶层无序列表，并要求每项具有独立标题段落和正文；混合内容、缺少正文或未知容器选项会保留为普通 Markdown，不猜测边界。
+
+渲染器组合 `core/disclosure.mjs` 输出原生 `<details>/<summary>`。手风琴通过文档内唯一的原生 `details[name]` 分组完成，不增加 hydration、客户端事件监听、模块或网络请求；普通模式允许多项同时展开。组件根节点使用 `not-prose`，紧凑连续面板、正文排版、窄屏间距、打印展开和 reduced-motion 降级由 `markdown/collapse-panels.css` 完整拥有。独立演示页位于 `src/content/posts/collapse-panels.md`。
+
 ## 4. 缓存与刷新
 
 修改 remark/rehype 插件后，Astro dev 可能继续提供旧的 Markdown 编译结果。典型信号是：新 CSS 已出现，但插件新增的 class 或 DOM 结构不存在。
@@ -128,9 +148,10 @@ pnpm.cmd astro dev --port 4321
 4. 无障碍：运行最小组件用例及 `tests/site/a11y.spec.ts` 的相关页面。
 5. 构建验证：运行 `npx.cmd astro check` 与 `pnpm.cmd build`，不能只依赖 dev server 热更新结果。
 
-Admonitions、Marker、File Tree、Code Tree、Steps 与 Content Annotations 的对应覆盖位于：
+Admonitions、Collapse Panels、Marker、File Tree、Code Tree、Steps 与 Content Annotations 的对应覆盖位于：
 
 - `tests/plugins/markdown/containers/admonitions.test.mjs`
+- `tests/plugins/markdown/containers/collapse-panels.test.mjs`
 - `tests/plugins/markdown/inline/markers.test.mjs`
 - `tests/plugins/markdown/containers/file-tree.test.mjs`
 - `tests/plugins/markdown/containers/code-tree.test.mjs`
@@ -139,6 +160,7 @@ Admonitions、Marker、File Tree、Code Tree、Steps 与 Content Annotations 的
 - `tests/plugins/markdown/core/disclosure.test.mjs`
 - `tests/site/file-tree.spec.ts`
 - `tests/site/admonitions.spec.ts`
+- `tests/site/collapse-panels.spec.ts`
 - `tests/site/markers.spec.ts`
 - `tests/site/code-tree.spec.ts`
 - `tests/site/steps.spec.ts`

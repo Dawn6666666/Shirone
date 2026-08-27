@@ -10,9 +10,14 @@ import { siteConfig } from "../config/siteConfig.ts";
 import { remarkCodeTree } from "../plugins/markdown/code/remark-code-tree.mjs";
 import { remarkFileTree } from "../plugins/markdown/code/remark-file-tree.mjs";
 import { CodeTreeComponent } from "../plugins/markdown/containers/rehype-code-tree.mjs";
+import {
+	CollapsePanelsComponent,
+	rehypeCollapseGroups,
+} from "../plugins/markdown/containers/rehype-collapse-panels.mjs";
 import { FileTreeComponent } from "../plugins/markdown/containers/rehype-file-tree.mjs";
 import { StepsComponent } from "../plugins/markdown/containers/rehype-steps.mjs";
 import { remarkAdmonitions } from "../plugins/markdown/remark-admonitions.mjs";
+import { remarkCollapsePanels } from "../plugins/markdown/remark-collapse-panels.mjs";
 import { remarkContentAnnotations } from "../plugins/markdown/remark-content-annotations.mjs";
 import { remarkMarker } from "../plugins/markdown/remark-marker.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
@@ -34,6 +39,7 @@ export const siteRemarkPlugins = [
 	remarkEscapeNumericColons,
 	remarkContentAnnotations,
 	remarkAdmonitions,
+	remarkCollapsePanels,
 	remarkMarker,
 	remarkMath,
 	remarkFileTree,
@@ -52,10 +58,12 @@ export const siteRemarkPlugins = [
 export const siteRehypePlugins = [
 	rehypeKatex,
 	rehypeSlug,
+	rehypeCollapseGroups,
 	[
 		rehypeComponents,
 		{
 			components: {
+				collapse: CollapsePanelsComponent,
 				"file-tree": FileTreeComponent,
 				"code-tree": CodeTreeComponent,
 				steps: StepsComponent,

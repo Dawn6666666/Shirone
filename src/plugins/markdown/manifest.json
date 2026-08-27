@@ -140,6 +140,75 @@
 			]
 		},
 		{
+			"id": "collapse-panels",
+			"name": "Collapse Panels",
+			"status": "stable",
+			"category": "container",
+			"source": "shirone",
+			"summary": "将一个顶层无序列表渲染为原生折叠面板组，并支持独立多开或手风琴单开模式。",
+			"forms": [
+				{
+					"kind": "container-directive",
+					"pattern": "::: collapse [accordion] [expand] ... :::",
+					"example": "::: collapse accordion\n- :+ 标题\n\n  面板正文\n:::"
+				},
+				{
+					"kind": "container-directive",
+					"pattern": ":::collapse{accordion=true expand=true} ... :::",
+					"example": ":::collapse{expand=true}\n- 标题\n\n  面板正文\n:::"
+				}
+			],
+			"attributes": [
+				{
+					"name": "accordion",
+					"required": false,
+					"values": "boolean",
+					"default": false
+				},
+				{
+					"name": "expand",
+					"required": false,
+					"values": "boolean",
+					"default": false
+				},
+				{
+					"name": "item state marker",
+					"required": false,
+					"values": ":+ | :- before the item title",
+					"default": "inherit container state"
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/remark-collapse-panels.mjs",
+				"src/plugins/markdown/containers/rehype-collapse-panels.mjs",
+				"src/plugins/markdown/core/disclosure.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": [
+				"src/styles/markdown/collapse-panels.css",
+				"src/styles/markdown/disclosures.css"
+			],
+			"runtime": {
+				"mode": "native",
+				"modules": [],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/collapse-panels.md",
+				"docs/markdown-extensions.md"
+			],
+			"tests": [
+				"tests/plugins/markdown/containers/collapse-panels.test.mjs",
+				"tests/plugins/markdown/core/disclosure.test.mjs",
+				"tests/site/collapse-panels.spec.ts"
+			],
+			"notes": [
+				"容器只接受一个顶层无序列表，且每项必须包含独立标题段落和正文；非法或混合输入保留为普通 Markdown。",
+				"accordion 使用文档内唯一的原生 details name 分组；普通模式允许多个面板同时展开。",
+				"输出为纯 SSR 原生 disclosure，不增加 hydration、客户端模块、全局监听或网络请求。"
+			]
+		},
+		{
 			"id": "content-annotation",
 			"name": "Content Annotation",
 			"status": "stable",
