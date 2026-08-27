@@ -1,0 +1,423 @@
+{
+	"schema": 1,
+	"note": "Shirone 已支持的自定义 Markdown 作者语法单一索引。只登记生产可用语法；研究计划与未落地能力不得提前加入。",
+	"syntaxes": [
+		{
+			"id": "admonition",
+			"name": "Admonition",
+			"status": "stable",
+			"category": "container",
+			"source": "integration",
+			"summary": "使用容器指令或 GitHub alert blockquote 表达 note、tip、important、warning 与 caution。",
+			"forms": [
+				{
+					"kind": "container-directive",
+					"pattern": ":::<type>[可选标题] ... :::",
+					"example": ":::tip[提示]\n正文\n:::"
+				},
+				{
+					"kind": "blockquote",
+					"pattern": "> [!<TYPE>]",
+					"example": "> [!NOTE]\n> 正文"
+				}
+			],
+			"attributes": [
+				{
+					"name": "type",
+					"required": true,
+					"values": "note | tip | important | warning | caution",
+					"default": null
+				},
+				{
+					"name": "title",
+					"required": false,
+					"values": "directive label text",
+					"default": "type label"
+				}
+			],
+			"implementation": ["src/plugins/rehype-component-admonition.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": [
+				"src/styles/markdown-extend.styl",
+				"src/styles/variables.styl"
+			],
+			"runtime": {
+				"mode": "none",
+				"modules": [],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/markdown-extended.md",
+				"src/content/posts/guide/index.md"
+			],
+			"tests": [],
+			"notes": ["两种输入统一进入同一 Admonition renderer。"]
+		},
+		{
+			"id": "expressive-code",
+			"name": "Expressive Code fence metadata",
+			"status": "stable",
+			"category": "fence-meta",
+			"source": "integration",
+			"summary": "为 fenced code block 提供标题、frame、行/文本标记、换行、折叠和行号元数据。",
+			"forms": [
+				{
+					"kind": "fenced-code",
+					"pattern": "```<language> <metadata>",
+					"example": "```js title=\"app.js\" ins={2} collapse={4-8} showLineNumbers\nconst app = true\n```"
+				}
+			],
+			"attributes": [
+				{
+					"name": "title",
+					"required": false,
+					"values": "string",
+					"default": null
+				},
+				{
+					"name": "frame",
+					"required": false,
+					"values": "auto | code | terminal | none",
+					"default": "auto"
+				},
+				{
+					"name": "line markers",
+					"required": false,
+					"values": "{lines} | mark={lines} | ins={lines} | del={lines}",
+					"default": null
+				},
+				{
+					"name": "text markers",
+					"required": false,
+					"values": "quoted text or regular expression with optional mark/ins/del label",
+					"default": null
+				},
+				{
+					"name": "wrap",
+					"required": false,
+					"values": "true | false",
+					"default": "theme configuration"
+				},
+				{
+					"name": "preserveIndent",
+					"required": false,
+					"values": "true | false",
+					"default": true
+				},
+				{
+					"name": "collapse",
+					"required": false,
+					"values": "line ranges",
+					"default": null
+				},
+				{
+					"name": "showLineNumbers",
+					"required": false,
+					"values": "true | false",
+					"default": false
+				},
+				{
+					"name": "startLineNumber",
+					"required": false,
+					"values": "integer",
+					"default": 1
+				}
+			],
+			"implementation": [
+				"src/plugins/expressive-code/custom-copy-button.ts",
+				"src/plugins/expressive-code/language-badge.ts"
+			],
+			"registeredIn": "astro.config.mjs",
+			"styles": ["src/styles/expressive-code.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/code-copy.ts", "src/utils/code-collapse.ts"],
+				"network": []
+			},
+			"docs": ["src/content/posts/expressive-code.md"],
+			"tests": ["tests/site/post-encryption.spec.ts"],
+			"notes": ["元数据具体解析规则由 Expressive Code 及已注册插件定义。"]
+		},
+		{
+			"id": "file-tree",
+			"name": "File Tree",
+			"status": "stable",
+			"category": "container",
+			"source": "shirone",
+			"summary": "将嵌套 Markdown 列表或终端 tree 输出转换为可折叠文件树。",
+			"forms": [
+				{
+					"kind": "container-directive",
+					"pattern": ":::file-tree{title=\"...\" icon=\"colored|simple\"} ... :::",
+					"example": ":::file-tree{title=\"src\"}\n- src/\n  - index.ts\n:::"
+				},
+				{
+					"kind": "fenced-code",
+					"pattern": "```file-tree title=\"...\" icon=\"colored|simple\"",
+					"example": "```file-tree title=\"dist\" icon=\"simple\"\ndist\n└── index.html\n```"
+				}
+			],
+			"attributes": [
+				{
+					"name": "title",
+					"required": false,
+					"values": "string, at most 200 characters",
+					"default": ""
+				},
+				{
+					"name": "icon",
+					"required": false,
+					"values": "colored | simple",
+					"default": "colored"
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/code/remark-file-tree.mjs",
+				"src/plugins/markdown/containers/rehype-file-tree.mjs",
+				"src/plugins/markdown/core/disclosure.mjs",
+				"src/plugins/markdown/core/file-tree-icons.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": [
+				"src/styles/markdown/trees.css",
+				"src/styles/markdown/disclosures.css"
+			],
+			"runtime": {
+				"mode": "native",
+				"modules": [],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/markdown-enhancements.md",
+				"docs/markdown-extensions.md"
+			],
+			"tests": [
+				"tests/plugins/markdown/containers/file-tree.test.mjs",
+				"tests/plugins/markdown/core/disclosure.test.mjs",
+				"tests/site/file-tree.spec.ts"
+			],
+			"notes": [
+				"目录名尾随 / 表示该目录初始折叠。",
+				"条目前缀 ++ 或 -- 表示新增或删除，# 后文本表示行尾注解。"
+			]
+		},
+		{
+			"id": "github-card",
+			"name": "GitHub Repository Card",
+			"status": "legacy",
+			"category": "leaf-directive",
+			"source": "shirone",
+			"summary": "根据 owner/repo 渲染仓库卡片，并在客户端读取 GitHub API。",
+			"forms": [
+				{
+					"kind": "leaf-directive",
+					"pattern": "::github{repo=\"owner/repo\"}",
+					"example": "::github{repo=\"LyraVoid/Shirone\"}"
+				}
+			],
+			"attributes": [
+				{
+					"name": "repo",
+					"required": true,
+					"values": "owner/repository",
+					"default": null
+				}
+			],
+			"implementation": ["src/plugins/rehype-component-github-card.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown-extend.styl"],
+			"runtime": {
+				"mode": "inline-client",
+				"modules": [],
+				"network": ["https://api.github.com/repos/{owner}/{repo}"]
+			},
+			"docs": [
+				"src/content/posts/markdown-extended.md",
+				"src/content/posts/guide/index.md"
+			],
+			"tests": [],
+			"notes": ["保留兼容，不作为新语法实现样板；重构前不得扩大使用面。"]
+		},
+		{
+			"id": "image-grid",
+			"name": "Image Grid",
+			"status": "stable",
+			"category": "container",
+			"source": "shirone",
+			"summary": "将容器内 Markdown 图片渲染为响应式画廊，并按容器隔离灯箱分组。",
+			"forms": [
+				{
+					"kind": "container-directive",
+					"pattern": ":::grid{columns=\"1..6\" aspect=\"W/H\" fit=\"cover|contain\"} ... :::",
+					"example": ":::grid{columns=\"3\" aspect=\"16/9\" fit=\"cover\"}\n![说明](./one.webp)\n![说明](./two.webp)\n:::"
+				}
+			],
+			"attributes": [
+				{
+					"name": "columns",
+					"required": false,
+					"values": "integer 1..6",
+					"default": 3
+				},
+				{
+					"name": "aspect",
+					"required": false,
+					"values": "positive W/H ratio",
+					"default": "16/10"
+				},
+				{
+					"name": "fit",
+					"required": false,
+					"values": "cover | contain",
+					"default": "cover"
+				}
+			],
+			"implementation": ["src/plugins/rehype-component-image-grid.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/fancybox-handler.ts"],
+				"network": ["author-declared image URLs only"]
+			},
+			"docs": ["src/content/posts/image-grid-demo/index.md"],
+			"tests": [
+				"tests/plugins/image-grid.test.mjs",
+				"tests/site/image-grid.spec.ts"
+			],
+			"notes": ["容器至少包含一张 Markdown 图片；非图片子节点不会成为画廊项。"]
+		},
+		{
+			"id": "image-presentation",
+			"name": "Image Width and Caption",
+			"status": "stable",
+			"category": "inline-extension",
+			"source": "shirone",
+			"summary": "在图片 alt 中使用 w-N% 控制独立图片宽度，并将 Markdown title 渲染为可见图注。",
+			"forms": [
+				{
+					"kind": "image",
+					"pattern": "![alt w-N%](src \"caption\")",
+					"example": "![架构图 w-60%](./architecture.webp \"处理流程\")"
+				}
+			],
+			"attributes": [
+				{
+					"name": "w-N%",
+					"required": false,
+					"values": "integer 1..100 in image alt",
+					"default": null
+				},
+				{
+					"name": "title",
+					"required": false,
+					"values": "Markdown image title string",
+					"default": null
+				}
+			],
+			"implementation": ["src/plugins/rehype-markdown-images.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown.css"],
+			"runtime": {
+				"mode": "none",
+				"modules": [],
+				"network": ["author-declared image URLs only"]
+			},
+			"docs": ["src/content/posts/markdown-extended.md"],
+			"tests": ["tests/plugins/rehype-markdown-images.test.mjs"],
+			"notes": ["非法或越界宽度令牌保留在 alt，不静默改写。"]
+		},
+		{
+			"id": "math",
+			"name": "Math and KaTeX",
+			"status": "stable",
+			"category": "inline-extension",
+			"source": "integration",
+			"summary": "使用美元符号定界的 LaTeX 数学表达式，并在构建期渲染为 KaTeX。",
+			"forms": [
+				{
+					"kind": "inline",
+					"pattern": "$expression$",
+					"example": "Euler: $e^{i\\pi}+1=0$"
+				},
+				{
+					"kind": "block",
+					"pattern": "$$ expression $$",
+					"example": "$$\nE = mc^2\n$$"
+				}
+			],
+			"attributes": [],
+			"implementation": [],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown.css"],
+			"runtime": {
+				"mode": "none",
+				"modules": [],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/guide/index.md",
+				"src/content/posts/markdown.md"
+			],
+			"tests": ["tests/site/post-encryption.spec.ts"],
+			"notes": ["解析由 remark-math 与 rehype-katex 提供。"]
+		},
+		{
+			"id": "mermaid",
+			"name": "Mermaid Diagram",
+			"status": "stable",
+			"category": "fence",
+			"source": "integration",
+			"summary": "将 mermaid fenced code 保留为可读 fallback，并在客户端按需增强为主题化 SVG。",
+			"forms": [
+				{
+					"kind": "fenced-code",
+					"pattern": "```mermaid ... ```",
+					"example": "```mermaid\nflowchart LR\n  A --> B\n```"
+				}
+			],
+			"attributes": [],
+			"implementation": ["src/plugins/remark-mermaid.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/mermaid.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/mermaid.ts", "src/utils/mermaid-interaction.ts"],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/markdown-mermaid.md",
+				"src/content/posts/guide/index.md"
+			],
+			"tests": ["tests/site/mermaid.spec.ts"],
+			"notes": ["客户端初始化必须覆盖直接加载、Swup、主题变化和文章解密。"]
+		},
+		{
+			"id": "spoiler",
+			"name": "Inline Spoiler",
+			"status": "legacy",
+			"category": "text-directive",
+			"source": "integration",
+			"summary": "将 text directive 输出为 spoiler 自定义元素并使用 CSS 隐藏内容。",
+			"forms": [
+				{
+					"kind": "text-directive",
+					"pattern": ":spoiler[content]",
+					"example": "答案是 :spoiler[42]。"
+				}
+			],
+			"attributes": [],
+			"implementation": ["src/plugins/remark-directive-rehype.js"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/main.css"],
+			"runtime": {
+				"mode": "none",
+				"modules": [],
+				"network": []
+			},
+			"docs": ["src/content/posts/markdown-extended.md"],
+			"tests": [],
+			"notes": ["保留兼容；缺少触屏与键盘契约，不作为新行内语法样板。"]
+		}
+	]
+}

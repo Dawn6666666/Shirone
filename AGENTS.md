@@ -26,6 +26,7 @@ Shirone is a blog theme built with Astro 7, Svelte 5, Tailwind 4, Stylus, and pn
 - `docs/atomic-structure.md` — component layering and ownership.
 - `docs/m3e-standard.md` — M3E tokens and component standard.
 - `docs/markdown-extensions.md` — Markdown plugin pipeline, Typography boundaries, cache refresh, and validation.
+- `docs/markdown-syntax-manifest.md` — required before adding, changing, or retiring custom author-facing Markdown syntax.
 - `docs/sidebar-system.md` — sidebar orchestration, page filtering, and Swup synchronization.
 - `src/config/README.md` — required before changing configuration types or values.
 - The nearest nested `AGENTS.md` — local rules are additive and narrower than this file.

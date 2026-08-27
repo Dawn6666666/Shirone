@@ -2,6 +2,8 @@
 
 > 本文档定义 Shirone 的 remark/rehype 扩展、生成式 Markdown 小组件、全局内容样式、缓存刷新和验证契约。
 
+已落地的作者语法以 `src/plugins/markdown/manifest.json` 为机器可读单一索引；字段含义、查询和维护流程见 [`markdown-syntax-manifest.md`](markdown-syntax-manifest.md)。未落地的研究能力不得提前登记。
+
 ## 1. 处理链与所有权
 
 `src/utils/markdown-processor.mjs` 是站点 Markdown 插件链的单一事实来源。Astro 页面渲染与构建期离线渲染必须共用 `siteRemarkPlugins` 和 `siteRehypePlugins`，不得在第二处复制插件配置。
@@ -97,6 +99,7 @@ File Tree 的对应覆盖位于：
 ## 7. 提交前检查
 
 - [ ] 插件已注册到统一 Markdown 处理链；
+- [ ] 作者语法已登记到 `src/plugins/markdown/manifest.json`，且路径、状态与运行时成本真实；
 - [ ] SSR 输出无不必要脚本、hydration 或外部请求；
 - [ ] 完整小组件根节点包含 `not-prose`；
 - [ ] 列表、网格和工具栏的几何由组件样式明确拥有；
