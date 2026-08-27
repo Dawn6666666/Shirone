@@ -2,6 +2,7 @@
 
 @import "./markdown/disclosures.css";
 @import "./markdown/trees.css";
+@import "./markdown/steps.css";
 
 .custom-md {
   h1 {

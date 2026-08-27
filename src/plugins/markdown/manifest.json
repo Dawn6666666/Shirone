@@ -490,6 +490,56 @@
 			"docs": ["src/content/posts/markdown-extended.md"],
 			"tests": [],
 			"notes": ["保留兼容；缺少触屏与键盘契约，不作为新行内语法样板。"]
+		},
+		{
+			"id": "steps",
+			"name": "Steps",
+			"status": "stable",
+			"category": "container",
+			"source": "shirone",
+			"summary": "将单个有序列表增强为无外框的序号导轨步骤流，非法或混合输入保留为普通 Markdown。",
+			"forms": [
+				{
+					"kind": "container-directive",
+					"pattern": ":::steps{title=\"...\" start=1} ... :::",
+					"example": ":::steps{title=\"部署流程\"}\n1. **准备环境**\n\n   克隆仓库并安装依赖。\n2. **启动服务**\n\n   运行构建并发布。\n:::"
+				},
+				{
+					"kind": "container-directive",
+					"pattern": ":::steps[标题] ... :::",
+					"example": ":::steps[快速入门]\n1. 安装依赖\n2. 启动开发服务器\n:::"
+				}
+			],
+			"attributes": [
+				{
+					"name": "title",
+					"required": false,
+					"values": "string, at most 200 characters",
+					"default": ""
+				},
+				{
+					"name": "start",
+					"required": false,
+					"values": "positive integer",
+					"default": 1
+				}
+			],
+			"implementation": ["src/plugins/markdown/containers/rehype-steps.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/steps.css"],
+			"runtime": {
+				"mode": "none",
+				"modules": [],
+				"network": []
+			},
+			"docs": ["src/content/posts/steps.md"],
+			"tests": [
+				"tests/plugins/markdown/containers/steps.test.mjs",
+				"tests/site/steps.spec.ts"
+			],
+			"notes": [
+				"容器只接受一个有序列表；视觉序号附带 aria-hidden，原始 ol/li 语义保留，纯 SSR 输出且零客户端 JavaScript 负担。"
+			]
 		}
 	]
 }

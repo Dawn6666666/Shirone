@@ -75,8 +75,8 @@ pnpm.cmd astro dev --port 4321
 | --- | --- | --- |
 | 预期 class/DOM 不存在 | Markdown 编译结果陈旧或插件未注册 | 查 `markdown-processor.mjs`，再清 `.astro/data-store.json` 并重启 |
 | DOM 正确，但组件规则不在样式表 | 样式入口遗漏或构建时被移除 | 查 `main.css`、`markdown.css`、`Markdown.astro` 与产物 CSS |
-| 规则存在且命中，但 computed style 被改写 | Typography、cascade layer 或其他所有者冲突 | 判断是否应加 `not-prose`，检查 layer，不先加 `!important` |
-| Svelte DOM 与 scoped class hash 不一致 | Vite/Svelte 编译缓存陈旧 | 清 `node_modules/.vite` 与 `.astro`，重启 |
+| 规则存在且命中，但 computed style 被改变 | Typography、cascade layer 或其他所有者冲突 | 判断是否应加 `not-prose`，检查 layer，不先加 `!important` |
+| Svelte DOM 中 scoped class hash 不一致 | Vite/Svelte 编译缓存陈旧 | 清 `node_modules/.vite` 与 `.astro`，重启 |
 | 直接加载正常，Swup 导航后异常 | 生命周期或页面替换边界错误 | 同时验证 direct load 与 client navigation |
 
 检查顺序必须是 **DOM -> 样式表 -> computed style -> 缓存/生命周期**。只看源码声明无法证明浏览器最终采用了该值。
@@ -91,13 +91,15 @@ pnpm.cmd astro dev --port 4321
 4. 无障碍：运行最小组件用例及 `tests/site/a11y.spec.ts` 的相关页面。
 5. 构建验证：运行 `npx.cmd astro check` 与 `pnpm.cmd build`，不能只依赖 dev server 热更新结果。
 
-File Tree 与 Code Tree 的对应覆盖位于：
+File Tree、Code Tree 与 Steps 的对应覆盖位于：
 
 - `tests/plugins/markdown/containers/file-tree.test.mjs`
 - `tests/plugins/markdown/containers/code-tree.test.mjs`
+- `tests/plugins/markdown/containers/steps.test.mjs`
 - `tests/plugins/markdown/core/disclosure.test.mjs`
 - `tests/site/file-tree.spec.ts`
 - `tests/site/code-tree.spec.ts`
+- `tests/site/steps.spec.ts`
 
 ## 7. 提交前检查
 
