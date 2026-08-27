@@ -13,6 +13,7 @@ import { remarkFileTree } from "../plugins/markdown/code/remark-file-tree.mjs";
 import { CodeTreeComponent } from "../plugins/markdown/containers/rehype-code-tree.mjs";
 import { FileTreeComponent } from "../plugins/markdown/containers/rehype-file-tree.mjs";
 import { StepsComponent } from "../plugins/markdown/containers/rehype-steps.mjs";
+import { remarkContentAnnotations } from "../plugins/markdown/remark-content-annotations.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
@@ -29,6 +30,7 @@ import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
  */
 export const siteRemarkPlugins = [
 	remarkEscapeNumericColons,
+	remarkContentAnnotations,
 	remarkMath,
 	remarkFileTree,
 	remarkCodeTree,

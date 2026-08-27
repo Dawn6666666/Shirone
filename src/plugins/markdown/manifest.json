@@ -126,6 +126,52 @@
 			]
 		},
 		{
+			"id": "content-annotation",
+			"name": "Content Annotation",
+			"status": "stable",
+			"category": "inline-extension",
+			"source": "shirone",
+			"summary": "通过行内标签引用文章内集中定义的补充说明，并使用原生 Popover 在需要时显示内容。",
+			"forms": [
+				{
+					"kind": "inline-reference",
+					"pattern": "[+label]",
+					"example": "Astro 使用孤岛架构 [+islands]。"
+				},
+				{
+					"kind": "block-definition",
+					"pattern": "[+label]: annotation content",
+					"example": "[+islands]:\n  孤岛是由静态 HTML 包围的交互组件。"
+				}
+			],
+			"attributes": [
+				{
+					"name": "label",
+					"required": true,
+					"values": "non-empty string without whitespace, quotes, braces, or equals signs",
+					"default": null
+				}
+			],
+			"implementation": ["src/plugins/markdown/remark-content-annotations.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/content-annotations.css"],
+			"runtime": {
+				"mode": "native",
+				"modules": [],
+				"network": []
+			},
+			"docs": ["src/content/posts/content-annotations.md"],
+			"tests": [
+				"tests/plugins/markdown/inline/content-annotations.test.mjs",
+				"tests/site/content-annotations.spec.ts"
+			],
+			"notes": [
+				"未定义、非法、链接内或代码内的引用保持原文；同一标签可累积多条定义；引用可与正文粗体等标准 Markdown 行内语法相邻组合。",
+				"定义仅在当前 Markdown 文档内生效；功能不读取全局配置，不增加客户端模块或外部请求。",
+				"桌面与手机端均优先锚定到对应引用，空间不足时翻转；不使用手机端固定底部面板。"
+			]
+		},
+		{
 			"id": "expressive-code",
 			"name": "Expressive Code fence metadata",
 			"status": "stable",
