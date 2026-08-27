@@ -33,8 +33,8 @@
  *      <ProgressIndicator variant="circular" wavy />                ← 官方 wavy 圆形
  */
 import {
-	buildLinearWavePath,
 	buildCircularStarPath,
+	buildLinearWavePath,
 	circularWavyVertexCount,
 	cubicBezier,
 } from "@utils/wavy-progress";

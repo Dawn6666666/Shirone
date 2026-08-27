@@ -11,8 +11,8 @@
  */
 import { postListConfig } from "@/config/postListConfig";
 import type { PostListMode } from "@/types/postListConfig";
-import { flipFromRect, prefersReducedMotion } from "./motion";
 import { packMasonry, setupMasonry } from "./masonry";
+import { flipFromRect, prefersReducedMotion } from "./motion";
 
 const MODE_KEY = "post-list-mode";
 

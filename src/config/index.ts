@@ -36,6 +36,10 @@ export {
 	resolveFontOptions,
 } from "./fontConfig";
 export { footerConfig } from "./footerConfig";
+export {
+	imageBloomConfig,
+	resolveImageBloomOptions,
+} from "./imageBloomConfig";
 export { licenseConfig } from "./licenseConfig";
 export {
 	clampMusicVolume,
@@ -57,8 +61,3 @@ export {
 } from "./siteConfig";
 export { skillsConfig } from "./skillsConfig";
 export { timelineConfig } from "./timelineConfig";
-
-export {
-	imageBloomConfig,
-	resolveImageBloomOptions,
-} from "./imageBloomConfig";

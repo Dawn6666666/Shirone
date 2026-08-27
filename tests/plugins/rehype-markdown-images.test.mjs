@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { parseMarkdownImageAlt } from "../../src/plugins/rehype-markdown-images.mjs";
+import {
+	matchesNoReferrerDomain,
+	parseMarkdownImageAlt,
+} from "../../src/plugins/rehype-markdown-images.mjs";
 import { siteMarkdownProcessor } from "../../src/utils/markdown-processor.mjs";
 
 // unified() 返回配置型处理器，需经 createRenderer 取得真正的渲染器（与 Astro 构建期同一条插件链）
@@ -115,4 +118,50 @@ test("images mixed with inline text are never wrapped in figure", async () => {
 
 	assert.doesNotMatch(html, /markdown-image-figure/);
 	assert.match(html, /width: 40%;/);
+});
+
+test("enhances raw HTML images with the shared rules", async () => {
+	const html = await render(
+		'<img src="https://i0.hdslb.com/demo.webp" alt="Raw image w-60%" title="Raw caption" class="existing-image" data-credit="Author">',
+	);
+
+	assert.match(html, /<figure class="markdown-image-figure">/);
+	assert.match(html, /class="existing-image"/);
+	assert.match(html, /data-credit="Author"/);
+	assert.match(html, /alt="Raw image"/);
+	assert.match(html, /width: 60%;/);
+	assert.match(html, /loading="lazy"/);
+	assert.match(html, /decoding="async"/);
+	assert.match(html, /referrerpolicy="no-referrer"/);
+	assert.match(
+		html,
+		/<figcaption class="markdown-image-caption">Raw caption<\/figcaption>/,
+	);
+});
+
+test("raw gallery images keep their structure while receiving transport attributes", async () => {
+	const html = await render(
+		'<div class="image-grid"><img src="https://i0.hdslb.com/grid.webp" alt="Grid w-50%" title="Owned by gallery"></div>',
+	);
+
+	assert.match(html, /class="image-grid"/);
+	assert.match(html, /alt="Grid w-50%"/);
+	assert.match(html, /loading="lazy"/);
+	assert.match(html, /decoding="async"/);
+	assert.match(html, /referrerpolicy="no-referrer"/);
+	assert.doesNotMatch(html, /markdown-image-figure/);
+	assert.doesNotMatch(html, /width: 50%;/);
+});
+
+test("matches only configured HTTP image host patterns", () => {
+	assert.equal(
+		matchesNoReferrerDomain("https://i0.hdslb.com/a.webp", ["*.hdslb.com"]),
+		true,
+	);
+	assert.equal(
+		matchesNoReferrerDomain("https://hdslb.com/a.webp", ["*.hdslb.com"]),
+		false,
+	);
+	assert.equal(matchesNoReferrerDomain("/local.webp", ["*"]), false);
+	assert.equal(matchesNoReferrerDomain("not a url", ["*"]), false);
 });

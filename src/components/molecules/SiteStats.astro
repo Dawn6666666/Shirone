@@ -7,9 +7,9 @@
 import MetaIcon from "@components/atoms/display/MetaIcon.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import type { StatsWidget } from "@/types/sidebarConfig";
-import { getSiteStats } from "@utils/site-stats";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { getSiteStats } from "@utils/site-stats";
+import type { StatsWidget } from "@/types/sidebarConfig";
 import WidgetLayout from "./WidgetLayout.astro";
 
 interface Props {

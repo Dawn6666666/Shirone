@@ -11,9 +11,9 @@ import ArchiveList, {
 } from "@components/atoms/blog/ArchiveList.svelte";
 import Card from "@components/atoms/display/Card.svelte";
 import SegmentedButton from "@components/atoms/selection/SegmentedButton.svelte";
-import Icon from "@iconify/svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import Icon from "@iconify/svelte";
 import { getPostUrlBySlug, url } from "@utils/url-utils";
 import { onMount } from "svelte";
 

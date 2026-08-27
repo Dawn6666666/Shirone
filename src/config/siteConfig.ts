@@ -103,6 +103,11 @@ export const siteConfig: SiteConfig = {
 			enable: true,
 		},
 	},
+	// Markdown 正文图片处理；仅匹配远程图片，不会产生额外网络请求或客户端代码。
+	imageOptimization: {
+		// 为需要防盗链兼容的图片 CDN 添加 referrerpolicy="no-referrer"，支持通配符。
+		noReferrerDomains: ["*.hdslb.com"],
+	},
 	toc: {
 		enable: true, // Display the table of contents on the right side of the post
 		depth: 2, // Maximum heading depth to show in the table, from 1 to 3

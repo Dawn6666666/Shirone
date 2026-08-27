@@ -1,13 +1,13 @@
 ---
-import { Icon } from "astro-icon/components";
-import AlbumGallery from "@components/organisms/AlbumGallery.svelte";
 import PageHeader from "@components/atoms/display/PageHeader.astro";
+import AlbumGallery from "@components/organisms/AlbumGallery.svelte";
 import ProtectedAlbum from "@components/organisms/ProtectedAlbum.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
-import { encryptProtectedContent } from "@utils/password-protection";
 import { findAlbum, scanAllAlbums } from "@utils/album-scanner";
+import { encryptProtectedContent } from "@utils/password-protection";
+import { Icon } from "astro-icon/components";
 import type { AlbumGroup } from "@/types/album";
 import type { ProtectedPayload } from "@/types/protectedContent";
 

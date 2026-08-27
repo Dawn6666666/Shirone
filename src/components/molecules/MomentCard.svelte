@@ -10,9 +10,9 @@ import Icon from "@components/atoms/display/Icon.svelte";
 import MomentGallery from "@components/molecules/MomentGallery.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import type { MomentItem } from "@utils/content-utils";
 import { formatDateToYYYYMMDDHHmm } from "@utils/date-utils";
 import { reveal } from "@utils/motion";
-import type { MomentItem } from "@utils/content-utils";
 
 export type MomentAuthor = {
 	name: string;

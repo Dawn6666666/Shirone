@@ -22,12 +22,12 @@
  *   </FABMenu>
  */
 import Icon from "@iconify/svelte";
-import { onMount, untrack } from "svelte";
 import {
-	MENU_EXCLUSIVE_EVENT,
 	announceMenuOpened,
+	MENU_EXCLUSIVE_EVENT,
 	nextMenuInstanceId,
 } from "@utils/menu-bus";
+import { onMount, untrack } from "svelte";
 
 let {
 	expanded = $bindable(false),
@@ -84,7 +84,7 @@ $effect(() => {
 		const DURATION = 300;
 		const start = performance.now();
 		// emphasized-decelerate 近似：cubic-bezier(0.05, 0.7, 0.1, 1)
-		const ease = (t: number) => 1 - Math.pow(1 - t, 2.5);
+		const ease = (t: number) => 1 - (1 - t) ** 2.5;
 		const tick = (now: number) => {
 			const t = Math.min((now - start) / DURATION, 1);
 			progress = from + (target - from) * ease(t);

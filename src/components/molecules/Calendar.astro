@@ -1,4 +1,9 @@
 ---
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { getCalendarData } from "@utils/calendar-data";
+import { siteConfig } from "@/config/siteConfig";
+import type { CalendarWidget } from "@/types/sidebarConfig";
 /**
  * 月度文章历侧栏 widget（数据驱动）。
  * wrapper 只负责取数 + i18n 外壳；交互视图在 CalendarView.svelte
@@ -6,11 +11,6 @@
  * 容器外，不从 API 端点拉取；日期口径与文章卡片一致（date-utils）。
  */
 import CalendarView from "./CalendarView.svelte";
-import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
-import { siteConfig } from "@/config/siteConfig";
-import type { CalendarWidget } from "@/types/sidebarConfig";
-import { getCalendarData } from "@utils/calendar-data";
 import WidgetLayout from "./WidgetLayout.astro";
 
 interface Props {

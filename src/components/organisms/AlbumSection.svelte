@@ -1,15 +1,15 @@
 <script lang="ts">
-import Card from "@components/atoms/display/Card.svelte";
 import Chips from "@components/atoms/action/Chips.svelte";
+import Card from "@components/atoms/display/Card.svelte";
 import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
 import TextField from "@components/atoms/input/TextField.svelte";
 import AlbumCard from "@components/molecules/AlbumCard.svelte";
 import PageHeader from "@components/molecules/PageHeader.svelte";
-import Icon from "@iconify/svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import type { AlbumIndexItem } from "@/types/album";
+import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
+import type { AlbumIndexItem } from "@/types/album";
 
 let { albums = [] as AlbumIndexItem[] }: { albums?: AlbumIndexItem[] } =
 	$props();

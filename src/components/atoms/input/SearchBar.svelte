@@ -17,7 +17,7 @@
  *   </SearchBar>
  */
 import Icon from "@iconify/svelte";
-import { onMount, tick, type Snippet } from "svelte";
+import { onMount, type Snippet, tick } from "svelte";
 
 let {
 	expanded = $bindable(false),

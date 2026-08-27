@@ -4,8 +4,8 @@
  * 职责：管理文章解锁状态、内存会话持久化与解密后 DOM 挂载
  */
 import PasswordGate from "@components/organisms/PasswordGate.svelte";
-import type { ProtectedPayload } from "@/types/protectedContent";
 import { initPostDecryption } from "@utils/post-decryption";
+import type { ProtectedPayload } from "@/types/protectedContent";
 
 let {
 	payload,

@@ -15,9 +15,9 @@
  * 官方 weight 布局未实现（TODO）。
  */
 import Icon from "@iconify/svelte";
+import { onMount, tick, untrack } from "svelte";
 import Menu from "../navigation/Menu.svelte";
 import ToggleButton from "./ToggleButton.svelte";
-import { onMount, tick, untrack } from "svelte";
 
 export interface ButtonGroupItem {
 	value: string;
@@ -64,8 +64,8 @@ function measure() {
 	let availW = containerEl.clientWidth;
 	if (parent) {
 		const cs = getComputedStyle(parent);
-		const pl = parseFloat(cs.paddingLeft) || 0;
-		const pr = parseFloat(cs.paddingRight) || 0;
+		const pl = Number.parseFloat(cs.paddingLeft) || 0;
+		const pr = Number.parseFloat(cs.paddingRight) || 0;
 		availW = parent.clientWidth - pl - pr;
 	}
 	const itemEls = [

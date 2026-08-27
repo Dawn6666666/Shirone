@@ -11,9 +11,9 @@ import IconButton from "@components/atoms/action/IconButton.svelte";
 import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import type { MomentImage } from "@utils/content-utils";
 import { openFancyboxGallery } from "@utils/fancybox-handler";
 import { prefersReducedMotion } from "@utils/motion";
-import type { MomentImage } from "@utils/content-utils";
 import { tick } from "svelte";
 
 let { images = [] as MomentImage[] }: { images?: MomentImage[] } = $props();

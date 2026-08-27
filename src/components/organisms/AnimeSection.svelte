@@ -14,13 +14,13 @@ import LoadingIndicator from "@components/atoms/feedback/LoadingIndicator.svelte
 import TextField from "@components/atoms/input/TextField.svelte";
 import AnimeCard from "@components/molecules/AnimeCard.svelte";
 import PageHeader from "@components/molecules/PageHeader.svelte";
-import Icon from "@iconify/svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import Icon from "@iconify/svelte";
 import { ANIME_STATUS_META } from "@utils/anime/status";
 import { flipFromRect } from "@utils/motion";
-import type { AnimeItem } from "../../data/anime";
 import { onMount } from "svelte";
+import type { AnimeItem } from "../../data/anime";
 
 export type AnimeLayoutMode = "grid" | "list";
 

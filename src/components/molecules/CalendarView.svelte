@@ -7,8 +7,8 @@
  * 原语，reduced-motion 自动瞬切）。
  */
 import IconButton from "@components/atoms/action/IconButton.svelte";
-import { collapse, reveal } from "@utils/motion";
 import type { CalendarPost } from "@utils/calendar-data";
+import { collapse, reveal } from "@utils/motion";
 
 interface Props {
 	/** BCP47 locale（由 siteConfig.lang 换算，Intl 用） */

@@ -7,11 +7,12 @@
  * - 状态语义色经 inline --anime-status-color 注入（ANIME_STATUS_META 的 M3E 角色映射），
  *   避免动态 class 触发 Svelte unused-CSS 剥离（见 rules/pitfalls.md 1.6）。
  */
-import Icon from "@iconify/svelte";
+
 import ProgressIndicator from "@components/atoms/feedback/ProgressIndicator.svelte";
 import { i18n } from "@i18n/translation";
-import { reveal } from "@utils/motion";
+import Icon from "@iconify/svelte";
 import { ANIME_STATUS_META } from "@utils/anime/status";
+import { reveal } from "@utils/motion";
 import type { AnimeItem } from "../../data/anime";
 
 let {

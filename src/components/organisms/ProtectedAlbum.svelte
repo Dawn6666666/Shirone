@@ -1,9 +1,9 @@
 <script lang="ts">
 import AlbumGallery from "@components/organisms/AlbumGallery.svelte";
 import PasswordGate from "@components/organisms/PasswordGate.svelte";
+import { parseProtectedPayload } from "@utils/password-protection";
 import type { AlbumLayout, AlbumPhoto } from "@/types/album";
 import type { ProtectedPayload } from "@/types/protectedContent";
-import { parseProtectedPayload } from "@utils/password-protection";
 
 let {
 	payload,

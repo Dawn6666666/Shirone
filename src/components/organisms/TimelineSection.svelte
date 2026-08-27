@@ -9,9 +9,9 @@ import Chips from "@components/atoms/action/Chips.svelte";
 import Card from "@components/atoms/display/Card.svelte";
 import PageHeader from "@components/molecules/PageHeader.svelte";
 import TimelineCard from "@components/molecules/TimelineCard.svelte";
-import Icon from "@iconify/svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import Icon from "@iconify/svelte";
 import type { TimelineCategory, TimelineItem } from "@/types/timelineConfig";
 
 let {

@@ -2,17 +2,17 @@
 import Button from "@components/atoms/action/Button.svelte";
 import IconButton from "@components/atoms/action/IconButton.svelte";
 import TextField from "@components/atoms/input/TextField.svelte";
-import Icon from "@iconify/svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import Icon from "@iconify/svelte";
 import { decryptProtectedContent } from "@utils/password-protection";
 import {
 	protectedPayloadId,
 	readProtectedSession,
 	writeProtectedSession,
 } from "@utils/protected-session";
-import type { ProtectedPayload } from "@/types/protectedContent";
 import { onMount } from "svelte";
+import type { ProtectedPayload } from "@/types/protectedContent";
 
 let {
 	payload,

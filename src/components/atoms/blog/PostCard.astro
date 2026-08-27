@@ -1,4 +1,7 @@
 ---
+import AccentBar from "@components/atoms/display/AccentBar.svelte";
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
 /**
  * M3E 博客原子 — PostCard 文章卡片。
  * 数据驱动：标题 / 描述 / 封面 / 元信息（复用 blog/PostMeta）/ 阅读时长。
@@ -6,12 +9,9 @@
  * hover 抬升阴影 + 标题 primary + 箭头滑出；有封面时桌面端右侧 28% 图。
  */
 import { Icon } from "astro-icon/components";
-import AccentBar from "@components/atoms/display/AccentBar.svelte";
-import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
+import type { BlogMetaLink } from "./PostMeta.astro";
 import PostMeta from "./PostMeta.astro";
 import TagBadge from "./TagBadge.astro";
-import type { BlogMetaLink } from "./PostMeta.astro";
 
 interface Props {
 	href: string;

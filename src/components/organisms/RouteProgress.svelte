@@ -7,8 +7,8 @@
  * dual 双向扫描（官方默认双线）/ single 单向扫描（单线）。
  */
 import ProgressIndicator from "@components/atoms/feedback/ProgressIndicator.svelte";
-import { siteConfig } from "@/config";
 import { onMount } from "svelte";
+import { siteConfig } from "@/config";
 
 let visible = $state(false);
 const style = siteConfig.progressIndicator.style;

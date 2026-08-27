@@ -16,8 +16,8 @@ import MomentCard, {
 import PageHeader from "@components/molecules/PageHeader.svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import { initFancybox } from "@utils/fancybox-handler";
 import type { MomentItem } from "@utils/content-utils";
+import { initFancybox } from "@utils/fancybox-handler";
 import { onMount } from "svelte";
 
 let {

@@ -11,7 +11,7 @@ import { timelineData } from "../data/timeline.ts";
 import type { DeviceItem, DevicesConfig } from "../types/devicesConfig.ts";
 import type { ProjectItem, ProjectsConfig } from "../types/projectsConfig.ts";
 import type { SkillItem, SkillsConfig } from "../types/skillsConfig.ts";
-import type { TimelineItem, TimelineConfig } from "../types/timelineConfig.ts";
+import type { TimelineConfig, TimelineItem } from "../types/timelineConfig.ts";
 
 /**
  * 依据禁用列表过滤条目（纯函数）。

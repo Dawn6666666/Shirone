@@ -1,3 +1,5 @@
+import { fromHtml } from "hast-util-from-html";
+
 /**
  * rehype 插件：Markdown 图片通用增强。
  *
@@ -6,6 +8,8 @@
  * - `"图片标题"` 渲染为图片下方的可见图注；
  * - 独立成段的图片在带标题或宽度令牌时包装为 `<figure>`，否则仅补齐
  *   `loading="lazy"` / `decoding="async"`，不改变既有排版。
+ * - 原始 HTML `<img>` 使用同一套规则；匹配配置域名时补充
+ *   `referrerpolicy="no-referrer"`。
  *
  * 跳过规则：画廊（.image-grid）与 Mermaid 容器内的图片不重复增强，
  * 携带 `data-no-enhance` 的节点同样跳过。
@@ -36,6 +40,43 @@ function shouldSkipEnhancement(ancestors, image) {
 			node?.tagName === "figure" ||
 			classNames(node).some((className) => SKIP_CLASSES.has(className)),
 	);
+}
+
+function domainPatternToRegExp(pattern) {
+	const escaped = pattern
+		.trim()
+		.toLowerCase()
+		.replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+		.replace(/\*/g, ".*");
+	return escaped ? new RegExp(`^${escaped}$`, "i") : null;
+}
+
+/**
+ * 判断 HTTP(S) 图片 URL 是否匹配精确域名或通配符域名。
+ *
+ * @param {unknown} url 图片 URL。
+ * @param {unknown[]} patterns 域名模式列表。
+ * @returns {boolean}
+ */
+export function matchesNoReferrerDomain(url, patterns = []) {
+	if (
+		typeof url !== "string" ||
+		!/^https?:\/\//i.test(url) ||
+		!Array.isArray(patterns) ||
+		patterns.length === 0
+	) {
+		return false;
+	}
+
+	try {
+		const hostname = new URL(url).hostname;
+		return patterns.some((pattern) => {
+			const matcher = domainPatternToRegExp(String(pattern));
+			return matcher?.test(hostname) ?? false;
+		});
+	} catch {
+		return false;
+	}
 }
 
 /**
@@ -102,12 +143,20 @@ function onlyImageChild(node) {
 		: null;
 }
 
-function enhanceImage(image, ancestors, allowFigure) {
+function enhanceImage(image, ancestors, allowFigure, options) {
 	image.properties ??= {};
 	const properties = image.properties;
 	// 零额外负担：所有正文图片统一惰性加载与异步解码
 	properties.loading ??= "lazy";
 	properties.decoding ??= "async";
+	if (
+		matchesNoReferrerDomain(
+			String(properties.src ?? ""),
+			options.noReferrerDomains,
+		)
+	) {
+		properties.referrerPolicy = "no-referrer";
+	}
 
 	if (shouldSkipEnhancement(ancestors, image)) return image;
 
@@ -128,11 +177,18 @@ function enhanceImage(image, ancestors, allowFigure) {
 		: image;
 }
 
-function transformChildren(parent, ancestors) {
+function transformChildren(parent, ancestors, options, allowFigure = true) {
 	const nextChildren = [];
-	const inParagraph = parent.tagName === "p";
+	const canWrapChildImage = allowFigure && parent.tagName !== "p";
 
 	for (const child of parent.children ?? []) {
+		if (child.type === "raw" && /<img\b/i.test(child.value ?? "")) {
+			const fragment = fromHtml(child.value, { fragment: true });
+			transformChildren(fragment, ancestors, options, canWrapChildImage);
+			nextChildren.push(...fragment.children);
+			continue;
+		}
+
 		if (child.type !== "element") {
 			nextChildren.push(child);
 			continue;
@@ -141,17 +197,21 @@ function transformChildren(parent, ancestors) {
 		if (child.tagName === "p") {
 			const image = onlyImageChild(child);
 			if (image) {
-				nextChildren.push(enhanceImage(image, [...ancestors, child], true));
+				nextChildren.push(
+					enhanceImage(image, [...ancestors, child], true, options),
+				);
 				continue;
 			}
 		}
 
 		if (child.tagName === "img") {
-			nextChildren.push(enhanceImage(child, ancestors, !inParagraph));
+			nextChildren.push(
+				enhanceImage(child, ancestors, canWrapChildImage, options),
+			);
 			continue;
 		}
 
-		transformChildren(child, [...ancestors, child]);
+		transformChildren(child, [...ancestors, child], options, canWrapChildImage);
 		nextChildren.push(child);
 	}
 
@@ -161,8 +221,14 @@ function transformChildren(parent, ancestors) {
 /**
  * 对 Markdown 图片应用统一的宽度/图注/惰性加载规则。
  */
-export function rehypeMarkdownImages() {
+export function rehypeMarkdownImages(options = {}) {
+	const normalizedOptions = {
+		noReferrerDomains: Array.isArray(options.noReferrerDomains)
+			? options.noReferrerDomains
+			: [],
+	};
+
 	return (tree) => {
-		transformChildren(tree, []);
+		transformChildren(tree, [], normalizedOptions);
 	};
 }

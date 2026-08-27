@@ -17,11 +17,11 @@ import TextField from "@components/atoms/input/TextField.svelte";
 import CompassTile from "@components/molecules/CompassTile.svelte";
 import PageHeader from "@components/molecules/PageHeader.svelte";
 import SectionTitle from "@components/molecules/SectionTitle.svelte";
-import Icon from "@iconify/svelte";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
-import type { CompassShelf } from "../../data/compass";
+import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
+import type { CompassShelf } from "../../data/compass";
 
 let { shelves = [] as CompassShelf[] }: { shelves?: CompassShelf[] } = $props();
 

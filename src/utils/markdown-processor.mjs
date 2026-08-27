@@ -7,6 +7,7 @@ import remarkDirective from "remark-directive"; /* Handle directives */
 import remarkGithubAdmonitionsToDirectives from "remark-github-admonitions-to-directives";
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
+import { siteConfig } from "../config/siteConfig.ts";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
@@ -78,7 +79,12 @@ export const siteRehypePlugins = [
 	],
 	// 图片通用增强（w-N% 宽度 / 标题图注 / 惰性加载）：殿后执行，
 	// 确保 :::grid 等组件已渲染出跳过类名
-	rehypeMarkdownImages,
+	[
+		rehypeMarkdownImages,
+		{
+			noReferrerDomains: siteConfig.imageOptimization?.noReferrerDomains ?? [],
+		},
+	],
 	rehypeResponsiveTables,
 ];
 

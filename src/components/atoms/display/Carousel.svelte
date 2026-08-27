@@ -46,7 +46,7 @@ function updateActive() {
 	const nodes = [...el.querySelectorAll<HTMLElement>("[data-carousel-item]")];
 	if (!nodes.length) return;
 	let best = 0;
-	let bestDist = Infinity;
+	let bestDist = Number.POSITIVE_INFINITY;
 	const center = el.scrollLeft + el.clientWidth / 2;
 	for (let i = 0; i < nodes.length; i++) {
 		const nodeCenter = nodes[i].offsetLeft + nodes[i].offsetWidth / 2;
@@ -83,7 +83,7 @@ function onScrollerKeydown(e: KeyboardEvent) {
 		}
 		const items = [...el.querySelectorAll<HTMLElement>("[data-carousel-item]")];
 		if (!items.length) return;
-		const gap = parseFloat(getComputedStyle(el).columnGap || "0");
+		const gap = Number.parseFloat(getComputedStyle(el).columnGap || "0");
 		const step = items[0].offsetWidth + gap;
 		const current = Math.round(el.scrollLeft / step);
 		const target = Math.max(

@@ -3,8 +3,9 @@
  * M3E Dialog atom. Native <dialog> supplies top-layer rendering, modal
  * background inertness, and the browser focus trap.
  */
-import { prefersReducedMotion } from "@utils/motion";
+
 import Icon from "@iconify/svelte";
+import { prefersReducedMotion } from "@utils/motion";
 import { tick } from "svelte";
 
 let {

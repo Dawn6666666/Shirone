@@ -101,6 +101,11 @@ export type SiteConfig = {
 			enable: boolean;
 		};
 	};
+	/** Markdown 正文图片处理配置。 */
+	imageOptimization?: {
+		/** 添加 `referrerpolicy="no-referrer"` 的远程图片域名，支持 `*.example.com` 通配符。 */
+		noReferrerDomains?: string[];
+	};
 	toc: {
 		enable: boolean;
 		depth: 1 | 2 | 3;

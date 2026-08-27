@@ -7,12 +7,13 @@
  * variant: standard（surface 基，默认）/ vibrant（tertiary 基，高强调，慎用）。
  * 菜单项状态：.selected（单选高亮）/ .checked（勾选）；分组用 .m3-menu-group（组间距 2px）。
  */
-import { onMount } from "svelte";
+
 import {
-	MENU_EXCLUSIVE_EVENT,
 	announceMenuOpened,
+	MENU_EXCLUSIVE_EVENT,
 	nextMenuInstanceId,
 } from "@utils/menu-bus";
+import { onMount } from "svelte";
 
 let {
 	open = $bindable(false),

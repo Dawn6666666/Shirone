@@ -1,8 +1,9 @@
 <script lang="ts">
 /** 技能展示卡（分子）：图标、名称、说明与离散熟练度。 */
-import Icon from "@iconify/svelte";
+
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import Icon from "@iconify/svelte";
 import { reveal } from "@utils/motion";
 import type { SkillItem, SkillLevel } from "@/types/skillsConfig";
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 import Icon from "@iconify/svelte";
-import { fade } from "svelte/transition";
 import type { TransitionConfig } from "svelte/transition";
+import { fade } from "svelte/transition";
 
 /**
  * M3E SearchView — M3 搜索视图（官方 SearchBar.kt 的 SearchView / SearchViewTokens 移植，token 对齐 v0.192 md-comp-search-view）：
