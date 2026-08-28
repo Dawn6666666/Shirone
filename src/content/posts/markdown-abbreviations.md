@@ -3,7 +3,7 @@ title: Markdown Abbreviations
 published: 2026-08-28
 description: Define common acronyms once and keep their full meaning available in normal article text.
 tags: [Demo, Markdown, Typography, Shirone]
-category: Guide
+category: Guides
 lang: en
 draft: false
 ---
