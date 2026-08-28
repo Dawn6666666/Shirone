@@ -1,10 +1,9 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { siteConfig } from "@/config/siteConfig";
-import { initCodeCopyButtons } from "./code-copy";
-import { initCodeTrees } from "./code-tree";
 import { initFancybox } from "./fancybox-handler";
 import { initKaTeXScrollbars } from "./katex-scroll";
+import { initMarkdownRuntime } from "./markdown-runtime";
 import { scheduleMermaidRender } from "./mermaid";
 import { prefersReducedMotion } from "./motion";
 
@@ -25,19 +24,7 @@ type DynamicTableOfContents = HTMLElement & {
 export function initPostDecryption(container: HTMLElement): void {
 	if (!container) return;
 
-	// Copy uses one delegated listener, so it also covers HTML injected later.
-	initCodeCopyButtons();
-	initCodeTrees();
-	if (container.querySelector(".m3-option-group[data-option-group]")) {
-		void import("./option-groups").then(({ initOptionGroups }) => {
-			initOptionGroups(container);
-		});
-	}
-	if (container.querySelector("abbr.m3-abbreviation[data-abbreviation-expansion]")) {
-		void import("./abbreviations").then(({ initAbbreviations }) => {
-			initAbbreviations(container);
-		});
-	}
+	void initMarkdownRuntime(container);
 
 	if (
 		typeof window !== "undefined" &&
