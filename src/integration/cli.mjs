@@ -84,31 +84,36 @@ const REQUIRED_PEERS = ["svelte"];
 const BUILT_DEPENDENCIES = ["esbuild", "sharp"];
 
 /**
- * pnpm 11 stopped reading the `pnpm` field in package.json and moved settings
- * to `pnpm-workspace.yaml`. We write both so the scaffold installs cleanly on
- * pnpm 10 and 11 alike, and is simply ignored by npm and yarn.
+ * Build-script approval.
+ *
+ * pnpm refuses to silently skip a dependency's install script, and `sharp`
+ * (Astro's image optimisation) needs its. The setting moved between majors —
+ * `allowBuilds` in pnpm 11, `onlyBuiltDependencies` in pnpm 10 — so both are
+ * written. npm and yarn ignore this file entirely.
  */
 async function ensurePnpmWorkspace() {
 	const file = join(CWD, "pnpm-workspace.yaml");
+	const block = [
+		"allowBuilds:",
+		...BUILT_DEPENDENCIES.map((dep) => `  ${dep}: true`),
+		"onlyBuiltDependencies:",
+		...BUILT_DEPENDENCIES.map((dep) => `  - ${dep}`),
+		"",
+	].join("\n");
+
 	if (existsSync(file)) {
 		const current = await readFile(file, "utf8");
-		if (current.includes("onlyBuiltDependencies")) {
+		if (current.includes("allowBuilds")) {
 			log.skip("pnpm-workspace.yaml already configured");
 			return;
 		}
-		await writeFile(
-			file,
-			`${current.trimEnd()}\n\nonlyBuiltDependencies:\n${BUILT_DEPENDENCIES.map(
-				(dep) => `  - ${dep}`,
-			).join("\n")}\n`,
-			"utf8",
-		);
+		await writeFile(file, `${current.trimEnd()}\n\n${block}`, "utf8");
 	} else {
 		await writeFile(
 			file,
-			`# Allows these dependencies to run their install scripts.\n` +
+			`# Lets these dependencies run their install scripts.\n` +
 				`# sharp powers Astro's image optimisation and will not work without it.\n` +
-				`onlyBuiltDependencies:\n${BUILT_DEPENDENCIES.map((dep) => `  - ${dep}`).join("\n")}\n`,
+				block,
 			"utf8",
 		);
 	}
