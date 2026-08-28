@@ -57,6 +57,10 @@ The theme is designed for long-form writing as well as personal collections such
 - SSR-first output, keyboard-friendly interactions, and accessibility testing
 - Optional integrations follow a zero-burden rule: when disabled, they add no external requests, DOM, layout shift, or main-bundle code
 
+## ✦ AI Skills
+
+Shirone ships with [agent skills](./.agents/skills/README.md) in `.agents/skills/`. AI coding assistants that support the Agent Skills standard (Claude Code, Codex, ZCode, and others) discover them automatically after you clone the repository — developer-oriented skills guide theme development, while user-oriented skills help you write posts, use the custom Markdown syntaxes, and configure your site. To package the same skills as one installable Codex plugin, run `pnpm.cmd skills:package -- --zip`.
+
 ## Quick Start
 
 ### Requirements

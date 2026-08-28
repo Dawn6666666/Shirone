@@ -1,7 +1,7 @@
 # 项目规则
 
 > Shirone 项目的硬性约定与工作流。新增代码前必读。
-> 配套文档：`rules/pitfalls.md`（踩坑）、`rules/css-important.md`（CSS `!important` 使用规范）、`rules/component-api.md`（组件 API 规范）、`rules/a11y.md`（无障碍与键盘交互）、`rules/visual-regression.md`（视觉回归）、`docs/m3e-standard.md`（组件标准）、`docs/atomic-structure.md`（分层规范）、`docs/markdown-extensions.md`（Markdown 插件、样式与缓存契约）、`docs/performance-guidelines.md`（性能架构指南）、`rules/performance-rules.md`（性能开发硬性规则）。
+> 配套文档：`rules/pitfalls.md`（踩坑）、`rules/css-important.md`（CSS `!important` 使用规范）、`rules/component-api.md`（组件 API 规范）、`rules/a11y.md`（无障碍与键盘交互）、`rules/visual-regression.md`（视觉回归）、`rules/ai-skills.md`（AI skills 维护）、`docs/ai-skills-maintenance.md`（skills 操作手册）、`docs/m3e-standard.md`（组件标准）、`docs/atomic-structure.md`（分层规范）、`docs/markdown-extensions.md`（Markdown 插件、样式与缓存契约）、`docs/performance-guidelines.md`（性能架构指南）、`rules/performance-rules.md`（性能开发硬性规则）。
 
 ---
 

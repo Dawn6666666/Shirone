@@ -30,7 +30,10 @@ Shirone is a blog theme built with Astro 7, Svelte 5, Tailwind 4, Stylus, and pn
 - `docs/markdown-syntax-manifest.md` — required before adding, changing, or retiring custom author-facing Markdown syntax.
 - `docs/sidebar-system.md` — sidebar orchestration, page filtering, and Swup synchronization.
 - `src/config/README.md` — required before changing configuration types or values.
+- `rules/ai-skills.md` — required before adding or changing AI skills or their packaging workflow.
+- `docs/ai-skills-maintenance.md` — required for the skills/project documentation split and release checklist.
 - The nearest nested `AGENTS.md` — local rules are additive and narrower than this file.
+- `.agents/skills/README.md` — task-scoped AI skills for developers and theme users; consult the matching skill (and keep its content in sync) when working in its domain.
 
 ## Validation
 
