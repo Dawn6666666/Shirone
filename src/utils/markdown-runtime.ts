@@ -39,6 +39,20 @@ const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 			initAbbreviations(root);
 		},
 	},
+	{
+		selector: ".katex-display",
+		initialize: async (root) => {
+			const { initKaTeXScrollbars } = await import("./katex-scroll");
+			initKaTeXScrollbars(root);
+		},
+	},
+	{
+		selector: ".markdown-mermaid[data-mermaid]",
+		initialize: async () => {
+			const { initMermaidDiagrams } = await import("./mermaid");
+			initMermaidDiagrams();
+		},
+	},
 ];
 
 /**

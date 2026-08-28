@@ -2,9 +2,7 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { siteConfig } from "@/config/siteConfig";
 import { initFancybox } from "./fancybox-handler";
-import { initKaTeXScrollbars } from "./katex-scroll";
 import { initMarkdownRuntime } from "./markdown-runtime";
-import { scheduleMermaidRender } from "./mermaid";
 import { prefersReducedMotion } from "./motion";
 
 type DecryptedHeading = {
@@ -36,11 +34,6 @@ export function initPostDecryption(container: HTMLElement): void {
 	void initFancybox().catch((error) => {
 		console.error("Failed to initialize Fancybox after post decryption", error);
 	});
-
-	// The global Mermaid lifecycle is initialized by Layout; dynamic HTML needs a scan.
-	scheduleMermaidRender();
-
-	initKaTeXScrollbars(container);
 
 	syncTableOfContents(container);
 

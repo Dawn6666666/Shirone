@@ -245,10 +245,8 @@ const hasMonoFont =
 <script>
 import "../utils/code-collapse";
 import { initLastUpdatedNotices } from "../utils/last-updated-notice";
-import { initMermaidDiagrams } from "../utils/mermaid";
 import {getHue, getStoredTheme, setHue, setTheme} from "../utils/setting-utils";
 import { WALLPAPER_MODE_CHANGE_EVENT, BANNER_HEIGHT, BANNER_HEIGHT_EXTEND } from "../constants/constants";
-import { initKaTeXScrollbars } from "../utils/katex-scroll";
 
 function setClickOutsideToClose(panel: string, ignores: string[]) {
 	document.addEventListener('click', event => {
@@ -268,18 +266,12 @@ setClickOutsideToClose('search-panel', ['search-panel', 'search-bar', 'search-sw
 function loadTheme() { setTheme(getStoredTheme()); }
 function loadHue() { setHue(getHue()); }
 
-function initCustomScrollbar() {
-	initKaTeXScrollbars();
-}
-
 function init() {
 	loadTheme();
 	loadHue();
-	initCustomScrollbar();
 }
 init();
 initLastUpdatedNotices();
-initMermaidDiagrams();
 
 const setup = () => {
 	if (!window.swup || window.__shironeNavigationBound) return;
@@ -296,7 +288,6 @@ const setup = () => {
 		}, 200);
 	}
 	window.swup.hooks.on('link:click', () => document.documentElement.style.setProperty('--content-delay', '0ms'));
-	window.swup.hooks.on('content:replace', initCustomScrollbar);
 	window.swup.hooks.on('visit:start', () => {
 		window.clearTimeout(finishTimer);
 		visitActive = true;
