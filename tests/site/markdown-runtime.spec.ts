@@ -9,6 +9,7 @@ const TREE_POST_PATH = "/posts/markdown-enhancements/";
 const COLLAPSE_POST_PATH = "/posts/collapse-panels/";
 const MARKER_POST_PATH = "/posts/marker-highlights/";
 const CONTENT_ANNOTATIONS_POST_PATH = "/posts/content-annotations/";
+const STEPS_POST_PATH = "/posts/steps/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -21,6 +22,7 @@ const optionalRuntimeModules = {
 	marker: /\/src\/styles\/markdown\/marker\.css(?:\?|$)/,
 	contentAnnotations:
 		/\/src\/styles\/markdown\/content-annotations\.css(?:\?|$)/,
+	steps: /\/src\/styles\/markdown\/steps\.css(?:\?|$)/,
 	codeTree: /\/src\/utils\/code-tree\.ts(?:\?|$)/,
 };
 
@@ -37,10 +39,7 @@ function trackOptionalRuntimeRequests(page: Page): string[] {
 	return requests;
 }
 
-function hasRequestFor(
-	requests: string[],
-	modules: Array<RegExp>,
-): boolean {
+function hasRequestFor(requests: string[], modules: Array<RegExp>): boolean {
 	return requests.some((url) => modules.some((pattern) => pattern.test(url)));
 }
 
@@ -93,9 +92,9 @@ test.describe("Markdown syntax runtime loading", () => {
 
 		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
 		await page.waitForFunction(() => Boolean(window.swup?.navigate));
-		expect(
-			hasRequestFor(requests, [optionalRuntimeModules.fancybox]),
-		).toBe(false);
+		expect(hasRequestFor(requests, [optionalRuntimeModules.fancybox])).toBe(
+			false,
+		);
 
 		await page.evaluate(
 			(path) => window.swup?.navigate(path),
@@ -142,9 +141,9 @@ test.describe("Markdown syntax runtime loading", () => {
 
 		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
 		await page.waitForFunction(() => Boolean(window.swup?.navigate));
-		await expect(
-			page.locator('style[data-swup-optional="trees"]'),
-		).toHaveCount(0);
+		await expect(page.locator('style[data-swup-optional="trees"]')).toHaveCount(
+			0,
+		);
 		expect(
 			hasRequestFor(requests, [
 				optionalRuntimeModules.trees,
@@ -152,16 +151,13 @@ test.describe("Markdown syntax runtime loading", () => {
 			]),
 		).toBe(false);
 
-		await page.evaluate(
-			(path) => window.swup?.navigate(path),
-			TREE_POST_PATH,
-		);
+		await page.evaluate((path) => window.swup?.navigate(path), TREE_POST_PATH);
 		await page.waitForURL(`**${TREE_POST_PATH}`);
 		const fileTree = page.locator(".m3-file-tree").first();
 		await expect(fileTree).toBeVisible();
-		await expect(
-			page.locator('style[data-swup-optional="trees"]'),
-		).toHaveCount(1);
+		await expect(page.locator('style[data-swup-optional="trees"]')).toHaveCount(
+			1,
+		);
 		await expect(fileTree).toHaveCSS("border-radius", "16px");
 
 		const codeTreeButtons = page.locator(".m3-code-tree__file-btn");
@@ -178,14 +174,11 @@ test.describe("Markdown syntax runtime loading", () => {
 			)
 			.toBe(true);
 
-		await page.evaluate(
-			(path) => window.swup?.navigate(path),
-			PLAIN_POST_PATH,
-		);
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
 		await page.waitForURL(`**${PLAIN_POST_PATH}`);
-		await expect(
-			page.locator('style[data-swup-optional="trees"]'),
-		).toHaveCount(0);
+		await expect(page.locator('style[data-swup-optional="trees"]')).toHaveCount(
+			0,
+		);
 	});
 
 	test("adds and removes collapse panel styles with the Swup page lifecycle", async ({
@@ -214,10 +207,7 @@ test.describe("Markdown syntax runtime loading", () => {
 		).toHaveCount(1);
 		await expect(collapsePanels.first()).toHaveCSS("border-radius", "16px");
 
-		await page.evaluate(
-			(path) => window.swup?.navigate(path),
-			PLAIN_POST_PATH,
-		);
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
 		await page.waitForURL(`**${PLAIN_POST_PATH}`);
 		await expect(
 			page.locator('style[data-swup-optional="collapse-panels"]'),
@@ -231,9 +221,9 @@ test.describe("Markdown syntax runtime loading", () => {
 
 		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
 		await page.waitForFunction(() => Boolean(window.swup?.navigate));
-		await expect(page.locator('style[data-swup-optional="marker"]')).toHaveCount(
-			0,
-		);
+		await expect(
+			page.locator('style[data-swup-optional="marker"]'),
+		).toHaveCount(0);
 		expect(hasRequestFor(requests, [optionalRuntimeModules.marker])).toBe(
 			false,
 		);
@@ -245,19 +235,16 @@ test.describe("Markdown syntax runtime loading", () => {
 		await page.waitForURL(`**${MARKER_POST_PATH}`);
 		const marker = page.locator(".m3-marker").first();
 		await expect(marker).toBeVisible();
-		await expect(page.locator('style[data-swup-optional="marker"]')).toHaveCount(
-			1,
-		);
+		await expect(
+			page.locator('style[data-swup-optional="marker"]'),
+		).toHaveCount(1);
 		await expect(marker).toHaveCSS("box-shadow", /inset/);
 
-		await page.evaluate(
-			(path) => window.swup?.navigate(path),
-			PLAIN_POST_PATH,
-		);
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
 		await page.waitForURL(`**${PLAIN_POST_PATH}`);
-		await expect(page.locator('style[data-swup-optional="marker"]')).toHaveCount(
-			0,
-		);
+		await expect(
+			page.locator('style[data-swup-optional="marker"]'),
+		).toHaveCount(0);
 	});
 
 	test("adds and removes content annotation styles with the Swup page lifecycle", async ({
@@ -286,13 +273,38 @@ test.describe("Markdown syntax runtime loading", () => {
 		).toHaveCount(1);
 		await expect(trigger).toHaveCSS("border-radius", "999px");
 
-		await page.evaluate(
-			(path) => window.swup?.navigate(path),
-			PLAIN_POST_PATH,
-		);
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
 		await page.waitForURL(`**${PLAIN_POST_PATH}`);
 		await expect(
 			page.locator('style[data-swup-optional="content-annotations"]'),
 		).toHaveCount(0);
+	});
+
+	test("adds and removes steps styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(page.locator('style[data-swup-optional="steps"]')).toHaveCount(
+			0,
+		);
+		expect(hasRequestFor(requests, [optionalRuntimeModules.steps])).toBe(false);
+
+		await page.evaluate((path) => window.swup?.navigate(path), STEPS_POST_PATH);
+		await page.waitForURL(`**${STEPS_POST_PATH}`);
+		const steps = page.locator(".m3-steps").first();
+		await expect(steps).toBeVisible();
+		await expect(page.locator('style[data-swup-optional="steps"]')).toHaveCount(
+			1,
+		);
+		await expect(steps).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(page.locator('style[data-swup-optional="steps"]')).toHaveCount(
+			0,
+		);
 	});
 });

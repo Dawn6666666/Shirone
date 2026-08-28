@@ -14,6 +14,7 @@ export function remarkFeatureProbes() {
 			collapsePanels: false,
 			contentAnnotations: false,
 			marker: false,
+			steps: false,
 		};
 
 		visit(tree, (node) => {
@@ -49,6 +50,9 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "contentAnnotationReference") {
 				markdownFeatures.contentAnnotations = true;
+			}
+			if (node.type === "containerDirective" && node.name === "steps") {
+				markdownFeatures.steps = true;
 			}
 		});
 

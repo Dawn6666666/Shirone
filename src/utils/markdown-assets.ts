@@ -5,11 +5,13 @@ type MarkdownAssetFeature =
 	| "collapsePanels"
 	| "contentAnnotations"
 	| "marker"
+	| "steps"
 	| "trees";
 type MarkdownStylesheetPack =
 	| "collapse-panels"
 	| "content-annotations"
 	| "marker"
+	| "steps"
 	| "trees";
 
 const treesStylesheetPath = resolve(
@@ -27,6 +29,10 @@ const markerStylesheetPath = resolve(
 const contentAnnotationsStylesheetPath = resolve(
 	process.cwd(),
 	"src/styles/markdown/content-annotations.css",
+);
+const stepsStylesheetPath = resolve(
+	process.cwd(),
+	"src/styles/markdown/steps.css",
 );
 
 export type MarkdownFeatureSnapshot = Partial<
@@ -58,6 +64,12 @@ const stylesheetAssets: Record<
 		{
 			pack: "marker",
 			loadCss: () => readFile(markerStylesheetPath, "utf8"),
+		},
+	],
+	steps: [
+		{
+			pack: "steps",
+			loadCss: () => readFile(stepsStylesheetPath, "utf8"),
 		},
 	],
 	trees: [

@@ -17,6 +17,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		collapsePanels: false,
 		contentAnnotations: false,
 		marker: false,
+		steps: false,
 	});
 
 	const mermaid = await renderer.render(
@@ -32,24 +33,22 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		collapsePanels: false,
 		contentAnnotations: false,
 		marker: false,
+		steps: false,
 	});
 });
 
 test("records file-tree and code-tree capabilities after syntax transforms", async () => {
 	const fileTree = await renderer.render(
-		[
-			':::file-tree{title="Source"}',
-			"- src/",
-			"  - index.ts",
-			":::",
-		].join("\n"),
+		[':::file-tree{title="Source"}', "- src/", "  - index.ts", ":::"].join(
+			"\n",
+		),
 	);
 	assert.equal(fileTree.metadata.frontmatter.markdownFeatures.trees, true);
 
 	const codeTree = await renderer.render(
 		[
 			':::code-tree{title="Source"}',
-			"```ts title=\"src/index.ts\"",
+			'```ts title="src/index.ts"',
 			"export {};",
 			"```",
 			":::",
@@ -77,6 +76,18 @@ test("records collapse panels after syntax normalization", async () => {
 test("records marker highlights after syntax normalization", async () => {
 	const marker = await renderer.render("Use ==semantic emphasis==.");
 	assert.equal(marker.metadata.frontmatter.markdownFeatures.marker, true);
+});
+
+test("records steps containers before directive normalization", async () => {
+	const steps = await renderer.render(
+		[
+			':::steps{title="Deploy"}',
+			"1. Build the site.",
+			"2. Publish the result.",
+			":::",
+		].join("\n"),
+	);
+	assert.equal(steps.metadata.frontmatter.markdownFeatures.steps, true);
 });
 
 test("records defined content annotations after reference resolution", async () => {
@@ -107,6 +118,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				collapsePanels: false,
 				contentAnnotations: false,
 				marker: false,
+				steps: false,
 			},
 			hasMath: false,
 			hasMermaid: false,
