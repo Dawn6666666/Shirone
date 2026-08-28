@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { AstroIntegration } from "astro";
 import { shironesFallbackResolver } from "./fallback-resolver.ts";
+import { shironesSsrNodeShims } from "./ssr-node-shims.ts";
 import { buildFontDeclarations } from "./fonts.ts";
 import {
 	invalidateConfigCache,
@@ -201,6 +202,7 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 								verbose: command === "dev",
 							}),
 							shironesFallbackResolver(paths),
+							shironesSsrNodeShims(),
 							createMusicSidebarPlugin(paths, musicEnabled),
 							(await import("@tailwindcss/vite")).default(),
 						],
