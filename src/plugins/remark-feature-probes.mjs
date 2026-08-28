@@ -16,6 +16,7 @@ export function remarkFeatureProbes() {
 			marker: false,
 			steps: false,
 			admonitions: false,
+			abbreviations: false,
 		};
 
 		visit(tree, (node) => {
@@ -68,6 +69,9 @@ export function remarkFeatureProbes() {
 				].includes(node.name)
 			) {
 				markdownFeatures.admonitions = true;
+			}
+			if (node.type === "abbreviation") {
+				markdownFeatures.abbreviations = true;
 			}
 		});
 

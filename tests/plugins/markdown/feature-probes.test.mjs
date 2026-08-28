@@ -19,6 +19,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		marker: false,
 		steps: false,
 		admonitions: false,
+		abbreviations: false,
 	});
 
 	const mermaid = await renderer.render(
@@ -36,6 +37,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		marker: false,
 		steps: false,
 		admonitions: false,
+		abbreviations: false,
 	});
 });
 
@@ -102,6 +104,16 @@ test("records normalized admonitions including GitHub Alerts", async () => {
 	);
 });
 
+test("records visible abbreviations after reference replacement", async () => {
+	const abbreviations = await renderer.render(
+		"*[SSR]: Server-Side Rendering\n\nSSR stays readable without JavaScript.",
+	);
+	assert.equal(
+		abbreviations.metadata.frontmatter.markdownFeatures.abbreviations,
+		true,
+	);
+});
+
 test("records defined content annotations after reference resolution", async () => {
 	const annotations = await renderer.render(
 		"A note [+example].\n\n[+example]: Annotation content.",
@@ -132,6 +144,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				marker: false,
 				steps: false,
 				admonitions: false,
+				abbreviations: false,
 			},
 			hasMath: false,
 			hasMermaid: false,

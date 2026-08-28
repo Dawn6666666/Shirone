@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 type MarkdownAssetFeature =
+	| "abbreviations"
 	| "admonitions"
 	| "collapsePanels"
 	| "contentAnnotations"
@@ -9,6 +10,7 @@ type MarkdownAssetFeature =
 	| "steps"
 	| "trees";
 type MarkdownStylesheetPack =
+	| "abbreviations"
 	| "admonitions"
 	| "collapse-panels"
 	| "content-annotations"
@@ -19,6 +21,10 @@ type MarkdownStylesheetPack =
 const treesStylesheetPath = resolve(
 	process.cwd(),
 	"src/styles/markdown/trees.css",
+);
+const abbreviationsStylesheetPath = resolve(
+	process.cwd(),
+	"src/styles/markdown/abbreviations.css",
 );
 const admonitionsStylesheetPath = resolve(
 	process.cwd(),
@@ -54,6 +60,12 @@ const stylesheetAssets: Record<
 	MarkdownAssetFeature,
 	readonly MarkdownStylesheetAsset[]
 > = {
+	abbreviations: [
+		{
+			pack: "abbreviations",
+			loadCss: () => readFile(abbreviationsStylesheetPath, "utf8"),
+		},
+	],
 	admonitions: [
 		{
 			pack: "admonitions",

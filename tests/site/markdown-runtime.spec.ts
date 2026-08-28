@@ -12,6 +12,7 @@ const CONTENT_ANNOTATIONS_POST_PATH = "/posts/content-annotations/";
 const STEPS_POST_PATH = "/posts/steps/";
 const ADMONITIONS_POST_PATH = "/posts/admonitions/";
 const ADMONITION_FREE_POST_PATH = "/posts/expressive-code/";
+const ABBREVIATIONS_POST_PATH = "/posts/markdown-abbreviations/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -26,6 +27,7 @@ const optionalRuntimeModules = {
 		/\/src\/styles\/markdown\/content-annotations\.css(?:\?|$)/,
 	steps: /\/src\/styles\/markdown\/steps\.css(?:\?|$)/,
 	admonitions: /\/src\/styles\/markdown\/admonitions\.css(?:\?|$)/,
+	abbreviations: /\/src\/utils\/abbreviations\.ts(?:\?|$)/,
 	codeTree: /\/src\/utils\/code-tree\.ts(?:\?|$)/,
 };
 
@@ -344,6 +346,47 @@ test.describe("Markdown syntax runtime loading", () => {
 		await page.waitForURL(`**${ADMONITION_FREE_POST_PATH}`);
 		await expect(
 			page.locator('style[data-swup-optional="admonitions"]'),
+		).toHaveCount(0);
+	});
+
+	test("loads abbreviation assets only for rendered references", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(ADMONITION_FREE_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="abbreviations"]'),
+		).toHaveCount(0);
+		expect(
+			hasRequestFor(requests, [optionalRuntimeModules.abbreviations]),
+		).toBe(false);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			ABBREVIATIONS_POST_PATH,
+		);
+		await page.waitForURL(`**${ABBREVIATIONS_POST_PATH}`);
+		const abbreviation = page.locator("abbr.m3-abbreviation").first();
+		await expect(abbreviation).toBeVisible();
+		await expect(
+			page.locator('style[data-swup-optional="abbreviations"]'),
+		).toHaveCount(1);
+		await expect(abbreviation).toHaveCSS("text-decoration-style", "dotted");
+		await expect
+			.poll(() =>
+				hasRequestFor(requests, [optionalRuntimeModules.abbreviations]),
+			)
+			.toBe(true);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			ADMONITION_FREE_POST_PATH,
+		);
+		await page.waitForURL(`**${ADMONITION_FREE_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="abbreviations"]'),
 		).toHaveCount(0);
 	});
 });
