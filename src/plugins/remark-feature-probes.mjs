@@ -15,6 +15,7 @@ export function remarkFeatureProbes() {
 			contentAnnotations: false,
 			marker: false,
 			steps: false,
+			admonitions: false,
 		};
 
 		visit(tree, (node) => {
@@ -53,6 +54,20 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "containerDirective" && node.name === "steps") {
 				markdownFeatures.steps = true;
+			}
+			if (
+				node.type === "containerDirective" &&
+				[
+					"note",
+					"info",
+					"tip",
+					"important",
+					"warning",
+					"caution",
+					"admonition-details",
+				].includes(node.name)
+			) {
+				markdownFeatures.admonitions = true;
 			}
 		});
 

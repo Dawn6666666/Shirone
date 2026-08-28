@@ -2,12 +2,14 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 type MarkdownAssetFeature =
+	| "admonitions"
 	| "collapsePanels"
 	| "contentAnnotations"
 	| "marker"
 	| "steps"
 	| "trees";
 type MarkdownStylesheetPack =
+	| "admonitions"
 	| "collapse-panels"
 	| "content-annotations"
 	| "marker"
@@ -17,6 +19,10 @@ type MarkdownStylesheetPack =
 const treesStylesheetPath = resolve(
 	process.cwd(),
 	"src/styles/markdown/trees.css",
+);
+const admonitionsStylesheetPath = resolve(
+	process.cwd(),
+	"src/styles/markdown/admonitions.css",
 );
 const collapsePanelsStylesheetPath = resolve(
 	process.cwd(),
@@ -48,6 +54,12 @@ const stylesheetAssets: Record<
 	MarkdownAssetFeature,
 	readonly MarkdownStylesheetAsset[]
 > = {
+	admonitions: [
+		{
+			pack: "admonitions",
+			loadCss: () => readFile(admonitionsStylesheetPath, "utf8"),
+		},
+	],
 	collapsePanels: [
 		{
 			pack: "collapse-panels",

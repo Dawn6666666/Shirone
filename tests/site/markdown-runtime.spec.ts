@@ -10,6 +10,8 @@ const COLLAPSE_POST_PATH = "/posts/collapse-panels/";
 const MARKER_POST_PATH = "/posts/marker-highlights/";
 const CONTENT_ANNOTATIONS_POST_PATH = "/posts/content-annotations/";
 const STEPS_POST_PATH = "/posts/steps/";
+const ADMONITIONS_POST_PATH = "/posts/admonitions/";
+const ADMONITION_FREE_POST_PATH = "/posts/expressive-code/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -23,6 +25,7 @@ const optionalRuntimeModules = {
 	contentAnnotations:
 		/\/src\/styles\/markdown\/content-annotations\.css(?:\?|$)/,
 	steps: /\/src\/styles\/markdown\/steps\.css(?:\?|$)/,
+	admonitions: /\/src\/styles\/markdown\/admonitions\.css(?:\?|$)/,
 	codeTree: /\/src\/utils\/code-tree\.ts(?:\?|$)/,
 };
 
@@ -306,5 +309,41 @@ test.describe("Markdown syntax runtime loading", () => {
 		await expect(page.locator('style[data-swup-optional="steps"]')).toHaveCount(
 			0,
 		);
+	});
+
+	test("adds and removes admonition styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(ADMONITION_FREE_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="admonitions"]'),
+		).toHaveCount(0);
+		expect(hasRequestFor(requests, [optionalRuntimeModules.admonitions])).toBe(
+			false,
+		);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			ADMONITIONS_POST_PATH,
+		);
+		await page.waitForURL(`**${ADMONITIONS_POST_PATH}`);
+		const admonition = page.locator(".m3-admonition").first();
+		await expect(admonition).toBeVisible();
+		await expect(
+			page.locator('style[data-swup-optional="admonitions"]'),
+		).toHaveCount(1);
+		await expect(admonition).toHaveCSS("border-inline-start-width", "4px");
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			ADMONITION_FREE_POST_PATH,
+		);
+		await page.waitForURL(`**${ADMONITION_FREE_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="admonitions"]'),
+		).toHaveCount(0);
 	});
 });

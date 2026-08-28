@@ -18,6 +18,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		contentAnnotations: false,
 		marker: false,
 		steps: false,
+		admonitions: false,
 	});
 
 	const mermaid = await renderer.render(
@@ -34,6 +35,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		contentAnnotations: false,
 		marker: false,
 		steps: false,
+		admonitions: false,
 	});
 });
 
@@ -90,6 +92,16 @@ test("records steps containers before directive normalization", async () => {
 	assert.equal(steps.metadata.frontmatter.markdownFeatures.steps, true);
 });
 
+test("records normalized admonitions including GitHub Alerts", async () => {
+	const admonitions = await renderer.render(
+		"> [!TIP]\n> Rendered through the shared admonition component.",
+	);
+	assert.equal(
+		admonitions.metadata.frontmatter.markdownFeatures.admonitions,
+		true,
+	);
+});
+
 test("records defined content annotations after reference resolution", async () => {
 	const annotations = await renderer.render(
 		"A note [+example].\n\n[+example]: Annotation content.",
@@ -119,6 +131,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				contentAnnotations: false,
 				marker: false,
 				steps: false,
+				admonitions: false,
 			},
 			hasMath: false,
 			hasMermaid: false,
