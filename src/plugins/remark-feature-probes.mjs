@@ -6,32 +6,34 @@ import { visit } from "unist-util-visit";
  */
 export function remarkFeatureProbes() {
 	return (tree, { data }) => {
-		const features = {
-			hasMath: false,
-			hasMermaid: false,
-			hasCodeInteractions: false,
+		const markdownFeatures = {
+			math: false,
+			mermaid: false,
+			codeInteractions: false,
 		};
 
 		visit(tree, (node) => {
 			if (node.type === "math" || node.type === "inlineMath") {
-				features.hasMath = true;
+				markdownFeatures.math = true;
 			}
 			if (
 				node.type === "mermaid" ||
 				(node.type === "code" && node.lang?.toLowerCase() === "mermaid")
 			) {
-				features.hasMermaid = true;
+				markdownFeatures.mermaid = true;
 			}
 			if (
 				node.type === "code" &&
 				(node.meta?.includes("collapse") || node.meta?.includes("tree"))
 			) {
-				features.hasCodeInteractions = true;
+				markdownFeatures.codeInteractions = true;
 			}
 		});
 
-		data.astro.frontmatter.hasMath = features.hasMath;
-		data.astro.frontmatter.hasMermaid = features.hasMermaid;
-		data.astro.frontmatter.hasCodeInteractions = features.hasCodeInteractions;
+		data.astro.frontmatter.markdownFeatures = markdownFeatures;
+		data.astro.frontmatter.hasMath = markdownFeatures.math;
+		data.astro.frontmatter.hasMermaid = markdownFeatures.mermaid;
+		data.astro.frontmatter.hasCodeInteractions =
+			markdownFeatures.codeInteractions;
 	};
 }

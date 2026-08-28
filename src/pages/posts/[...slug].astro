@@ -72,7 +72,10 @@ const isEncrypted = Boolean(
 const scope = `post:${entry.id}`;
 
 const { Content, headings, remarkPluginFrontmatter } = await render(entry);
-const hasMath = Boolean(remarkPluginFrontmatter.hasMath);
+const hasMath = Boolean(
+	remarkPluginFrontmatter.markdownFeatures?.math ??
+		remarkPluginFrontmatter.hasMath,
+);
 const effectiveHeadings = isEncrypted ? [] : headings;
 const imageBasePath = entry.filePath
 	? path.relative(path.resolve("src"), path.dirname(entry.filePath))
