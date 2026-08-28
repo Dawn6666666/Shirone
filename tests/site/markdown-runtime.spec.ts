@@ -6,6 +6,7 @@ const RICH_POST_PATH = "/posts/mdx-showcase/";
 const IMAGE_GRID_POST_PATH = "/posts/image-grid-demo/";
 const CODE_POST_PATH = "/posts/expressive-code/";
 const TREE_POST_PATH = "/posts/markdown-enhancements/";
+const COLLAPSE_POST_PATH = "/posts/collapse-panels/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -14,6 +15,7 @@ const optionalRuntimeModules = {
 	mermaid: /\/src\/utils\/mermaid\.ts(?:\?|$)/,
 	mermaidStyles: /\/src\/styles\/mermaid\.css(?:\?|$)/,
 	trees: /\/src\/styles\/markdown\/trees\.css(?:\?|$)/,
+	collapsePanels: /\/src\/styles\/markdown\/collapse-panels\.css(?:\?|$)/,
 	codeTree: /\/src\/utils\/code-tree\.ts(?:\?|$)/,
 };
 
@@ -178,6 +180,42 @@ test.describe("Markdown syntax runtime loading", () => {
 		await page.waitForURL(`**${PLAIN_POST_PATH}`);
 		await expect(
 			page.locator('style[data-swup-optional="trees"]'),
+		).toHaveCount(0);
+	});
+
+	test("adds and removes collapse panel styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="collapse-panels"]'),
+		).toHaveCount(0);
+		expect(
+			hasRequestFor(requests, [optionalRuntimeModules.collapsePanels]),
+		).toBe(false);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			COLLAPSE_POST_PATH,
+		);
+		await page.waitForURL(`**${COLLAPSE_POST_PATH}`);
+		const collapsePanels = page.locator(".m3-collapse");
+		await expect(collapsePanels).toHaveCount(2);
+		await expect(
+			page.locator('style[data-swup-optional="collapse-panels"]'),
+		).toHaveCount(1);
+		await expect(collapsePanels.first()).toHaveCSS("border-radius", "16px");
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			PLAIN_POST_PATH,
+		);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="collapse-panels"]'),
 		).toHaveCount(0);
 	});
 });

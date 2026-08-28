@@ -11,6 +11,7 @@ export function remarkFeatureProbes() {
 			mermaid: false,
 			codeInteractions: false,
 			trees: false,
+			collapsePanels: false,
 		};
 
 		visit(tree, (node) => {
@@ -31,13 +32,15 @@ export function remarkFeatureProbes() {
 			}
 			if (
 				node.type === "fileTree" ||
-				(node.type === "containerDirective" &&
-					node.name === "file-tree") ||
+				(node.type === "containerDirective" && node.name === "file-tree") ||
 				(node.type === "containerDirective" &&
 					node.name === "code-tree" &&
 					node.children?.some((child) => child.type === "code"))
 			) {
 				markdownFeatures.trees = true;
+			}
+			if (node.type === "containerDirective" && node.name === "collapse") {
+				markdownFeatures.collapsePanels = true;
 			}
 		});
 

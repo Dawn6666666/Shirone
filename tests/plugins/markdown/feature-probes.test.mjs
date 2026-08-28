@@ -14,6 +14,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		mermaid: false,
 		codeInteractions: false,
 		trees: false,
+		collapsePanels: false,
 	});
 
 	const mermaid = await renderer.render(
@@ -26,6 +27,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		mermaid: true,
 		codeInteractions: false,
 		trees: false,
+		collapsePanels: false,
 	});
 });
 
@@ -52,6 +54,22 @@ test("records file-tree and code-tree capabilities after syntax transforms", asy
 	assert.equal(codeTree.metadata.frontmatter.markdownFeatures.trees, true);
 });
 
+test("records collapse panels after syntax normalization", async () => {
+	const collapsePanels = await renderer.render(
+		[
+			"::: collapse accordion",
+			"- First panel",
+			"",
+			"  Panel content.",
+			":::",
+		].join("\n"),
+	);
+	assert.equal(
+		collapsePanels.metadata.frontmatter.markdownFeatures.collapsePanels,
+		true,
+	);
+});
+
 test("does not mark ordinary prose with optional capabilities", async () => {
 	const result = await renderer.render("A plain article with no extensions.");
 	assert.deepEqual(
@@ -67,6 +85,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				mermaid: false,
 				codeInteractions: false,
 				trees: false,
+				collapsePanels: false,
 			},
 			hasMath: false,
 			hasMermaid: false,
