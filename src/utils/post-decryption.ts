@@ -28,6 +28,16 @@ export function initPostDecryption(container: HTMLElement): void {
 	// Copy uses one delegated listener, so it also covers HTML injected later.
 	initCodeCopyButtons();
 	initCodeTrees();
+	if (container.querySelector(".m3-option-group[data-option-group]")) {
+		void import("./option-groups").then(({ initOptionGroups }) => {
+			initOptionGroups(container);
+		});
+	}
+	if (container.querySelector("abbr.m3-abbreviation[data-abbreviation-expansion]")) {
+		void import("./abbreviations").then(({ initAbbreviations }) => {
+			initAbbreviations(container);
+		});
+	}
 
 	if (
 		typeof window !== "undefined" &&
