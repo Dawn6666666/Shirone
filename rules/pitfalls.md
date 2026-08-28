@@ -292,6 +292,18 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
+### 4.9 Node 原生 TypeScript 测试不会隐式加载 JSON 模块
+
+**现象**：在 Astro/Vite 中可用的 JSON 默认导入，被 Node 的 `node --test` 直接执行时以 `ERR_IMPORT_ATTRIBUTE_MISSING` 失败。
+
+**根因**：Vite 会处理 JSON 模块导入；Node 的原生 ESM 加载器要求每个 JSON 导入显式声明模块类型，二者的默认行为不同。
+
+**解法**：供 Node 直接执行的 `.ts`/`.mjs` 工具模块统一写成 `import manifest from "./manifest.json" with { type: "json" };`。不要只依赖 Astro 开发服务器或构建通过来证明独立工具可运行。
+
+**教训**：共享构建期工具新增 JSON 依赖后，至少运行一次对应的 Node 单测或脚本入口。
+
+---
+
 ## 5. 测试
 
 ### 5.1 主题初始化后要等过渡收敛

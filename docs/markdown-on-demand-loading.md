@@ -131,7 +131,7 @@ type MarkdownFeatureSnapshot = {
 };
 ```
 
-样式包和运行时由站点注册表根据 `syntaxes` 推导。禁止让每个插件直接写入 CSS URL、chunk 名或页面模板标记，否则资源拆包会反向污染解析层。
+样式包和运行时由站点注册表根据 `syntaxes` 推导；页面级 CSS 以 manifest 顶层 `stylesheetPacks` 的特征声明为准。禁止让每个插件直接写入 CSS URL、chunk 名或页面模板标记，否则资源拆包会反向污染解析层。
 
 迁移要求：
 

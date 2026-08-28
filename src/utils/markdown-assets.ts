@@ -1,183 +1,42 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-
-type MarkdownAssetFeature =
-	| "abbreviations"
-	| "admonitions"
-	| "collapsePanels"
-	| "contentAnnotations"
-	| "expressiveCode"
-	| "imageGrids"
-	| "imagePresentations"
-	| "math"
-	| "marker"
-	| "optionGroups"
-	| "steps"
-	| "trees";
-type MarkdownStylesheetPack =
-	| "abbreviations"
-	| "admonitions"
-	| "collapse-panels"
-	| "content-annotations"
-	| "expressive-code"
-	| "image-grids"
-	| "image-presentations"
-	| "math"
-	| "marker"
-	| "option-groups"
-	| "steps"
-	| "trees";
-
-const treesStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/trees.css",
-);
-const abbreviationsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/abbreviations.css",
-);
-const admonitionsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/admonitions.css",
-);
-const collapsePanelsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/collapse-panels.css",
-);
-const markerStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/marker.css",
-);
-const contentAnnotationsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/content-annotations.css",
-);
-const expressiveCodeStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/expressive-code.css",
-);
-const imageGridsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/image-grids.css",
-);
-const imagePresentationsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/image-presentations.css",
-);
-const mathStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/math.css",
-);
-const optionGroupsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/option-groups.css",
-);
-const stepsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/steps.css",
-);
-
-export type MarkdownFeatureSnapshot = Partial<
-	Record<MarkdownAssetFeature, boolean>
->;
-
-export type MarkdownStylesheetAsset = {
-	pack: MarkdownStylesheetPack;
-	loadCss: () => Promise<string>;
+import markdownManifest from "../plugins/markdown/manifest.json" with {
+	type: "json",
 };
 
-const stylesheetAssets: Record<
-	MarkdownAssetFeature,
-	readonly MarkdownStylesheetAsset[]
-> = {
-	abbreviations: [
-		{
-			pack: "abbreviations",
-			loadCss: () => readFile(abbreviationsStylesheetPath, "utf8"),
-		},
-	],
-	admonitions: [
-		{
-			pack: "admonitions",
-			loadCss: () => readFile(admonitionsStylesheetPath, "utf8"),
-		},
-	],
-	collapsePanels: [
-		{
-			pack: "collapse-panels",
-			loadCss: () => readFile(collapsePanelsStylesheetPath, "utf8"),
-		},
-	],
-	contentAnnotations: [
-		{
-			pack: "content-annotations",
-			loadCss: () => readFile(contentAnnotationsStylesheetPath, "utf8"),
-		},
-	],
-	expressiveCode: [
-		{
-			pack: "expressive-code",
-			loadCss: () => readFile(expressiveCodeStylesheetPath, "utf8"),
-		},
-	],
-	imageGrids: [
-		{
-			pack: "image-grids",
-			loadCss: () => readFile(imageGridsStylesheetPath, "utf8"),
-		},
-	],
-	imagePresentations: [
-		{
-			pack: "image-presentations",
-			loadCss: () => readFile(imagePresentationsStylesheetPath, "utf8"),
-		},
-	],
-	math: [
-		{
-			pack: "math",
-			loadCss: () => readFile(mathStylesheetPath, "utf8"),
-		},
-	],
-	marker: [
-		{
-			pack: "marker",
-			loadCss: () => readFile(markerStylesheetPath, "utf8"),
-		},
-	],
-	optionGroups: [
-		{
-			pack: "option-groups",
-			loadCss: () => readFile(optionGroupsStylesheetPath, "utf8"),
-		},
-	],
-	steps: [
-		{
-			pack: "steps",
-			loadCss: () => readFile(stepsStylesheetPath, "utf8"),
-		},
-	],
-	trees: [
-		{
-			pack: "trees",
-			loadCss: () => readFile(treesStylesheetPath, "utf8"),
-		},
-	],
+type MarkdownStylesheetPack = {
+	id: string;
+	features: readonly string[];
+	styles: readonly string[];
 };
+
+export type MarkdownFeatureSnapshot = Partial<Record<string, boolean>>;
+
+const stylesheetPacks =
+	markdownManifest.stylesheetPacks as readonly MarkdownStylesheetPack[];
 
 /**
- * Resolves page-scoped stylesheets from the Markdown compiler's feature snapshot.
- * The template marks each style block as Swup-optional so stale syntax styles are removed.
+ * Resolves page-scoped stylesheets from manifest-owned feature declarations.
+ * The template marks each style block as Swup-optional so stale syntax styles
+ * are removed during Swup navigation.
  */
 export async function getMarkdownStylesheetAssets(
 	features: MarkdownFeatureSnapshot,
-): Promise<Array<{ pack: MarkdownStylesheetPack; css: string }>> {
-	const assets = (
-		Object.keys(stylesheetAssets) as MarkdownAssetFeature[]
-	).flatMap((feature) => (features[feature] ? stylesheetAssets[feature] : []));
+): Promise<Array<{ pack: string; css: string }>> {
+	const activePacks = stylesheetPacks.filter(({ features: packFeatures }) =>
+		packFeatures.some((feature) => features[feature]),
+	);
+
 	return Promise.all(
-		assets.map(async ({ pack, loadCss }) => ({
-			pack,
-			css: await loadCss(),
+		activePacks.map(async ({ id, styles }) => ({
+			pack: id,
+			css: (
+				await Promise.all(
+					styles.map((stylePath) =>
+						readFile(resolve(process.cwd(), stylePath), "utf8"),
+					),
+				)
+			).join("\n"),
 		})),
 	);
 }
