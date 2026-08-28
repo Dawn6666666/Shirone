@@ -1,0 +1,393 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import type { AstroIntegration } from "astro";
+import { buildFontDeclarations } from "./fonts.ts";
+import {
+	invalidateConfigCache,
+	loadConfigModule,
+	loadPackageModule,
+} from "./load-config.ts";
+import { shironesOverlay } from "./overlay.ts";
+import { resolvePaths } from "./paths.ts";
+import { collectRoutes, filterRoutes } from "./routes.ts";
+import type { ResolvedShironesPaths, ShironesOptions } from "./types.ts";
+
+export type { ShironesOptions, ShironesPaths, ShironesFontOptions } from "./types.ts";
+// NOTE: `defineCollections` is deliberately *not* re-exported here. It imports
+// `astro:content`, a virtual module that only exists inside Vite, so pulling it
+// into this Node-side entry would break `astro.config.mjs` loading. Users import
+// it from the dedicated `shirones/collections` entry point instead.
+
+const MUSIC_VIRTUAL_ID = "virtual:shirone-music-sidebar";
+const RESOLVED_MUSIC_VIRTUAL_ID = `\0${MUSIC_VIRTUAL_ID}`;
+
+/**
+ * Vite aliases mapping the theme's TypeScript path aliases onto the installed
+ * package. Without these, every `@/...` import inside the injected pages would
+ * resolve against the *user's* `src/`, which does not contain the theme.
+ */
+function createAliases(paths: ResolvedShironesPaths) {
+	const src = paths.packageSrc;
+	return [
+		// `@iconify/svelte` is swapped for the theme's tree-shaken Icon component.
+		{
+			find: /^@iconify\/svelte$/,
+			replacement: join(src, "components/atoms/display/Icon.svelte"),
+		},
+		{ find: /^@components\//, replacement: `${join(src, "components")}/` },
+		{ find: /^@utils\//, replacement: `${join(src, "utils")}/` },
+		{ find: /^@layouts\//, replacement: `${join(src, "layouts")}/` },
+		{ find: /^@i18n\//, replacement: `${join(src, "i18n")}/` },
+		{ find: /^@constants\//, replacement: `${join(src, "constants")}/` },
+		{ find: /^@assets\//, replacement: `${join(src, "assets")}/` },
+		// Keep `@/` last: it is the broadest pattern.
+		{ find: /^@\//, replacement: `${src}/` },
+	];
+}
+
+/**
+ * Recreates the conditional music-sidebar module from the source template's
+ * `astro.config.mjs`: when the music widget is disabled the whole client bundle
+ * is dropped instead of shipping dead code.
+ */
+function createMusicSidebarPlugin(paths: ResolvedShironesPaths, enabled: boolean) {
+	const sidebarPath = join(
+		paths.packageSrc,
+		"components/organisms/music/MusicSidebar.astro",
+	);
+
+	return {
+		name: "shirones:optional-music-sidebar",
+		enforce: "pre" as const,
+		resolveId(source: string) {
+			return source === MUSIC_VIRTUAL_ID ? RESOLVED_MUSIC_VIRTUAL_ID : null;
+		},
+		load(id: string) {
+			if (id !== RESOLVED_MUSIC_VIRTUAL_ID) return null;
+			return enabled
+				? `export { default } from ${JSON.stringify(sidebarPath)};`
+				: "export default null;";
+		},
+		generateBundle(_options: unknown, bundle: Record<string, unknown>) {
+			if (enabled) return;
+			for (const fileName of Object.keys(bundle)) {
+				if (
+					fileName.includes("MusicSidebarClient") ||
+					fileName.startsWith("_astro/music.") ||
+					fileName.includes("/music.")
+				) {
+					delete bundle[fileName];
+				}
+			}
+		},
+	};
+}
+
+/**
+ * The Shirone theme, packaged as an Astro integration.
+ *
+ * ```js
+ * // astro.config.mjs
+ * import { defineConfig } from "astro/config";
+ * import shirones from "shirones";
+ *
+ * export default defineConfig({
+ *   integrations: [shirones()],
+ * });
+ * ```
+ */
+export function shirones(options: ShironesOptions = {}): AstroIntegration {
+	let paths: ResolvedShironesPaths;
+
+	return {
+		name: "shirones",
+		hooks: {
+			"astro:config:setup": async ({
+				config,
+				command,
+				updateConfig,
+				injectRoute,
+				addWatchFile,
+				logger,
+			}) => {
+				paths = resolvePaths(options, config.root, import.meta.url);
+
+				logger.info(
+					`${paths.isPluginMode ? "plugin" : "source"} mode | content: ${paths.contentDir}`,
+				);
+
+				if (paths.isPluginMode && !existsSync(paths.configDir)) {
+					logger.warn(
+						`No configuration found at ${paths.configDir}. ` +
+							"Run `npx shirones init` to scaffold it.",
+					);
+				}
+
+				// ── 1. Load user configuration (Node side) ──────────────────────
+				const siteModule = await loadConfigModule(paths, "siteConfig");
+				const siteConfig = siteModule.siteConfig as {
+					site?: string;
+					base?: string;
+				};
+
+				const sidebarModule = await loadConfigModule(paths, "sidebarConfig");
+				const sidebarConfig = sidebarModule.sidebarConfig as {
+					enable?: boolean;
+					components?: { type: string; enable: boolean }[];
+				};
+
+				const musicModule = await loadConfigModule(paths, "musicConfig");
+				const musicConfig = musicModule.musicConfig;
+				const resolveMusicOptions = musicModule.resolveMusicOptions as (
+					c: unknown,
+				) => unknown;
+
+				const musicWidgetEnabled = Boolean(
+					sidebarConfig?.enable &&
+						sidebarConfig.components?.some(
+							(widget) => widget.type === "music" && widget.enable,
+						),
+				);
+				const musicEnabled =
+					musicWidgetEnabled && resolveMusicOptions(musicConfig) !== null;
+
+				// ── 2. Watch config files so the dev server restarts on edits ───
+				if (command === "dev" && existsSync(paths.configDir)) {
+					addWatchFile(pathToFileURL(paths.configDir));
+				}
+
+				// ── 3. Fonts ────────────────────────────────────────────────────
+				const fonts = await buildFontDeclarations(
+					paths,
+					{
+						subset: options.fonts?.subset ?? command === "build",
+						extraCharacters: options.fonts?.extraCharacters ?? "",
+					},
+					{
+						info: (m) => logger.info(`[fonts] ${m}`),
+						warn: (m) => logger.warn(`[fonts] ${m}`),
+					},
+				);
+
+				// ── 4. Markdown processor ───────────────────────────────────────
+				const markdownModule = await loadPackageModule(
+					paths,
+					"utils/markdown-processor.mjs",
+				);
+				const processor = markdownModule.siteMarkdownProcessor;
+
+				// ── 5. Bundled integrations ─────────────────────────────────────
+				const integrations = options.bundledIntegrations === false
+					? []
+					: await createBundledIntegrations(paths);
+
+				// ── 6. Push everything into the Astro config ────────────────────
+				updateConfig({
+					...(siteConfig?.site ? { site: siteConfig.site } : {}),
+					base: siteConfig?.base ?? "/",
+					trailingSlash: "always",
+					fonts: fonts as never,
+					integrations,
+					markdown: { processor: processor as never },
+					vite: {
+						resolve: { alias: createAliases(paths) },
+						plugins: [
+							shironesOverlay({
+								paths,
+								components: options.components,
+								verbose: command === "dev",
+							}),
+							createMusicSidebarPlugin(paths, musicEnabled),
+							(await import("@tailwindcss/vite")).default(),
+						],
+						optimizeDeps: {
+							include: [
+								"mermaid",
+								"@panzoom/panzoom",
+								"overlayscrollbars",
+								"@fancyapps/ui",
+							],
+						},
+						build: {
+							minify: "esbuild",
+							cssCodeSplit: true,
+							cssMinify: "esbuild",
+							chunkSizeWarningLimit: 1000,
+							rollupOptions: {
+								onwarn(warning, warn) {
+									// Astro legitimately mixes static and dynamic imports for
+									// islands; silence that specific advisory.
+									if (
+										warning.message.includes("is dynamically imported by") &&
+										warning.message.includes("but also statically imported by")
+									) {
+										return;
+									}
+									warn(warning);
+								},
+							},
+						},
+					},
+				});
+
+				// ── 7. Inject the theme's routes ────────────────────────────────
+				if (paths.isPluginMode && options.injectRoutes !== false) {
+					const routes = filterRoutes(
+						collectRoutes(join(paths.packageSrc, "pages")),
+						options.excludeRoutes,
+					);
+					for (const route of routes) {
+						injectRoute({ pattern: route.pattern, entrypoint: route.entrypoint });
+					}
+					logger.info(`injected ${routes.length} routes`);
+				}
+			},
+
+			"astro:server:setup": ({ server }) => {
+				// Editing a config file invalidates the Node-side bundle cache.
+				server.watcher.on("all", (_event, file) => {
+					if (typeof file === "string" && file.startsWith(paths.configDir)) {
+						invalidateConfigCache();
+					}
+				});
+			},
+
+			"astro:build:done": async ({ dir, logger }) => {
+				if (options.pagefind === false) return;
+				const outDir = dir.pathname;
+				try {
+					const pagefind = await import("pagefind");
+					const { index } = await pagefind.createIndex({});
+					if (!index) throw new Error("Pagefind failed to create an index");
+					await index.addDirectory({ path: outDir });
+					await index.writeFiles({ outputPath: join(outDir, "pagefind") });
+					logger.info("pagefind index generated");
+				} catch (error) {
+					logger.warn(
+						`skipped Pagefind indexing: ${(error as Error).message}. ` +
+							"Set `pagefind: false` to silence this warning.",
+					);
+				}
+			},
+		},
+	};
+}
+
+/**
+ * Instantiate the integrations the theme depends on. Users get them for free so
+ * a fresh project only needs `integrations: [shirones()]`.
+ */
+async function createBundledIntegrations(paths: ResolvedShironesPaths) {
+	const [
+		{ default: swup },
+		{ default: icon },
+		{ default: expressiveCode },
+		{ default: svelte },
+		{ default: sitemap },
+		{ default: mdx },
+		{ pluginCollapsibleSections },
+		{ pluginLineNumbers },
+	] = await Promise.all([
+		import("@swup/astro"),
+		import("astro-icon"),
+		import("astro-expressive-code"),
+		import("@astrojs/svelte"),
+		import("@astrojs/sitemap"),
+		import("@astrojs/mdx"),
+		import("@expressive-code/plugin-collapsible-sections"),
+		import("@expressive-code/plugin-line-numbers"),
+	]);
+
+	const ecModule = await loadConfigModule(paths, "expressiveCodeConfig");
+	const expressiveCodeConfig = ecModule.expressiveCodeConfig as {
+		theme: string;
+		lightTheme?: string;
+		darkTheme?: string;
+	};
+
+	const badge = await loadPackageModule(paths, "plugins/expressive-code/language-badge.ts");
+	const copyButton = await loadPackageModule(
+		paths,
+		"plugins/expressive-code/custom-copy-button.js",
+	);
+
+	return [
+		swup({
+			theme: false,
+			ignore: 'a[href="#"]',
+			animationClass: "transition-swup-",
+			containers: ["main", "#toc"],
+			smoothScrolling: true,
+			cache: true,
+			preload: true,
+			accessibility: true,
+			updateHead: {
+				awaitAssets: false,
+				persistTags: "link[rel=stylesheet], style",
+			},
+			updateBodyClass: false,
+			globalInstance: true,
+			animateHistoryBrowsing: false,
+			skipPopStateHandling: (event: { state?: { url?: string } }) =>
+				Boolean(event.state?.url?.includes("#")),
+		}),
+		icon({
+			include: {
+				"fa6-brands": ["*"],
+				"fa6-regular": ["*"],
+				"fa6-solid": ["*"],
+			},
+		}),
+		expressiveCode({
+			themes: [
+				expressiveCodeConfig.lightTheme ?? expressiveCodeConfig.theme,
+				expressiveCodeConfig.darkTheme ?? expressiveCodeConfig.theme,
+			] as never,
+			plugins: [
+				pluginCollapsibleSections(),
+				pluginLineNumbers(),
+				(badge.pluginLanguageBadge as () => unknown)(),
+				(copyButton.pluginCustomCopyButton as () => unknown)(),
+			] as never,
+			defaultProps: {
+				wrap: true,
+				overridesByLang: {
+					shellsession: { showLineNumbers: false },
+				},
+			},
+			styleOverrides: {
+				codeBackground: "var(--codeblock-bg)",
+				borderRadius: "0.75rem",
+				borderColor: "none",
+				codeFontSize: "0.875rem",
+				codeFontFamily: "var(--m3e-font-mono-family)",
+				codeLineHeight: "1.5rem",
+				frames: {
+					editorBackground: "var(--codeblock-bg)",
+					terminalBackground: "var(--codeblock-bg)",
+					terminalTitlebarBackground: "var(--codeblock-topbar-bg)",
+					editorTabBarBackground: "var(--codeblock-topbar-bg)",
+					editorActiveTabBackground: "none",
+					editorActiveTabIndicatorBottomColor: "var(--primary)",
+					editorActiveTabIndicatorTopColor: "none",
+					editorTabBarBorderBottomColor: "var(--codeblock-topbar-bg)",
+					terminalTitlebarBorderBottomColor: "none",
+				},
+				textMarkers: { delHue: 0, insHue: 180, markHue: 250 },
+			},
+			frames: { showCopyToClipboardButton: false },
+		}),
+		svelte({
+			compilerOptions: {
+				// CSS-source hashing keeps SSR and client scope hashes stable.
+				cssHash: ({ css, hash }: { css: string; hash: (s: string) => string }) =>
+					`svelte-${hash(css)}`,
+			},
+		}),
+		sitemap(),
+		mdx({ syntaxHighlight: false, optimize: true }),
+	];
+}
+
+export default shirones;
