@@ -652,7 +652,7 @@
 			"attributes": [],
 			"implementation": [],
 			"registeredIn": "src/utils/markdown-processor.mjs",
-			"styles": ["src/styles/markdown.css"],
+			"styles": ["src/styles/markdown/math.css"],
 			"runtime": {
 				"mode": "none",
 				"modules": [],

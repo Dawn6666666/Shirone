@@ -77,6 +77,9 @@ test.describe("Markdown syntax runtime loading", () => {
 			{ timeout: 15_000 },
 		);
 		const formula = page.locator(".katex-display").first();
+		await expect(
+			page.locator('style[data-swup-optional="math"]'),
+		).toHaveCount(1);
 		await formula.scrollIntoViewIfNeeded();
 		await expect(formula).toHaveAttribute(
 			"data-scrollbar-initialized",

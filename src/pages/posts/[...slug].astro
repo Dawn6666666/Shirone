@@ -82,6 +82,7 @@ const hasMath = Boolean(
 );
 const markdownStylesheetAssets = await getMarkdownStylesheetAssets({
 	...remarkPluginFrontmatter.markdownFeatures,
+	math: hasMath,
 	expressiveCode: Boolean(
 		remarkPluginFrontmatter.markdownFeatures?.expressiveCode ||
 			hasFencedCodeBlock,

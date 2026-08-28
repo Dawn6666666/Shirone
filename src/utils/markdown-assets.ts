@@ -9,6 +9,7 @@ type MarkdownAssetFeature =
 	| "expressiveCode"
 	| "imageGrids"
 	| "imagePresentations"
+	| "math"
 	| "marker"
 	| "optionGroups"
 	| "steps"
@@ -21,6 +22,7 @@ type MarkdownStylesheetPack =
 	| "expressive-code"
 	| "image-grids"
 	| "image-presentations"
+	| "math"
 	| "marker"
 	| "option-groups"
 	| "steps"
@@ -61,6 +63,10 @@ const imageGridsStylesheetPath = resolve(
 const imagePresentationsStylesheetPath = resolve(
 	process.cwd(),
 	"src/styles/markdown/image-presentations.css",
+);
+const mathStylesheetPath = resolve(
+	process.cwd(),
+	"src/styles/markdown/math.css",
 );
 const optionGroupsStylesheetPath = resolve(
 	process.cwd(),
@@ -124,6 +130,12 @@ const stylesheetAssets: Record<
 		{
 			pack: "image-presentations",
 			loadCss: () => readFile(imagePresentationsStylesheetPath, "utf8"),
+		},
+	],
+	math: [
+		{
+			pack: "math",
+			loadCss: () => readFile(mathStylesheetPath, "utf8"),
 		},
 	],
 	marker: [
