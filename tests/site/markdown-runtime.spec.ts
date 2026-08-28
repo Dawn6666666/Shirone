@@ -4,9 +4,11 @@ import { expect, test } from "@playwright/test";
 const PLAIN_POST_PATH = "/posts/admonitions/";
 const RICH_POST_PATH = "/posts/mdx-showcase/";
 const IMAGE_GRID_POST_PATH = "/posts/image-grid-demo/";
+const CODE_POST_PATH = "/posts/expressive-code/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
+	codeCollapse: /\/src\/utils\/code-collapse\.ts(?:\?|$)/,
 	katex: /\/src\/utils\/katex-scroll\.ts(?:\?|$)/,
 	mermaid: /\/src\/utils\/mermaid\.ts(?:\?|$)/,
 };
@@ -24,6 +26,13 @@ function trackOptionalRuntimeRequests(page: Page): string[] {
 	return requests;
 }
 
+function hasRequestFor(
+	requests: string[],
+	modules: Array<RegExp>,
+): boolean {
+	return requests.some((url) => modules.some((pattern) => pattern.test(url)));
+}
+
 test.describe("Markdown syntax runtime loading", () => {
 	test("defers math and Mermaid modules until a Swup target uses them", async ({
 		page,
@@ -32,7 +41,12 @@ test.describe("Markdown syntax runtime loading", () => {
 
 		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
 		await page.waitForFunction(() => Boolean(window.swup?.navigate));
-		expect(requests).toEqual([]);
+		expect(
+			hasRequestFor(requests, [
+				optionalRuntimeModules.katex,
+				optionalRuntimeModules.mermaid,
+			]),
+		).toBe(false);
 
 		await page.evaluate((path) => window.swup?.navigate(path), RICH_POST_PATH);
 		await page.waitForURL(`**${RICH_POST_PATH}`);
@@ -64,7 +78,9 @@ test.describe("Markdown syntax runtime loading", () => {
 
 		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
 		await page.waitForFunction(() => Boolean(window.swup?.navigate));
-		expect(requests).toEqual([]);
+		expect(
+			hasRequestFor(requests, [optionalRuntimeModules.fancybox]),
+		).toBe(false);
 
 		await page.evaluate(
 			(path) => window.swup?.navigate(path),
@@ -79,6 +95,28 @@ test.describe("Markdown syntax runtime loading", () => {
 
 		expect(
 			requests.some((url) => optionalRuntimeModules.fancybox.test(url)),
+		).toBe(true);
+	});
+
+	test("loads code-collapse only for Markdown content with code blocks", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto("/", { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		expect(
+			requests.some((url) => optionalRuntimeModules.codeCollapse.test(url)),
+		).toBe(false);
+
+		await page.evaluate((path) => window.swup?.navigate(path), CODE_POST_PATH);
+		await page.waitForURL(`**${CODE_POST_PATH}`);
+		const toggle = page.locator(".collapse-toggle-btn").first();
+		await expect(toggle).toBeVisible();
+		await expect(toggle).toHaveAttribute("aria-label", "Expand code block");
+
+		expect(
+			requests.some((url) => optionalRuntimeModules.codeCollapse.test(url)),
 		).toBe(true);
 	});
 });

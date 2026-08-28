@@ -129,6 +129,8 @@ enum I18nKey {
 	recentPosts = "recentPosts",
 	tableOfContents = "tableOfContents",
 	formulaScrollable = "formulaScrollable",
+	codeBlockExpand = "codeBlockExpand",
+	codeBlockCollapse = "codeBlockCollapse",
 	announcement = "announcement",
 	announcementClose = "announcementClose",
 

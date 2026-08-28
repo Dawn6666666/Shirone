@@ -139,6 +139,8 @@ export const ja: Translation = {
 	[Key.recentPosts]: "最近の投稿",
 	[Key.tableOfContents]: "目次",
 	[Key.formulaScrollable]: "横スクロール可能な数式",
+	[Key.codeBlockExpand]: "コードブロックを展開",
+	[Key.codeBlockCollapse]: "コードブロックを折りたたむ",
 	[Key.announcement]: "お知らせ",
 	[Key.announcementClose]: "告知を閉じる",
 

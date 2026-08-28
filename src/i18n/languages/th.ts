@@ -131,6 +131,8 @@ export const th: Translation = {
 	[Key.recentPosts]: "โพสต์ล่าสุด",
 	[Key.tableOfContents]: "สารบัญ",
 	[Key.formulaScrollable]: "สูตรที่เลื่อนในแนวนอนได้",
+	[Key.codeBlockExpand]: "ขยายบล็อกโค้ด",
+	[Key.codeBlockCollapse]: "ย่อบล็อกโค้ด",
 	[Key.announcement]: "ประกาศ",
 	[Key.announcementClose]: "ปิดประกาศ",
 

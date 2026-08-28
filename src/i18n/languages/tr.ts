@@ -141,6 +141,8 @@ export const tr: Translation = {
 	[Key.recentPosts]: "Son Paylaşımlar",
 	[Key.tableOfContents]: "İçindekiler",
 	[Key.formulaScrollable]: "Yatay kaydırılabilir formül",
+	[Key.codeBlockExpand]: "Kod bloğunu genişlet",
+	[Key.codeBlockCollapse]: "Kod bloğunu daralt",
 	[Key.announcement]: "Duyuru",
 	[Key.announcementClose]: "Duyuruyu Kapat",
 

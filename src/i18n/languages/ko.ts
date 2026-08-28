@@ -138,6 +138,8 @@ export const ko: Translation = {
 	[Key.recentPosts]: "최근 게시물",
 	[Key.tableOfContents]: "목차",
 	[Key.formulaScrollable]: "가로로 스크롤 가능한 수식",
+	[Key.codeBlockExpand]: "코드 블록 펼치기",
+	[Key.codeBlockCollapse]: "코드 블록 접기",
 	[Key.announcement]: "공지사항",
 	[Key.announcementClose]: "공지 닫기",
 

@@ -142,6 +142,8 @@ export const id: Translation = {
 	[Key.recentPosts]: "Postingan Terbaru",
 	[Key.tableOfContents]: "Daftar Isi",
 	[Key.formulaScrollable]: "Rumus yang dapat digulir secara horizontal",
+	[Key.codeBlockExpand]: "Perluas blok kode",
+	[Key.codeBlockCollapse]: "Ciutkan blok kode",
 	[Key.announcement]: "Pengumuman",
 	[Key.announcementClose]: "Tutup pengumuman",
 

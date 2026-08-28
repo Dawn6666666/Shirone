@@ -24,13 +24,6 @@ export function initPostDecryption(container: HTMLElement): void {
 
 	void initMarkdownRuntime(container);
 
-	if (
-		typeof window !== "undefined" &&
-		window.codeBlockCollapser?.setupCodeBlocks
-	) {
-		window.codeBlockCollapser.setupCodeBlocks(container);
-	}
-
 	void initFancyboxRuntime(container);
 
 	syncTableOfContents(container);

@@ -140,6 +140,8 @@ export const en: Translation = {
 	[Key.recentPosts]: "Recent Posts",
 	[Key.tableOfContents]: "Table of Contents",
 	[Key.formulaScrollable]: "Horizontally scrollable formula",
+	[Key.codeBlockExpand]: "Expand code block",
+	[Key.codeBlockCollapse]: "Collapse code block",
 	[Key.announcement]: "Announcement",
 	[Key.announcementClose]: "Close Announcement",
 

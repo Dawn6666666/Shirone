@@ -205,7 +205,6 @@ test.describe("Markdown interactive code trees", () => {
 		page,
 	}) => {
 		await openPost(page);
-		await page.waitForFunction(() => "codeBlockCollapser" in window);
 
 		const codeTree = page.locator(
 			'.custom-md .m3-code-tree[aria-label="Site Configuration"]',

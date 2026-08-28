@@ -12,6 +12,13 @@ function hasMatch(root: ParentNode, selector: string): boolean {
 
 const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 	{
+		selector: ".expressive-code",
+		initialize: async (root) => {
+			const { initCodeBlockCollapsing } = await import("./code-collapse");
+			initCodeBlockCollapsing(root);
+		},
+	},
+	{
 		selector: ".copy-btn",
 		initialize: async () => {
 			const { initCodeCopyButtons } = await import("./code-copy");
