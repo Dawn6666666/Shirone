@@ -121,7 +121,7 @@ describe("读取内容仓配置", () => {
 		try {
 			expectFailure(
 				() => readConfigOverrides(directory),
-				/同时覆盖 site.*只能保留一个/s,
+				/both override site/i,
 			);
 		} finally {
 			rmSync(base, { recursive: true, force: true });
@@ -135,7 +135,7 @@ describe("读取内容仓配置", () => {
 		try {
 			expectFailure(
 				() => readConfigOverrides(directory),
-				/你是不是想写 sidebar\.yaml/,
+				/Did you mean sidebar\.yaml/i,
 			);
 		} finally {
 			rmSync(base, { recursive: true, force: true });
@@ -148,7 +148,7 @@ describe("读取内容仓配置", () => {
 		});
 		try {
 			// 这是最容易出的事故：深合并会把 null 覆盖上去，站点标题直接被抹掉。
-			expectFailure(() => readConfigOverrides(directory), /title 是空值/);
+			expectFailure(() => readConfigOverrides(directory), /title is null/i);
 		} finally {
 			rmSync(base, { recursive: true, force: true });
 		}
@@ -159,7 +159,7 @@ describe("读取内容仓配置", () => {
 			"site.yaml": "- 我是个数组\n",
 		});
 		try {
-			expectFailure(() => readConfigOverrides(directory), /顶层必须是键值映射/);
+			expectFailure(() => readConfigOverrides(directory), /must be a key-value mapping/i);
 		} finally {
 			rmSync(base, { recursive: true, force: true });
 		}
@@ -170,7 +170,7 @@ describe("读取内容仓配置", () => {
 			"site.yaml": "a: [1,\n",
 		});
 		try {
-			expectFailure(() => readConfigOverrides(directory), /不是合法 YAML/);
+			expectFailure(() => readConfigOverrides(directory), /is not valid YAML/i);
 		} finally {
 			rmSync(base, { recursive: true, force: true });
 		}
@@ -181,7 +181,7 @@ describe("读取内容仓配置", () => {
 			"site.yaml": "banner: &loop\n  homeText: *loop\n",
 		});
 		try {
-			expectFailure(() => readConfigOverrides(directory), /循环引用/);
+			expectFailure(() => readConfigOverrides(directory), /circular reference/i);
 		} finally {
 			rmSync(base, { recursive: true, force: true });
 		}
@@ -361,21 +361,21 @@ describe("类型校验（真实 tsc，跑在本仓库上）", () => {
 	it("拼错的键报错时指出文件、键名与正确写法", () => {
 		expectFailure(
 			() => validate({ "profile.yaml": "name: Me\nbioo: oops\n" }),
-			/config\/profile\.yaml 的 bioo.*Did you mean to write 'bio'/s,
+			/config\/profile\.yaml's bioo.*Did you mean to write 'bio'/s,
 		);
 	});
 
 	it("越界的枚举值会被拦下", () => {
 		expectFailure(
 			() => validate({ "post-list.yaml": "layout:\n  mode: gird\n" }),
-			/config\/post-list\.yaml 的 layout\.mode/,
+			/config\/post-list\.yaml's layout\.mode/,
 		);
 	});
 
 	it("填错的类型会被拦下", () => {
 		expectFailure(
 			() => validate({ "site.yaml": "themeColor:\n  hue: 很粉\n" }),
-			/config\/site\.yaml 的 themeColor\.hue/,
+			/config\/site\.yaml's themeColor\.hue/,
 		);
 	});
 
@@ -386,14 +386,14 @@ describe("类型校验（真实 tsc，跑在本仓库上）", () => {
 					"sidebar.yaml":
 						"components:\n  - type: profile\n    enable: true\n    slot: topp\n",
 				}),
-			/config\/sidebar\.yaml 的 components\[0\]\.slot/,
+			/config\/sidebar\.yaml's components\[0\]\.slot/,
 		);
 	});
 
 	it("非法配置在重复同步时依然报错，不会因为文件没变而被放行", () => {
 		const broken = { "license.yaml": "enablee: true\n" };
-		expectFailure(() => validate(broken), /config\/license\.yaml 的 enablee/);
-		expectFailure(() => validate(broken), /config\/license\.yaml 的 enablee/);
+		expectFailure(() => validate(broken), /config\/license\.yaml's enablee/);
+		expectFailure(() => validate(broken), /config\/license\.yaml's enablee/);
 	});
 
 	it("llms.yaml 的合法覆盖通过校验", () => {
@@ -418,11 +418,11 @@ describe("类型校验（真实 tsc，跑在本仓库上）", () => {
 	it("llms.yaml 拼错的键给出 Did you mean 提示", () => {
 		expectFailure(
 			() => validate({ "llms.yaml": "siteSumary: oops\n" }),
-			/config\/llms\.yaml 的 siteSumary.*Did you mean to write 'siteSummary'/s,
+			/config\/llms\.yaml's siteSumary.*Did you mean to write 'siteSummary'/s,
 		);
 		expectFailure(
 			() => validate({ "llms.yaml": "excludeTagss:\n  - secret\n" }),
-			/config\/llms\.yaml 的 excludeTagss.*Did you mean to write 'excludeTags'/s,
+			/config\/llms\.yaml's excludeTagss.*Did you mean to write 'excludeTags'/s,
 		);
 	});
 
@@ -432,11 +432,11 @@ describe("类型校验（真实 tsc，跑在本仓库上）", () => {
 				validate({
 					"llms.yaml": "corePages:\n  - title: Home\n    urls: /\n",
 				}),
-			/config\/llms\.yaml 的 corePages\[0\]\.urls/,
+			/config\/llms\.yaml's corePages\[0\]\.urls/,
 		);
 		expectFailure(
 			() => validate({ "llms.yaml": "descriptionMaxLength: 很长\n" }),
-			/config\/llms\.yaml 的 descriptionMaxLength/,
+			/config\/llms\.yaml's descriptionMaxLength/,
 		);
 	});
 });

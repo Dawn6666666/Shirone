@@ -48,8 +48,8 @@ export const EXCLUDED_DOMAINS = Object.freeze(
 	CONFIG_DOMAINS.filter((domain) => domain.partial === false).map((domain) => ({
 		domain,
 		reason:
-			"导航项要引用 LinkPresets 并调用 i18n()，resolveNavBarLinks() 的解析不可逆，" +
-			"反推出的声明式写法在某些配置下必定出错",
+			"Nav bar items reference LinkPresets and call i18n(); resolveNavBarLinks() is irreversible, " +
+			"and inferred declarative config would fail under certain setups",
 	})),
 );
 
@@ -81,17 +81,17 @@ function runWorker(root, mode) {
 	} catch (error) {
 		const detail = `${error.stderr ?? ""}${error.stdout ?? ""}`.trim();
 		fail(
-			`内省${mode === "defaults" ? "主题默认配置" : "当前生效配置"}失败：` +
+			`Introspecting ${mode === "defaults" ? "theme default config" : "current effective config"} failed: ` +
 				`${detail || error.message}`,
 		);
 	}
 
 	const start = stdout.indexOf("{");
-	if (start === -1) fail(`配置内省子进程没有输出 JSON（mode=${mode}）。`);
+	if (start === -1) fail(`Config introspection child process did not output JSON (mode=${mode}).`);
 	try {
 		return JSON.parse(stdout.slice(start));
 	} catch (error) {
-		fail(`配置内省结果不是合法 JSON（mode=${mode}）：${error.message}`);
+		fail(`Config introspection result is not valid JSON (mode=${mode}): ${error.message}`);
 	}
 }
 
@@ -109,7 +109,7 @@ function runWorker(root, mode) {
  */
 export function introspectConfig(root) {
 	if (!existsSync(join(root, "src", "config"))) {
-		fail(`${root} 下没有 src/config/，无法内省配置。请在代码仓根目录执行。`);
+		fail(`No src/config/ found under ${root}, cannot introspect config. Please run at code repository root.`);
 	}
 
 	const defaults = runWorker(root, "defaults");
@@ -124,7 +124,7 @@ export function introspectConfig(root) {
 			defaults.errors[domain.key] ??
 			effective.errors[domain.key] ??
 			(left === undefined || right === undefined
-				? "配置模块没有导出该领域的配置对象"
+				? "Config module does not export a config object for this domain"
 				: null);
 		if (error) {
 			errors.push({ key: domain.key, message: error });

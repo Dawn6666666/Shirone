@@ -434,9 +434,9 @@ describe("content:export 安全闸门", () => {
 
 		const output = expectFailure(() => exportRun(root, ["--yes"]));
 
-		assert.match(output, /local 模式/);
+		assert.match(output, /local mode/i);
 		assert.match(output, /content:eject/);
-		assert.match(output, /未向内容仓写入任何内容/);
+		assert.match(output, /Nothing was written to content repository/i);
 	});
 
 	it('type: "git" 的内容源拒绝执行，除非用 --out 指向真实检出', () => {
@@ -459,13 +459,13 @@ describe("content:export 安全闸门", () => {
 		);
 
 		const output = expectFailure(() => exportRun(code, ["--yes"]));
-		assert.match(output, /没有可写的本地检出/);
-		assert.match(output, /游离 HEAD/);
-		assert.match(output, /未向内容仓写入任何内容/);
+		assert.match(output, /no writable local checkout/i);
+		assert.match(output, /detached HEAD/i);
+		assert.match(output, /Nothing was written to content repository/i);
 
 		// --out 指向一份真正的本地检出时可以继续。
 		const allowed = exportRun(code, ["--out", content]);
-		assert.match(allowed, /预演模式/);
+		assert.match(allowed, /Dry-run mode/i);
 	});
 
 	it("CI 环境拒绝执行：这是本地开发命令", () => {
@@ -486,9 +486,9 @@ describe("content:export 安全闸门", () => {
 
 		const output = expectFailure(() => exportRun(code, ["--yes"]));
 
-		assert.match(output, /未提交改动/);
+		assert.match(output, /uncommitted changes/i);
 		assert.match(output, /content\/posts\/uncommitted\.md/);
-		assert.match(output, /未向内容仓写入任何内容/);
+		assert.match(output, /Nothing was written to content repository/i);
 		assert.equal(
 			existsSync(join(content, "content/posts/new.md")),
 			false,
@@ -507,7 +507,7 @@ describe("content:export 安全闸门", () => {
 
 		const output = exportRun(code, ["--yes"]);
 
-		assert.match(output, /不是 git 仓库/);
+		assert.match(output, /is not a git repository/i);
 		assert.equal(existsSync(join(content, "content/posts/new.md")), true);
 	});
 
@@ -522,7 +522,7 @@ describe("content:export 安全闸门", () => {
 			]),
 		);
 
-		assert.match(output, /不存在或不是目录/);
+		assert.match(output, /does not exist or is not a directory/i);
 		assert.match(output, /content:eject/);
 	});
 
@@ -533,8 +533,8 @@ describe("content:export 安全闸门", () => {
 
 		for (const target of [code, nested]) {
 			const output = expectFailure(() => exportRun(code, ["--out", target]));
-			assert.match(output, /不能与代码仓相同|互为父子目录/);
-			assert.match(output, /未向内容仓写入任何内容/);
+			assert.match(output, /cannot be the same as code repository/i);
+			assert.match(output, /Nothing was written to content repository/i);
 		}
 	});
 
@@ -565,7 +565,7 @@ describe("content:export 安全闸门", () => {
 
 		const output = exportRun(code, ["--out", other]);
 
-		assert.match(output, /content\.lock\.json 记录的内容源不一致/);
+		assert.match(output, /differs from content source in content\.lock\.json/i);
 	});
 });
 
@@ -581,9 +581,9 @@ describe("content:export 预演与范围", () => {
 
 		const output = exportRun(code);
 
-		assert.match(output, /预演模式/);
+		assert.match(output, /Dry-run mode/i);
 		assert.match(output, /content\/posts\/new\.md/);
-		assert.match(output, /加 --yes 执行/);
+		assert.match(output, /Run with --yes to execute/i);
 		assert.equal(existsSync(join(content, "content/posts/new.md")), false);
 		assert.equal(existsSync(join(content, ".export-backup")), false);
 		assert.equal(
@@ -598,7 +598,7 @@ describe("content:export 预演与范围", () => {
 
 		const output = exportRun(code, ["--yes", "--dry-run"]);
 
-		assert.match(output, /预演模式/);
+		assert.match(output, /Dry-run mode/i);
 		assert.equal(existsSync(join(content, "content/posts/new.md")), false);
 	});
 
@@ -620,7 +620,7 @@ export const userConfigSources = [];
 			false,
 			"--posts 不应写配置",
 		);
-		assert.doesNotMatch(posts, /nav-bar\.yaml 未纳入导出/);
+		assert.doesNotMatch(posts, /nav-bar\.yaml excluded from export/i);
 
 		rmSync(join(content, "content/posts/new.md"));
 		write(code, "src/content/posts/another.md", "# Another\n");
@@ -638,7 +638,7 @@ export const userConfigSources = [];
 
 		const output = exportRun(code, ["--yes"]);
 
-		assert.match(output, /无需导出/);
+		assert.match(output, /no export needed/i);
 		assert.equal(existsSync(join(content, ".export-backup")), false);
 		assert.equal(git(content, ["status", "--porcelain", "-uall"]), "");
 	});
@@ -657,7 +657,7 @@ describe("content:export 内容文件导出", () => {
 
 		const output = exportRun(code, ["--yes"]);
 
-		assert.match(output, /新增 3/);
+		assert.match(output, /Added 3/i);
 		assert.equal(read(content, "content/posts/rescued.md"), "# 被救回的文章\n");
 		assert.equal(
 			read(content, "content/posts/高等数学/index.md"),
@@ -676,7 +676,7 @@ describe("content:export 内容文件导出", () => {
 
 		const output = exportRun(code, ["--yes"]);
 
-		assert.match(output, /更新 1/);
+		assert.match(output, /Updated 1/i);
 		assert.equal(read(content, "content/posts/hello.md"), "# Hello, edited\n");
 		// 其余文件哈希相同，必须跳过而不是重写。
 		assert.equal(read(content, "content/posts/概率论/index.md"), "# 概率论\n");
@@ -688,7 +688,7 @@ describe("content:export 内容文件导出", () => {
 
 		const output = exportRun(code, ["--yes"]);
 
-		assert.match(output, /无需导出/);
+		assert.match(output, /no export needed/i);
 		assert.equal(git(content, ["status", "--porcelain", "-uall"]), "");
 	});
 
@@ -697,7 +697,7 @@ describe("content:export 内容文件导出", () => {
 
 		const output = exportRun(code, ["--yes"]);
 
-		assert.match(output, /\[豁免\]/);
+		assert.match(output, /\[Exempt\]/i);
 		for (const path of [
 			"public/assets/moments/thumbnails/a-192.webp",
 			"public/assets/anime/covers/x.webp",
@@ -745,7 +745,7 @@ describe("content:export 内容文件导出", () => {
 		const output = exportRun(code);
 
 		// 内容仓的 public/ 只有 images/ 与 assets/，因此 favicon/ 是主题自有。
-		assert.match(output, /未纳入：内容仓不拥有该顶层段/);
+		assert.match(output, /Not included: content repo does not own this top segment/i);
 		assert.match(output, /public\/favicon/);
 		exportRun(code, ["--yes"]);
 		assert.equal(
@@ -760,7 +760,7 @@ describe("content:export 内容文件导出", () => {
 		rmSync(join(code, "src/content/posts/hello.md"));
 
 		const reported = exportRun(code, ["--yes"]);
-		assert.match(reported, /默认不删除，需 --prune/);
+		assert.match(reported, /not deleted by default, requires --prune/i);
 		assert.equal(
 			existsSync(join(content, "content/posts/hello.md")),
 			true,
@@ -768,7 +768,7 @@ describe("content:export 内容文件导出", () => {
 		);
 
 		const pruned = exportRun(code, ["--yes", "--prune"]);
-		assert.match(pruned, /已删除 1 个内容仓文件/);
+		assert.match(pruned, /Deleted 1 content repository files/i);
 		assert.equal(existsSync(join(content, "content/posts/hello.md")), false);
 
 		const backup = latestBackup(content);
@@ -874,12 +874,12 @@ export const userConfigSources = [];
 		syncRun(code);
 
 		const kept = exportRun(code, ["--yes", "--config"]);
-		assert.match(kept, /已等于主题默认值/);
+		assert.match(kept, /matching theme defaults/i);
 		assert.match(kept, /--prune-config/);
 		assert.match(read(content, "config/site.yaml"), /title: Shirone/);
 
 		const cleaned = exportRun(code, ["--yes", "--config", "--prune-config"]);
-		assert.match(cleaned, /删除冗余键/);
+		assert.match(cleaned, /Delete redundant keys/i);
 		const after = read(content, "config/site.yaml");
 		assert.doesNotMatch(after, /title:/);
 		assert.doesNotMatch(after, /base:/);
@@ -890,9 +890,9 @@ export const userConfigSources = [];
 
 		const output = exportRun(code, ["--config"]);
 
-		assert.match(output, /config\/nav-bar\.yaml 未纳入导出/);
-		assert.match(output, /resolveNavBarLinks\(\) 的解析不可逆/);
-		assert.match(output, /手工维护/);
+		assert.match(output, /config\/nav-bar\.yaml excluded from export/i);
+		assert.match(output, /resolveNavBarLinks\(\) is irreversible/i);
+		assert.match(output, /maintain this file manually/i);
 	});
 
 	it("footer.html 反向导出到 config/footer.html", () => {
@@ -920,9 +920,9 @@ export const userConfigSources = [];
 
 		const output = exportRun(code, ["--yes", "--config", "--force"]);
 
-		assert.match(output, /疑似凭据/);
-		assert.match(output, /anime\.yaml 的 token/);
-		assert.doesNotMatch(output, /envId 疑似凭据/);
+		assert.match(output, /looks like credentials/i);
+		assert.match(output, /anime\.yaml's token/);
+		assert.doesNotMatch(output, /envId.*looks like credentials/i);
 		// excludeTags 的值里带 "secret" 字样，但键名无关，不该误报。
 		assert.doesNotMatch(output, /excludeTags/);
 		// 告警不阻断：文件照写。
@@ -937,7 +937,7 @@ export const userConfigSources = [];
 
 		const output = expectFailure(() => exportRun(code, ["--yes", "--config"]));
 
-		assert.match(output, /落后于内容仓/);
+		assert.match(output, /out of sync with content repo/i);
 		assert.match(output, /site/);
 		assert.match(output, /pnpm content:sync/);
 		assert.equal(
@@ -960,7 +960,7 @@ export const userConfigSources = [];
 
 		const output = exportRun(code, ["--yes", "--config", "--force"]);
 
-		assert.match(output, /通过类型校验/);
+		assert.match(output, /passed type checking/i);
 		assert.equal(
 			read(code, "src/user/user-config.ts"),
 			before,
@@ -1011,7 +1011,7 @@ describe("content:export 往返不变式", () => {
 
 		// 幂等：第二次导出没有任何可写的东西。
 		const second = exportRun(code, ["--yes", "--posts"]);
-		assert.match(second, /无需导出/);
+		assert.match(second, /no export needed/i);
 	});
 
 	it("配置：export -> sync 后生效配置逐字段相等", async () => {
@@ -1039,6 +1039,6 @@ export const userConfigSources = [];
 
 		// 再次导出应当无改动——此时 YAML 已经是最小覆盖集。
 		const second = exportRun(code, ["--yes", "--config"]);
-		assert.match(second, /无需导出/);
+		assert.match(second, /no export needed/i);
 	});
 });

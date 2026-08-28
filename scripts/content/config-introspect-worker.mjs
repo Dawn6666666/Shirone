@@ -72,7 +72,7 @@ for (const key of domains) {
 		const module = await import(pathToFileURL(modulePath).href);
 		const value = module[`${key}Config`];
 		if (value === undefined) {
-			errors[key] = `${key}Config.ts 没有导出 ${key}Config`;
+			errors[key] = `${key}Config.ts does not export ${key}Config`;
 			continue;
 		}
 		// 归一化成纯 JSON：配置树里若混进 undefined / Symbol 键，差分阶段会得出错误结论。

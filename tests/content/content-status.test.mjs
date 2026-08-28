@@ -142,8 +142,8 @@ describe("content status", () => {
 				SHIRONE_CONTENT_SYNC: "0",
 			});
 			assert.equal(result.status, 0, result.output);
-			assert.match(result.stdout, /健康：未发现错误或告警/);
-			assert.match(result.stdout, /空覆盖层（语义检查通过/);
+			assert.match(result.stdout, /Healthy: No errors or warnings found/i);
+			assert.match(result.stdout, /Empty overlay \(semantic check passed/i);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}
@@ -163,7 +163,7 @@ describe("content status", () => {
 			});
 			assert.match(
 				result.stdout,
-				/来源判定：根目录 \.env\.local 中的 CONTENT_DIR/,
+				/Source determination: CONTENT_DIR in root \.env\.local/i,
 			);
 			assert.match(
 				result.stdout,
@@ -173,7 +173,7 @@ describe("content status", () => {
 			result = runScript(STATUS_SCRIPT, fixture.repo, [], {
 				CONTENT_DIR: other,
 			});
-			assert.match(result.stdout, /来源判定：进程环境变量 CONTENT_DIR/);
+			assert.match(result.stdout, /Source determination: Process environment variable CONTENT_DIR/i);
 			assert.match(result.stdout, new RegExp(other.replace(/[\\]/g, "\\\\")));
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
@@ -197,9 +197,9 @@ describe("content status", () => {
 			const indexMtime = statSync(join(fixture.content, ".git/index")).mtimeMs;
 			const result = statusPath(fixture);
 			assert.equal(result.status, 0, result.output);
-			assert.match(result.stdout, /提交者与时间：Status Test/);
-			assert.match(result.stdout, /Markdown 文章: 1 篇, 说说: 1 条/);
-			assert.match(result.stdout, /Commit 一致性：一致/);
+			assert.match(result.stdout, /Author & date: Status Test/i);
+			assert.match(result.stdout, /Markdown posts: 1, moments: 1/i);
+			assert.match(result.stdout, /Commit consistency: Matches/i);
 			assert.deepEqual(snapshotTree(fixture.repo), beforeRepo);
 			assert.deepEqual(snapshotTree(fixture.content), beforeContent);
 			assert.equal(
@@ -235,7 +235,7 @@ describe("content status", () => {
 			write(fixture.repo, "src/content/posts/extra.md", "# extra\n");
 			result = statusPath(fixture);
 			assert.equal(result.status, 1);
-			assert.match(result.stdout, /多余文件 posts\/extra\.md/);
+			assert.match(result.stdout, /posts\/extra\.md/);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}
@@ -248,13 +248,13 @@ describe("content status", () => {
 				CONTENT_DIR: join(fixture.base, "missing"),
 			});
 			assert.equal(missing.status, 1);
-			assert.match(missing.stdout, /目录状态：失败（目录不存在）/);
-			assert.doesNotMatch(missing.stdout, /已成功连接/);
+			assert.match(missing.stdout, /Directory status: Failed \(directory does not exist\)/i);
+			assert.doesNotMatch(missing.stdout, /Valid worktree/);
 
 			mkdirSync(join(fixture.content, ".git"), { recursive: true });
 			const invalid = statusPath(fixture);
 			assert.equal(invalid.status, 1);
-			assert.match(invalid.stdout, /不是有效 Git 工作树/);
+			assert.match(invalid.stdout, /not a valid Git worktree/i);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}
@@ -266,9 +266,9 @@ describe("content status", () => {
 			syncPath(fixture);
 			const result = statusPath(fixture, [], { PATH: "" });
 			assert.equal(result.status, 0, result.output);
-			assert.match(result.stdout, /系统找不到 git/);
-			assert.doesNotMatch(result.stdout, /有未提交改动/);
-			assert.match(result.stdout, /可用但有告警/);
+			assert.match(result.stdout, /git not found on system/i);
+			assert.doesNotMatch(result.stdout, /uncommitted change/i);
+			assert.match(result.stdout, /Usable with warnings/i);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}
@@ -280,13 +280,13 @@ describe("content status", () => {
 			write(fixture.content, "config/site.yaml", "title: [broken\n");
 			let result = statusPath(fixture);
 			assert.equal(result.status, 1);
-			assert.match(result.stdout, /YAML 结构校验：失败/);
+			assert.match(result.stdout, /YAML structure check: Failed/i);
 
 			write(fixture.content, "config/site.yaml", "title: A\n");
 			write(fixture.content, "config/site.yml", "title: B\n");
 			result = statusPath(fixture);
 			assert.equal(result.status, 1);
-			assert.match(result.stdout, /同时覆盖 site/);
+			assert.match(result.stdout, /both override site/i);
 
 			rmSync(join(fixture.content, "config/site.yml"));
 			write(fixture.content, "config/site.yaml", "title: 42\n");
@@ -310,8 +310,8 @@ describe("content status", () => {
 			);
 			result = statusPath(fixture);
 			assert.equal(result.status, 1);
-			assert.match(result.stdout, /TypeScript 类型校验：失败/);
-			assert.match(result.stdout, /config\/site\.yaml 的 title/);
+			assert.match(result.stdout, /TypeScript type check: Failed/i);
+			assert.match(result.stdout, /config\/site\.yaml's title/);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}
@@ -324,21 +324,21 @@ describe("content status", () => {
 			write(fixture.repo, "content.lock.json", "{ broken\n");
 			let result = statusPath(fixture);
 			assert.equal(result.status, 1);
-			assert.match(result.stdout, /内容溯源锁 .*：无效/);
+			assert.match(result.stdout, /Content provenance lock .*Invalid/i);
 
 			syncPath(fixture);
 			rmSync(join(fixture.repo, "src/user/user-config.ts"));
 			result = statusPath(fixture);
 			assert.equal(result.status, 1);
-			assert.match(result.stdout, /缺失（项目配置模块将无法正常导入）/);
+			assert.match(result.stdout, /Missing \(project config modules will fail to import\)/i);
 
 			syncPath(fixture);
 			write(fixture.content, "content/posts/new.md", "# new\n");
 			commitAll(fixture.content, "test: newer content");
 			result = statusPath(fixture);
 			assert.equal(result.status, 1);
-			assert.match(result.stdout, /当前内容仓 commit 与锁文件不一致/);
-			assert.match(result.stdout, /未物化或已变化/);
+			assert.match(result.stdout, /Current content repo commit differs from lock file/i);
+			assert.match(result.stdout, /unmaterialized or modified/i);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}
@@ -356,8 +356,8 @@ describe("content status", () => {
 
 			let result = runScript(STATUS_SCRIPT, fixture.repo, ["--remote"], env);
 			assert.equal(result.status, 0, result.output);
-			assert.match(result.stdout, /FETCH_HEAD：.*与 HEAD 一致/);
-			assert.match(result.stdout, /远端实时探测：正常/);
+			assert.match(result.stdout, /FETCH_HEAD: .*matches HEAD/i);
+			assert.match(result.stdout, /Remote live probe: OK/i);
 
 			git(join(fixture.repo, ".content-src"), [
 				"remote",
@@ -367,8 +367,8 @@ describe("content status", () => {
 			]);
 			result = runScript(STATUS_SCRIPT, fixture.repo, [], env);
 			assert.equal(result.status, 1);
-			assert.match(result.stdout, /origin 与当前配置的仓库地址不一致/);
-			assert.match(result.stdout, /内容仓不可用，跳过挂载点资源探测/);
+			assert.match(result.stdout, /Remote working copy origin differs from configured repository URL/i);
+			assert.match(result.stdout, /Content repository unavailable, skipping mount point asset probe/i);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}

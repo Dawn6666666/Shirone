@@ -94,12 +94,12 @@ const options = {
 if (options.help) {
 	console.log(
 		[
-			"用法：node scripts/content/eject.mjs [--yes|--dry-run] [--force] [--out <dir>]",
+			"Usage: node scripts/content/eject.mjs [--yes|--dry-run] [--force] [--out <dir>]",
 			"",
-			"  （无参数）/--dry-run  预演模式：打印计划，不修改任何文件",
-			"  --yes                实际执行迁移（--dry-run 优先级更高）",
-			"  --out <dir>       指定导出目标目录（默认：../shirone-content）",
-			"  --force           强制导出（允许导出到非空目录或在工作区不干净时执行）",
+			"  (no args)/--dry-run  Dry-run mode: print plan without modifying any files",
+			"  --yes                Execute migration (--dry-run takes precedence)",
+			"  --out <dir>          Specify export destination directory (default: ../shirone-content)",
+			"  --force              Force export (allow non-empty directory or dirty working tree)",
 		].join("\n"),
 	);
 	process.exit(0);
@@ -111,12 +111,12 @@ for (let index = 0; index < args.length; index += 1) {
 	const argument = args[index];
 	if (argument === "--out") {
 		if (sawOut) {
-			console.error("[content] --out 只能指定一次。");
+			console.error("[content] --out can only be specified once.");
 			process.exit(1);
 		}
 		const value = args[index + 1];
 		if (!value || value.startsWith("-")) {
-			console.error("[content] --out 需要一个目录参数。");
+			console.error("[content] --out requires a directory argument.");
 			process.exit(1);
 		}
 		options.out = value;
@@ -126,7 +126,7 @@ for (let index = 0; index < args.length; index += 1) {
 	}
 	if (!knownFlags.has(argument)) {
 		console.error(
-			`[content] eject 不支持参数：${argument}。运行 --help 查看可用参数。`,
+			`[content] eject does not support argument: ${argument}. Run --help to view available options.`,
 		);
 		process.exit(1);
 	}
@@ -163,12 +163,12 @@ function assertCleanWorktree() {
 	try {
 		status = git(["status", "--porcelain"]);
 	} catch {
-		throw new Error("当前目录不是 git 仓库，无法执行 eject。");
+		throw new Error("Current directory is not a git repository, cannot perform eject.");
 	}
 	if (status !== "") {
 		throw new Error(
-			"工作区存在未提交改动。eject 会改写 .gitignore 与 git 索引，" +
-				" 请先提交或暂存，或用 --force 跳过检查。",
+			"Working tree has uncommitted changes. eject will modify .gitignore and git index, " +
+				"please commit or stash first, or use --force to bypass this check.",
 		);
 	}
 }
@@ -413,7 +413,7 @@ function untrackPaths() {
 function writeManifest(outAbsolute) {
 	const manifestPath = join(ROOT, MANIFEST_FILE);
 	if (existsSync(manifestPath) && !options.force) {
-		log(`${MANIFEST_FILE} 已存在，保持不变（需要覆盖请加 --force）。`);
+		log(`${MANIFEST_FILE} already exists, keeping unchanged (use --force to overwrite).`);
 		return;
 	}
 	const relativeOut = toPosix(relative(ROOT, outAbsolute)) || ".";
@@ -425,8 +425,8 @@ function writeManifest(outAbsolute) {
 		writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 	}
 	log(
-		`写入 ${MANIFEST_FILE}，内容源指向 ${relativeOut}。` +
-			' 内容仓推到远端后，把 source 改成 { "type": "git", "url": ..., "ref": "main" }。',
+		`Wrote ${MANIFEST_FILE}, content source points to ${relativeOut}. ` +
+			'After pushing content repository to remote, change source to { "type": "git", "url": ..., "ref": "main" }.',
 	);
 }
 
@@ -434,8 +434,8 @@ function main() {
 	const outAbsolute = resolve(ROOT, options.out);
 	if (pathsOverlap(ROOT, outAbsolute)) {
 		throw new Error(
-			`导出目录 ${outAbsolute} 与代码仓 ${ROOT} 相互重叠。` +
-				" 请使用代码仓之外的独立目录，避免自我复制或覆盖源码。",
+			`Output directory ${outAbsolute} and code repository ${ROOT} overlap. ` +
+				"Please use an independent directory outside the code repository to avoid self-copying or overwriting source code.",
 		);
 	}
 	assertCleanWorktree();
@@ -445,17 +445,17 @@ function main() {
 		!options.force
 	) {
 		throw new Error(
-			`导出目录 ${outAbsolute} 非空。请换一个 --out 目录，或加 --force。`,
+			`Output directory ${outAbsolute} is not empty. Please specify another --out directory, or use --force.`,
 		);
 	}
 
 	const plan = buildPlan();
 	if (plan.length === 0) {
-		throw new Error("没有找到可导出的内容，仓库可能已经 eject 过了。");
+		throw new Error("No exportable content found, repository may have already been ejected.");
 	}
 
 	log(
-		`${options.apply ? "" : "[预演] "}导出 ${plan.length} 个文件到 ${outAbsolute}`,
+		`${options.apply ? "" : "[dry-run] "}Exporting ${plan.length} files to ${outAbsolute}`,
 	);
 	if (options.apply) {
 		for (const item of plan) {
@@ -469,31 +469,31 @@ function main() {
 	const ignored = updateGitignore();
 	if (ignored.length > 0) {
 		log(
-			`${options.apply ? "追加" : "[预演] 将追加"} ${ignored.length} 条 .gitignore 规则`,
+			`${options.apply ? "Appended" : "[dry-run] Will append"} ${ignored.length} .gitignore rules`,
 		);
 	}
 
 	const untracked = untrackPaths();
 	log(
-		`${options.apply ? "已从 git 索引移除" : "[预演] 将从 git 索引移除"}：${untracked.join(", ")}`,
+		`${options.apply ? "Removed from git index" : "[dry-run] Will remove from git index"}: ${untracked.join(", ")}`,
 	);
 
 	writeManifest(outAbsolute);
 
 	if (!options.apply) {
-		log("以上均为预演。确认无误后重新运行并加上 --yes。");
+		log("The above is a dry run. Confirm everything is correct, then re-run with --yes.");
 		return;
 	}
 
-	log("完成。后续步骤：");
+	log("Complete. Next steps:");
 	log(
 		`  1. cd ${outAbsolute} && git init && git add . && git commit -m "chore: initial content"`,
 	);
-	log("  2. 把内容仓推到远端，并在其中配置 secrets.DISPATCH_TOKEN");
+	log("  2. Push content repository to remote and configure secrets.DISPATCH_TOKEN");
 	log(
-		"  3. 在代码仓复制 .github/workflows/deploy.yml.example 为 deploy.yml 并补全部署步骤",
+		"  3. In code repository, copy .github/workflows/deploy.yml.example to deploy.yml and fill in deployment steps",
 	);
-	log("  4. 在代码仓提交 .gitignore、shirone.content.json 与索引变更");
+	log("  4. In code repository, commit .gitignore, shirone.content.json, and index changes");
 }
 
 try {

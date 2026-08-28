@@ -24,52 +24,57 @@ const COMMAND_MAP = {
 	status: {
 		script: join(DIR, "status.mjs"),
 		extraArgs: [],
-		description: "状态诊断：检查内容源、Git、配置类型、锁文件与物化新旧状态",
+		description:
+			"Status diagnostics: inspect content source, Git, config types, lock file, and materialization freshness",
 	},
 	sync: {
 		script: join(DIR, "sync.mjs"),
 		extraArgs: [],
-		description: "物化内容：将独立内容仓目录增量同步到代码仓，并编译配置覆盖",
+		description:
+			"Materialize content: incrementally sync external content directories into code repository and compile config overlays",
 	},
 	clean: {
 		script: join(DIR, "clean.mjs"),
 		extraArgs: [],
 		description:
-			"安全清理：还原被物化内容，重置配置覆盖（默认预演，--yes 执行）",
+			"Safe clean: restore materialized content and reset config overlays (dry-run by default, use --yes to apply)",
 	},
 	export: {
 		script: join(DIR, "export.mjs"),
 		extraArgs: [],
 		description:
-			"反向导出：将代码仓侧的改动与配置差分回写内容仓（默认预演，--yes 执行）",
+			"Reverse export: write code repository changes and config diffs back to content repository (dry-run by default, use --yes to apply)",
 	},
 	eject: {
 		script: join(DIR, "eject.mjs"),
 		extraArgs: [],
-		description: "一键解耦：将单仓迁移为独立内容仓架构（默认预演，--yes 执行）",
+		description:
+			"One-click eject: migrate single-repository setup to standalone content repository architecture (dry-run by default, use --yes to apply)",
 	},
 	watch: {
 		script: join(DIR, "sync.mjs"),
 		extraArgs: ["--watch"],
-		description: "监听模式：实时监听本地内容目录，保存时自动增量物化",
+		description:
+			"Watch mode: watch local content directory and automatically sync on change",
 	},
 	validate: {
 		script: join(DIR, "sync.mjs"),
 		extraArgs: ["--dry-run"],
-		description: "结构预检：校验内容源结构、冲突与 YAML 类型（不写盘）",
+		description:
+			"Structure validation: pre-check content source structure, conflicts, and YAML types (without disk writes)",
 	},
 };
 
 function printHelp() {
 	console.log(
 		[
-			"Shirone 内容体系工具链 (Content Separation CLI)",
+			"Shirone Content Separation CLI Toolchain",
 			"",
-			"用法：",
+			"Usage:",
 			"  pnpm content <command> [options]",
 			"  pnpm content:<command> [options]",
 			"",
-			"可用指令：",
+			"Available commands:",
 			`  status    ${COMMAND_MAP.status.description}`,
 			`  sync      ${COMMAND_MAP.sync.description}`,
 			`  clean     ${COMMAND_MAP.clean.description}`,
@@ -78,15 +83,15 @@ function printHelp() {
 			`  watch     ${COMMAND_MAP.watch.description}`,
 			`  validate  ${COMMAND_MAP.validate.description}`,
 			"",
-			"四维闭环关系：",
-			"  内容仓 ──content:sync──▶ 代码仓          物化",
-			"  内容仓 ◀──content:export── 代码仓        反向导出",
-			"  代码仓 ──content:clean──▶ 主题自带态      清理",
-			"  内容仓 ◀──content:eject── 代码仓          一次性迁出",
+			"4D Closed-Loop Workflow:",
+			"  Content Repo ──content:sync──▶ Code Repo          Materialize",
+			"  Content Repo ◀──content:export── Code Repo        Reverse Export",
+			"  Code Repo ──content:clean──▶ Theme Defaults       Clean",
+			"  Content Repo ◀──content:eject── Code Repo          One-time Eject",
 			"",
-			"帮助指引：",
-			"  查看具体子指令帮助：pnpm content <command> --help",
-			"  完整文档说明参见：docs/content-separation.md",
+			"Help:",
+			"  View subcommand help: pnpm content <command> --help",
+			"  Full documentation: docs/content-separation.md",
 		].join("\n"),
 	);
 }
@@ -103,7 +108,7 @@ if (
 
 const target = COMMAND_MAP[command];
 if (!target) {
-	console.error(`[content] 未知指令: "${command}"\n`);
+	console.error(`[content] Unknown command: "${command}"\n`);
 	printHelp();
 	process.exit(1);
 }
@@ -117,11 +122,11 @@ const result = spawnSync(process.execPath, [target.script, ...forwardedArgs], {
 });
 
 if (result.error) {
-	console.error(`[content] 启动子进程失败: ${result.error.message}`);
+	console.error(`[content] Failed to start child process: ${result.error.message}`);
 	process.exit(1);
 }
 
 if (result.signal) {
-	console.error(`[content] 子指令被信号 ${result.signal} 终止。`);
+	console.error(`[content] Subcommand was terminated by signal ${result.signal}.`);
 }
 process.exit(result.status ?? 1);

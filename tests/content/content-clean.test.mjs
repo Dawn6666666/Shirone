@@ -190,9 +190,9 @@ describe("content:clean 清理范围与分类", () => {
 
 		const output = clean(root);
 
-		assert.match(output, /预演模式/);
+		assert.match(output, /Dry-run mode/i);
 		assert.match(output, /src\/content\/posts\/external\.md/);
-		assert.match(output, /加 --yes 执行/);
+		assert.match(output, /Run with --yes to execute/i);
 		assert.equal(existsSync(join(root, "src/content/posts/external.md")), true);
 		assert.equal(existsSync(join(root, "content.lock.json")), true);
 		assert.equal(git(root, ["status", "--porcelain", "-uall"]), before);
@@ -205,7 +205,7 @@ describe("content:clean 清理范围与分类", () => {
 
 		const output = clean(root, ["--yes", "--dry-run"]);
 
-		assert.match(output, /预演模式/);
+		assert.match(output, /Dry-run mode/i);
 		assert.equal(existsSync(join(root, "src/content/posts/external.md")), true);
 	});
 
@@ -314,7 +314,7 @@ describe("content:clean 在 eject 之后（物化内容被 .gitignore 忽略）"
 
 		const output = clean(root, ["--yes"]);
 
-		assert.match(output, /被 \.gitignore 忽略的 \d+ 个/);
+		assert.match(output, /\d+ ignored by \.gitignore/i);
 		assert.equal(
 			existsSync(join(root, "src/content/posts/external.md")),
 			false,
@@ -341,7 +341,7 @@ describe("content:clean 在 eject 之后（物化内容被 .gitignore 忽略）"
 
 		const output = clean(root, ["--yes"]);
 
-		assert.match(output, /已不被跟踪/);
+		assert.match(output, /not tracked in the code repository/i);
 		assert.match(output, /content:eject/);
 	});
 
@@ -443,8 +443,8 @@ describe("content:clean 备份与熔断", () => {
 			clean(root, ["--yes"]);
 		} catch (error) {
 			failed = true;
-			assert.match(error.output, /不是 Git 工作区/);
-			assert.match(error.output, /未执行任何破坏性操作/);
+			assert.match(error.output, /not a Git worktree/i);
+			assert.match(error.output, /No destructive operations were performed/i);
 		}
 		assert.equal(failed, true);
 		assert.equal(existsSync(join(root, "src/content/posts/keep.md")), true);
@@ -470,8 +470,8 @@ describe("content:clean 备份与熔断", () => {
 			clean(root, ["--yes"]);
 		} catch (error) {
 			failed = true;
-			assert.match(error.output, /过于宽泛/);
-			assert.match(error.output, /未执行任何破坏性操作/);
+			assert.match(error.output, /too broad/i);
+			assert.match(error.output, /No destructive operations were performed/i);
 		}
 		assert.equal(failed, true);
 		assert.equal(existsSync(join(root, "src/components/Card.astro")), true);
@@ -481,11 +481,11 @@ describe("content:clean 备份与熔断", () => {
 		const root = createFixture();
 
 		const first = clean(root, ["--yes"]);
-		assert.match(first, /无需清理/);
+		assert.match(first, /already in clean theme state/i);
 		assert.equal(git(root, ["status", "--porcelain"]), "");
 
 		const second = clean(root, ["--yes"]);
-		assert.match(second, /无需清理/);
+		assert.match(second, /already in clean theme state/i);
 		assert.equal(git(root, ["status", "--porcelain"]), "");
 	});
 });

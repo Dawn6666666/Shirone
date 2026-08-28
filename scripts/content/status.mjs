@@ -50,18 +50,18 @@ const unknownArgs = args.filter(
 if (options.help) {
 	console.log(
 		[
-			"用法：node scripts/content/status.mjs [--remote]",
+			"Usage: node scripts/content/status.mjs [--remote]",
 			"",
-			"详细诊断内容源、Git、本地工作副本、挂载资产、配置覆盖、锁文件与物化新旧状态。",
-			"默认完全离线且只读；--remote 额外使用 git ls-remote 验证远端 ref。",
-			"发现阻断构建或需要重新同步的问题时退出码为 1，只有告警时仍为 0。",
+			"Detailed diagnosis of content source, Git, local working copy, mounted assets, config overlay, lock file, and materialization state.",
+			"Fully offline and read-only by default; --remote additionally verifies remote ref via git ls-remote.",
+			"Exits with code 1 when issues blocking build or requiring re-sync are found; exits with 0 on warnings only.",
 		].join("\n"),
 	);
 	process.exit(0);
 }
 
 if (unknownArgs.length > 0) {
-	console.error(`[content] status 不支持参数：${unknownArgs.join("、")}`);
+	console.error(`[content] status does not support argument(s): ${unknownArgs.join(", ")}`);
 	process.exit(1);
 }
 
@@ -227,7 +227,7 @@ function inspectGitRepository(directory) {
 
 	return {
 		isGit: true,
-		branch: branch.ok ? branch.output || "(detached HEAD)" : "未知",
+		branch: branch.ok ? branch.output || "(detached HEAD)" : "unknown",
 		commit,
 		shortCommit,
 		author,
@@ -241,26 +241,26 @@ function inspectGitRepository(directory) {
 	};
 }
 
-function printGitRepository(repository, label = "Git 仓库") {
+function printGitRepository(repository, label = "Git repository") {
 	if (!repository.isGit) return;
-	console.log(`  ${label}：有效工作树`);
-	console.log(`  分支名称：${repository.branch}`);
+	console.log(`  ${label}: Valid worktree`);
+	console.log(`  Branch name: ${repository.branch}`);
 	if (repository.commit) {
 		console.log(
-			`  最新提交：${repository.shortCommit} - ${repository.subject || "(无主题)"}`,
+			`  Latest commit: ${repository.shortCommit} - ${repository.subject || "(no subject)"}`,
 		);
 		console.log(
-			`  提交者与时间：${repository.author || "未知"}，${repository.date || "未知"}`,
+			`  Author & date: ${repository.author || "unknown"}, ${repository.date || "unknown"}`,
 		);
 	} else {
-		console.log("  最新提交：无提交记录");
+		console.log("  Latest commit: No commit history");
 	}
 	if (repository.dirty === null) {
-		console.log("  工作区状态：无法读取");
+		console.log("  Worktree status: Unreadable");
 	} else if (repository.dirty) {
-		console.log(`  工作区状态：有 ${repository.changes} 处未提交改动`);
+		console.log(`  Worktree status: ${repository.changes} uncommitted change(s)`);
 	} else {
-		console.log("  工作区状态：干净 (Clean)");
+		console.log("  Worktree status: Clean");
 	}
 }
 
@@ -273,7 +273,7 @@ function compareMount(
 	const differences = [];
 	const target = inspectDirectory(targetDirectory);
 	if (!target.exists || !target.isDirectory) {
-		return [`目标目录不存在或不是目录：${targetDirectory}`];
+		return [`Target directory does not exist or is not a directory: ${targetDirectory}`];
 	}
 
 	const sourceFiles = new Set(
@@ -512,44 +512,44 @@ function typeCheckConfigSource(source, lineOwners) {
 				);
 				const owner = lineOwners[line];
 				if (owner) {
-					return `${owner.file} 的 ${owner.path || "顶层"}：${message}`;
+					return `${owner.file}'s ${owner.path || "top level"}: ${message}`;
 				}
 			}
 			const file = diagnostic.file
 				? toPosix(relative(ROOT, diagnostic.file.fileName))
 				: "TypeScript";
-			return `${file}：${message}`;
+			return `${file}: ${message}`;
 		});
 }
 
 function describeOrigin(source) {
 	if ([".env", ".env.local"].includes(source.originLocation)) {
-		return `根目录 ${source.originLocation} 中的 ${source.origin}`;
+		return `${source.origin} in root ${source.originLocation}`;
 	}
 	if (source.originLocation === "environment") {
-		return `进程环境变量 ${source.origin}`;
+		return `Process environment variable ${source.origin}`;
 	}
 	return source.origin;
 }
 
 function describeRefOrigin(source) {
 	if ([".env", ".env.local"].includes(source.refOrigin)) {
-		return `根目录 ${source.refOrigin}`;
+		return `Root ${source.refOrigin}`;
 	}
-	if (source.refOrigin === "environment") return "进程环境变量";
+	if (source.refOrigin === "environment") return "Process environment variable";
 	if (source.refOrigin === "manifest") return MANIFEST_FILE;
-	return "默认值 main";
+	return "Default main";
 }
 
 console.log(
 	"================================================================================",
 );
-console.log("             Shirone 内容分离体系状态与连通性详细诊断报告");
+console.log("             Shirone Content Separation Status & Connectivity Report");
 console.log(
 	"================================================================================\n",
 );
 
-console.log("【1. 运行模式与决策溯源】");
+console.log("[1. Runtime Mode & Decision Provenance]");
 const envFile = join(ROOT, ".env");
 const envLocalFile = join(ROOT, ".env.local");
 const manifestFile = join(ROOT, MANIFEST_FILE);
@@ -558,119 +558,119 @@ try {
 	resolved = resolveContentSource(ROOT);
 } catch (error) {
 	resolved = { mode: "error", error: error.message };
-	addError(`内容源配置无法解析：${error.message}`);
+	addError(`Content source config cannot be parsed: ${error.message}`);
 }
 
 if (resolved.mode === "error") {
-	console.log("  当前模式：配置错误 (ERROR)");
-	console.log(`  错误原因：${resolved.error}`);
+	console.log("  Current mode: Configuration Error (ERROR)");
+	console.log(`  Reason: ${resolved.error}`);
 } else if (resolved.mode === "local") {
-	console.log("  当前模式：local（使用代码仓自带内容）");
-	console.log(`  判定依据：${resolved.reason}`);
+	console.log("  Current mode: local (using code repository default content)");
+	console.log(`  Basis: ${resolved.reason}`);
 	if (resolved.reasonLocation) {
 		console.log(
-			`  禁用来源：${[".env", ".env.local"].includes(resolved.reasonLocation) ? `根目录 ${resolved.reasonLocation}` : "进程环境变量"}`,
+			`  Disabled source: ${[".env", ".env.local"].includes(resolved.reasonLocation) ? `Root ${resolved.reasonLocation}` : "Process environment variable"}`,
 		);
 	}
 } else {
-	console.log("  当前模式：external（已配置外部内容源，连接状态见下一节）");
-	console.log(`  来源判定：${describeOrigin(resolved.source)}`);
+	console.log("  Current mode: external (external content source configured, connectivity in next section)");
+	console.log(`  Source determination: ${describeOrigin(resolved.source)}`);
 }
-console.log("  配置文件检查：");
-console.log(`    - 根目录 .env：${existsSync(envFile) ? "存在" : "未创建"}`);
+console.log("  Configuration files check:");
+console.log(`    - Root .env: ${existsSync(envFile) ? "Present" : "Not created"}`);
 console.log(
-	`    - 根目录 .env.local：${existsSync(envLocalFile) ? "存在" : "未创建"}`,
+	`    - Root .env.local: ${existsSync(envLocalFile) ? "Present" : "Not created"}`,
 );
 console.log(
-	`    - 清单文件 ${MANIFEST_FILE}：${existsSync(manifestFile) ? "存在" : "未创建"}`,
+	`    - Manifest file ${MANIFEST_FILE}: ${existsSync(manifestFile) ? "Present" : "Not created"}`,
 );
 console.log("");
 
-console.log("【2. 内容源连通性与 Git 状态】");
+console.log("[2. Content Source Connectivity & Git Status]");
 let sourceRoot = null;
 let sourceGit = null;
 let currentCommit = null;
 
 if (resolved.mode === "local") {
-	console.log("  内容源：未启用外部内容源");
+	console.log("  Content source: External content source not enabled");
 } else if (resolved.mode === "error") {
-	console.log("  内容源：配置错误，无法继续连接诊断");
+	console.log("  Content source: Configuration error, cannot continue connectivity diagnosis");
 } else if (resolved.source.type === "path") {
 	const sourceAbsolute = resolve(ROOT, resolved.source.path);
 	const directory = inspectDirectory(sourceAbsolute);
-	console.log('  接入类型：本地目录挂载 (type: "path")');
-	console.log(`  配置路径：${resolved.source.path}`);
-	console.log(`  绝对路径：${sourceAbsolute}`);
+	console.log('  Access type: Local directory mount (type: "path")');
+	console.log(`  Configured path: ${resolved.source.path}`);
+	console.log(`  Absolute path: ${sourceAbsolute}`);
 	if (!directory.exists) {
-		console.log("  目录状态：失败（目录不存在）");
-		addError(`内容目录不存在：${sourceAbsolute}`);
+		console.log("  Directory status: Failed (directory does not exist)");
+		addError(`Content directory does not exist: ${sourceAbsolute}`);
 	} else if (!directory.isDirectory) {
-		console.log("  目录状态：失败（路径不是目录或无法读取）");
-		addError(`内容路径不是可读目录：${sourceAbsolute}`);
+		console.log("  Directory status: Failed (path is not a directory or unreadable)");
+		addError(`Content path is not a readable directory: ${sourceAbsolute}`);
 	} else {
-		console.log("  目录状态：正常");
+		console.log("  Directory status: OK");
 		sourceRoot = sourceAbsolute;
 		sourceGit = inspectGitRepository(sourceAbsolute);
 		if (sourceGit.isGit) {
 			printGitRepository(sourceGit);
 			currentCommit = sourceGit.commit;
 			if (sourceGit.dirty) {
-				addWarning("本地内容仓有未提交改动，锁定 commit 无法完全代表当前内容");
+				addWarning("Local content repository has uncommitted changes, locked commit cannot fully represent current content");
 			}
 			for (const error of sourceGit.commandErrors) {
-				addWarning(`部分 Git 状态读取失败：${error}`);
+				addWarning(`Failed to read partial Git status: ${error}`);
 			}
 		} else if (sourceGit.unavailable) {
-			console.log("  Git 仓库：无法检测（系统找不到 git）");
-			addWarning("系统找不到 git，已跳过本地内容仓版本诊断");
+			console.log("  Git repository: Cannot detect (git not found on system)");
+			addWarning("Git not found on system, skipped local content repo version diagnosis");
 		} else if (sourceGit.invalidMarker) {
-			console.log(`  Git 仓库：无效（${sourceGit.error}）`);
-			addError(`内容目录包含 .git，但不是有效 Git 工作树：${sourceGit.error}`);
+			console.log(`  Git repository: Invalid (${sourceGit.error})`);
+			addError(`Content directory contains .git but is not a valid Git worktree: ${sourceGit.error}`);
 		} else {
-			console.log("  Git 仓库：否（受支持的普通本地目录）");
+			console.log("  Git repository: No (supported regular local directory)");
 		}
 	}
 } else {
 	const workingCopy = join(ROOT, WORKING_COPY_DIR);
 	const directory = inspectDirectory(workingCopy);
-	console.log('  接入类型：远端 Git 仓库工作副本 (type: "git")');
-	console.log(`  仓库地址：${redactUrl(resolved.source.url)}`);
-	console.log(`  目标 Ref：${resolved.source.ref}`);
-	console.log(`  Ref 来源：${describeRefOrigin(resolved.source)}`);
-	console.log(`  本地工作副本：${toPosix(relative(ROOT, workingCopy))}`);
+	console.log('  Access type: Remote Git repository working copy (type: "git")');
+	console.log(`  Repository URL: ${redactUrl(resolved.source.url)}`);
+	console.log(`  Target Ref: ${resolved.source.ref}`);
+	console.log(`  Ref source: ${describeRefOrigin(resolved.source)}`);
+	console.log(`  Local working copy: ${toPosix(relative(ROOT, workingCopy))}`);
 	if (!directory.exists || !directory.isDirectory) {
-		console.log("  副本状态：尚未初始化或路径无效");
+		console.log("  Working copy status: Not initialized or invalid path");
 		addError(
-			`远端内容工作副本 ${WORKING_COPY_DIR}/ 尚未初始化，请先运行 content sync`,
+			`Remote content working copy ${WORKING_COPY_DIR}/ is not initialized, please run content sync first`,
 		);
 	} else {
 		sourceGit = inspectGitRepository(workingCopy);
 		if (sourceGit.unavailable) {
-			console.log("  副本状态：无法检测（系统找不到 git）");
-			addError("系统找不到 git，无法验证远端内容工作副本");
+			console.log("  Working copy status: Cannot detect (git not found on system)");
+			addError("Git not found on system, cannot verify remote content working copy");
 		} else if (!sourceGit.isGit) {
-			console.log(`  副本状态：无效 Git 工作树（${sourceGit.error}）`);
-			addError(`${WORKING_COPY_DIR}/ 不是有效 Git 工作树`);
+			console.log(`  Working copy status: Invalid Git worktree (${sourceGit.error})`);
+			addError(`${WORKING_COPY_DIR}/ is not a valid Git worktree`);
 		} else {
 			sourceRoot = workingCopy;
 			currentCommit = sourceGit.commit;
-			printGitRepository(sourceGit, "工作副本");
+			printGitRepository(sourceGit, "Working copy");
 			if (sourceGit.dirty) {
-				addWarning("远端工作副本存在未提交改动，下一次 sync 会清理这些改动");
+				addWarning("Remote working copy has uncommitted changes, next sync will clean them up");
 			}
 
 			const origin = runGit(["remote", "get-url", "origin"], workingCopy);
 			if (!origin.ok) {
-				console.log(`  origin：读取失败（${origin.error}）`);
-				addError("远端工作副本缺少可读取的 origin");
+				console.log(`  origin: Failed to read (${origin.error})`);
+				addError("Remote working copy lacks readable origin");
 				sourceRoot = null;
 			} else {
-				console.log(`  origin：${redactUrl(origin.output)}`);
+				console.log(`  origin: ${redactUrl(origin.output)}`);
 				if (
 					canonicalGitUrl(origin.output) !==
 					canonicalGitUrl(resolved.source.url)
 				) {
-					addError("远端工作副本 origin 与当前配置的仓库地址不一致");
+					addError("Remote working copy origin differs from configured repository URL");
 					sourceRoot = null;
 				}
 			}
@@ -681,24 +681,24 @@ if (resolved.mode === "local") {
 			);
 			if (!fetchHead.ok) {
 				console.log(
-					"  FETCH_HEAD：不存在，无法确认副本是否由 content sync 拉取",
+					"  FETCH_HEAD: Does not exist, cannot confirm whether working copy was fetched by content sync",
 				);
-				addWarning("远端工作副本缺少 FETCH_HEAD，无法离线确认目标 ref");
+				addWarning("Remote working copy lacks FETCH_HEAD, cannot confirm target ref offline");
 			} else if (currentCommit !== fetchHead.output) {
 				console.log(
-					`  FETCH_HEAD：${fetchHead.output.slice(0, 8)}（与 HEAD 不一致）`,
+					`  FETCH_HEAD: ${fetchHead.output.slice(0, 8)} (differs from HEAD)`,
 				);
-				addError("远端工作副本 HEAD 与最近一次 FETCH_HEAD 不一致");
+				addError("Remote working copy HEAD differs from latest FETCH_HEAD");
 			} else {
 				console.log(
-					`  FETCH_HEAD：${fetchHead.output.slice(0, 8)}（与 HEAD 一致）`,
+					`  FETCH_HEAD: ${fetchHead.output.slice(0, 8)} (matches HEAD)`,
 				);
 			}
 		}
 	}
 
 	if (options.remote) {
-		console.log("  远端实时探测：执行 git ls-remote");
+		console.log("  Remote live probe: running git ls-remote");
 		const remote = runGit(
 			["ls-remote", "--exit-code", resolved.source.url, resolved.source.ref],
 			ROOT,
@@ -706,52 +706,52 @@ if (resolved.mode === "local") {
 		);
 		if (!remote.ok || !remote.output) {
 			console.log(
-				`  远端实时探测：失败（${remote.error || "目标 ref 不存在"}）`,
+				`  Remote live probe: Failed (${remote.error || "Target ref does not exist"})`,
 			);
 			addError(
-				`远端仓库或目标 ref 无法访问：${remote.error || resolved.source.ref}`,
+				`Remote repository or target ref inaccessible: ${remote.error || resolved.source.ref}`,
 			);
 		} else {
 			const remoteCommit = remote.output.split(/\s/)[0];
-			console.log(`  远端实时探测：正常 (${remoteCommit.slice(0, 8)})`);
+			console.log(`  Remote live probe: OK (${remoteCommit.slice(0, 8)})`);
 			if (currentCommit && currentCommit !== remoteCommit) {
-				addError("本地工作副本落后于当前远端目标 ref，请重新运行 content sync");
+				addError("Local working copy is behind current remote target ref, please run content sync again");
 			}
 		}
 	} else {
-		console.log("  远端实时探测：未执行（需要时传入 --remote）");
+		console.log("  Remote live probe: Not executed (pass --remote when needed)");
 	}
 }
 console.log("");
 
-console.log("【3. 内容仓资源与挂载点探测】");
+console.log("[3. Content Repository Assets & Mount Points Probe]");
 const mountSnapshots = new Map();
 if (!sourceRoot) {
-	console.log("  内容仓不可用，跳过挂载点资源探测。\n");
+	console.log("  Content repository unavailable, skipping mount point asset probe.\n");
 } else {
 	const mounts = resolved.mounts || DEFAULT_MOUNTS;
-	console.log("  挂载目录映射与资产探测：");
+	console.log("  Mount directory mapping & asset probe:");
 	for (const [sourceDir, targetDir] of Object.entries(mounts)) {
 		const absoluteSource = join(sourceRoot, sourceDir);
 		const sourceDirectory = inspectDirectory(absoluteSource);
 		if (!sourceDirectory.exists) {
 			console.log(
-				`    - ${sourceDir}/ -> ${targetDir}/：未提供，将保持代码仓目标目录不变`,
+				`    - ${sourceDir}/ -> ${targetDir}/: Not provided, code repository target directory will remain unchanged`,
 			);
 			continue;
 		}
 		if (!sourceDirectory.isDirectory) {
 			console.log(
-				`    - ${sourceDir}/ -> ${targetDir}/：失败（源挂载点不是目录）`,
+				`    - ${sourceDir}/ -> ${targetDir}/: Failed (source mount point is not a directory)`,
 			);
-			addError(`内容源挂载点 ${sourceDir} 不是目录`);
+			addError(`Content source mount point ${sourceDir} is not a directory`);
 			continue;
 		}
 
 		const snapshot = scanDirectory(absoluteSource);
 		mountSnapshots.set(sourceDir, snapshot);
 		for (const error of snapshot.errors)
-			addError(`无法完整扫描挂载点：${error}`);
+			addError(`Cannot fully scan mount point: ${error}`);
 		let detail = "";
 		if (sourceDir === "content") {
 			const markdown = snapshot.files.filter((file) =>
@@ -763,7 +763,7 @@ if (!sourceRoot) {
 			const moments = markdown.filter((file) =>
 				file.relative.startsWith("moments/"),
 			);
-			detail = ` [Markdown 文章: ${posts.length} 篇, 说说: ${moments.length} 条]`;
+			detail = ` [Markdown posts: ${posts.length}, moments: ${moments.length}]`;
 		} else if (sourceDir === "data") {
 			const dataFiles = snapshot.files
 				.filter(
@@ -773,16 +773,16 @@ if (!sourceRoot) {
 				)
 				.map((file) => file.relative)
 				.sort();
-			detail = ` [包含: ${dataFiles.join(", ") || "无"}]`;
+			detail = ` [Contains: ${dataFiles.join(", ") || "none"}]`;
 		}
 		console.log(
-			`    - ${sourceDir}/ -> ${targetDir}/：${snapshot.count} 个文件 (${formatBytes(snapshot.totalBytes)})${detail}`,
+			`    - ${sourceDir}/ -> ${targetDir}/: ${snapshot.count} files (${formatBytes(snapshot.totalBytes)})${detail}`,
 		);
 	}
 	console.log("");
 }
 
-console.log("【4. 配置覆盖层探测 (config/*.yaml)】");
+console.log("[4. Config Overlay Probe (config/*.yaml)]");
 const configState = {
 	valid: true,
 	entries: [],
@@ -792,16 +792,16 @@ const configState = {
 	footerPath: null,
 };
 if (!sourceRoot) {
-	console.log("  内容仓不可用，跳过配置覆盖探测。\n");
+	console.log("  Content repository unavailable, skipping config overlay probe.\n");
 } else {
 	const configDirectory = join(sourceRoot, CONFIG_DIRECTORY);
 	const directory = inspectDirectory(configDirectory);
 	if (!directory.exists) {
-		console.log("  config/ 目录：未提供，全部领域使用主题默认配置");
+		console.log("  config/ directory: Not provided, all domains using theme default config");
 	} else if (!directory.isDirectory) {
-		console.log("  config/ 目录：失败（路径不是目录）");
+		console.log("  config/ directory: Failed (path is not a directory)");
 		configState.valid = false;
-		addError("内容源 config 路径不是目录");
+		addError("Content source config path is not a directory");
 	} else {
 		let rawFiles = [];
 		try {
@@ -816,14 +816,14 @@ if (!sourceRoot) {
 			configState.lineOwners = generated.lineOwners;
 		} catch (error) {
 			configState.valid = false;
-			console.log(`  YAML 结构校验：失败（${error.message}）`);
-			addError(`配置覆盖无法解析：${error.message}`);
+			console.log(`  YAML structure check: Failed (${error.message})`);
+			addError(`Config overlay cannot be parsed: ${error.message}`);
 		}
 
 		const effectiveByDomain = new Map(
 			configState.entries.map((entry) => [entry.domain.key, entry]),
 		);
-		console.log(`  发现 YAML 文件：${rawFiles.length} 个`);
+		console.log(`  Found YAML files: ${rawFiles.length}`);
 		if (configState.valid) {
 			for (const domain of CONFIG_DOMAINS) {
 				const matching = rawFiles.filter(
@@ -834,11 +834,11 @@ if (!sourceRoot) {
 				if (effective) {
 					const path = join(sourceRoot, effective.file);
 					console.log(
-						`    - ${effective.file} -> ${domain.type}：结构校验通过 (${formatBytes(statSync(path).size)})`,
+						`    - ${effective.file} -> ${domain.type}: Structure check passed (${formatBytes(statSync(path).size)})`,
 					);
 				} else if (matching.length > 0) {
 					console.log(
-						`    - config/${matching[0]} -> ${domain.type}：空文件或空映射，不产生覆盖`,
+						`    - config/${matching[0]} -> ${domain.type}: Empty file or empty mapping, no overlay produced`,
 					);
 				}
 			}
@@ -847,22 +847,22 @@ if (!sourceRoot) {
 					!rawFiles.includes(`${domain.file}.yaml`) &&
 					!rawFiles.includes(`${domain.file}.yml`),
 			).map((domain) => `${domain.file}.yaml (${domain.key})`);
-			console.log(`  未提供领域 (${missing.length} 个，使用主题默认值)：`);
-			console.log(`    ${missing.join(", ") || "无"}`);
+			console.log(`  Unprovided domains (${missing.length}, using theme defaults):`);
+			console.log(`    ${missing.join(", ") || "None"}`);
 			if (configState.entries.length > 0) {
 				const typeErrors = typeCheckConfigSource(
 					configState.expectedSource,
 					configState.lineOwners,
 				);
 				if (typeErrors.length === 0) {
-					console.log("  TypeScript 类型校验：通过（内存检查，零临时文件）");
+					console.log("  TypeScript type check: Passed (in-memory check, zero temp files)");
 				} else {
-					console.log(`  TypeScript 类型校验：失败（${typeErrors.length} 项）`);
+					console.log(`  TypeScript type check: Failed (${typeErrors.length} item(s))`);
 					for (const error of typeErrors) console.log(`    - ${error}`);
-					addError(`配置覆盖未通过 TypeScript 类型校验：${typeErrors[0]}`);
+					addError(`Config overlay failed TypeScript type checking: ${typeErrors[0]}`);
 				}
 			} else {
-				console.log("  TypeScript 类型校验：无有效覆盖，跳过");
+				console.log("  TypeScript type check: No valid overlays, skipped");
 			}
 		}
 
@@ -872,64 +872,64 @@ if (!sourceRoot) {
 				configState.footerPath = footer;
 				configState.files.push(`${CONFIG_DIRECTORY}/${FOOTER_HTML_SOURCE}`);
 				console.log(
-					`  自定义页脚：${CONFIG_DIRECTORY}/${FOOTER_HTML_SOURCE} (${formatBytes(statSync(footer).size)})`,
+					`  Custom footer: ${CONFIG_DIRECTORY}/${FOOTER_HTML_SOURCE} (${formatBytes(statSync(footer).size)})`,
 				);
 			} else {
-				addError(`${CONFIG_DIRECTORY}/${FOOTER_HTML_SOURCE} 不是文件`);
+				addError(`${CONFIG_DIRECTORY}/${FOOTER_HTML_SOURCE} is not a file`);
 			}
 		}
 	}
 	console.log("");
 }
 
-console.log("【5. 代码仓物化状态、锁文件与新旧一致性】");
+console.log("[5. Code Repository Materialized State, Lock File & Freshness]");
 const lockPath = join(ROOT, LOCK_FILE);
 const userConfigPath = join(ROOT, GENERATED_CONFIG_FILE);
 const lockState = readLock(lockPath);
 const generatedConfig = inspectGeneratedConfig(userConfigPath);
 
 if (lockState.state === "missing") {
-	console.log(`  内容溯源锁 (${LOCK_FILE})：不存在`);
+	console.log(`  Content provenance lock (${LOCK_FILE}): Does not exist`);
 } else if (lockState.state === "invalid") {
-	console.log(`  内容溯源锁 (${LOCK_FILE})：无效（${lockState.error}）`);
-	addError(`${LOCK_FILE} 无法作为可信溯源：${lockState.error}`);
+	console.log(`  Content provenance lock (${LOCK_FILE}): Invalid (${lockState.error})`);
+	addError(`${LOCK_FILE} cannot be used as trusted provenance: ${lockState.error}`);
 } else {
 	const lock = lockState.lock;
-	console.log(`  内容溯源锁 (${LOCK_FILE})：有效`);
-	console.log(`    - 上次同步时间：${lock.syncedAt}`);
+	console.log(`  Content provenance lock (${LOCK_FILE}): Valid`);
+	console.log(`    - Last synced: ${lock.syncedAt}`);
 	if (lock.source.type === "git") {
 		console.log(
-			`    - 锁定来源：git ${redactUrl(lock.source.url || "未知")} @ ${lock.source.ref || "未知"}`,
+			`    - Locked source: git ${redactUrl(lock.source.url || "unknown")} @ ${lock.source.ref || "unknown"}`,
 		);
 	} else if (lock.source.type === "path") {
-		console.log(`    - 锁定来源：path ${lock.source.path || "未知"}`);
+		console.log(`    - Locked source: path ${lock.source.path || "unknown"}`);
 	}
 	console.log(
-		`    - 锁定 Commit：${lock.source.commit || "未记录（旧锁或非 Git 目录）"}`,
+		`    - Locked Commit: ${lock.source.commit || "Not recorded (legacy lock or non-Git directory)"}`,
 	);
-	console.log(`    - 锁定配置：${lock.config.length} 个`);
+	console.log(`    - Locked config: ${lock.config.length} files`);
 }
 
-console.log(`  配置生成物 (${GENERATED_CONFIG_FILE})：`);
+console.log(`  Config artifact (${GENERATED_CONFIG_FILE}):`);
 if (generatedConfig.state === "missing") {
-	console.log("    缺失（项目配置模块将无法正常导入）");
-	addError(`${GENERATED_CONFIG_FILE} 缺失`);
+	console.log("    Missing (project config modules will fail to import)");
+	addError(`${GENERATED_CONFIG_FILE} is missing`);
 } else if (generatedConfig.state === "unreadable") {
-	console.log(`    无法读取（${generatedConfig.error}）`);
-	addError(`${GENERATED_CONFIG_FILE} 无法读取`);
+	console.log(`    Unreadable (${generatedConfig.error})`);
+	addError(`${GENERATED_CONFIG_FILE} is unreadable`);
 } else if (generatedConfig.state === "empty") {
-	console.log("    空覆盖层（语义检查通过，不受注释或换行格式影响）");
+	console.log("    Empty overlay (semantic check passed, unaffected by comments or line endings)");
 } else if (generatedConfig.state === "materialized") {
-	console.log("    已生成外部配置覆盖");
+	console.log("    External config overlay generated");
 } else {
-	console.log("    已被手工修改或格式无法识别");
-	addWarning(`${GENERATED_CONFIG_FILE} 不是可识别的生成物`);
+	console.log("    Manually modified or unrecognized format");
+	addWarning(`${GENERATED_CONFIG_FILE} is not a recognized artifact`);
 }
 
 if (resolved.mode === "external") {
 	if (lockState.state === "missing") {
 		addError(
-			"external 模式尚无内容锁，当前代码仓不能证明已物化，请运行 content sync",
+			"external mode has no content lock, current code repo cannot prove materialization, please run content sync",
 		);
 	}
 	if (configState.valid && generatedConfig.source !== null) {
@@ -939,50 +939,50 @@ if (resolved.mode === "external") {
 			: normalizeText(generatedConfig.source) ===
 				normalizeText(configState.expectedSource);
 		if (!configMatches) {
-			addError("配置生成物与当前内容仓 YAML 不一致，请重新运行 content sync");
+			addError("Config artifact does not match current content repo YAML, please re-run content sync");
 		} else {
-			console.log("  配置一致性：与当前内容仓 YAML 一致");
+			console.log("  Config consistency: Matches current content repo YAML");
 		}
 	}
 
 	if (lockState.state === "valid") {
 		const lock = lockState.lock;
 		if (lock.source.type !== resolved.source.type) {
-			addError("锁文件来源类型与当前内容源配置不一致");
+			addError("Lock file source type does not match current content source config");
 		} else if (resolved.source.type === "path") {
 			if (
 				!lock.source.path ||
 				normalizePathForCompare(lock.source.path) !==
 					normalizePathForCompare(sourceRoot || resolved.source.path)
 			) {
-				addError("锁文件中的 path 内容源与当前配置不一致");
+				addError("path content source in lock file does not match current config");
 			}
 		} else {
 			if (
 				canonicalGitUrl(lock.source.url || "") !==
 				canonicalGitUrl(resolved.source.url)
 			) {
-				addError("锁文件中的 Git URL 与当前配置不一致");
+				addError("Git URL in lock file does not match current config");
 			}
 			if (lock.source.ref !== resolved.source.ref) {
-				addError("锁文件中的 Git ref 与当前配置不一致");
+				addError("Git ref in lock file does not match current config");
 			}
 		}
 
 		if (currentCommit && lock.source.commit) {
 			if (currentCommit !== lock.source.commit) {
-				addError("当前内容仓 commit 与锁文件不一致，物化结果已过期");
+				addError("Current content repo commit differs from lock file, materialized result is stale");
 			} else {
-				console.log(`  Commit 一致性：一致 (${currentCommit.slice(0, 8)})`);
+				console.log(`  Commit consistency: Matches (${currentCommit.slice(0, 8)})`);
 			}
 		} else if (currentCommit && !lock.source.commit) {
 			addWarning(
-				"锁文件未记录 commit，无法用版本号证明物化结果新旧；重新 sync 可升级锁文件",
+				"Lock file did not record commit, cannot prove materialization freshness by commit; re-sync to upgrade lock file",
 			);
 		}
 
 		if (configState.valid && !arraysEqual(lock.config, configState.files)) {
-			addError("锁文件记录的配置文件清单与当前内容仓不一致");
+			addError("Config files in lock file differ from current content repo");
 		}
 
 		if (sourceRoot) {
@@ -991,7 +991,7 @@ if (resolved.mode === "external") {
 				if (!snapshot) continue;
 				const lockedStats = lock.mounts[targetDir];
 				if (!lockedStats || lockedStats.files !== snapshot.count) {
-					addError(`${sourceDir}/ 的当前文件数与锁文件不一致`);
+					addError(`Current file count in ${sourceDir}/ differs from lock file`);
 				}
 				const differences = compareMount(
 					snapshot,
@@ -1001,8 +1001,8 @@ if (resolved.mode === "external") {
 				);
 				if (differences.length > 0) {
 					addError(
-						`${sourceDir}/ 与 ${targetDir}/ 有 ${differences.length} 个文件未物化或已变化` +
-							`（${differences.slice(0, 3).join("、")}${differences.length > 3 ? " 等" : ""}）`,
+						`${sourceDir}/ and ${targetDir}/ have ${differences.length} files unmaterialized or modified ` +
+							`(${differences.slice(0, 3).join(", ")}${differences.length > 3 ? " etc." : ""})`,
 					);
 				}
 			}
@@ -1014,43 +1014,43 @@ if (resolved.mode === "external") {
 				!existsSync(footerTarget) ||
 				!readFileSync(configState.footerPath).equals(readFileSync(footerTarget))
 			) {
-				addError("自定义 footer.html 与代码仓物化结果不一致");
+				addError("Custom footer.html differs from code repo materialized result");
 			}
 		}
 	}
 } else if (resolved.mode === "local") {
 	if (lockState.state !== "missing") {
 		addError(
-			"local 模式仍残留内容锁，代码仓不是纯净主题态；请运行 content clean --yes",
+			"Content lock still remains in local mode, code repo is not in clean theme state; please run content clean --yes",
 		);
 	}
 	if (generatedConfig.state !== "empty") {
-		addError("local 模式的配置生成物不是空覆盖层");
+		addError("Config artifact in local mode is not an empty overlay");
 	}
 }
 
 console.log("");
-console.log("【诊断结论】");
+console.log("[Diagnostic Conclusions]");
 const errors = findings.filter((finding) => finding.severity === "error");
 const warnings = findings.filter((finding) => finding.severity === "warning");
 if (errors.length === 0 && warnings.length === 0) {
-	console.log("  健康：未发现错误或告警");
+	console.log("  Healthy: No errors or warnings found");
 } else {
 	console.log(
-		`  ${errors.length > 0 ? "异常" : "可用但有告警"}：${errors.length} 个错误，${warnings.length} 个告警`,
+		`  ${errors.length > 0 ? "Abnormal" : "Usable with warnings"}: ${errors.length} error(s), ${warnings.length} warning(s)`,
 	);
 	for (const finding of findings) {
 		console.log(
-			`    - [${finding.severity === "error" ? "错误" : "告警"}] ${finding.message}`,
+			`    - [${finding.severity === "error" ? "ERROR" : "WARN"}] ${finding.message}`,
 		);
 	}
 }
 
-console.log("\n常用操作：");
-console.log("  - 刷新物化：pnpm content sync");
-console.log("  - 完整配置类型校验：pnpm content validate");
-console.log("  - 含远端实时探测：pnpm content status --remote");
-console.log("  - 恢复纯净主题态：pnpm content clean --yes");
+console.log("\nCommon commands:");
+console.log("  - Refresh materialization: pnpm content sync");
+console.log("  - Full config type validation: pnpm content validate");
+console.log("  - With remote live probe: pnpm content status --remote");
+console.log("  - Restore clean theme state: pnpm content clean --yes");
 console.log(
 	"================================================================================",
 );

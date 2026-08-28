@@ -168,10 +168,10 @@ function readManifest(root) {
 		// 去 BOM：Windows 编辑器写出的 JSON 常带 BOM，JSON.parse 会直接抛错。
 		parsed = JSON.parse(readFileSync(manifestPath, "utf8").trim());
 	} catch (error) {
-		fail(`${MANIFEST_FILE} 不是合法 JSON：${error.message}`);
+		fail(`${MANIFEST_FILE} is not valid JSON: ${error.message}`);
 	}
 	if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
-		fail(`${MANIFEST_FILE} 顶层必须是对象。`);
+		fail(`Top level of ${MANIFEST_FILE} must be an object.`);
 	}
 	return { manifestPath, manifest: parsed };
 }
@@ -179,12 +179,12 @@ function readManifest(root) {
 function resolveSchemaVersion(manifest) {
 	const version = manifest.schemaVersion ?? SUPPORTED_SCHEMA_VERSION;
 	if (!Number.isInteger(version) || version < 1) {
-		fail(`${MANIFEST_FILE} 的 schemaVersion 必须是不小于 1 的整数。`);
+		fail(`schemaVersion in ${MANIFEST_FILE} must be an integer >= 1.`);
 	}
 	if (version > SUPPORTED_SCHEMA_VERSION) {
 		fail(
-			`${MANIFEST_FILE} 声明 schemaVersion ${version}，当前主题只支持到 ${SUPPORTED_SCHEMA_VERSION}。` +
-				" 请升级主题代码，或把内容仓的清单降级。",
+			`${MANIFEST_FILE} declares schemaVersion ${version}, but current theme only supports up to ${SUPPORTED_SCHEMA_VERSION}. ` +
+				"Please upgrade theme code or downgrade manifest in content repository.",
 		);
 	}
 	return version;
@@ -221,11 +221,11 @@ function resolveSource(manifest, envOrigins) {
 	const declared = manifest?.source;
 	if (!declared) return null;
 	if (typeof declared !== "object" || Array.isArray(declared)) {
-		fail(`${MANIFEST_FILE} 的 source 必须是对象。`);
+		fail(`source in ${MANIFEST_FILE} must be an object.`);
 	}
 
 	if (declared.type === "path") {
-		if (!declared.path) fail(`${MANIFEST_FILE} 的 source.path 不能为空。`);
+		if (!declared.path) fail(`source.path in ${MANIFEST_FILE} cannot be empty.`);
 		return {
 			type: "path",
 			path: declared.path,
@@ -234,7 +234,7 @@ function resolveSource(manifest, envOrigins) {
 		};
 	}
 	if (declared.type === "git") {
-		if (!declared.url) fail(`${MANIFEST_FILE} 的 source.url 不能为空。`);
+		if (!declared.url) fail(`source.url in ${MANIFEST_FILE} cannot be empty.`);
 		const envRef = readEnv("CONTENT_REPO_REF");
 		return {
 			type: "git",
@@ -250,7 +250,7 @@ function resolveSource(manifest, envOrigins) {
 		};
 	}
 	fail(
-		`${MANIFEST_FILE} 的 source.type 只能是 "path" 或 "git"，收到 ${JSON.stringify(declared.type)}。`,
+		`source.type in ${MANIFEST_FILE} must be "path" or "git", received ${JSON.stringify(declared.type)}.`,
 	);
 }
 
@@ -268,7 +268,7 @@ const RESERVED_MOUNT_TARGET_ROOTS = new Set([
 
 function normalizeMountDirectory(value, label) {
 	if (typeof value !== "string" || value.trim() === "") {
-		fail(`${label} 必须是非空字符串。`);
+		fail(`${label} must be a non-empty string.`);
 	}
 	const raw = value.trim();
 	const rawSegments = toPosix(raw).split("/");
@@ -280,7 +280,7 @@ function normalizeMountDirectory(value, label) {
 		rawSegments.includes("..") ||
 		normalized.split("/").includes("..")
 	) {
-		fail(`${label} 必须是不含 ".." 的相对目录，收到 ${value}。`);
+		fail(`${label} must be a relative directory without "..", received ${value}.`);
 	}
 	return normalized;
 }
@@ -301,15 +301,15 @@ function validateMountBoundaries(mounts) {
 		const sourceRoot = source.split("/")[0].toLowerCase();
 		const targetRoot = target.split("/")[0].toLowerCase();
 		if (RESERVED_MOUNT_SOURCE_ROOTS.has(sourceRoot)) {
-			fail(`mounts.${source} 不能读取保留目录 ${sourceRoot}/。`);
+			fail(`mounts.${source} cannot access reserved directory ${sourceRoot}/.`);
 		}
 		if (target.toLowerCase() === "src") {
 			fail(
-				`mounts.${source} 指向整个 src/，范围过于宽泛，请使用更具体的目标目录。`,
+				`mounts.${source} points to the entire src/, which is too broad. Please use a more specific target directory.`,
 			);
 		}
 		if (RESERVED_MOUNT_TARGET_ROOTS.has(targetRoot)) {
-			fail(`mounts.${source} 不能写入保留目录 ${targetRoot}/。`);
+			fail(`mounts.${source} cannot write to reserved directory ${targetRoot}/.`);
 		}
 	}
 
@@ -319,12 +319,12 @@ function validateMountBoundaries(mounts) {
 			const [rightSource, rightTarget] = entries[right];
 			if (relativeDirectoriesOverlap(leftSource, rightSource)) {
 				fail(
-					`挂载源 ${leftSource}/ 与 ${rightSource}/ 相互交叠，会重复读取同一批文件。`,
+					`Mount sources ${leftSource}/ and ${rightSource}/ overlap and would read the same files repeatedly.`,
 				);
 			}
 			if (relativeDirectoriesOverlap(leftTarget, rightTarget)) {
 				fail(
-					`挂载目标 ${leftTarget}/ 与 ${rightTarget}/ 相互交叠，会造成覆盖或错误裁剪。`,
+					`Mount targets ${leftTarget}/ and ${rightTarget}/ overlap and would cause overwrites or incorrect pruning.`,
 				);
 			}
 		}
@@ -339,7 +339,7 @@ function resolveMounts(manifest) {
 		typeof overrides !== "object" ||
 		Array.isArray(overrides)
 	) {
-		fail(`${MANIFEST_FILE} 的 mounts 必须是对象。`);
+		fail(`mounts in ${MANIFEST_FILE} must be an object.`);
 	}
 
 	const mounts = new Map(Object.entries(DEFAULT_MOUNTS));
@@ -347,12 +347,12 @@ function resolveMounts(manifest) {
 	for (const [rawSourceDir, target] of Object.entries(overrides)) {
 		const sourceDir = normalizeMountDirectory(
 			rawSourceDir,
-			`mounts 的源目录 ${JSON.stringify(rawSourceDir)}`,
+			`Mount source directory ${JSON.stringify(rawSourceDir)} in mounts`,
 		);
 		const duplicate = normalizedOverrideSources.get(sourceDir.toLowerCase());
 		if (duplicate !== undefined) {
 			fail(
-				`mounts 的源目录 ${JSON.stringify(rawSourceDir)} 与 ${JSON.stringify(duplicate)} 归一化后重复。`,
+				`Mount source directories ${JSON.stringify(rawSourceDir)} and ${JSON.stringify(duplicate)} in mounts are duplicates after normalization.`,
 			);
 		}
 		normalizedOverrideSources.set(sourceDir.toLowerCase(), rawSourceDir);
@@ -362,7 +362,7 @@ function resolveMounts(manifest) {
 			continue;
 		}
 		if (typeof target !== "string" || target.trim() === "") {
-			fail(`mounts.${sourceDir} 必须是非空字符串、null 或 false。`);
+			fail(`mounts.${sourceDir} must be a non-empty string, null, or false.`);
 		}
 		mounts.set(
 			sourceDir,
@@ -377,7 +377,7 @@ function resolveKeep(manifest) {
 	const keep = manifest?.keep;
 	if (keep === undefined) return [];
 	if (!Array.isArray(keep) || keep.some((item) => typeof item !== "string")) {
-		fail(`${MANIFEST_FILE} 的 keep 必须是字符串数组。`);
+		fail(`keep in ${MANIFEST_FILE} must be an array of strings.`);
 	}
 	return keep.map(toPosix);
 }
@@ -425,7 +425,7 @@ export function resolveContentSource(root = process.cwd()) {
 	if (isDisabled(process.env.SHIRONE_CONTENT_SYNC)) {
 		return {
 			mode: "local",
-			reason: "SHIRONE_CONTENT_SYNC 已显式关闭",
+			reason: "SHIRONE_CONTENT_SYNC is explicitly disabled",
 			reasonLocation: envOrigins.get("SHIRONE_CONTENT_SYNC") ?? "environment",
 		};
 	}
@@ -436,8 +436,8 @@ export function resolveContentSource(root = process.cwd()) {
 		return {
 			mode: "local",
 			reason: manifest
-				? `${MANIFEST_FILE} 未声明 source`
-				: `未找到 ${MANIFEST_FILE}，也未设置 CONTENT_DIR / CONTENT_REPO_URL`,
+				? `${MANIFEST_FILE} does not declare source`
+				: `Neither ${MANIFEST_FILE} nor CONTENT_DIR / CONTENT_REPO_URL was found`,
 		};
 	}
 

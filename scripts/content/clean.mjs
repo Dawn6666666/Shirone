@@ -91,12 +91,12 @@ const CLEAN_EXCLUDES = Object.freeze([
 /** 需要一并清掉的溯源文件与构建缓存。 */
 function cacheTargets() {
 	return [
-		{ path: LOCK_FILE, label: "内容溯源锁文件" },
-		{ path: "node_modules/.astro/data-store.json", label: "Astro 内容层缓存" },
+		{ path: LOCK_FILE, label: "Content provenance lock file" },
+		{ path: "node_modules/.astro/data-store.json", label: "Astro content layer cache" },
 		// Astro 7 之前的落点，老仓库里可能还留着。
-		{ path: ".astro/data-store.json", label: "Astro 内容层缓存（旧路径）" },
-		{ path: ".astro/collections", label: "Astro 集合 schema 缓存" },
-		{ path: "node_modules/.cache/shirone", label: "配置校验缓存与摘要" },
+		{ path: ".astro/data-store.json", label: "Astro content layer cache (legacy path)" },
+		{ path: ".astro/collections", label: "Astro collection schema cache" },
+		{ path: "node_modules/.cache/shirone", label: "Config validation cache and digest" },
 	];
 }
 
@@ -128,22 +128,22 @@ function log(message) {
 }
 
 function warn(message) {
-	console.warn(`[content:clean] 注意：${message}`);
+	console.warn(`[content:clean] Warning: ${message}`);
 }
 
 function fail(step, error, details = "") {
-	console.error(`\n[content:clean] 步骤失败并已中止：${step}`);
-	if (details) console.error(`[content:clean] 上下文：${details}`);
+	console.error(`\n[content:clean] Step failed and aborted: ${step}`);
+	if (details) console.error(`[content:clean] Context: ${details}`);
 	if (error instanceof Error) {
-		console.error(`[content:clean] 错误信息：${error.message}`);
-		if (error.stack) console.error(`[content:clean] 调用栈：\n${error.stack}`);
+		console.error(`[content:clean] Error message: ${error.message}`);
+		if (error.stack) console.error(`[content:clean] Call stack:\n${error.stack}`);
 	} else if (error !== undefined && error !== null) {
-		console.error(`[content:clean] 错误详情：${String(error)}`);
+		console.error(`[content:clean] Error details: ${String(error)}`);
 	}
 	console.error(
 		mutated
-			? "[content:clean] 已产生部分改动。若创建过快照备份，可从 .content-backup/ 中找回清理前的文件。\n"
-			: "[content:clean] 未执行任何破坏性操作，工作区保持原样。\n",
+			? "[content:clean] Partial modifications have occurred. If a snapshot backup was created, you can recover pre-clean files from .content-backup/.\n"
+			: "[content:clean] No destructive operations were performed. Working tree remains untouched.\n",
 	);
 	process.exit(1);
 }
@@ -169,7 +169,7 @@ function runGit(gitArgs, step, { allowFailure = false } = {}) {
 		fail(
 			step,
 			error,
-			`git ${gitArgs.join(" ")}\n标准输出：${stdout}\n错误输出：${stderr}`,
+			`git ${gitArgs.join(" ")}\nStandard output: ${stdout}\nError output: ${stderr}`,
 		);
 	}
 }
@@ -230,15 +230,15 @@ function formatBytes(bytes) {
 if (options.help) {
 	console.log(
 		[
-			"用法：node scripts/content/clean.mjs [--yes|--dry-run] [--no-backup] [--keep-working-copy]",
+			"Usage: node scripts/content/clean.mjs [--yes|--dry-run] [--no-backup] [--keep-working-copy]",
 			"",
-			"  （无参数）/--dry-run  预演：只打印清理计划，不修改任何文件",
-			"  --yes                 实际执行清理",
-			"  --no-backup           跳过 .content-backup/ 快照备份（不推荐）",
-			"  --keep-working-copy   保留 .content-src/ 内容仓工作副本，避免下次重新 fetch",
+			"  (no args)/--dry-run   Dry-run: print clean plan without modifying any files",
+			"  --yes                 Execute clean",
+			"  --no-backup           Skip .content-backup/ snapshot backup (not recommended)",
+			"  --keep-working-copy   Keep .content-src/ content repository working copy to avoid re-fetching next time",
 			"",
-			"清理范围：内容挂载目标（src/content、src/data、src/assets、public）与配置生成物。",
-			"主题源码里的未提交改动不在范围内，不会被回滚。",
+			"Clean scope: content mount targets (src/content, src/data, src/assets, public) and config artifacts.",
+			"Uncommitted changes in theme source code are out of scope and will not be rolled back.",
 		].join("\n"),
 	);
 	process.exit(0);
@@ -246,7 +246,7 @@ if (options.help) {
 
 if (unknownArgs.length > 0) {
 	console.error(
-		`[content:clean] 不支持参数：${unknownArgs.join("、")}。运行 --help 查看可用参数。`,
+		`[content:clean] Unsupported argument(s): ${unknownArgs.join(", ")}. Run --help to view available options.`,
 	);
 	process.exit(1);
 }
@@ -261,14 +261,14 @@ try {
 } catch (error) {
 	if (/mounts\.|挂载/.test(error.message)) {
 		fail(
-			"校验清理范围",
+			"Validate clean scope",
 			error,
-			`无法从 ${MANIFEST_FILE} 安全确定物化范围；请先修正 mounts，避免清理错误目录。`,
+			`Cannot safely determine materialization scope from ${MANIFEST_FILE}; please fix mounts first to avoid cleaning wrong directories.`,
 		);
 	}
 	// 清单写错不该阻止清理——恰恰这时候最需要回到干净状态。
-	warn(`读取内容源配置失败，按默认挂载表继续：${error.message}`);
-	resolved = { mode: "local", reason: "内容源配置无法解析" };
+	warn(`Failed to read content source config, continuing with default mounts: ${error.message}`);
+	resolved = { mode: "local", reason: "Content source configuration cannot be parsed" };
 }
 
 const mounts = resolved.mode === "external" ? resolved.mounts : DEFAULT_MOUNTS;
@@ -293,10 +293,10 @@ const UNSAFE_SCOPE = new Set([
 for (const directory of scopeDirectories) {
 	if (UNSAFE_SCOPE.has(directory) || directory.split("/").includes("..")) {
 		fail(
-			"校验清理范围",
-			new Error(`挂载目标 ${directory || "(仓库根)"} 过于宽泛，拒绝清理`),
-			`请在 ${MANIFEST_FILE} 的 mounts 中把它指向更具体的目录（如 src/content）。` +
-				" 对这类目录执行 git clean -x 会连同未提交的源码一起删除。",
+			"Validate clean scope",
+			new Error(`Mount target ${directory || "(repo root)"} is too broad, refusing to clean`),
+			`Please point it to a more specific directory (e.g. src/content) in ${MANIFEST_FILE} mounts. ` +
+				"Running git clean -x on this directory would delete uncommitted source code.",
 		);
 	}
 }
@@ -305,15 +305,15 @@ const scopeFiles = [GENERATED_CONFIG_FILE, FOOTER_HTML_TARGET].map(toPosix);
 const scopePathspecs = [...scopeDirectories, ...scopeFiles];
 
 if (
-	!runGit(["rev-parse", "--is-inside-work-tree"], "检查 Git 工作区", {
+	!runGit(["rev-parse", "--is-inside-work-tree"], "Check Git working tree", {
 		allowFailure: true,
 	})
 ) {
 	mutated = false;
 	fail(
-		"检查 Git 工作区",
-		new Error("当前目录不是 Git 工作区"),
-		"请在代码仓根目录执行本脚本；清理依赖 git 来区分「主题自带内容」与「物化进来的内容」。",
+		"Check Git working tree",
+		new Error("Current directory is not a Git worktree"),
+		"Please run this script at the root of the code repository; clean relies on git to distinguish theme default content from materialized content.",
 	);
 }
 
@@ -324,7 +324,7 @@ if (
 /** 被跟踪但与 HEAD 有差异的文件（含被 sync 裁剪掉的 demo 内容）。 */
 const changedTracked = gitPaths(
 	["diff", "-z", "--name-only", "HEAD", "--", ...scopePathspecs],
-	"比对已跟踪文件与 HEAD",
+	"Compare tracked files with HEAD",
 );
 /** 已进入索引但 HEAD 中不存在的新增文件（`git add` 过的物化内容）。 */
 const addedToIndex = gitPaths(
@@ -338,11 +338,11 @@ const addedToIndex = gitPaths(
 		"--",
 		...scopePathspecs,
 	],
-	"比对索引与 HEAD",
+	"Compare index with HEAD",
 );
 const untracked = gitPaths(
 	["ls-files", "-z", "--others", "--exclude-standard", "--", ...scopePathspecs],
-	"列出未跟踪文件",
+	"List untracked files",
 );
 /**
  * 被 .gitignore 忽略的文件。
@@ -359,7 +359,7 @@ const ignored = gitPaths(
 		"--",
 		...scopePathspecs,
 	],
-	"列出被忽略的物化文件",
+	"List ignored materialized files",
 ).filter((path) => !isProtected(path));
 
 const toRestore = changedTracked.filter((path) => !addedToIndex.includes(path));
@@ -378,7 +378,7 @@ const ejectedScope = scopeDirectories.filter((directory) => {
 	if (!existsSync(join(ROOT, directory))) return false;
 	const tracked = runGit(
 		["ls-files", "-z", "--", directory],
-		"检查挂载点跟踪状态",
+		"Check mount point tracking status",
 		{ allowFailure: true },
 	);
 	return !tracked || tracked.trim() === "";
@@ -405,64 +405,64 @@ const workingCopyExists = existsSync(join(ROOT, WORKING_COPY_DIR));
 function preview(paths, limit = 12) {
 	for (const path of paths.slice(0, limit)) console.log(`    ${path}`);
 	if (paths.length > limit) {
-		console.log(`    …… 以及另外 ${paths.length - limit} 个文件`);
+		console.log(`    ... and ${paths.length - limit} more files`);
 	}
 }
 
 function reportPlan() {
-	log(`清理范围：${scopePathspecs.join("、")}`);
+	log(`Clean scope: ${scopePathspecs.join(", ")}`);
 	log(
-		`还原 ${toRestore.length} 个被跟踪文件、删除 ${toDelete.length} 个物化文件` +
-			`（其中被 .gitignore 忽略的 ${ignoredToDelete.length} 个）。`,
+		`Restoring ${toRestore.length} tracked files, deleting ${toDelete.length} materialized files` +
+			` (${ignoredToDelete.length} ignored by .gitignore).`,
 	);
 	if (toRestore.length > 0) {
-		console.log("  [还原到 HEAD]");
+		console.log("  [Restore to HEAD]");
 		preview(toRestore);
 	}
 	if (toDelete.length > 0) {
-		console.log("  [删除]");
+		console.log("  [Delete]");
 		preview(toDelete);
 	}
-	console.log("  [重置]");
-	console.log(`    ${GENERATED_CONFIG_FILE}（写回空覆盖层）`);
+	console.log("  [Reset]");
+	console.log(`    ${GENERATED_CONFIG_FILE} (reset to empty overlay)`);
 	if (existsSync(join(ROOT, FOOTER_HTML_TARGET))) {
-		console.log(`    ${FOOTER_HTML_TARGET}（还原或移除自定义页脚）`);
+		console.log(`    ${FOOTER_HTML_TARGET} (restore or remove custom footer)`);
 	}
 	if (existingCacheTargets.length > 0) {
-		console.log("  [清除缓存与溯源]");
+		console.log("  [Clear cache and lock files]");
 		for (const target of existingCacheTargets) {
-			console.log(`    ${target.path} —— ${target.label}`);
+			console.log(`    ${target.path} -- ${target.label}`);
 		}
 	}
 	if (workingCopyExists) {
 		console.log(
-			`  [内容仓工作副本] ${WORKING_COPY_DIR}${options.keepWorkingCopy ? "（--keep-working-copy，保留）" : "（移除）"}`,
+			`  [Content repo working copy] ${WORKING_COPY_DIR}${options.keepWorkingCopy ? " (--keep-working-copy, kept)" : " (removed)"}`,
 		);
 	}
-	console.log("  [重新生成] 离线图标集合、说说缩略图");
+	console.log("  [Regenerate] Offline icon collections, moments thumbnails");
 	if (options.backup && toBackup.length > 0) {
 		log(
-			`将先创建快照备份：${toBackup.length} 个文件，约 ${formatBytes(backupBytes)}，落点 .content-backup/`,
+			`A snapshot backup will be created first: ${toBackup.length} files, approx ${formatBytes(backupBytes)}, located in .content-backup/`,
 		);
 	} else if (!options.backup) {
-		warn("已指定 --no-backup，清理前不会创建任何快照备份。");
+		warn("Specified --no-backup, no snapshot backup will be created before cleaning.");
 	}
 	if (isProtected("public/assets/moments/thumbnails/x.webp")) {
 		log(
-			"构建期生成物（说说缩略图、番剧封面与快照、子集字体）与各目录 .gitkeep 已豁免，不会被删除。",
+			"Build-time artifacts (moments thumbnails, anime covers & snapshots, subset fonts) and .gitkeep files are exempted and will not be deleted.",
 		);
 	}
 }
 
 log(
 	options.apply
-		? "开始清理物化内容与配置覆盖……"
-		: "预演模式（未指定 --yes，不会修改任何文件）",
+		? "Cleaning materialized content and config overlays..."
+		: "Dry-run mode (no --yes specified, no files will be modified)",
 );
 reportPlan();
 
 if (!options.apply) {
-	log("预演结束。确认无误后加 --yes 执行：pnpm content:clean --yes");
+	log("Dry-run complete. Run with --yes to execute: pnpm content:clean --yes");
 	process.exit(0);
 }
 
@@ -493,7 +493,7 @@ if (options.backup && toBackup.length > 0) {
 			copyFileSync(join(ROOT, path), destination);
 		}
 		const head = (
-			runGit(["rev-parse", "HEAD"], "记录 HEAD", { allowFailure: true }) ?? ""
+			runGit(["rev-parse", "HEAD"], "Record HEAD", { allowFailure: true }) ?? ""
 		).trim();
 		writeFileSync(
 			join(backupDirectory, "manifest.json"),
@@ -513,8 +513,8 @@ if (options.backup && toBackup.length > 0) {
 					restored: toRestore,
 					deleted: toDelete,
 					restoreInstruction:
-						"把本目录（除 manifest.json）下的文件按相同相对路径拷回代码仓即可还原：" +
-						"PowerShell `Copy-Item -Recurse -Force .\\<本目录>\\* .` ；Bash `cp -a <本目录>/. .`",
+						"To restore, copy files in this directory (except manifest.json) back to the code repository matching their relative paths: " +
+						"PowerShell `Copy-Item -Recurse -Force .\\<this_dir>\\* .` ; Bash `cp -a <this_dir>/. .`",
 				},
 				null,
 				2,
@@ -522,14 +522,14 @@ if (options.backup && toBackup.length > 0) {
 			"utf8",
 		);
 		log(
-			`已创建快照备份：${toPosix(relative(ROOT, backupDirectory))}` +
-				`（${toBackup.length} 个文件，${formatBytes(backupBytes)}）`,
+			`Created snapshot backup: ${toPosix(relative(ROOT, backupDirectory))}` +
+				` (${toBackup.length} files, ${formatBytes(backupBytes)})`,
 		);
 	} catch (error) {
 		fail(
-			"创建快照备份",
+			"Create snapshot backup",
 			error,
-			`备份目录：${backupDirectory}。为避免数据丢失，清理已在删除任何文件之前中止。`,
+			`Backup directory: ${backupDirectory}. To prevent data loss, clean was aborted before deleting any files.`,
 		);
 	}
 }
@@ -547,10 +547,10 @@ if (toRestore.length > 0 || addedToIndex.length > 0) {
 	inChunks([...new Set([...toRestore, ...addedToIndex])], 200, (chunk) => {
 		runGit(
 			["restore", "--source=HEAD", "--staged", "--worktree", "--", ...chunk],
-			"还原被跟踪的主题自带内容",
+			"Restore tracked theme default content",
 		);
 	});
-	log(`已还原 ${toRestore.length} 个被跟踪文件到 HEAD。`);
+	log(`Restored ${toRestore.length} tracked files to HEAD.`);
 }
 
 if (toDelete.length > 0) {
@@ -567,7 +567,7 @@ if (toDelete.length > 0) {
 				"--",
 				...existingScope,
 			],
-			"删除物化进来的内容文件",
+			"Delete materialized content files",
 		);
 	}
 	// 兜底：挂载点之外的零散残留（例如被显式移出挂载目录的文件）逐个删。
@@ -577,10 +577,10 @@ if (toDelete.length > 0) {
 		try {
 			rmSync(absolute, { force: true });
 		} catch (error) {
-			fail("删除物化文件", error, `路径：${path}`);
+			fail("Delete materialized file", error, `Path: ${path}`);
 		}
 	}
-	log(`已删除 ${toDelete.length} 个物化文件。`);
+	log(`Deleted ${toDelete.length} materialized files.`);
 }
 
 // 配置生成物：user-config.ts 必须存在（各 config 都 import 它），因此写回空覆盖层而不是删除。
@@ -590,7 +590,7 @@ try {
 	const generatedTracked =
 		runGit(
 			["ls-files", "--error-unmatch", GENERATED_CONFIG_FILE],
-			"检查配置生成物归属",
+			"Check config artifact tracking",
 			{ allowFailure: true },
 		) !== null;
 	const current = existsSync(generatedAbsolute)
@@ -602,10 +602,10 @@ try {
 	if (needsReset) {
 		mkdirSync(dirname(generatedAbsolute), { recursive: true });
 		writeFileSync(generatedAbsolute, EMPTY_MODULE, "utf8");
-		log(`已重置 ${GENERATED_CONFIG_FILE} 为空覆盖层。`);
+		log(`Reset ${GENERATED_CONFIG_FILE} to empty overlay.`);
 	}
 } catch (error) {
-	fail("重置用户配置覆盖层", error, `目标文件：${GENERATED_CONFIG_FILE}`);
+	fail("Reset user config overlay", error, `Target file: ${GENERATED_CONFIG_FILE}`);
 }
 
 // FooterConfig.html：被跟踪时 restore 已经处理；否则它是内容仓带来的自定义页脚，删掉才算纯净。
@@ -614,7 +614,7 @@ if (existsSync(footerAbsolute)) {
 	const footerTracked =
 		runGit(
 			["ls-files", "--error-unmatch", FOOTER_HTML_TARGET],
-			"检查页脚归属",
+			"Check footer tracking",
 			{
 				allowFailure: true,
 			},
@@ -622,9 +622,9 @@ if (existsSync(footerAbsolute)) {
 	if (!footerTracked) {
 		try {
 			rmSync(footerAbsolute, { force: true });
-			log(`已移除内容仓带来的 ${FOOTER_HTML_TARGET}。`);
+			log(`Removed ${FOOTER_HTML_TARGET} provided by content repo.`);
 		} catch (error) {
-			fail("移除自定义页脚", error, `路径：${FOOTER_HTML_TARGET}`);
+			fail("Remove custom footer", error, `Path: ${FOOTER_HTML_TARGET}`);
 		}
 	}
 }
@@ -638,25 +638,25 @@ for (const target of existingCacheTargets) {
 		rmSync(join(ROOT, target.path), { recursive: true, force: true });
 	} catch (error) {
 		fail(
-			"清除缓存与溯源文件",
+			"Clear cache and lock files",
 			error,
-			`路径：${target.path}（${target.label}）`,
+			`Path: ${target.path} (${target.label})`,
 		);
 	}
 }
 if (existingCacheTargets.length > 0) {
-	log(`已清除 ${existingCacheTargets.length} 项缓存与溯源文件。`);
+	log(`Cleared ${existingCacheTargets.length} cache and lock items.`);
 }
 
 if (workingCopyExists && !options.keepWorkingCopy) {
 	try {
 		rmSync(join(ROOT, WORKING_COPY_DIR), { recursive: true, force: true });
-		log(`已移除内容仓工作副本 ${WORKING_COPY_DIR}。`);
+		log(`Removed content repo working copy ${WORKING_COPY_DIR}.`);
 	} catch (error) {
 		fail(
-			"移除内容仓工作副本",
+			"Remove content repo working copy",
 			error,
-			`路径：${WORKING_COPY_DIR}。若目录被编辑器或终端占用，请关闭后重试，或加 --keep-working-copy 保留它。`,
+			`Path: ${WORKING_COPY_DIR}. If locked by editor or terminal, please close and retry, or use --keep-working-copy to keep it.`,
 		);
 	}
 }
@@ -676,7 +676,7 @@ function regenerate(script, label) {
 	} catch (error) {
 		const detail = `${error.stderr ?? ""}${error.stdout ?? ""}`.trim();
 		warn(
-			`${label}重新生成失败，请在清理后手动执行 node ${script}。原因：${detail || error.message}`,
+			`Failed to regenerate ${label}, please run 'node ${script}' manually after cleaning. Reason: ${detail || error.message}`,
 		);
 		return false;
 	}
@@ -684,22 +684,22 @@ function regenerate(script, label) {
 
 // 图标集合与缩略图都是「内容的派生产物」：内容变了必须重算，
 // 否则前台会出现图标空白或指向已删除图片的缩略图。
-if (regenerate("scripts/icons/generate-local-icons.mjs", "离线图标集合")) {
+if (regenerate("scripts/icons/generate-local-icons.mjs", "Offline icon collections")) {
 	// 图标集合是被跟踪的生成物，且生成器一律写 LF。在 core.autocrlf=true 的
 	// Windows 检出上，内容完全一致的重写也会让 git status 显示 M。
 	// 内容没变就还原成检出时的形态，保证「清理后 git status 干净」这条承诺成立。
 	const iconFile = "src/generated/local-icon-collections.ts";
 	const unchanged =
-		runGit(["diff", "--quiet", "--", iconFile], "比对图标集合生成物", {
+		runGit(["diff", "--quiet", "--", iconFile], "Compare icon collections artifact", {
 			allowFailure: true,
 		}) !== null;
 	if (unchanged) {
-		runGit(["restore", "--", iconFile], "归一化图标集合生成物的换行", {
+		runGit(["restore", "--", iconFile], "Normalize icon collections line endings", {
 			allowFailure: true,
 		});
 	}
 }
-regenerate("scripts/images/generate-moment-thumbnails.mjs", "说说缩略图");
+regenerate("scripts/images/generate-moment-thumbnails.mjs", "Moments thumbnails");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. 收尾体检
@@ -707,27 +707,27 @@ regenerate("scripts/images/generate-moment-thumbnails.mjs", "说说缩略图");
 
 log(
 	nothingToDo
-		? "无需清理，代码仓已处于纯净的主题状态。"
-		: "清理完成，代码仓已恢复为纯净的主题状态。",
+		? "Nothing to clean. Code repository is already in clean theme state."
+		: "Clean complete. Code repository has been restored to clean theme state.",
 );
 
 if (resolved.mode === "external") {
 	const origin =
 		resolved.source?.origin === "CONTENT_DIR" ||
 		resolved.source?.origin === "CONTENT_REPO_URL"
-			? `环境变量或根目录 .env 中的 ${resolved.source.origin}`
+			? `environment variable or root .env (${resolved.source.origin})`
 			: MANIFEST_FILE;
 	warn(
-		`内容源仍然生效（来源：${origin}），下一次 pnpm dev / pnpm build 会立刻重新物化内容。` +
-			" 若要长期停留在 local 模式，请移除该来源，或设置 SHIRONE_CONTENT_SYNC=0。",
+		`Content source is still active (source: ${origin}). Next 'pnpm dev' or 'pnpm build' will immediately re-materialize content. ` +
+			"To stay in local mode permanently, remove this source or set SHIRONE_CONTENT_SYNC=0.",
 	);
 }
 
 // eject 之后代码仓不再跟踪 demo 内容，清理只能清空这些目录，无法「还原」出内容。
 if (ejectedScope.length > 0) {
 	warn(
-		`以下挂载点在代码仓中已不被跟踪（应为 content:eject 的结果）：${ejectedScope.join("、")}。` +
-			" 清理只能把它们清空，主题 demo 内容需要从上游仓库恢复。",
+		`The following mount points are not tracked in the code repository (likely from content:eject): ${ejectedScope.join(", ")}. ` +
+			"Clean can only empty these directories; theme demo content must be restored from upstream repository.",
 	);
 }
 
@@ -741,18 +741,18 @@ const leftovers = gitPaths(
 		"--",
 		...scopePathspecs,
 	],
-	"复查残留",
+	"Check leftovers",
 ).filter((path) => !isProtected(path) && !scopeFiles.includes(path));
 if (leftovers.length > 0) {
 	warn(
-		`仍有 ${leftovers.length} 个被忽略的文件留在挂载点内（可能被其他进程占用）：` +
-			`${leftovers.slice(0, 5).join("、")}${leftovers.length > 5 ? " 等" : ""}。`,
+		`There are still ${leftovers.length} ignored files left in mount points (possibly locked by other processes): ` +
+			`${leftovers.slice(0, 5).join(", ")}${leftovers.length > 5 ? " etc." : ""}.`,
 	);
 }
 
 if (backupDirectory) {
 	const backupFiles = collectFiles(backupDirectory).length;
 	log(
-		`快照备份保留在 ${toPosix(relative(ROOT, backupDirectory))}（${backupFiles} 个文件），确认无需回滚后可自行删除。`,
+		`Snapshot backup retained at ${toPosix(relative(ROOT, backupDirectory))} (${backupFiles} files). You may delete it after confirming no rollback is needed.`,
 	);
 }

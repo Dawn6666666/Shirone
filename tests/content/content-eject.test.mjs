@@ -73,7 +73,7 @@ describe("content eject", () => {
 		const fixture = createFixture();
 		try {
 			const stdout = runEject(fixture, ["--out", fixture.out]);
-			assert.match(stdout, /预演/);
+			assert.match(stdout, /\[dry-run\]|dry run/i);
 			assert.ok(!existsSync(fixture.out));
 			assert.equal(git(fixture.repo, ["status", "--porcelain"]), "");
 			assert.ok(!existsSync(join(fixture.repo, "shirone.content.json")));
@@ -91,7 +91,7 @@ describe("content eject", () => {
 				"--out",
 				fixture.out,
 			]);
-			assert.match(stdout, /预演/);
+			assert.match(stdout, /\[dry-run\]|dry run/i);
 			assert.ok(!existsSync(fixture.out));
 			assert.equal(git(fixture.repo, ["status", "--porcelain"]), "");
 		} finally {
@@ -105,7 +105,7 @@ describe("content eject", () => {
 			for (const target of [fixture.repo, join(fixture.repo, "content-repo")]) {
 				assert.throws(
 					() => runEject(fixture, ["--force", "--dry-run", "--out", target]),
-					/相互重叠|status 1/,
+					/overlap|status 1/i,
 				);
 			}
 			assert.equal(git(fixture.repo, ["status", "--porcelain"]), "");
@@ -131,7 +131,7 @@ describe("content eject", () => {
 						"--out",
 						join(alias, "future-content"),
 					]),
-				/相互重叠|status 1/,
+				/overlap|status 1/i,
 			);
 			assert.equal(git(fixture.repo, ["status", "--porcelain"]), "");
 		} finally {
@@ -228,7 +228,7 @@ describe("content eject", () => {
 			write(fixture.repo, "src/content/posts/dirty.md", "# dirty");
 			assert.throws(
 				() => runEject(fixture, ["--yes", "--out", fixture.out]),
-				/未提交改动|status 1/,
+				/uncommitted changes|status 1/i,
 			);
 			assert.ok(!existsSync(fixture.out));
 		} finally {
@@ -242,7 +242,7 @@ describe("content eject", () => {
 			write(fixture.out, "existing.md", "keep me");
 			assert.throws(
 				() => runEject(fixture, ["--yes", "--out", fixture.out]),
-				/非空|status 1/,
+				/not empty|status 1/i,
 			);
 			assert.ok(!existsSync(join(fixture.out, "content")));
 		} finally {

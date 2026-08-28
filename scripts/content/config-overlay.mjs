@@ -120,22 +120,22 @@ function suggestFile(name) {
 function assertSerializable(value, path, file, seen) {
 	if (value === null) {
 		fail(
-			`${file} 的 ${path || "顶层"} 是空值。` +
-				' YAML 中写下键但不给值会解析成 null；想清空文本用 ""，想清空列表用 []。',
+			`${file}'s ${path || "top level"} is null.` +
+				' Keys without values in YAML parse to null; use "" to clear text, or [] to clear lists.',
 		);
 	}
 	const kind = typeof value;
 	if (kind === "string" || kind === "number" || kind === "boolean") {
 		if (kind === "number" && !Number.isFinite(value)) {
-			fail(`${file} 的 ${path} 不是有限数值。`);
+			fail(`${file}'s ${path} is not a finite number.`);
 		}
 		return;
 	}
 	if (kind !== "object") {
-		fail(`${file} 的 ${path} 是无法表达为配置的 ${kind} 值。`);
+		fail(`${file}'s ${path} is of type ${kind} which cannot be represented as configuration.`);
 	}
 	if (seen.has(value)) {
-		fail(`${file} 的 ${path} 形成了循环引用（YAML 锚点指回了自己）。`);
+		fail(`${file}'s ${path} forms a circular reference (YAML anchor points to itself).`);
 	}
 	seen.add(value);
 
@@ -149,8 +149,8 @@ function assertSerializable(value, path, file, seen) {
 		}
 	} else {
 		fail(
-			`${file} 的 ${path} 是 ${Object.prototype.toString.call(value)}，` +
-				" 配置只接受字符串、数值、布尔、数组与映射。",
+			`${file}'s ${path} is ${Object.prototype.toString.call(value)}, ` +
+				"configuration only accepts strings, numbers, booleans, arrays, and mappings.",
 		);
 	}
 	seen.delete(value);
@@ -172,9 +172,9 @@ export function readConfigOverrides(configDirectory) {
 		if (!domain) {
 			const suggestion = suggestFile(base);
 			fail(
-				`内容仓 ${CONFIG_DIRECTORY}/${entry.name} 没有对应的配置领域。` +
-					(suggestion ? ` 你是不是想写 ${suggestion}.yaml？` : "") +
-					` 可用文件名：${CONFIG_DOMAINS.map((item) => item.file).join("、")}。`,
+				`Content repository ${CONFIG_DIRECTORY}/${entry.name} has no matching config domain.` +
+					(suggestion ? ` Did you mean ${suggestion}.yaml?` : "") +
+					` Available filenames: ${CONFIG_DOMAINS.map((item) => item.file).join(", ")}.`,
 			);
 		}
 
@@ -182,8 +182,8 @@ export function readConfigOverrides(configDirectory) {
 		const previous = filesByDomain.get(domain.key);
 		if (previous) {
 			fail(
-				`${previous} 与 ${relative} 同时覆盖 ${domain.key}。` +
-					" 每个配置领域只能保留一个 .yaml 或 .yml 文件。",
+				`${previous} and ${relative} both override ${domain.key}.` +
+					" Each config domain can only have one .yaml or .yml file.",
 			);
 		}
 		filesByDomain.set(domain.key, relative);
@@ -194,13 +194,13 @@ export function readConfigOverrides(configDirectory) {
 				readFileSync(join(configDirectory, entry.name), "utf8"),
 			);
 		} catch (error) {
-			fail(`${relative} 不是合法 YAML：${error.message}`);
+			fail(`${relative} is not valid YAML: ${error.message}`);
 		}
 		// 空文件解析成 undefined/null，视作「没有覆盖」而不是错误：
 		// 用户常常先建好文件再慢慢填。
 		if (value === null || value === undefined) continue;
 		if (!isPlainObject(value)) {
-			fail(`${relative} 的顶层必须是键值映射。`);
+			fail(`Top level of ${relative} must be a key-value mapping.`);
 		}
 		// 只有键才有覆盖的意义；空映射与空文件一样跳过。
 		if (Object.keys(value).length === 0) continue;
@@ -385,7 +385,7 @@ const DIAGNOSTIC_PATTERN = /^(.+?)\((\d+),(\d+)\): error TS\d+: (.+)$/;
 export function typeCheckModule(root, lineOwners) {
 	const tsc = join(root, "node_modules", "typescript", "bin", "tsc");
 	if (!existsSync(tsc)) {
-		fail("找不到本地 typescript，无法校验用户配置。请先运行 pnpm install。");
+		fail("Cannot find local typescript to check user config. Please run pnpm install first.");
 	}
 
 	let output = "";
@@ -410,14 +410,14 @@ export function typeCheckModule(root, lineOwners) {
 			: null;
 		messages.push(
 			owner
-				? `  ${owner.file} 的 ${owner.path || "顶层"}：${message}`
+				? `  ${owner.file}'s ${owner.path || "top level"}: ${message}`
 				: `  ${line.trim()}`,
 		);
 	}
 
 	fail(
-		`内容仓的配置没有通过类型校验：\n${messages.join("\n") || `  ${output.trim()}`}\n` +
-			`  （完整上下文见生成物 ${GENERATED_CONFIG_FILE}）`,
+		`Content repository configuration failed type checking:\n${messages.join("\n") || `  ${output.trim()}`}\n` +
+			`  (Full context in generated ${GENERATED_CONFIG_FILE})`,
 	);
 }
 
@@ -534,7 +534,7 @@ export function syncUserConfig({
 
 	if (existsSync(configDirectory) && files.length === 0) {
 		warn?.(
-			`内容仓的 ${CONFIG_DIRECTORY}/ 里没有可识别的配置文件，本次未产生任何覆盖。`,
+			`No recognizable config files found in ${CONFIG_DIRECTORY}/ of content repository, no overrides generated.`,
 		);
 	}
 

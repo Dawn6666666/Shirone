@@ -80,13 +80,13 @@ const unknownArgs = [...args].filter(
 if (options.help) {
 	console.log(
 		[
-			"用法：node scripts/content/sync.mjs [--dry-run] [--watch] [--no-prune] [--quiet]",
+			"Usage: node scripts/content/sync.mjs [--dry-run] [--watch] [--no-prune] [--quiet]",
 			"",
-			"  （无参数）    将内容仓目录物化到代码仓标准路径，并编译配置覆盖",
-			"  --dry-run     预演：只校验结构与冲突，不向磁盘写入任何文件",
-			"  --watch       监听模式：实时监听本地内容目录，保存时自动触发增量物化",
-			"  --no-prune    保留代码仓中已不存在于内容仓的文件（不执行裁剪）",
-			"  --quiet       静默输出，仅报告错误与警告",
+			"  (no args)    Materialize content repository directories into standard paths and compile config overlays",
+			"  --dry-run    Dry-run: validate structure and conflicts without writing any files to disk",
+			"  --watch      Watch mode: watch local content directory and automatically trigger incremental sync on save",
+			"  --no-prune   Keep files in code repository that no longer exist in content repository (no pruning)",
+			"  --quiet      Quiet output, report errors and warnings only",
 		].join("\n"),
 	);
 	process.exit(0);
@@ -94,7 +94,7 @@ if (options.help) {
 
 if (unknownArgs.length > 0) {
 	console.error(
-		`[content] sync 不支持参数：${unknownArgs.join("、")}。运行 --help 查看可用参数。`,
+		`[content] sync does not support argument: ${unknownArgs.join(", ")}. Run --help to view available options.`,
 	);
 	process.exit(1);
 }
@@ -171,7 +171,7 @@ function runGit(gitArgs, { cwd = ROOT, redact } = {}) {
 			.map((value) => (value === redact ? redactUrl(value) : value))
 			.join(" ");
 		throw new Error(
-			`git ${safeArgs} 执行失败：${redactUrl(detail || error.message)}`,
+			`git ${safeArgs} execution failed: ${redactUrl(detail || error.message)}`,
 		);
 	}
 }
@@ -195,8 +195,8 @@ function assertReusableWorkingCopy(source, workingCopy, commit, origin) {
 		lockSource.commit !== commit
 	) {
 		throw new Error(
-			"CONTENT_SYNC_PULL=false 只能复用与当前 URL、ref、commit 完全一致的工作副本。" +
-				" 请移除该变量先执行一次 content sync，或恢复与当前配置匹配的 content.lock.json。",
+			"CONTENT_SYNC_PULL=false can only reuse a working copy that matches current URL, ref, and commit exactly. " +
+				"Please remove this variable and run content sync once, or restore content.lock.json matching current config.",
 		);
 	}
 	const dirty = runGit(["status", "--porcelain=v1", "-uall"], {
@@ -204,11 +204,11 @@ function assertReusableWorkingCopy(source, workingCopy, commit, origin) {
 	});
 	if (dirty) {
 		throw new Error(
-			`CONTENT_SYNC_PULL=false 不能复用有未提交改动的 ${WORKING_COPY_DIR}/。` +
-				" 请先还原该工作副本，或移除该变量后重新拉取。",
+			`CONTENT_SYNC_PULL=false cannot reuse ${WORKING_COPY_DIR}/ with uncommitted changes. ` +
+				"Please restore the working copy first, or remove this variable and pull again.",
 		);
 	}
-	log(`复用本地内容工作副本 ${WORKING_COPY_DIR} @ ${commit.slice(0, 8)}`);
+	log(`Reusing local content working copy ${WORKING_COPY_DIR} @ ${commit.slice(0, 8)}`);
 	return { directory: workingCopy, commit };
 }
 
@@ -229,7 +229,7 @@ function ensureWorkingCopy(source) {
 
 	if (!isInitialized && !allowFetch) {
 		throw new Error(
-			`CONTENT_SYNC_PULL=false，但 ${WORKING_COPY_DIR}/ 尚未初始化；为遵守离线设置，本次不会创建副本或访问远端。`,
+			`CONTENT_SYNC_PULL=false, but ${WORKING_COPY_DIR}/ is not initialized; to obey offline setting, no copy will be created or remote accessed.`,
 		);
 	}
 
@@ -257,7 +257,7 @@ function ensureWorkingCopy(source) {
 	if (canonicalGitUrl(origin) !== canonicalGitUrl(source.url)) {
 		if (!allowFetch) {
 			throw new Error(
-				`CONTENT_SYNC_PULL=false，但 ${WORKING_COPY_DIR}/ 的 origin 与当前内容源不一致；本次不会改写或拉取工作副本。`,
+				`CONTENT_SYNC_PULL=false, but ${WORKING_COPY_DIR}/ origin does not match current content source; working copy will not be modified or fetched.`,
 			);
 		}
 		runGit(["remote", "set-url", "origin", source.url], {
@@ -265,7 +265,7 @@ function ensureWorkingCopy(source) {
 			redact: source.url,
 		});
 		origin = source.url;
-		log(`已更新 ${WORKING_COPY_DIR}/ 的 origin 以匹配当前内容源`);
+		log(`Updated origin in ${WORKING_COPY_DIR}/ to match current content source`);
 	}
 
 	if (!allowFetch) {
@@ -273,7 +273,7 @@ function ensureWorkingCopy(source) {
 		return assertReusableWorkingCopy(source, workingCopy, commit, origin);
 	}
 
-	log(`拉取内容仓 ${redactUrl(source.url)} @ ${source.ref}`);
+	log(`Fetching content repository ${redactUrl(source.url)} @ ${source.ref}`);
 	runGit(["fetch", "--depth", "1", "--force", "origin", source.ref], {
 		cwd: workingCopy,
 		redact: source.url,
@@ -294,11 +294,11 @@ function resolveSourceRoot(resolved) {
 		const directory = resolve(ROOT, resolved.source.path);
 		if (!existsSync(directory)) {
 			throw new Error(
-				`内容目录不存在：${directory}（来源：${resolved.source.origin}）`,
+				`Content directory does not exist: ${directory} (source: ${resolved.source.origin})`,
 			);
 		}
 		if (!statSync(directory).isDirectory()) {
-			throw new Error(`内容路径不是目录：${directory}`);
+			throw new Error(`Content path is not a directory: ${directory}`);
 		}
 		let commit = null;
 		try {
@@ -317,8 +317,8 @@ function warnUnmountedDirectories(sourceRoot, mounts) {
 		if (!entry.isDirectory()) continue;
 		if (mounts[entry.name] || NON_CONTENT_DIRECTORIES.has(entry.name)) continue;
 		warn(
-			`内容仓的 ${entry.name}/ 没有对应挂载点，本次不会同步。` +
-				" 如需同步，请在 shirone.content.json 的 mounts 中声明。",
+			`Content repository's ${entry.name}/ has no matching mount point and will not be synced. ` +
+				"To sync it, declare it in shirone.content.json mounts.",
 		);
 	}
 }
@@ -342,13 +342,13 @@ function syncMount(sourceRoot, sourceDir, targetDir, resolved) {
 		const repoRelative = `${targetDir}/${relativePath}`;
 		if (matchesAny(repoRelative, PROTECTED_PATHS)) {
 			throw new Error(
-				`内容仓试图写入构建期生成物路径 ${repoRelative}，请从内容仓移除该文件。`,
+				`Content repository attempted to write to build-time artifact path ${repoRelative}, please remove this file from content repository.`,
 			);
 		}
 		if (matchesAny(repoRelative, resolved.keep)) {
 			throw new Error(
-				`${repoRelative} 已在 shirone.content.json 的 keep 中声明为代码仓自有，` +
-					" 但内容仓也提供了同名文件。请二选一。",
+				`${repoRelative} is declared as code repository private in shirone.content.json keep, ` +
+					"but content repository also provides a file with the same name. Please choose one.",
 			);
 		}
 
@@ -458,7 +458,7 @@ function runSync() {
 
 	if (Object.keys(mountStats).length === 0 && config.files.length === 0) {
 		throw new Error(
-			`内容源 ${sourceRoot} 中没有任何可挂载目录（期望之一：${Object.keys(resolved.mounts).join(", ")}、${CONFIG_DIRECTORY}）。`,
+			`Content source ${sourceRoot} has no mountable directories (expected one of: ${Object.keys(resolved.mounts).join(", ")}, ${CONFIG_DIRECTORY}).`,
 		);
 	}
 
@@ -475,13 +475,13 @@ function runSync() {
 	);
 
 	log(
-		`${options.dryRun ? "[dry-run] " : ""}物化 ${totalFiles} 个文件` +
-			`（更新 ${totalCopied}，清理 ${totalRemoved}）` +
-			`${config.files.length > 0 ? `，配置覆盖 ${config.files.length} 个${config.changed ? "（已更新）" : ""}` : ""}` +
-			`${commit ? `，内容 commit ${commit.slice(0, 8)}` : ""}`,
+		`${options.dryRun ? "[dry-run] " : ""}Materialized ${totalFiles} files` +
+			` (updated ${totalCopied}, pruned ${totalRemoved})` +
+			`${config.files.length > 0 ? `, config overlays ${config.files.length}${config.changed ? " (updated)" : ""}` : ""}` +
+			`${commit ? `, content commit ${commit.slice(0, 8)}` : ""}`,
 	);
 	if (skipped.length > 0) {
-		log(`内容仓未提供以下目录，对应代码仓路径保持不变：${skipped.join(", ")}`);
+		log(`Content repository did not provide the following directories, corresponding code repository paths kept unchanged: ${skipped.join(", ")}`);
 	}
 	return lock;
 }
@@ -490,10 +490,10 @@ function runWatch() {
 	const resolved = resolveContentSource(ROOT);
 	if (resolved.mode === "local") return;
 	if (resolved.source.type !== "path") {
-		throw new Error(`--watch 仅支持 source.type = "path" 的本地内容目录。`);
+		throw new Error(`--watch only supports local content directories with source.type = "path".`);
 	}
 	const sourceRoot = resolve(ROOT, resolved.source.path);
-	log(`监听 ${sourceRoot}，按 Ctrl+C 结束`);
+	log(`Watching ${sourceRoot}, press Ctrl+C to stop`);
 
 	let timer = null;
 	watch(sourceRoot, { recursive: true }, () => {

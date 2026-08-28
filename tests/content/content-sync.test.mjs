@@ -248,7 +248,7 @@ describe("content sync", () => {
 				"bad",
 			);
 			const { stderr } = runSync(fixture, { expectFailure: true });
-			assert.match(stderr, /构建期生成物路径/);
+			assert.match(stderr, /build-time artifact path/i);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}
@@ -306,7 +306,7 @@ describe("content sync", () => {
 					JSON.stringify({ schemaVersion: 1, mounts }),
 				);
 				const { stderr } = runSync(fixture, { expectFailure: true });
-				assert.match(stderr, /相对目录|保留目录|相互交叠|归一化后重复/);
+				assert.match(stderr, /relative directory|reserved directory|overlap|duplicate/i);
 			}
 			assert.ok(!exists(fixture, "content.lock.json"));
 		} finally {
@@ -329,14 +329,14 @@ describe("content sync", () => {
 				env: { ...remoteEnv, CONTENT_SYNC_PULL: "false" },
 				expectFailure: true,
 			});
-			assert.match(result.stderr, /尚未初始化|不会创建副本或访问远端/);
+			assert.match(result.stderr, /not initialized.*no copy will be created/i);
 			assert.ok(!exists(fixture, ".content-src"));
 
 			runSync(fixture, { env: remoteEnv });
 			result = runSync(fixture, {
 				env: { ...remoteEnv, CONTENT_SYNC_PULL: "false" },
 			});
-			assert.match(result.stdout, /复用本地内容工作副本/);
+			assert.match(result.stdout, /Reusing local content working copy/i);
 
 			const workingCopy = join(fixture.repo, ".content-src");
 			write(workingCopy, "content/posts/hello.md", "# locally changed");
@@ -344,7 +344,7 @@ describe("content sync", () => {
 				env: { ...remoteEnv, CONTENT_SYNC_PULL: "false" },
 				expectFailure: true,
 			});
-			assert.match(result.stderr, /不能复用有未提交改动/);
+			assert.match(result.stderr, /with uncommitted changes/i);
 			git(workingCopy, ["restore", "--", "content/posts/hello.md"]);
 
 			result = runSync(fixture, {
@@ -355,7 +355,7 @@ describe("content sync", () => {
 				},
 				expectFailure: true,
 			});
-			assert.match(result.stderr, /URL、ref、commit 完全一致/);
+			assert.match(result.stderr, /matches current URL, ref, and commit exactly/i);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}

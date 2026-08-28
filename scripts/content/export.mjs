@@ -201,12 +201,12 @@ if (!options.help) {
 		const argument = args[index];
 		if (argument === "--out") {
 			if (sawOut) {
-				console.error("[content:export] --out 只能指定一次。");
+				console.error("[content:export] --out can only be specified once.");
 				process.exit(1);
 			}
 			const value = args[index + 1];
 			if (!value || value.startsWith("-")) {
-				console.error("[content:export] --out 需要一个目录参数。");
+				console.error("[content:export] --out requires a directory argument.");
 				process.exit(1);
 			}
 			options.out = value;
@@ -216,7 +216,7 @@ if (!options.help) {
 		}
 		if (!knownFlags.has(argument)) {
 			console.error(
-				`[content:export] 不支持参数：${argument}。运行 --help 查看可用参数。`,
+				`[content:export] Unsupported argument: ${argument}. Run --help to view available options.`,
 			);
 			process.exit(1);
 		}
@@ -233,26 +233,26 @@ function log(message) {
 }
 
 function warn(message) {
-	console.warn(`[content:export] 注意：${message}`);
+	console.warn(`[content:export] Warning: ${message}`);
 }
 
 function fail(step, error, details = "") {
-	console.error(`\n[content:export] 步骤失败并已中止：${step}`);
-	if (details) console.error(`[content:export] 上下文：${details}`);
+	console.error(`\n[content:export] Step failed and aborted: ${step}`);
+	if (details) console.error(`[content:export] Context: ${details}`);
 	if (error instanceof Error) {
-		console.error(`[content:export] 错误信息：${error.message}`);
-		if (error.stack) console.error(`[content:export] 调用栈：\n${error.stack}`);
+		console.error(`[content:export] Error message: ${error.message}`);
+		if (error.stack) console.error(`[content:export] Call stack:\n${error.stack}`);
 	} else if (error !== undefined && error !== null) {
-		console.error(`[content:export] 错误详情：${String(error)}`);
+		console.error(`[content:export] Error details: ${String(error)}`);
 	}
 	console.error(
 		mutated
-			? `[content:export] 已写入部分文件。${
+			? `[content:export] Partial files have been written. ${
 					backupDirectory
-						? `被覆盖或删除的原始文件在 ${backupDirectory}，可按相同相对路径拷回内容仓还原。`
-						: "本次未创建快照备份（计划中没有需要覆盖或删除的文件），请在内容仓用 git 复查改动。"
+						? `Original files that were overwritten or deleted are in ${backupDirectory}; copy them back to content repo matching relative paths to restore.`
+						: "No snapshot backup was created (no files were overwritten or deleted in plan). Please review changes with git in content repo."
 				}\n`
-			: "[content:export] 未向内容仓写入任何内容，两侧仓库均保持原样。\n",
+			: "[content:export] Nothing was written to content repository, both repositories remain untouched.\n",
 	);
 	process.exit(1);
 }
@@ -391,21 +391,21 @@ function formatValue(value) {
 if (options.help) {
 	console.log(
 		[
-			"用法：node scripts/content/export.mjs [--yes|--dry-run] [--config|--posts] [--prune] [--force] [--out <dir>]",
+			"Usage: node scripts/content/export.mjs [--yes|--dry-run] [--config|--posts] [--prune] [--force] [--out <dir>]",
 			"",
-			"  （无参数）/--dry-run  预演：只打印导出计划，不修改任何文件",
-			"  --yes                 实际执行导出（--dry-run 优先级更高）",
-			"  --config              只导出配置（内容仓 config/*.yaml 与 footer.html）",
-			"  --posts               只导出内容文件（按挂载表反转）",
-			"  --prune               允许删除内容仓中代码仓已不存在的文件（默认关闭）",
-			"  --prune-config        允许删除内容仓 YAML 中「已等于主题默认值」的冗余键",
-			"  --force               跳过「内容仓工作区干净」与「物化状态一致」检查",
-			"  --out <dir>           覆盖导出目标（默认取当前生效的内容源目录）",
+			"  (no args)/--dry-run  Dry-run: print export plan without modifying any files",
+			"  --yes                Execute export (--dry-run takes precedence)",
+			"  --config             Export config only (content repo config/*.yaml and footer.html)",
+			"  --posts              Export content files only (inverted by mount map)",
+			"  --prune              Allow deleting files in content repo that no longer exist in code repo (default off)",
+			"  --prune-config       Allow deleting redundant keys in content repo YAML that match theme defaults",
+			"  --force              Skip clean worktree check and stale materialized state check",
+			"  --out <dir>          Override export target (default: active content source directory)",
 			"",
-			"导出范围按当前生效的 mounts 反转。构建期生成物、keep 声明的代码仓自有文件、",
-			"番剧快照与 .gitkeep 永不导出；nav-bar 因 resolveNavBarLinks() 不可逆而排除。",
+			"Export scope is inverted by active mounts. Build-time artifacts, keep-declared code-repo private files,",
+			"anime snapshots, and .gitkeep are never exported; nav-bar is excluded because resolveNavBarLinks() is irreversible.",
 			"",
-			"本脚本绝不修改代码仓的 .gitignore、git 索引或 shirone.content.json——那是 content:eject 的职责。",
+			"This script never modifies code repository's .gitignore, git index, or shirone.content.json -- that is content:eject's job.",
 		].join("\n"),
 	);
 	process.exit(0);
@@ -419,10 +419,10 @@ if (
 	)
 ) {
 	fail(
-		"检查运行环境",
-		new Error("检测到 CI=true"),
-		"content:export 是本地开发命令：它向内容仓写入并期待你人工复核 diff 后提交。" +
-			" CI 里应当只跑 content:sync。",
+		"Check runtime environment",
+		new Error("Detected CI=true"),
+		"content:export is a local development command: it writes to the content repository and expects you to review diffs before committing. " +
+			"In CI, only content:sync should be run.",
 	);
 }
 
@@ -430,16 +430,16 @@ let resolved;
 try {
 	resolved = resolveContentSource(ROOT);
 } catch (error) {
-	fail("解析内容源", error, "清单文件：shirone.content.json");
+	fail("Resolve content source", error, "Manifest file: shirone.content.json");
 }
 
 if (resolved.mode === "local") {
 	fail(
-		"解析内容源",
-		new Error(`当前是 local 模式：${resolved.reason}`),
-		"local 模式下内容就存在代码仓里，没有「内容仓」可以回写。" +
-			" 若要迁出到独立内容仓，用 pnpm content:eject；" +
-			" 若已有内容仓，请设置 CONTENT_DIR 或在 shirone.content.json 里声明 source。",
+		"Resolve content source",
+		new Error(`Currently in local mode: ${resolved.reason}`),
+		"In local mode, content is in the code repository, there is no content repository to export to. " +
+			"To eject to an independent content repository, run pnpm content:eject; " +
+			"if you already have a content repository, set CONTENT_DIR or declare source in shirone.content.json.",
 	);
 }
 
@@ -449,11 +449,11 @@ if (resolved.mode === "local") {
 
 if (resolved.source.type === "git" && options.out === null) {
 	fail(
-		"解析导出目标",
-		new Error(`内容源是 type: "git"，没有可写的本地检出`),
-		`${WORKING_COPY_DIR}/ 是 --depth 1 + checkout --detach FETCH_HEAD 的浅工作副本，` +
-			' 往里写入并提交会落在游离 HEAD 上直接丢失（与 content:watch 只支持 type: "path" 同源）。' +
-			" 请先在别处 clone 一份完整的内容仓，再用 --out <该目录> 指定导出目标。",
+		"Resolve export target",
+		new Error(`Content source is type: "git", with no writable local checkout`),
+		`${WORKING_COPY_DIR}/ is a shallow working copy (--depth 1 + checkout --detach FETCH_HEAD). ` +
+			"Writing into it would be on detached HEAD and lost (same reason why content:watch only supports type: 'path'). " +
+			"Please clone a full content repository elsewhere first, then use --out <dir> to specify the export target.",
 	);
 }
 
@@ -464,17 +464,17 @@ const targetRoot =
 
 if (!existsSync(targetRoot) || !statSync(targetRoot).isDirectory()) {
 	fail(
-		"解析导出目标",
-		new Error(`导出目标不存在或不是目录：${targetRoot}`),
-		"content:export 只写入**已存在**的内容仓，不负责创建它——" +
-			" 首次迁出请用 pnpm content:eject。",
+		"Resolve export target",
+		new Error(`Export target does not exist or is not a directory: ${targetRoot}`),
+		"content:export only writes to an existing content repository, it does not create one. " +
+			"For initial ejection, please use pnpm content:eject.",
 	);
 }
 if (pathsOverlap(ROOT, targetRoot)) {
 	fail(
-		"解析导出目标",
-		new Error("导出目标不能与代码仓相同，也不能互为父子目录"),
-		"内容导出必须写入独立仓库；路径重叠会造成自我覆盖、重复遍历或把内容仓纳入代码仓。",
+		"Resolve export target",
+		new Error("Export target cannot be the same as code repository, nor can they be parent/child directories of each other"),
+		"Content export must write to an independent repository; overlapping paths would cause self-overwrites, duplicate traversal, or nesting.",
 	);
 }
 
@@ -487,21 +487,21 @@ if (existsSync(lockPath)) {
 			const locked = resolve(ROOT, lock.source.path);
 			if (locked !== targetRoot) {
 				warn(
-					`导出目标与 ${LOCK_FILE} 记录的内容源不一致：` +
-						`上次同步自 ${toPosix(locked)}，本次将写入 ${toPosix(targetRoot)}。` +
-						" 请确认没有指错仓库。",
+					`Export target differs from content source in ${LOCK_FILE}: ` +
+						`last synced from ${toPosix(locked)}, this export will write to ${toPosix(targetRoot)}. ` +
+						"Please verify you specified the correct repository.",
 				);
 			}
 		} else if (lock?.source?.type === "git") {
 			warn(
-				`${LOCK_FILE} 记录上次同步来自远端仓库（${redactUrl(lock.source.url ?? "?")} @ ${
+				`${LOCK_FILE} records last sync from remote repository (${redactUrl(lock.source.url ?? "?")} @ ${
 					lock.source.ref ?? "?"
-				}），而本次导出写入本地目录 ${toPosix(targetRoot)}。` +
-					" 请确认这个目录就是那个仓库的检出。",
+				}), while this export writes to local directory ${toPosix(targetRoot)}. ` +
+					"Please verify this directory is a checkout of that repository.",
 			);
 		}
 	} catch (error) {
-		warn(`${LOCK_FILE} 解析失败，跳过内容源交叉校验：${error.message}`);
+		warn(`Failed to parse ${LOCK_FILE}, skipping content source cross-check: ${error.message}`);
 	}
 }
 
@@ -538,10 +538,10 @@ if (
 /** 判定某个代码仓路径是否豁免导出，命中返回原因。 */
 function exemptionReason(repoRelative) {
 	if (matchesAny(repoRelative, EXPORT_PROTECTED_PATHS)) {
-		return "构建期生成物或目录占位文件";
+		return "Build-time artifact or directory placeholder file";
 	}
 	if (resolved.keep.length > 0 && matchesAny(repoRelative, resolved.keep)) {
-		return "shirone.content.json 的 keep 声明为代码仓自有";
+		return "Declared as code repository private in shirone.content.json keep";
 	}
 	return null;
 }
@@ -827,10 +827,10 @@ try {
 	configPlan = buildConfigPlan();
 } catch (error) {
 	fail(
-		"比对配置",
+		"Compare config",
 		error,
-		"内省会起子进程 import src/config/*Config.ts，并读取内容仓 config/*.yaml。" +
-			" 若是 YAML 解析或未知文件名报错，请先修好内容仓那边的配置。",
+		"Introspection spawns a child process to import src/config/*Config.ts and reads content repo config/*.yaml. " +
+			"If YAML parsing or unknown filename fails, please fix the config in the content repo first.",
 	);
 }
 
@@ -874,57 +874,57 @@ const nothingToDo =
 
 log(
 	options.apply
-		? `开始导出到内容仓 ${toPosix(targetRoot)}……`
-		: `预演模式（未指定 --yes，不会修改任何文件）。目标内容仓：${toPosix(targetRoot)}`,
+		? `Starting export to content repository ${toPosix(targetRoot)}...`
+		: `Dry-run mode (no --yes specified, no files will be modified). Target content repository: ${toPosix(targetRoot)}`,
 );
 log(
-	`范围：${[options.scopeFiles && "内容文件", options.scopeConfig && "配置"]
+	`Scope: ${[options.scopeFiles && "Content files", options.scopeConfig && "Config"]
 		.filter(Boolean)
-		.join(" + ")}（内容源来自 ${resolved.source.origin}）`,
+		.join(" + ")} (source: ${resolved.source.origin})`,
 );
 
 if (options.scopeFiles) {
 	log(
-		`内容文件：新增 ${filePlan.added.length}、更新 ${filePlan.updated.length}、` +
-			`跳过（哈希相同）${filePlan.skipped.length}、豁免 ${filePlan.exempt.length}。`,
+		`Content files: Added ${filePlan.added.length}, Updated ${filePlan.updated.length}, ` +
+			`Skipped (identical hash) ${filePlan.skipped.length}, Exempted ${filePlan.exempt.length}.`,
 	);
 	if (filePlan.added.length > 0) {
-		console.log("  [新增]");
+		console.log("  [Add]");
 		preview(filePlan.added, 10, (item) => `${item.content}  ← ${item.repo}`);
 	}
 	if (filePlan.updated.length > 0) {
-		console.log("  [更新]");
+		console.log("  [Update]");
 		preview(filePlan.updated, 10, (item) => `${item.content}  ← ${item.repo}`);
 	}
 	if (filePlan.exempt.length > 0) {
-		console.log("  [豁免]");
+		console.log("  [Exempt]");
 		const reasons = new Map();
 		for (const item of filePlan.exempt) {
 			reasons.set(item.reason, (reasons.get(item.reason) ?? 0) + 1);
 		}
 		for (const [reason, count] of reasons) {
-			console.log(`    ${count} 个文件 —— ${reason}`);
+			console.log(`    ${count} files -- ${reason}`);
 		}
 	}
 	if (filePlan.unowned.length > 0) {
-		console.log("  [未纳入：内容仓不拥有该顶层段]");
+		console.log("  [Not included: content repo does not own this top segment]");
 		preview(
 			filePlan.unowned,
 			8,
-			(item) => `${item.segment}/  （${item.count} 个文件）`,
+			(item) => `${item.segment}/  (${item.count} files)`,
 		);
 	}
 	for (const mount of filePlan.missingMounts) {
 		log(
-			`内容仓没有 ${mount.sourceDir}/，本次不导出 ${mount.targetDir}/。` +
-				" 需要纳入的话，先在内容仓建好该目录。",
+			`Content repository has no ${mount.sourceDir}/, skipping export of ${mount.targetDir}/. ` +
+				"To include it, create the directory in the content repository first.",
 		);
 	}
 	if (filePlan.prunable.length > 0) {
 		console.log(
 			options.prune
-				? "  [删除：内容仓有、代码仓没有（--prune）]"
-				: "  [仅报告：内容仓有、代码仓没有（默认不删除，需 --prune）]",
+				? "  [Delete: present in content repo but absent in code repo (--prune)]"
+				: "  [Report only: present in content repo but absent in code repo (not deleted by default, requires --prune)]",
 		);
 		preview(filePlan.prunable, 10, (item) => item.content);
 	}
@@ -936,12 +936,12 @@ if (options.scopeConfig) {
 		0,
 	);
 	log(
-		`配置：${configWrites.length} 个 YAML 文件将被写入（共 ${changedKeys} 个键）、` +
-			`${configPlan.domains.length - configWrites.length} 个领域无改动。`,
+		`Config: ${configWrites.length} YAML files will be written (${changedKeys} keys total), ` +
+			`${configPlan.domains.length - configWrites.length} domains unchanged.`,
 	);
 	for (const item of configWrites) {
 		console.log(
-			`  [${item.target.exists ? "更新" : "新建"}] ${item.target.relative}`,
+			`  [${item.target.exists ? "Update" : "New"}] ${item.target.relative}`,
 		);
 		preview(
 			item.changes,
@@ -952,7 +952,7 @@ if (options.scopeConfig) {
 				}${formatValue(change.to)}`,
 		);
 		if (options.pruneConfig && item.removals.length > 0) {
-			console.log("    [删除冗余键（--prune-config）]");
+			console.log("    [Delete redundant keys (--prune-config)]");
 			preview(item.removals, 5, (removal) => removal.path.join("."));
 		}
 	}
@@ -963,86 +963,86 @@ if (options.scopeConfig) {
 		);
 		if (redundant > 0) {
 			log(
-				`内容仓另有 ${redundant} 个键的值已等于主题默认值。它们被保留（用户可能是刻意钉住该值），` +
-					" 需要清理请加 --prune-config。",
+				`Content repo has ${redundant} other keys matching theme defaults. They are kept (user may intentionally pin them); ` +
+					"use --prune-config to clean.",
 			);
 		}
 	}
 	if (configPlan.footer) {
 		const label = {
-			added: "新建",
-			updated: "更新",
-			skipped: "跳过（内容相同）",
+			added: "New",
+			updated: "Update",
+			skipped: "Skipped (identical content)",
 		}[configPlan.footer.state];
 		console.log(
 			`  [${label}] ${configPlan.footer.content}  ← ${configPlan.footer.repo}`,
 		);
 	}
 	for (const item of configPlan.excluded) {
-		log(`${item.file} 未纳入导出：${item.reason}。请在内容仓手工维护该文件。`);
+		log(`${item.file} excluded from export: ${item.reason}. Please maintain this file manually in content repo.`);
 	}
 	for (const item of configPlan.unrepresentable) {
 		warn(
-			`${item.domain.file}.yaml 的 ${item.path} 在主题默认值里存在、生效值里却没有。` +
-				" 深合并只能新增和替换、不能删除键，因此这个差异无法用 YAML 表达，本次跳过。",
+			`${item.domain.file}.yaml path ${item.path} exists in theme defaults but not in effective values. ` +
+				"Deep merge cannot delete keys, so this difference cannot be represented in YAML and is skipped.",
 		);
 	}
 	for (const item of configPlan.introspectErrors) {
-		warn(`领域 ${item.key} 内省失败，本次跳过它的配置导出：${item.message}`);
+		warn(`Domain ${item.key} introspection failed, skipping its config export: ${item.message}`);
 	}
 	for (const item of configPlan.credentials) {
 		warn(
-			`${item.file} 的 ${item.path} 疑似凭据。内容仓禁止存放密钥，` +
-				" 请改用环境变量 / GitHub Secrets，确认无误再执行导出。",
+			`${item.file}'s ${item.path} looks like credentials. Storing secrets in content repo is forbidden, ` +
+				"please use environment variables / GitHub Secrets, and confirm before exporting.",
 		);
 	}
 	if (configPlan.unexplained.length > 0) {
 		warn(
-			`内容仓有 ${configPlan.unexplained.length} 个键既不在本次覆盖集里、也不等于主题默认值` +
-				`（如 ${configPlan.unexplained
+			`Content repo has ${configPlan.unexplained.length} keys neither in overlay nor in theme defaults ` +
+				`(e.g. ${configPlan.unexplained
 					.slice(0, 3)
-					.map((item) => `${item.file} 的 ${item.path}`)
-					.join("、")}）。` +
-				" 常见原因是物化状态过期或主题已移除该键；它们不会被本次导出改动。",
+					.map((item) => `${item.file}'s ${item.path}`)
+					.join(", ")}). ` +
+				"Common cause is stale materialized state or removed theme keys; they will not be changed by this export.",
 		);
 	}
 }
 
 if (toBackup.length > 0) {
 	log(
-		`将先创建快照备份：${toBackup.length} 个文件，约 ${formatBytes(backupBytes)}，` +
-			`落点 ${BACKUP_DIR}/（位于内容仓内）。`,
+		`A snapshot backup will be created first: ${toBackup.length} files, approx ${formatBytes(backupBytes)}, ` +
+			`located in ${BACKUP_DIR}/ (inside content repository).`,
 	);
 }
 
 // 脏工作区与物化过期都属于「会造成不可恢复覆盖」的前置条件，预演阶段就要报出来。
 if (options.scopeConfig && configPlan.stale.length > 0) {
 	warn(
-		"代码仓已物化的配置覆盖层与内容仓 config/ 现状不一致，涉及领域：" +
-			`${configPlan.stale.map((domain) => domain.file).join("、")}。` +
-			" 这说明生效配置是过期快照，导出会把旧值写回内容仓。" +
-			" 请先跑 pnpm content:sync 让两边对齐；确实想用代码仓覆盖内容仓时加 --force。",
+		"Materialized config overlay in code repository is out of sync with content repo config/, affected domains: " +
+			`${configPlan.stale.map((domain) => domain.file).join(", ")}. ` +
+			"Effective config is a stale snapshot; export would overwrite content repo with old values. " +
+			"Please run pnpm content:sync first; use --force to overwrite intentionally.",
 	);
 }
 if (!contentRepo.isGit) {
 	warn(
-		`导出目标 ${toPosix(targetRoot)} 不是 git 仓库，无法在写入前用 git 兜底。` +
-			" 强烈建议先 git init 并提交一次，否则本次覆盖只能靠快照备份还原。",
+		`Export target ${toPosix(targetRoot)} is not a git repository, unable to use git safety net before writing. ` +
+			"Highly recommended to run git init and commit once, otherwise rollback depends solely on snapshot backup.",
 	);
 } else if (contentRepo.dirty.length > 0) {
 	warn(
-		`内容仓有 ${contentRepo.dirty.length} 个未提交改动：` +
-			`${contentRepo.dirty.slice(0, 8).join("、")}${
-				contentRepo.dirty.length > 8 ? " 等" : ""
-			}。`,
+		`Content repository has ${contentRepo.dirty.length} uncommitted changes: ` +
+			`${contentRepo.dirty.slice(0, 8).join(", ")}${
+				contentRepo.dirty.length > 8 ? " etc." : ""
+			}.`,
 	);
 }
 
 if (!options.apply) {
 	log(
 		nothingToDo
-			? "预演结束：内容仓已与代码仓一致，无需导出。"
-			: "预演结束。确认无误后加 --yes 执行：pnpm content:export --yes",
+			? "Dry-run complete: content repository is already in sync with code repository, no export needed."
+			: "Dry-run complete. Run with --yes to execute: pnpm content:export --yes",
 	);
 	process.exit(0);
 }
@@ -1060,30 +1060,30 @@ if (
 	!options.force
 ) {
 	fail(
-		"检查内容仓工作区",
-		new Error(`内容仓有 ${contentRepo.dirty.length} 个未提交改动`),
-		"本次导出会覆盖内容仓中的文件，这些未提交改动将不可恢复地消失：\n" +
+		"Check content repo working tree",
+		new Error(`Content repository has ${contentRepo.dirty.length} uncommitted changes`),
+		"This export will overwrite files in the content repository, and these uncommitted changes will be lost permanently:\n" +
 			contentRepo.dirty.map((path) => `    ${path}`).join("\n") +
-			"\n  请先在内容仓提交或暂存，或加 --force 跳过检查（跳过前请确认上面这份清单）。",
+			"\n  Please commit or stash in content repo first, or use --force to bypass this check (verify the above list before bypassing).",
 	);
 }
 
 if (options.scopeConfig && configPlan.stale.length > 0 && !options.force) {
 	fail(
-		"校验物化状态",
+		"Verify materialized state",
 		new Error(
-			`代码仓的配置覆盖层落后于内容仓：${configPlan.stale
+			`Code repository config overlay is behind content repository: ${configPlan.stale
 				.map((domain) => domain.file)
-				.join("、")}`,
+				.join(", ")}`,
 		),
-		"生效配置读自 src/user/user-config.ts，它是上一次 content:sync 的产物。" +
-			" 它与内容仓 config/ 不一致时，导出会把过期的值写回去，静默覆盖你在内容仓的新改动。" +
-			" 请先跑 pnpm content:sync；若确实想用代码仓当前状态覆盖内容仓，加 --force。",
+		"Effective config is read from src/user/user-config.ts, produced by previous content:sync. " +
+			"When it does not match content repo config/, export will write stale values back, silently overwriting new changes in content repo. " +
+			"Please run pnpm content:sync first; if you intentionally want to overwrite content repo with code repo state, use --force.",
 	);
 }
 
 if (nothingToDo) {
-	log("内容仓已与代码仓一致，无需导出。");
+	log("Content repository is already in sync with code repository, no export needed.");
 	process.exit(0);
 }
 
@@ -1103,7 +1103,7 @@ function ensureBackupIgnored() {
 	const separator = current === "" || current.endsWith("\n") ? "" : "\n";
 	writeFileSync(
 		gitignorePath,
-		`${current}${separator}\n# pnpm content:export 的快照备份\n${entry}\n`,
+		`${current}${separator}\n# Snapshot backup from pnpm content:export\n${entry}\n`,
 		"utf8",
 	);
 	return true;
@@ -1119,7 +1119,7 @@ if (toBackup.length > 0) {
 
 	try {
 		if (ensureBackupIgnored()) {
-			log(`已在内容仓 .gitignore 中补写 ${BACKUP_DIR}/。`);
+			log(`Appended ${BACKUP_DIR}/ to content repository .gitignore.`);
 		}
 		mkdirSync(directory, { recursive: true });
 		for (const path of toBackup) {
@@ -1160,9 +1160,9 @@ if (toBackup.length > 0) {
 					overwritten: toBackup,
 					pruned: prunes.map((item) => item.content),
 					restoreInstruction:
-						"把本目录（除 manifest.json）下的文件按相同相对路径拷回内容仓即可还原：" +
-						"PowerShell `Copy-Item -Recurse -Force .\\<本目录>\\* .` ；Bash `cp -a <本目录>/. .`。" +
-						"内容仓是 git 仓库时，`git -C <内容仓> checkout .` 通常更直接。",
+						"To restore, copy files in this directory (except manifest.json) back to content repo matching relative paths: " +
+						"PowerShell `Copy-Item -Recurse -Force .\\<this_dir>\\* .` ; Bash `cp -a <this_dir>/. .`. " +
+						"When content repository is a git repository, `git -C <content_repo> checkout .` is usually more straightforward.",
 				},
 				null,
 				2,
@@ -1171,15 +1171,15 @@ if (toBackup.length > 0) {
 		);
 		backupDirectory = toPosix(relative(targetRoot, directory));
 		log(
-			`已创建快照备份：${backupDirectory}（${toBackup.length} 个文件，${formatBytes(
+			`Created snapshot backup: ${backupDirectory} (${toBackup.length} files, ${formatBytes(
 				backupBytes,
-			)}）`,
+			)})`,
 		);
 	} catch (error) {
 		fail(
-			"创建快照备份",
+			"Create snapshot backup",
 			error,
-			`备份目录：${directory}。为避免数据丢失，导出已在写入任何文件之前中止。`,
+			`Backup directory: ${directory}. To prevent data loss, export was aborted before writing any files.`,
 		);
 	}
 }
@@ -1196,11 +1196,11 @@ if (fileWrites.length > 0) {
 		try {
 			writeExported(item.repoAbsolute, item.contentAbsolute);
 		} catch (error) {
-			fail("写入内容文件", error, `${item.repo} -> ${item.content}`);
+			fail("Write content file", error, `${item.repo} -> ${item.content}`);
 		}
 	}
 	log(
-		`已导出 ${fileWrites.length} 个内容文件（新增 ${filePlan.added.length}，更新 ${filePlan.updated.length}）。`,
+		`Exported ${fileWrites.length} content files (added ${filePlan.added.length}, updated ${filePlan.updated.length}).`,
 	);
 }
 
@@ -1209,10 +1209,10 @@ if (prunes.length > 0) {
 		try {
 			rmSync(item.contentAbsolute, { force: true });
 		} catch (error) {
-			fail("删除内容仓多余文件", error, `路径：${item.content}`);
+			fail("Delete extraneous content repo file", error, `Path: ${item.content}`);
 		}
 	}
-	log(`已删除 ${prunes.length} 个内容仓文件（--prune）。备份见上。`);
+	log(`Deleted ${prunes.length} content repository files (--prune). See backup above.`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1250,19 +1250,19 @@ if (configWrites.length > 0) {
 				"utf8",
 			);
 		} catch (error) {
-			fail("写入配置 YAML", error, `文件：${item.target.relative}`);
+			fail("Write config YAML", error, `File: ${item.target.relative}`);
 		}
 	}
-	log(`已写入 ${configWrites.length} 个配置文件。`);
+	log(`Wrote ${configWrites.length} config files.`);
 }
 
 if (footerWrite) {
 	try {
 		writeExported(footerWrite.repoAbsolute, footerWrite.contentAbsolute);
-		log(`已导出 ${footerWrite.content}。`);
+		log(`Exported ${footerWrite.content}.`);
 	} catch (error) {
 		fail(
-			"写入自定义页脚",
+			"Write custom footer",
 			error,
 			`${footerWrite.repo} -> ${footerWrite.content}`,
 		);
@@ -1310,19 +1310,19 @@ if (options.scopeConfig && (configWrites.length > 0 || footerWrite)) {
 		result = validateExportedConfig();
 	} catch (error) {
 		fail(
-			"校验导出的配置",
+			"Validate exported config",
 			error,
-			"导出的 YAML 没有通过主题的类型校验。文件已经写进内容仓，" +
-				" 请按上面的键路径修正，或从快照备份还原后重试——" +
-				" 把过不了校验的 YAML 留在内容仓，会让内容仓的下一次 CI 直接失败。",
+			"Exported YAML failed theme type checking. Files have been written to content repo, " +
+				"please fix according to the key paths above or restore from snapshot backup -- " +
+				"leaving invalid YAML in content repo will break content repo CI.",
 		);
 	}
 	if (result === "no-typescript") {
 		warn(
-			"找不到本地 typescript，已跳过导出后的类型校验。请运行 pnpm install 后用 pnpm content:validate 补验。",
+			"Cannot find local typescript, skipped post-export type check. Please run pnpm install and pnpm content:validate.",
 		);
 	} else if (result === "ok") {
-		log("导出的配置已通过类型校验（与 content:sync 用的是同一条校验路径）。");
+		log("Exported config passed type checking (same validation path as content:sync).");
 	}
 }
 
@@ -1330,21 +1330,21 @@ if (options.scopeConfig && (configWrites.length > 0 || footerWrite)) {
 // 12. 收尾体检
 // ─────────────────────────────────────────────────────────────────────────────
 
-log(`导出完成，目标内容仓：${toPosix(targetRoot)}`);
-log("后续步骤：");
-log(`  1. cd ${targetRoot} && git status   # 逐条复核 diff`);
-log("  2. 在内容仓 commit & push（本脚本刻意不替你提交）");
-log("  3. 回到代码仓跑 pnpm content:sync，让物化产物与内容仓重新对齐");
+log(`Export complete, target content repository: ${toPosix(targetRoot)}`);
+log("Next steps:");
+log(`  1. cd ${targetRoot} && git status   # Review diffs`);
+log("  2. Commit & push in content repo (this script intentionally does not commit for you)");
+log("  3. Return to code repository and run pnpm content:sync to re-align materialized files");
 
 warn(
-	"代码仓的 src/content/、src/data/ 等仍是**物化产物**：下一次 content:sync 以内容仓为准，" +
-		" 未导出的本地改动仍会被裁剪掉。",
+	"Code repository's src/content/, src/data/ etc. remain materialized artifacts: next content:sync will be based on content repository, " +
+		"unexported local changes will still be pruned.",
 );
 
 if (filePlan.prunable.length > 0 && !options.prune) {
 	log(
-		`内容仓另有 ${filePlan.prunable.length} 个文件在代码仓中不存在，本次未删除。` +
-			" 若确认它们该被清理，复核上面的清单后加 --prune 重跑（会先备份）。",
+		`Content repository has ${filePlan.prunable.length} other files that do not exist in code repository, not deleted this time. ` +
+			"If they should be cleaned, verify the list above and re-run with --prune (will backup first).",
 	);
 }
 
@@ -1356,11 +1356,11 @@ if (contentRepo.isGit) {
 	const changed = after.split("\0").filter(Boolean).length;
 	log(
 		changed === 0
-			? "内容仓 git status 干净：本次导出没有产生实际差异（写入的内容与既有文件等价）。"
-			: `内容仓现有 ${changed} 处未提交改动待你复核。`,
+			? "Content repository git status is clean: this export produced no actual differences (written content is equivalent to existing files)."
+			: `Content repository has ${changed} uncommitted changes for you to review.`,
 	);
 }
 
 if (backupDirectory) {
-	log(`快照备份保留在 ${backupDirectory}，确认无需回滚后可自行删除。`);
+	log(`Snapshot backup retained at ${backupDirectory}. You may delete it after confirming no rollback is needed.`);
 }
