@@ -57,7 +57,7 @@ const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 		selector: ".markdown-mermaid[data-mermaid]",
 		initialize: async () => {
 			const { initMermaidDiagrams } = await import("./mermaid");
-			initMermaidDiagrams();
+			await initMermaidDiagrams();
 		},
 	},
 ];

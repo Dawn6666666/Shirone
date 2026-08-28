@@ -11,6 +11,7 @@ const optionalRuntimeModules = {
 	codeCollapse: /\/src\/utils\/code-collapse\.ts(?:\?|$)/,
 	katex: /\/src\/utils\/katex-scroll\.ts(?:\?|$)/,
 	mermaid: /\/src\/utils\/mermaid\.ts(?:\?|$)/,
+	mermaidStyles: /\/src\/styles\/mermaid\.css(?:\?|$)/,
 };
 
 function trackOptionalRuntimeRequests(page: Page): string[] {
@@ -34,7 +35,7 @@ function hasRequestFor(
 }
 
 test.describe("Markdown syntax runtime loading", () => {
-	test("defers math and Mermaid modules until a Swup target uses them", async ({
+	test("defers math and Mermaid assets until a Swup target uses them", async ({
 		page,
 	}) => {
 		const requests = trackOptionalRuntimeRequests(page);
@@ -45,6 +46,7 @@ test.describe("Markdown syntax runtime loading", () => {
 			hasRequestFor(requests, [
 				optionalRuntimeModules.katex,
 				optionalRuntimeModules.mermaid,
+				optionalRuntimeModules.mermaidStyles,
 			]),
 		).toBe(false);
 
@@ -65,6 +67,9 @@ test.describe("Markdown syntax runtime loading", () => {
 
 		expect(
 			requests.some((url) => optionalRuntimeModules.mermaid.test(url)),
+		).toBe(true);
+		expect(
+			requests.some((url) => optionalRuntimeModules.mermaidStyles.test(url)),
 		).toBe(true);
 		expect(requests.some((url) => optionalRuntimeModules.katex.test(url))).toBe(
 			true,
