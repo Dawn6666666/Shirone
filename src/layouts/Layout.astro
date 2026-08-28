@@ -331,14 +331,13 @@ scrollFunction();
 </script>
 
 <script>
-import { cleanupFancybox, initFancybox } from "../utils/fancybox-handler";
+import { bindFancyboxRuntime } from "../utils/fancybox-runtime";
 import { applyStoredLayoutMode } from "../utils/layout-mode";
 
+bindFancyboxRuntime();
+
 const setup = () => {
-	initFancybox();
-	window.swup.hooks.on("visit:start", cleanupFancybox);
 	window.swup.hooks.on("content:replace", () => {
-		initFancybox();
 		applyStoredLayoutMode(document.getElementById("post-list"));
 	});
 };

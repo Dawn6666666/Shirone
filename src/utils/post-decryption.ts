@@ -1,7 +1,7 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { siteConfig } from "@/config/siteConfig";
-import { initFancybox } from "./fancybox-handler";
+import { initFancyboxRuntime } from "./fancybox-runtime";
 import { initMarkdownRuntime } from "./markdown-runtime";
 import { prefersReducedMotion } from "./motion";
 
@@ -31,9 +31,7 @@ export function initPostDecryption(container: HTMLElement): void {
 		window.codeBlockCollapser.setupCodeBlocks(container);
 	}
 
-	void initFancybox().catch((error) => {
-		console.error("Failed to initialize Fancybox after post decryption", error);
-	});
+	void initFancyboxRuntime(container);
 
 	syncTableOfContents(container);
 

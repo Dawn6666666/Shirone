@@ -3,8 +3,10 @@ import { expect, test } from "@playwright/test";
 
 const PLAIN_POST_PATH = "/posts/admonitions/";
 const RICH_POST_PATH = "/posts/mdx-showcase/";
+const IMAGE_GRID_POST_PATH = "/posts/image-grid-demo/";
 
 const optionalRuntimeModules = {
+	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
 	katex: /\/src\/utils\/katex-scroll\.ts(?:\?|$)/,
 	mermaid: /\/src\/utils\/mermaid\.ts(?:\?|$)/,
 };
@@ -53,5 +55,30 @@ test.describe("Markdown syntax runtime loading", () => {
 		expect(requests.some((url) => optionalRuntimeModules.katex.test(url))).toBe(
 			true,
 		);
+	});
+
+	test("defers Fancybox until a Swup target contains a lightbox", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		expect(requests).toEqual([]);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			IMAGE_GRID_POST_PATH,
+		);
+		await page.waitForURL(`**${IMAGE_GRID_POST_PATH}`);
+		await expect(page.locator("html")).toHaveAttribute(
+			"data-fancybox-ready",
+			"true",
+			{ timeout: 15_000 },
+		);
+
+		expect(
+			requests.some((url) => optionalRuntimeModules.fancybox.test(url)),
+		).toBe(true);
 	});
 });
