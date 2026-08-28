@@ -10,6 +10,7 @@ const IMAGE_PRESENTATION_WIDTH_TOKEN = /(?:^|\s)w-(?:[1-9]\d?|100)%(?=\s|$)/;
 export function remarkFeatureProbes() {
 	return (tree, { data }) => {
 		const syntaxes = new Set();
+		if (tree.data?.shironeIncludes) syntaxes.add("include");
 
 		visit(tree, (node, _index, parent) => {
 			if (node.type === "math" || node.type === "inlineMath") {
