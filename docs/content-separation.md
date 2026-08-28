@@ -107,12 +107,45 @@ themeColor:
 | `announcement.yaml` | `announcementConfig` | `license.yaml` | `licenseConfig` |
 | `fab.yaml` | `fabConfig` | `image-bloom.yaml` | `imageBloomConfig` |
 | `footer.yaml` | `footerConfig` | `expressive-code.yaml` | `expressiveCodeConfig` |
+| `llms.yaml` | `llmsConfig` | | |
 
 各领域的可用键、默认值与逐项注释以代码仓的 `src/config/<domain>Config.ts` 为准——
 **注释就是配置文档**，本表不重复它。`.yml` 后缀同样接受；空文件与纯注释文件视作没有覆盖。
 
 `config/footer.html` 是唯一的非 YAML 入口，原样拷贝到 `src/config/FooterConfig.html`，
 需要同时在 `footer.yaml` 里 `enable: true` 才会注入。
+
+`config/llms.yaml` 覆盖 `/llms.txt` 与 `/llms-full.txt` 的生成行为（A 级纯数据领域，
+不含任何函数或预设引用，因此走标准的「默认值 ⊕ 覆盖」）：
+
+```yaml
+# config/llms.yaml
+siteSummary: 一个关注 Web 与设计系统的中文技术博客
+generateFull: true
+descriptionMaxLength: 200
+excludeTags:            # 数组整体替换：命中任一标签的文章不进 LLM 产物
+  - secret
+  - private
+  - 日记
+corePages:              # 整体替换默认的 Home / About / Archive
+  - title: 首页
+    url: /
+    description: 最新文章流入口
+  - title: 关于
+    url: /about/
+    description: 作者资料与技术栈
+customSections:
+  - title: Open Source
+    description: 作者维护的开源项目
+    items:
+      - title: Shirone
+        url: https://github.com/LyraVoid/Shirone
+        description: Astro 的 M3E 博客主题
+```
+
+`siteSummary` 留空时自动回退到 `siteConfig.subtitle` 或 `profileConfig.bio`。
+这里写下的中文文本会被 `scripts/fonts/text-collector.mjs` 通过 `src/user/` 纳入字形收集，
+因此不会在子集字体里缺字。
 
 ### 校验：用主题自己的类型，而不是第二套 schema
 
@@ -369,6 +402,13 @@ pnpm content:eject --yes --out ..\my-content
 - **`frontmatter.json`（Front Matter CMS）仍指向 `src/content/posts`。** 在 `external` 模式下
   那是物化产物，在其中编辑会被下一次 `content:sync` 覆盖。请在内容仓中编辑。
 - **`content:watch` 只支持 `type: "path"`。** 远端内容仓没有本地文件可监听。
+- **`@[code-tree](<dir>)` 的目录必须落在代码仓工作区内。** `src/plugins/markdown/code/remark-code-tree.mjs`
+  的 `scanLocalDirectory()` 以代码仓根目录为基准解析路径，并拒绝逃出根目录的路径（解析后返回空清单）。
+  在 `external` 模式下，内容仓的目录要先被物化才可见，因此引用的目录只能写物化后的路径
+  （如 `src/content/posts/<slug>/snippets`、`src/data/...`），不能指向内容仓自己的目录结构
+  （`content/posts/...`）。其余 Markdown 扩展（admonitions、collapse-panels、steps、markers、
+  abbreviations、content-annotations、option-groups）只在 AST 与客户端脚本层工作，不读文件系统，
+  物化后天然兼容，无需任何适配。
 - **内容仓体积**会随图片增长。暂不引入 Git LFS（会同时复杂化 `actions/checkout`
   与部分平台的 Git 集成），到百 MB 量级再评估。
 

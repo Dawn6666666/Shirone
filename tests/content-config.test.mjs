@@ -286,6 +286,25 @@ describe("生成覆盖层模块", () => {
 			/userConfigSources: readonly string\[\] = \[\n\t"config\/site\.yaml",/,
 		);
 	});
+
+	it("llms 走 A 级纯数据领域，按 DeepPartial<LlmsConfig> 标注", () => {
+		const { source } = generateModule([
+			{
+				domain: DOMAIN_BY_FILE.llms,
+				file: "config/llms.yaml",
+				value: {
+					siteSummary: "面向大模型的站点简介",
+					corePages: [{ title: "Home", url: "/" }],
+				},
+			},
+		]);
+		assert.match(
+			source,
+			/import type \{ LlmsConfig \} from "@\/types\/llmsConfig";/,
+		);
+		assert.match(source, /const llms: DeepPartial<LlmsConfig> = \{/);
+		assert.match(source, /llms,/);
+	});
 });
 
 describe("类型校验（真实 tsc，跑在本仓库上）", () => {
@@ -360,5 +379,49 @@ describe("类型校验（真实 tsc，跑在本仓库上）", () => {
 		const broken = { "license.yaml": "enablee: true\n" };
 		expectFailure(() => validate(broken), /config\/license\.yaml 的 enablee/);
 		expectFailure(() => validate(broken), /config\/license\.yaml 的 enablee/);
+	});
+
+	it("llms.yaml 的合法覆盖通过校验", () => {
+		const result = validate({
+			"llms.yaml": [
+				"siteSummary: 面向大模型的站点简介",
+				"generateFull: false",
+				"descriptionMaxLength: 320",
+				"excludeTags:",
+				"  - secret",
+				"  - 私密",
+				"corePages:",
+				"  - title: 首页",
+				'    url: "/"',
+				"    description: 最新文章流入口",
+				"",
+			].join("\n"),
+		});
+		assert.deepEqual(result.files, ["config/llms.yaml"]);
+	});
+
+	it("llms.yaml 拼错的键给出 Did you mean 提示", () => {
+		expectFailure(
+			() => validate({ "llms.yaml": "siteSumary: oops\n" }),
+			/config\/llms\.yaml 的 siteSumary.*Did you mean to write 'siteSummary'/s,
+		);
+		expectFailure(
+			() => validate({ "llms.yaml": "excludeTagss:\n  - secret\n" }),
+			/config\/llms\.yaml 的 excludeTagss.*Did you mean to write 'excludeTags'/s,
+		);
+	});
+
+	it("llms.yaml 的 corePages 元素同样受完整类型约束", () => {
+		expectFailure(
+			() =>
+				validate({
+					"llms.yaml": "corePages:\n  - title: Home\n    urls: /\n",
+				}),
+			/config\/llms\.yaml 的 corePages\[0\]\.urls/,
+		);
+		expectFailure(
+			() => validate({ "llms.yaml": "descriptionMaxLength: 很长\n" }),
+			/config\/llms\.yaml 的 descriptionMaxLength/,
+		);
 	});
 });
