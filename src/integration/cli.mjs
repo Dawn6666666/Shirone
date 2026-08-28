@@ -80,6 +80,41 @@ async function countFiles(dir) {
  */
 const REQUIRED_PEERS = ["svelte"];
 
+/** Dependencies whose install scripts must be allowed to run. */
+const BUILT_DEPENDENCIES = ["esbuild", "sharp"];
+
+/**
+ * pnpm 11 stopped reading the `pnpm` field in package.json and moved settings
+ * to `pnpm-workspace.yaml`. We write both so the scaffold installs cleanly on
+ * pnpm 10 and 11 alike, and is simply ignored by npm and yarn.
+ */
+async function ensurePnpmWorkspace() {
+	const file = join(CWD, "pnpm-workspace.yaml");
+	if (existsSync(file)) {
+		const current = await readFile(file, "utf8");
+		if (current.includes("onlyBuiltDependencies")) {
+			log.skip("pnpm-workspace.yaml already configured");
+			return;
+		}
+		await writeFile(
+			file,
+			`${current.trimEnd()}\n\nonlyBuiltDependencies:\n${BUILT_DEPENDENCIES.map(
+				(dep) => `  - ${dep}`,
+			).join("\n")}\n`,
+			"utf8",
+		);
+	} else {
+		await writeFile(
+			file,
+			`# Allows these dependencies to run their install scripts.\n` +
+				`# sharp powers Astro's image optimisation and will not work without it.\n` +
+				`onlyBuiltDependencies:\n${BUILT_DEPENDENCIES.map((dep) => `  - ${dep}`).join("\n")}\n`,
+			"utf8",
+		);
+	}
+	log.ok("pnpm-workspace.yaml");
+}
+
 async function ensurePackageJsonScripts(packageName) {
 	const pkgPath = join(CWD, "package.json");
 	if (!existsSync(pkgPath)) return;
@@ -119,11 +154,10 @@ async function ensurePackageJsonScripts(packageName) {
 	// pnpm >= 10 refuses to silently skip a dependency's build script, and
 	// `sharp` (image optimisation) needs its. Without this a fresh project
 	// fails `pnpm install` with ERR_PNPM_IGNORED_BUILDS.
-	const builtDeps = ["esbuild", "sharp"];
 	pkg.pnpm ??= {};
 	const existing = new Set(pkg.pnpm.onlyBuiltDependencies ?? []);
-	if (builtDeps.some((dep) => !existing.has(dep))) {
-		for (const dep of builtDeps) existing.add(dep);
+	if (BUILT_DEPENDENCIES.some((dep) => !existing.has(dep))) {
+		for (const dep of BUILT_DEPENDENCIES) existing.add(dep);
 		pkg.pnpm.onlyBuiltDependencies = [...existing].sort();
 		changed = true;
 	}
@@ -239,6 +273,7 @@ async function init(args) {
 	// 5. Project metadata.
 	await ensureTsConfig(packageName, { force });
 	const addedPeers = await ensurePackageJsonScripts(packageName);
+	await ensurePnpmWorkspace();
 
 	const postCount = await countFiles(join(CWD, CONTENT_ROOT, "content/posts"));
 
