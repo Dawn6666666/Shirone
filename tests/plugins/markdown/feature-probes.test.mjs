@@ -20,6 +20,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		steps: false,
 		admonitions: false,
 		abbreviations: false,
+		imageGrids: false,
 		optionGroups: false,
 	});
 
@@ -39,6 +40,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		steps: false,
 		admonitions: false,
 		abbreviations: false,
+		imageGrids: false,
 		optionGroups: false,
 	});
 });
@@ -138,6 +140,16 @@ test("records option group containers after syntax normalization", async () => {
 	);
 });
 
+test("records image grid containers before directive normalization", async () => {
+	const imageGrid = await renderer.render(
+		":::grid\n\n![Example](/images/example.webp)\n\n:::",
+	);
+	assert.equal(
+		imageGrid.metadata.frontmatter.markdownFeatures.imageGrids,
+		true,
+	);
+});
+
 test("records defined content annotations after reference resolution", async () => {
 	const annotations = await renderer.render(
 		"A note [+example].\n\n[+example]: Annotation content.",
@@ -169,6 +181,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				steps: false,
 				admonitions: false,
 				abbreviations: false,
+				imageGrids: false,
 				optionGroups: false,
 			},
 			hasMath: false,

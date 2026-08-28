@@ -119,6 +119,33 @@ test.describe("Markdown syntax runtime loading", () => {
 		).toBe(true);
 	});
 
+	test("adds and removes image grid styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="image-grids"]'),
+		).toHaveCount(0);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			IMAGE_GRID_POST_PATH,
+		);
+		await page.waitForURL(`**${IMAGE_GRID_POST_PATH}`);
+		const imageGrid = page.locator(".image-grid").first();
+		await expect(
+			page.locator('style[data-swup-optional="image-grids"]'),
+		).toHaveCount(1);
+		await expect(imageGrid).toHaveCSS("display", "grid");
+
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="image-grids"]'),
+		).toHaveCount(0);
+	});
+
 	test("loads code-collapse only for Markdown content with code blocks", async ({
 		page,
 	}) => {

@@ -17,6 +17,7 @@ export function remarkFeatureProbes() {
 			steps: false,
 			admonitions: false,
 			abbreviations: false,
+			imageGrids: false,
 			optionGroups: false,
 		};
 
@@ -73,6 +74,9 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "abbreviation") {
 				markdownFeatures.abbreviations = true;
+			}
+			if (node.type === "containerDirective" && node.name === "grid") {
+				markdownFeatures.imageGrids = true;
 			}
 			if (node.type === "containerDirective" && node.name === "tabs") {
 				markdownFeatures.optionGroups = true;
