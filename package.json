@@ -32,6 +32,7 @@
     "content:watch": "node scripts/content/sync.mjs --watch",
     "content:validate": "node scripts/content/sync.mjs --dry-run",
     "content:eject": "node scripts/content/eject.mjs",
+    "content:export": "node scripts/content/export.mjs",
     "design:lint": "node scripts/check-design.mjs",
     "check:manifest": "node scripts/check-manifest.mjs && node scripts/check-markdown-manifest.mjs",
     "check:markdown-manifest": "node scripts/check-markdown-manifest.mjs",

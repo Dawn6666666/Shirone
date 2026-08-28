@@ -75,6 +75,24 @@ export const siteConfig: SiteConfig = withUserConfig("site", {
 并调用 `i18n()`，深合并只会得到一堆未解析的引用，因此它由 `resolveNavBarLinks()`
 把内容仓的声明式条目还原成 `NavBarLink`。
 
+### 反向导出覆盖层（`content:export --config`）
+
+覆盖层是双向的：`pnpm content:export --config` 会求「当前生效配置」与「主题默认值」的差，
+把最小覆盖集写回内容仓的 `config/*.yaml`（保留用户已有的注释与格式，只增改不删键）。
+它是 `deepMerge` 的精确逆运算，因此喂回 `content:sync` 之后生效配置逐字段不变。
+
+典型用途是救援：`content:clean` 会把 `src/user/user-config.ts` 重置成空覆盖层，
+在那份生成物里的改动会因此丢失；导出能先把它固化成 YAML。默认只预演，用法与安全机制见
+[`docs/content-separation.md`](../../docs/content-separation.md) 的「反向导出」。
+
+两条边界要知道：
+
+- **`navBar` 不参与导出**。`resolveNavBarLinks()` 的解析不可逆，`config/nav-bar.yaml` 只能手工维护；
+- **不会把本目录的源码改动提升成覆盖**。直接修改 `<domain>Config.ts` 里的默认值字面量时，
+  「默认值」与「生效值」同步变化，差分为空，那处改动不会进入导出计划。
+  这是有意为之：把当前默认值提升成内容仓的永久覆盖，等于把配置冻结在这一版主题上。
+  想固化就在 fork 里提交它，或照常在内容仓写一条对应的 YAML 覆盖。
+
 领域键与 YAML 文件名一律 kebab-case 对应驼峰：`llms` ↔ `config/llms.yaml` ↔ `llmsConfig`，
 `postList` ↔ `config/post-list.yaml` ↔ `postListConfig`。
 

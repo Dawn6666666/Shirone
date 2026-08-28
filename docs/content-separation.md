@@ -289,10 +289,20 @@ links:
 | 命令 | 说明 |
 | --- | --- |
 | `pnpm content:sync` | 物化内容，写出 `content.lock.json`。已并入 `dev` / `start` / `build` 的首位 |
+| `pnpm content:export` | **反向导出**：把代码仓侧的改动回写内容仓。**默认只预演**，加 `--yes` 才执行 |
 | `pnpm content:clean` | 清理物化内容与配置覆盖，恢复主题自带内容状态。**默认只预演**，加 `--yes` 才执行 |
 | `pnpm content:watch` | 物化后持续监听本地内容目录，边写边同步（仅 `type: "path"`） |
 | `pnpm content:validate` | `--dry-run`，只校验结构与冲突，不落盘 |
 | `pnpm content:eject` | 一次性迁移到 `external` 模式，默认只预演 |
+
+四条命令构成一个闭环：
+
+```text
+内容仓 ──content:sync──▶ 代码仓          物化
+内容仓 ◀──content:export── 代码仓        反向导出
+代码仓 ──content:clean──▶ 主题自带态      清理
+内容仓 ◀──content:eject── 代码仓          一次性迁出
+```
 
 `content.lock.json`（已 gitignore）记录本次构建用了哪个内容 commit 与各挂载点统计，用于溯源与回滚。
 
@@ -329,7 +339,139 @@ pnpm dev
 
 `shirone.content.json` 里写成 `{ "source": { "type": "path", "path": "../shirone-content" } }`。
 
-## 安全清理与回退 (`content:clean`)
+## 反向导出 (`content:export`)
+
+`content:sync` 是单向的，而且带裁剪：在 `src/content/posts/` 里新写的文章，会在下一次
+`pnpm dev`（首步就是 sync）被当成「内容仓已删除的文件」**直接删掉**。
+`content:export` 补齐反方向的通道，把代码仓侧的改动先送回内容仓，再由 sync 正常物化回来。
+
+```powershell
+pnpm content:export                 # 预演：只打印导出计划
+pnpm content:export --yes           # 实际执行
+pnpm content:export --yes --config  # 只回写配置
+```
+
+与 `content:eject`、`content:clean` 一致，**默认只预演**。
+
+| 参数 | 作用 |
+| --- | --- |
+| `--yes` | 实际执行（不加就只是预演；`--dry-run` 优先级更高，可用于脚本兜底） |
+| `--config` / `--posts` | 只导出配置 / 只导出内容文件；都不给等于两者都导出 |
+| `--prune` | 允许删除内容仓中代码仓已不存在的文件（**默认关闭**） |
+| `--prune-config` | 允许删除内容仓 YAML 中「已等于主题默认值」的冗余键（**默认关闭**） |
+| `--force` | 跳过「内容仓工作区干净」与「物化状态一致」两项检查 |
+| `--out <dir>` | 覆盖导出目标（默认取当前生效的内容源目录） |
+
+### 内容文件：挂载表反转
+
+把当前生效的 `mounts` 反过来用（`src/content/` → `content/`），逐文件按 **SHA-256 内容哈希**比对，
+分成新增 / 更新 / 跳过（哈希相同）/ 豁免四类。不用 mtime：`sync` 拷贝后会把源文件的 mtime
+回写到目标，两侧 mtime 永远相同，反向比对时它只会说「一致」。
+
+导出方向的顶层段规则与 sync 的裁剪规则对称——**只有内容仓确实拥有的顶层段才参与**。
+因此 `public/favicon/`、`src/assets/fonts/` 这类主题自有目录和 `public/pagefind/` 这类构建产物
+不会被倒进内容仓。未参与的顶层段会在计划里明确列出，不做静默丢弃。
+
+永不导出的路径（内容仓持有它们会让 `content:sync` **直接报错**）：
+
+- `public/assets/moments/thumbnails/**`、`public/assets/anime/covers/**`、`src/assets/fonts/.subset/**`
+- `src/data/anime-snapshots/**`（外部 API 拉取的快照）与各目录的 `.gitkeep`
+- `shirone.content.json` 的 `keep` 声明为代码仓自有的文件
+
+文本文件比对前会抹平 `\r\n`：Windows `core.autocrlf=true` 的检出会把被跟踪的 Markdown 变成 CRLF，
+按原始字节比会把整仓文本判成「全都变了」。写出时统一归一化成 LF，避免内容仓出现纯换行的假 diff。
+
+### 配置：求 `deepMerge` 的逆
+
+导出的是「当前生效配置」与「主题默认值」的差，也就是**用户必须写下的最小覆盖集**：
+
+```text
+diff(default, effective):
+  两者深相等            → 省略（不写这个键）
+  任一侧是数组且不相等  → 整体写出 effective 的数组（数组不逐项 diff）
+  两侧都是纯对象        → 逐键递归，收集非空结果
+  其余（标量/类型不同） → 写出 effective
+```
+
+规则与 `src/utils/config-overlay.ts` 的 `deepMerge` 逐条对应，因此
+`deepMerge(defaults, diffConfig(defaults, effective)) ≡ effective`——喂回 sync 后生效配置逐字段不变。
+
+「主题默认值」拿不到是这里的难点：`withUserConfig()` 返回的已经是合并后的值。解法是起一个子进程，
+用 `module.register()` 把 `src/user/user-config.ts` 拦截成空覆盖层，再在该进程里 import 各配置模块，
+`withUserConfig()` 于是原样返回默认值字面量。**不改任何运行时源码、不落盘、对客户端 bundle 零影响**，
+默认值与生效值来自两个独立进程，ESM 模块缓存也不会串味。
+
+其余约定：
+
+- **保留注释与格式**：走 `yaml` 的 `parseDocument` + `setIn` 逐叶子写入，不做 `parse` → `stringify` 整文件重写，
+  用户手写的文件头注释与行内注释原样保留；
+- **只增改不删键**：内容仓里已有、但现在恰好等于默认值的键会被保留——用户写下它可能就是为了钉住这个值
+  不跟随主题升级，静默删掉会改变意图。需要清理走显式的 `--prune-config`；
+- **写后校验**：导出完立刻用 `readConfigOverrides()` + `generateModule()` + `typeCheckModule()`
+  复查一遍，与 `content:sync` 是同一条校验路径。把过不了 `tsc` 的 YAML 留在内容仓，等于让内容仓的下一次 CI 直接红掉；
+- **疑似凭据只告警不阻断**：键名形如 `token` / `secret` / `apiKey`，或值命中已知令牌前缀时给出警告。
+  `sessdataEnv`（环境变量**名**）与 `twikoo.envId`（公开标识符）不会误报。
+
+`config/footer.html` 同样反向导出，来源是 `src/config/FooterConfig.html`。
+
+#### `nav-bar` 是唯一的例外
+
+`navBarConfig` 不走 `withUserConfig()`，而是用 `getUserConfig("navBar")` 取原始覆盖，
+再由 `resolveNavBarLinks()` 把 `{ preset: "Home" }` / `"$t:home"` 还原成 `NavBarLink`。
+这一步**有损**：`i18n()` 与 `LinkPresets` 解析之后无法反推回声明式写法，硬凑出来的结果
+一定会在某些配置下出错。因此 `config/nav-bar.yaml` 不纳入导出，请手工维护——
+计划输出里会显式告知这一点，而不是静默跳过。
+
+### 安全机制
+
+导出是向**另一个 git 仓库**写入，比 clean 更危险，因此闸门更密：
+
+1. **默认只预演**：计划分「新增 / 更新 / 跳过 / 豁免」四类，各给数量与前若干条路径；
+2. **拒绝 `local` 模式**（没有内容仓可写）与 **`CI=true`**（这是本地开发命令，CI 里只该跑 sync）；
+3. **拒绝 `type: "git"` 的内容源**：`.content-src/` 是 `--depth 1` + `checkout --detach FETCH_HEAD`
+   的浅工作副本，往里写并提交会落在游离 HEAD 上直接丢失（与 `content:watch` 只支持 `type: "path"` 同源）。
+   需要时用 `--out` 指向一份真正的本地检出；
+4. **要求内容仓工作区干净**，否则拒绝并列出全部脏文件；`--force` 可跳过，但清单照样打印。
+   内容仓不是 git 仓库时降级为告警。计划为空（没有任何可写内容）时不做这项检查，
+   因此「导出后不提交、直接再跑一次确认幂等」不必被迫加 `--force`；
+5. **校验物化状态**：生效配置读自 `src/user/user-config.ts`，它是上一次 sync 的产物。
+   它与内容仓 `config/` 现状不一致时**拒绝执行**——否则导出会把过期的值写回去，
+   静默盖掉你在内容仓那边的新改动。修复方式是先跑一次 `content:sync`；
+6. **默认绝不删除**内容仓文件：「代码仓里没有」有太多良性解释（手工清理过物化产物、`keep` 生效、豁免路径）。
+   `--prune` 才允许删除，且删除前必然先备份；
+7. **快照备份**：所有将被覆盖或删除的文件先复制到内容仓的 `.export-backup/<timestamp>/`
+   （首次运行会把该路径补写进内容仓的 `.gitignore`），附 `manifest.json` 记录两侧 HEAD、范围、统计与还原命令。
+   中文路径同样完整备份（内部统一用 `core.quotepath=false` + `-z` 读取 git 路径）；
+8. **失败即熔断**，并明确区分「未向内容仓写入任何内容」与「已写入部分文件（备份在 X）」；
+9. **交叉校验 `content.lock.json`**：导出目标与上次同步记录的内容源对不上时告警，提示可能指错了仓库；
+10. **收尾体检**：提示在内容仓 commit & push，并明确「代码仓的 `src/content/` 仍是物化产物，
+    下次 sync 以内容仓为准」。
+
+**本脚本绝不修改代码仓的 `.gitignore`、git 索引或 `shirone.content.json`**，也不会替你在内容仓 commit / push。
+
+### 与 `content:eject` 的边界
+
+| | `content:eject` | `content:export` |
+| --- | --- | --- |
+| 执行次数 | 一次性 | 可反复 |
+| 目标目录 | 必须为空或 `--force` | 必须是**已存在**的内容仓 |
+| 改代码仓 `.gitignore` / git 索引 / `shirone.content.json` | 会 | **绝不** |
+| 导出范围 | 写死子目录的白名单 | 按当前生效的 `mounts` 反转 |
+| 配置产出 | 只倒「站点身份」起步文件（刻意不全量，避免冻结主题版本） | 按 diff 增量回写全部可导出领域 |
+| 生成 README / workflow 起步文件 | 会 | 不会 |
+
+两者的规则表刻意**不共用**：eject 的白名单是「一次性迁出用户内容」的语义，
+强行复用会在 `mounts` 被自定义时导出到错误的位置。
+
+### 它不做的事
+
+`content:export` 回写的是**覆盖层**，不会把 `src/config/*Config.ts` 里的本地源码改动提升成覆盖。
+在工作区改了配置模块的默认值字面量时，「主题默认值」与「生效值」同步变化，差分结果为空，
+因此那处改动不会出现在导出计划里。这是有意为之——把此刻的默认值提升成内容仓的永久覆盖，
+等于把配置冻结在这一版主题上，日后主题新增的默认值再也进不来（`content:eject` 只倒站点身份，同源于此）。
+真要固化这类改动，请在 fork 里提交它，或照常在内容仓写一条对应的 YAML 覆盖。
+
+
 
 从物化状态回到「主题自带内容」的状态：
 
@@ -497,7 +639,8 @@ pnpm content:eject --yes --out ..\my-content
 - **`data/*.ts` 与代码仓类型耦合。** 内容仓的数据文件会 `import type { ProjectItem } from "@/types/projectsConfig"`。
   主题升级若改动这些类型，内容仓会构建失败——这是有意接受的取舍，失败明确且由 `astro check` 捕获。
 - **`frontmatter.json`（Front Matter CMS）仍指向 `src/content/posts`。** 在 `external` 模式下
-  那是物化产物，在其中编辑会被下一次 `content:sync` 覆盖。请在内容仓中编辑。
+  那是物化产物，在其中编辑会被下一次 `content:sync` 覆盖。请在内容仓中编辑；
+  已经写在物化目录里的改动可以用 `pnpm content:export` 先救回内容仓，再由 sync 正常物化回来。
 - **`content:watch` 只支持 `type: "path"`。** 远端内容仓没有本地文件可监听。
 - **`@[code-tree](<dir>)` 的目录必须落在代码仓工作区内。** `src/plugins/markdown/code/remark-code-tree.mjs`
   的 `scanLocalDirectory()` 以代码仓根目录为基准解析路径，并拒绝逃出根目录的路径（解析后返回空清单）。
@@ -513,6 +656,7 @@ pnpm content:eject --yes --out ..\my-content
 
 ```powershell
 pnpm content:validate           # 结构、冲突与配置类型
+pnpm content:export             # 预演反向导出计划（不修改文件）
 pnpm content:clean              # 预演清理计划（不修改文件）
 node --test tests/content-*.test.mjs
 npx.cmd astro check             # 0 error 0 warning
