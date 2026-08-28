@@ -47,6 +47,13 @@ const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 		},
 	},
 	{
+		selector: ".m3-spoiler[data-spoiler]",
+		initialize: async (root) => {
+			const { initSpoilers } = await import("./spoilers");
+			initSpoilers(root);
+		},
+	},
+	{
 		selector: ".katex-display",
 		initialize: async (root) => {
 			const { initKaTeXScrollbars } = await import("./katex-scroll");

@@ -58,6 +58,11 @@
 			"styles": ["src/styles/markdown/option-groups.css"]
 		},
 		{
+			"id": "spoiler",
+			"syntaxes": ["spoiler"],
+			"styles": ["src/styles/markdown/spoiler.css"]
+		},
+		{
 			"id": "steps",
 			"syntaxes": ["steps"],
 			"styles": ["src/styles/markdown/steps.css"]
@@ -648,7 +653,10 @@
 				"modules": [],
 				"network": ["author-declared image URLs only"]
 			},
-			"docs": ["src/content/posts/markdown-extended.md"],
+			"docs": [
+				"src/content/posts/spoilers.md",
+				"docs/markdown-extensions.md"
+			],
 			"tests": ["tests/plugins/rehype-markdown-images.test.mjs"],
 			"notes": ["非法或越界宽度令牌保留在 alt，不静默改写。"]
 		},
@@ -832,9 +840,9 @@
 		{
 			"id": "spoiler",
 			"name": "Inline Spoiler",
-			"status": "legacy",
+			"status": "stable",
 			"category": "text-directive",
-			"source": "integration",
+			"source": "shirone",
 			"summary": "将 text directive 输出为 spoiler 自定义元素并使用 CSS 隐藏内容。",
 			"forms": [
 				{
@@ -844,16 +852,19 @@
 				}
 			],
 			"attributes": [],
-			"implementation": ["src/plugins/remark-directive-rehype.js"],
+			"implementation": ["src/plugins/rehype-component-spoiler.mjs"],
 			"registeredIn": "src/utils/markdown-processor.mjs",
-			"styles": ["src/styles/main.css"],
+			"styles": ["src/styles/markdown/spoiler.css"],
 			"runtime": {
-				"mode": "none",
-				"modules": [],
+				"mode": "client-enhanced",
+				"modules": ["src/utils/spoilers.ts"],
 				"network": []
 			},
 			"docs": ["src/content/posts/markdown-extended.md"],
-			"tests": [],
+			"tests": [
+				"tests/plugins/markdown/inline/spoilers.test.mjs",
+				"tests/site/spoilers.spec.ts"
+			],
 			"notes": ["保留兼容；缺少触屏与键盘契约，不作为新行内语法样板。"]
 		},
 		{

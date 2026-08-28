@@ -30,6 +30,7 @@ import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs"
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
 import { MarkerComponent } from "../plugins/rehype-component-marker.mjs";
+import { SpoilerComponent } from "../plugins/rehype-component-spoiler.mjs";
 import { rehypeMarkdownImages } from "../plugins/rehype-markdown-images.mjs";
 import { rehypeResponsiveTables } from "../plugins/rehype-responsive-tables.mjs";
 import { parseDirectiveNode } from "../plugins/remark-directive-rehype.js";
@@ -89,6 +90,7 @@ export const siteRehypePlugins = [
 				warning: (x, y) => AdmonitionComponent(x, y, "warning"),
 				"admonition-details": (x, y) => AdmonitionComponent(x, y, "details"),
 				"m3-mark": MarkerComponent,
+				spoiler: SpoilerComponent,
 			},
 		},
 	],
