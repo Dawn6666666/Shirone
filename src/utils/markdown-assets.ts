@@ -1,54 +1,65 @@
-// The stylesheets are inlined by the bundler rather than read from disk at
-// render time: `process.cwd()` is the *user's* project when the theme runs as
-// an npm package, where `src/styles/` does not exist, so a filesystem lookup
-// would fail the build for every article that uses these features.
-import collapsePanelsCss from "../styles/markdown/collapse-panels.css?raw";
-import treesCss from "../styles/markdown/trees.css?raw";
-
-type MarkdownAssetFeature = "collapsePanels" | "trees";
-type MarkdownStylesheetPack = "collapse-panels" | "trees";
-
-export type MarkdownFeatureSnapshot = Partial<
-	Record<MarkdownAssetFeature, boolean>
->;
-
-export type MarkdownStylesheetAsset = {
-	pack: MarkdownStylesheetPack;
-	loadCss: () => Promise<string>;
+import markdownManifest from "../plugins/markdown/manifest.json" with {
+	type: "json",
 };
 
-const stylesheetAssets: Record<
-	MarkdownAssetFeature,
-	readonly MarkdownStylesheetAsset[]
-> = {
-	collapsePanels: [
-		{
-			pack: "collapse-panels",
-			loadCss: async () => collapsePanelsCss,
-		},
-	],
-	trees: [
-		{
-			pack: "trees",
-			loadCss: async () => treesCss,
-		},
-	],
+type MarkdownStylesheetPack = {
+	id: string;
+	syntaxes: readonly string[];
+	styles: readonly string[];
 };
+
+type MarkdownSyntaxSnapshot = {
+	schema: 1;
+	syntaxes: readonly string[];
+};
+
+const stylesheetPacks =
+	markdownManifest.stylesheetPacks as readonly MarkdownStylesheetPack[];
 
 /**
- * Resolves page-scoped stylesheets from the Markdown compiler's feature snapshot.
- * The template marks each style block as Swup-optional so stale syntax styles are removed.
+ * Every stylesheet a pack can reference, inlined by the bundler.
+ *
+ * The manifest addresses stylesheets as repository-relative paths
+ * (`src/styles/markdown/trees.css`), which cannot be turned into a filesystem
+ * read: rendering resolves paths against `process.cwd()`, and when the theme is
+ * installed as an npm package that is the *user's* project, which has no
+ * `src/styles/`. Every article using a deferred pack would fail the build.
+ *
+ * Globbing keeps the manifest as the single source of truth while letting Vite
+ * resolve the files relative to this module, which is correct in both modes.
+ */
+const stylesheetSources = import.meta.glob("../styles/**/*.css", {
+	query: "?raw",
+	import: "default",
+	eager: true,
+}) as Record<string, string>;
+
+/** `src/styles/markdown/trees.css` → the glob key `../styles/markdown/trees.css`. */
+function readStylesheet(stylePath: string): string {
+	const key = `../${stylePath.replace(/^src\//, "")}`;
+	const css = stylesheetSources[key];
+	if (css === undefined) {
+		throw new Error(
+			`[markdown-assets] ${stylePath} is declared in the Markdown manifest but was not found under src/styles/.`,
+		);
+	}
+	return css;
+}
+
+/**
+ * Resolves page-scoped stylesheets from manifest-owned syntax declarations.
+ * The template marks each style block as Swup-optional so stale syntax styles
+ * are removed during Swup navigation.
  */
 export async function getMarkdownStylesheetAssets(
-	features: MarkdownFeatureSnapshot,
-): Promise<Array<{ pack: MarkdownStylesheetPack; css: string }>> {
-	const assets = (
-		Object.keys(stylesheetAssets) as MarkdownAssetFeature[]
-	).flatMap((feature) => (features[feature] ? stylesheetAssets[feature] : []));
-	return Promise.all(
-		assets.map(async ({ pack, loadCss }) => ({
-			pack,
-			css: await loadCss(),
-		})),
+	snapshot: MarkdownSyntaxSnapshot,
+): Promise<Array<{ pack: string; css: string }>> {
+	const activePacks = stylesheetPacks.filter(({ syntaxes }) =>
+		syntaxes.some((syntaxId) => snapshot.syntaxes.includes(syntaxId)),
 	);
+
+	return activePacks.map(({ id, styles }) => ({
+		pack: id,
+		css: styles.map(readStylesheet).join("\n"),
+	}));
 }
