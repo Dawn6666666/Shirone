@@ -27,6 +27,7 @@
     "dev": "node scripts/content/sync.mjs && node scripts/icons/generate-local-icons.mjs && node scripts/images/generate-moment-thumbnails.mjs && astro dev",
     "start": "node scripts/content/sync.mjs && node scripts/icons/generate-local-icons.mjs && node scripts/images/generate-moment-thumbnails.mjs && astro dev",
     "check": "astro check",
+    "content": "node scripts/content/cli.mjs",
     "content:sync": "node scripts/content/sync.mjs",
     "content:clean": "node scripts/content/clean.mjs",
     "content:watch": "node scripts/content/sync.mjs --watch",

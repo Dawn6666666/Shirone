@@ -82,8 +82,24 @@ const args = process.argv.slice(2);
 const options = {
 	apply: args.includes("--yes"),
 	force: args.includes("--force"),
+	help: args.includes("--help") || args.includes("-h"),
 	out: "../shirone-content",
 };
+
+if (options.help) {
+	console.log(
+		[
+			"用法：node scripts/content/eject.mjs [--yes] [--force] [--out <dir>]",
+			"",
+			"  （无参数）        预演模式：打印将要导出的文件与配置计划，不修改任何文件",
+			"  --yes             实际执行迁移，将仓内内容解耦导出为独立内容仓",
+			"  --out <dir>       指定导出目标目录（默认：../shirone-content）",
+			"  --force           强制导出（允许导出到非空目录或在工作区不干净时执行）",
+		].join("\n"),
+	);
+	process.exit(0);
+}
+
 const outIndex = args.indexOf("--out");
 if (outIndex !== -1) {
 	if (!args[outIndex + 1]) {

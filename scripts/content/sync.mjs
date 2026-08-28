@@ -66,7 +66,23 @@ const options = {
 	watchMode: args.has("--watch"),
 	prune: !args.has("--no-prune"),
 	quiet: args.has("--quiet"),
+	help: args.has("--help") || args.has("-h"),
 };
+
+if (options.help) {
+	console.log(
+		[
+			"用法：node scripts/content/sync.mjs [--dry-run] [--watch] [--no-prune] [--quiet]",
+			"",
+			"  （无参数）    将内容仓目录物化到代码仓标准路径，并编译配置覆盖",
+			"  --dry-run     预演：只校验结构与冲突，不向磁盘写入任何文件",
+			"  --watch       监听模式：实时监听本地内容目录，保存时自动触发增量物化",
+			"  --no-prune    保留代码仓中已不存在于内容仓的文件（不执行裁剪）",
+			"  --quiet       静默输出，仅报告错误与警告",
+		].join("\n"),
+	);
+	process.exit(0);
+}
 
 function log(message) {
 	if (!options.quiet) console.log(`[content] ${message}`);
