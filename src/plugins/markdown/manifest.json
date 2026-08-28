@@ -526,7 +526,7 @@
 			"status": "legacy",
 			"category": "leaf-directive",
 			"source": "shirone",
-			"summary": "根据 owner/repo 渲染仓库卡片，并在客户端读取 GitHub API。",
+			"summary": "根据 owner/repo 渲染可访问的仓库卡片，并按需读取 GitHub API 的仓库元数据。",
 			"forms": [
 				{
 					"kind": "leaf-directive",
@@ -546,16 +546,22 @@
 			"registeredIn": "src/utils/markdown-processor.mjs",
 			"styles": ["src/styles/markdown-extend.styl"],
 			"runtime": {
-				"mode": "inline-client",
-				"modules": [],
-				"network": ["https://api.github.com/repos/{owner}/{repo}"]
+				"mode": "client-enhanced",
+				"modules": ["src/utils/github-cards.ts"],
+				"network": [
+					"https://api.github.com/repos/{owner}/{repo}",
+					"avatar_url returned by the GitHub API"
+				]
 			},
 			"docs": [
 				"src/content/posts/markdown-extended.md",
 				"src/content/posts/guide/index.md"
 			],
 			"tests": [],
-			"notes": ["保留兼容，不作为新语法实现样板；重构前不得扩大使用面。"]
+			"notes": [
+				"SSR 始终输出可点击的 owner/repo 链接；命中语法后才动态加载元数据增强模块。",
+				"客户端读取 GitHub API 的描述、星标、分叉、许可证、语言和头像；请求失败时保留 SSR 链接。"
+			]
 		},
 		{
 			"id": "image-grid",

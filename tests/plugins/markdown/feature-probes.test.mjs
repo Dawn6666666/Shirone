@@ -166,6 +166,18 @@ test("records defined content annotations after reference resolution", async () 
 	]);
 });
 
+test("renders legacy GitHub cards with an SSR fallback for API enhancement", async () => {
+	const result = await renderer.render('::github{repo="LyraVoid/Shirone"}');
+
+	assert.match(result.code, /href="https:\/\/github\.com\/LyraVoid\/Shirone"/);
+	assert.match(result.code, /rel="noopener noreferrer"/);
+	assert.match(result.code, /data-github-card/);
+	assert.match(result.code, /data-github-description/);
+	assert.match(result.code, /data-github-stars/);
+	assert.match(result.code, /data-github-avatar/);
+	assert.doesNotMatch(result.code, /api\.github\.com|<script/);
+});
+
 test("does not mark ordinary prose with optional capabilities", async () => {
 	const result = await renderer.render("A plain article with no extensions.");
 	assert.deepEqual(result.metadata.frontmatter.markdownSyntaxes, {
