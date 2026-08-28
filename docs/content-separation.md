@@ -9,8 +9,8 @@
 
 | 模式 | 触发条件 | 行为 |
 | --- | --- | --- |
-| `local`（默认） | 未设置 `CONTENT_DIR` / `CONTENT_REPO_URL`，且仓库根目录没有 `shirone.content.json` | 使用仓库自带内容。`pnpm content:sync` 是**完全静默的空操作**，`pnpm dev` 与 `pnpm build` 的行为与引入内容分离前一致 |
-| `external` | 上述任一来源存在 | 内容来自独立的内容仓库，构建前由 `content:sync` 物化到仓内标准路径 |
+| `local`（默认） | 未设置 `CONTENT_DIR` / `CONTENT_REPO_URL`（且根目录 `.env` 未指定），且仓库根目录没有 `shirone.content.json` | 使用仓库自带内容。`pnpm content:sync` 是**完全静默的空操作**，`pnpm dev` 与 `pnpm build` 的行为与引入内容分离前一致 |
+| `external` | 上述任一来源存在（环境变量、根目录 `.env` 或 `shirone.content.json`） | 内容来自独立的内容仓库，构建前由 `content:sync` 物化到仓内标准路径 |
 
 上游主题仓保持 `local` 模式并继续跟踪 demo 内容，因此主题使用者 clone 后不受任何影响。
 切换到 `external` 是使用者在自己 fork 里的一次性动作，见下文「迁移」。
@@ -270,16 +270,16 @@ links:
 | `keep` | 见上文，支持 `**` 与 `*` |
 | `prune` | 设为 `false` 时只拷贝不删除 |
 
-## 环境变量
+## 环境变量与 `.env` 支持
 
-优先级从高到低：
+系统会自动读取代码仓根目录下的 `.env`（或 `.env.local`），无需每次在终端手动 `export` 或 `$env:` 设置。优先级从高到低：
 
 | 变量 | 作用 |
 | --- | --- |
-| `SHIRONE_CONTENT_SYNC=0` | 强制回到 `local` 模式 |
-| `CONTENT_DIR` | 本地内容目录，最高优先级；CI 中配合 `actions/checkout` 使用 |
+| `SHIRONE_CONTENT_SYNC=0` | 强制回到 `local` 模式（即使配置了内容源） |
+| `CONTENT_DIR` | 本地内容目录，最高优先级；CI 中配合 `actions/checkout` 使用，本地可直接写在根目录 `.env` 中 |
 | `CONTENT_REPO_URL` | 远端内容仓；私有仓用 `https://x-access-token:<TOKEN>@github.com/OWNER/REPO.git`，token 在所有日志与 `content.lock.json` 中都会被脱敏 |
-| `CONTENT_REPO_REF` | 覆盖 ref |
+| `CONTENT_REPO_REF` | 覆盖 ref（分支、Tag 或 Commit SHA） |
 | `CONTENT_SYNC_PULL=false` | 复用已存在的 `.content-src/` 工作副本，不再 fetch |
 
 空字符串等同于未设置，便于在 CI 中用空值关闭某个来源。
@@ -289,6 +289,7 @@ links:
 | 命令 | 说明 |
 | --- | --- |
 | `pnpm content:sync` | 物化内容，写出 `content.lock.json`。已并入 `dev` / `start` / `build` 的首位 |
+| `pnpm content:clean` | 安全清理物化内容与配置覆盖，恢复纯净主题状态；清理前自动在 `.content-backup/` 创建快照 |
 | `pnpm content:watch` | 物化后持续监听本地内容目录，边写边同步（仅 `type: "path"`） |
 | `pnpm content:validate` | `--dry-run`，只校验结构与冲突，不落盘 |
 | `pnpm content:eject` | 一次性迁移到 `external` 模式，默认只预演 |
@@ -296,6 +297,25 @@ links:
 `content.lock.json`（已 gitignore）记录本次构建用了哪个内容 commit 与各挂载点统计，用于溯源与回滚。
 
 ## 本地开发
+
+### 方式一：在 `.env` 中配置（最便捷）
+
+在代码仓根目录新建 `.env`：
+
+```bash
+# .env
+CONTENT_DIR="G:/Code/Blog/shirone-content"
+```
+
+随后直接运行：
+
+```powershell
+pnpm dev
+```
+
+`pnpm dev`、`pnpm build` 与 `pnpm content:sync` 会自动读取 `.env` 中的 `CONTENT_DIR`，无需额外配置。
+
+### 方式二：终端临时指定环境变量
 
 ```powershell
 $env:CONTENT_DIR = "..\shirone-content"
@@ -305,8 +325,26 @@ pnpm dev
 
 边写文章边预览时，另开一个终端运行 `pnpm content:watch`。
 
-`shirone.content.json` 里写成 `{ "source": { "type": "path", "path": "../shirone-content" } }`
-可以免去每次设置环境变量。
+### 方式三：使用清单配置文件
+
+`shirone.content.json` 里写成 `{ "source": { "type": "path", "path": "../shirone-content" } }`。
+
+## 安全清理与回退 (`content:clean`)
+
+当需要从物化状态回到初始主题演示状态、或者需要一键清空同步过来的外部文章与配置时，执行：
+
+```powershell
+pnpm content:clean
+```
+
+### 安全与熔断保障（Fail-Safe & Fail-Fast）
+
+1. **自动快照备份**：清理前自动将所有受影响的外部文件与覆盖项打包备份到 `.content-backup/clean-<timestamp>/` 目录（已加入 `.gitignore`），并生成 `manifest.json`；
+2. **100% 可逆还原**：若发生误操作，随时可将 `.content-backup/clean-.../` 内的文件拷回项目恢复；
+3. **阻塞立即熔断**：任何步骤（Git 状态、文件权限、锁定等）遇到阻塞，立即抛出完整诊断信息并中止退出，绝不执行静默删除或部分删除；
+4. **预演模式**：支持 `pnpm content:clean --dry-run` 预览待清理清单而不修改任何文件。
+
+---
 
 ## 双仓 CI 接线
 
