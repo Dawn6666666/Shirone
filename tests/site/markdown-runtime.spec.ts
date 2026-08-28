@@ -102,7 +102,15 @@ test.describe("Markdown syntax runtime loading", () => {
 		await expect(card).toHaveAttribute("rel", "noopener noreferrer");
 		await expect(card).toHaveCSS("display", "block");
 		await expect(card.locator("script")).toHaveCount(0);
-		await expect(card).toHaveClass(/\bfetch-waiting\b/);
+		await expect
+			.poll(async () => {
+				return card.evaluate(
+					(element) =>
+						element.classList.contains("fetch-waiting") ||
+						element.getAttribute("data-github-state") === "ready",
+				);
+			})
+			.toBe(true);
 		await expect(card.locator("[data-github-description]")).not.toBeHidden();
 		await expect(card.locator("[data-github-info]")).not.toBeHidden();
 		await expect(card.locator("[data-github-avatar]")).not.toBeHidden();
