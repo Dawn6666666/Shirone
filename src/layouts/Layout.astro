@@ -25,8 +25,6 @@ import type { Favicon } from "../types/config";
 import { createFontRoleStyle } from "../utils/font-options";
 import { resolvePageWidth } from "../utils/responsive-utils";
 import { pathsEqual, url } from "../utils/url-utils";
-import "katex/dist/katex.css";
-import "overlayscrollbars/overlayscrollbars.css";
 import "../styles/main.css";
 import "../styles/font-faces.css";
 import textureStyles from "../styles/textures.css?raw";
@@ -248,9 +246,9 @@ const hasMonoFont =
 import "../utils/code-collapse";
 import { initLastUpdatedNotices } from "../utils/last-updated-notice";
 import { initMermaidDiagrams } from "../utils/mermaid";
-import { OverlayScrollbars } from 'overlayscrollbars';
 import {getHue, getStoredTheme, setHue, setTheme} from "../utils/setting-utils";
 import { WALLPAPER_MODE_CHANGE_EVENT, BANNER_HEIGHT, BANNER_HEIGHT_EXTEND } from "../constants/constants";
+import { initKaTeXScrollbars } from "../utils/katex-scroll";
 
 function setClickOutsideToClose(panel: string, ignores: string[]) {
 	document.addEventListener('click', event => {
@@ -271,23 +269,7 @@ function loadTheme() { setTheme(getStoredTheme()); }
 function loadHue() { setHue(getHue()); }
 
 function initCustomScrollbar() {
-	const katexElements = document.querySelectorAll('.katex-display') as NodeListOf<HTMLElement>;
-	const observer = new IntersectionObserver((entries, intersectionObserver) => {
-		entries.forEach(entry => {
-			if (!entry.isIntersecting) return;
-			const element = entry.target as HTMLElement;
-			if (!element.parentNode || element.hasAttribute('data-scrollbar-initialized')) return;
-			const container = document.createElement('div');
-			container.className = 'katex-display-container';
-			container.setAttribute('aria-label', 'scrollable container for formulas');
-			element.parentNode.insertBefore(container, element);
-			container.appendChild(element);
-			OverlayScrollbars(container, { scrollbars: { theme: 'scrollbar-base scrollbar-auto', autoHide: 'leave', autoHideDelay: 500, autoHideSuspend: false } });
-			element.setAttribute('data-scrollbar-initialized', 'true');
-			intersectionObserver.unobserve(element);
-		});
-	}, { root: null, rootMargin: '100px', threshold: 0.1 });
-	katexElements.forEach(element => observer.observe(element));
+	initKaTeXScrollbars();
 }
 
 function init() {
