@@ -134,8 +134,32 @@ pnpm's strict layout, so the source repository never sees them:
 - **npm provenance** — the published `repository.url` must point at the
   publishing repository, not at this one.
 
+## Writing theme code that survives both modes
+
+The pitfalls above are the ones already paid for. The rules that prevent the
+next batch — `process.cwd()` versus module-relative paths, the Tailwind
+`@source` line, where a new dependency belongs, what happens automatically when
+you add a route or a config module — are collected in
+[packaging-contract.md](./packaging-contract.md). Anything merged into the
+packaged branch is expected to follow it.
+
 ## Publishing
 
 Building and publishing live in
 [`yCENzh/shirones`](https://github.com/yCENzh/shirones). That repository clones
 this one, transforms the source, and publishes. No theme code lives there.
+
+A release is entirely manual and driven from that repository — there is no push
+trigger anywhere, so merging here never publishes anything:
+
+1. Merge the work into the packaged branch (`feat/npm-package`) and bump
+   `package.json` here. **The npm version is this repository's version**; the
+   pipeline has none of its own.
+2. shirones → **Actions** → **Build & Publish** → **Run workflow**, all inputs
+   left at their defaults.
+
+The inputs are documented in
+[shirones/docs/releasing.md](https://github.com/yCENzh/shirones/blob/main/docs/releasing.md);
+the short version is that the defaults already point at this repository's
+packaged branch and the current package name, and the one worth using is *Build
+and validate, but do not publish* for a pre-merge rehearsal.
