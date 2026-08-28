@@ -58,6 +58,11 @@
 			"styles": ["src/styles/markdown/option-groups.css"]
 		},
 		{
+			"id": "spoiler",
+			"syntaxes": ["spoiler"],
+			"styles": ["src/styles/markdown/spoiler.css"]
+		},
+		{
 			"id": "steps",
 			"syntaxes": ["steps"],
 			"styles": ["src/styles/markdown/steps.css"]
@@ -526,7 +531,7 @@
 			"status": "legacy",
 			"category": "leaf-directive",
 			"source": "shirone",
-			"summary": "根据 owner/repo 渲染仓库卡片，并在客户端读取 GitHub API。",
+			"summary": "根据 owner/repo 渲染可访问的仓库卡片，并按需读取 GitHub API 的仓库元数据。",
 			"forms": [
 				{
 					"kind": "leaf-directive",
@@ -546,16 +551,22 @@
 			"registeredIn": "src/utils/markdown-processor.mjs",
 			"styles": ["src/styles/markdown-extend.styl"],
 			"runtime": {
-				"mode": "inline-client",
-				"modules": [],
-				"network": ["https://api.github.com/repos/{owner}/{repo}"]
+				"mode": "client-enhanced",
+				"modules": ["src/utils/github-cards.ts"],
+				"network": [
+					"https://api.github.com/repos/{owner}/{repo}",
+					"avatar_url returned by the GitHub API"
+				]
 			},
 			"docs": [
 				"src/content/posts/markdown-extended.md",
 				"src/content/posts/guide/index.md"
 			],
 			"tests": [],
-			"notes": ["保留兼容，不作为新语法实现样板；重构前不得扩大使用面。"]
+			"notes": [
+				"SSR 始终输出可点击的 owner/repo 链接；命中语法后才动态加载元数据增强模块。",
+				"客户端读取 GitHub API 的描述、星标、分叉、许可证、语言和头像；请求失败时保留 SSR 链接。"
+			]
 		},
 		{
 			"id": "image-grid",
@@ -642,7 +653,10 @@
 				"modules": [],
 				"network": ["author-declared image URLs only"]
 			},
-			"docs": ["src/content/posts/markdown-extended.md"],
+			"docs": [
+				"src/content/posts/spoilers.md",
+				"docs/markdown-extensions.md"
+			],
 			"tests": ["tests/plugins/rehype-markdown-images.test.mjs"],
 			"notes": ["非法或越界宽度令牌保留在 alt，不静默改写。"]
 		},
@@ -826,9 +840,9 @@
 		{
 			"id": "spoiler",
 			"name": "Inline Spoiler",
-			"status": "legacy",
+			"status": "stable",
 			"category": "text-directive",
-			"source": "integration",
+			"source": "shirone",
 			"summary": "将 text directive 输出为 spoiler 自定义元素并使用 CSS 隐藏内容。",
 			"forms": [
 				{
@@ -838,16 +852,19 @@
 				}
 			],
 			"attributes": [],
-			"implementation": ["src/plugins/remark-directive-rehype.js"],
+			"implementation": ["src/plugins/rehype-component-spoiler.mjs"],
 			"registeredIn": "src/utils/markdown-processor.mjs",
-			"styles": ["src/styles/main.css"],
+			"styles": ["src/styles/markdown/spoiler.css"],
 			"runtime": {
-				"mode": "none",
-				"modules": [],
+				"mode": "client-enhanced",
+				"modules": ["src/utils/spoilers.ts"],
 				"network": []
 			},
 			"docs": ["src/content/posts/markdown-extended.md"],
-			"tests": [],
+			"tests": [
+				"tests/plugins/markdown/inline/spoilers.test.mjs",
+				"tests/site/spoilers.spec.ts"
+			],
 			"notes": ["保留兼容；缺少触屏与键盘契约，不作为新行内语法样板。"]
 		},
 		{

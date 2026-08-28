@@ -116,7 +116,7 @@ SSR 组件和首帧布局依赖的样式使用构建期特征决定条件 `<link
 
 ### D. 用户意图触发资源
 
-Fancybox、远程视频、GitHub API 和其他第三方能力必须在内容命中后继续等待用户动作或明确的视口策略。内容特征命中只表示“允许加载”，不表示必须在首屏立即加载。
+Fancybox、远程视频和其他第三方能力必须在内容命中后继续等待用户动作或明确的视口策略。GitHub card 的 `::github` 作者语法本身是该卡片元数据请求的明确启用意图，因此命中后可加载 GitHub API；普通 GitHub 链接不得触发预取。内容特征命中只表示“允许加载”，不表示必须在首屏立即加载。
 
 ## 5. 特征快照契约
 
@@ -159,10 +159,12 @@ type MarkdownSyntaxSnapshot = {
 | mermaid | Mermaid 专用样式 | `mermaid.ts`、`mermaid-interaction.ts` | 可读 fallback；样式严格按页管理，运行时首次命中加载 |
 | option-groups | option groups | `option-groups.ts` | 条件 CSS + 选择器动态 JS |
 | steps | steps | 无 | 条件 CSS，纯 SSR |
-| github-card | legacy | 内联脚本与 GitHub API | 不扩展使用面；迁移前保持兼容 |
+| github-card | legacy | `github-cards.ts` | SSR 仓库链接 + 条件 GitHub API 元数据增强 |
 | spoiler | legacy | 无 | 不扩展使用面；迁移时补齐触屏与键盘语义 |
 
 Mermaid 样式由 `stylesheetPacks.mermaid` 输出为 Swup 管理的可选 style block，离开 Mermaid 页面后随页面 head 生命周期移除；`mermaid.ts` 与交互模块仍仅在首次命中 Mermaid DOM 时加载。不得在运行时中手工遍历或删除 Vite 注入节点。
+
+Legacy `github-card` 保留 `::github{repo="owner/repo"}` 作者输入。SSR 始终输出含 `noopener noreferrer` 的仓库链接；仅当页面命中该语法时，`github-cards.ts` 才动态加载并请求 GitHub API，以填充描述、星标、分叉、许可证、语言和头像。请求失败时回退为 SSR 链接，Swup 内容替换会取消尚未完成的请求。`spoiler` 仍为 legacy：在补齐原生键盘与触屏语义前，不得新增使用或作为新语法的实现参考。
 
 ## 7. Swup 生命周期
 

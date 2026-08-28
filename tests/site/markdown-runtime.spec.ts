@@ -17,6 +17,19 @@ const OPTION_GROUPS_POST_PATH = "/posts/option-groups/";
 const IMAGE_PRESENTATIONS_POST_PATH = "/posts/markdown-extended/";
 const IMAGE_PRESENTATIONS_FREE_POST_PATH = "/posts/expressive-code/";
 const EXPRESSIVE_CODE_FREE_PATH = "/";
+const GITHUB_CARD_PATH = "/about/";
+
+const GITHUB_REPOSITORY_MOCK = {
+	description: "A static blog template built with Astro.",
+	language: "TypeScript",
+	stargazers_count: 4860,
+	forks_count: 1243,
+	owner: {
+		avatar_url:
+			"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='12' fill='%236366f1'/></svg>",
+	},
+	license: { spdx_id: "MIT" },
+};
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -52,7 +65,149 @@ function hasRequestFor(requests: string[], modules: Array<RegExp>): boolean {
 	return requests.some((url) => modules.some((pattern) => pattern.test(url)));
 }
 
+function trackGitHubApiRequests(page: Page): string[] {
+	const requests: string[] = [];
+	page.on("request", (request: Request) => {
+		if (new URL(request.url()).hostname === "api.github.com")
+			requests.push(request.url());
+	});
+	return requests;
+}
+
 test.describe("Markdown syntax runtime loading", () => {
+	test("hydrates legacy GitHub cards only after their syntax is rendered", async ({
+		page,
+	}) => {
+		const githubApiRequests = trackGitHubApiRequests(page);
+		await page.route(
+			"https://api.github.com/repos/LyraVoid/Shirone",
+			async (route) => {
+				await new Promise((resolve) => setTimeout(resolve, 250));
+				await route.fulfill({
+					status: 200,
+					contentType: "application/json",
+					body: JSON.stringify(GITHUB_REPOSITORY_MOCK),
+				});
+			},
+		);
+
+		await page.goto(GITHUB_CARD_PATH, { waitUntil: "domcontentloaded" });
+		const card = page.locator("#swup-container a.card-github");
+		await expect(card).toHaveCount(1);
+		await expect(card).toBeVisible();
+		await expect(card).toHaveAttribute(
+			"href",
+			"https://github.com/LyraVoid/Shirone",
+		);
+		await expect(card).toHaveAttribute("rel", "noopener noreferrer");
+		await expect(card).toHaveCSS("display", "block");
+		await expect(card.locator("script")).toHaveCount(0);
+		await expect
+			.poll(async () => {
+				return card.evaluate(
+					(element) =>
+						element.classList.contains("fetch-waiting") ||
+						element.getAttribute("data-github-state") === "ready",
+				);
+			})
+			.toBe(true);
+		await expect(card.locator("[data-github-description]")).not.toBeHidden();
+		await expect(card.locator("[data-github-info]")).not.toBeHidden();
+		await expect(card.locator("[data-github-avatar]")).not.toBeHidden();
+		expect(
+			await card.evaluate((element) => element.offsetHeight),
+		).toBeGreaterThan(80);
+		await expect(card).toHaveAttribute("data-github-state", "ready");
+		await expect(card).not.toHaveClass(/\bfetch-waiting\b/);
+		await expect(card.locator("[data-github-description]")).toHaveText(
+			GITHUB_REPOSITORY_MOCK.description,
+		);
+		await expect(card.locator("[data-github-stars]")).toHaveText("4.9K");
+		await expect(card.locator("[data-github-forks]")).toHaveText("1.2K");
+		await expect(card.locator("[data-github-license]")).toHaveText("MIT");
+		await expect(card.locator("[data-github-language]")).toHaveText(
+			"TypeScript",
+		);
+		await expect(card.locator("[data-github-avatar]")).toHaveAttribute(
+			"src",
+			GITHUB_REPOSITORY_MOCK.owner.avatar_url,
+		);
+		expect(githubApiRequests).toEqual([
+			"https://api.github.com/repos/LyraVoid/Shirone",
+		]);
+
+		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			GITHUB_CARD_PATH,
+		);
+		await page.waitForURL(`**${GITHUB_CARD_PATH}`);
+		await expect(card).toHaveCount(1);
+		await expect(card).toBeVisible();
+		await expect(card.locator("script")).toHaveCount(0);
+		await expect(card).toHaveAttribute("data-github-state", "ready");
+		expect(githubApiRequests).toEqual([
+			"https://api.github.com/repos/LyraVoid/Shirone",
+			"https://api.github.com/repos/LyraVoid/Shirone",
+		]);
+	});
+
+	test("keeps the SSR fallback when GitHub API returns an error", async ({
+		page,
+	}) => {
+		await page.route("https://api.github.com/repos/LyraVoid/Shirone", (route) =>
+			route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ message: "service unavailable" }),
+			}),
+		);
+
+		await page.goto(GITHUB_CARD_PATH, { waitUntil: "domcontentloaded" });
+		const card = page.locator("#swup-container a.card-github");
+		await expect(card).toHaveAttribute("data-github-state", "error");
+		await expect(card).toHaveClass(/\bfetch-error\b/);
+		await expect(card).toHaveAttribute(
+			"href",
+			"https://github.com/LyraVoid/Shirone",
+		);
+		await expect(card.locator("[data-github-description]")).toBeHidden();
+		await expect(card.locator("[data-github-info]")).toBeHidden();
+		await expect(card.locator("[data-github-avatar]")).toBeHidden();
+		await expect(card).toHaveAttribute("aria-busy", "false");
+	});
+
+	test("resolves a timed out GitHub request to the SSR fallback", async ({
+		page,
+	}) => {
+		await page.route(
+			"https://api.github.com/repos/LyraVoid/Shirone",
+			async (route) => {
+				await new Promise((resolve) => setTimeout(resolve, 10_250));
+				try {
+					await route.fulfill({
+						status: 200,
+						contentType: "application/json",
+						body: JSON.stringify(GITHUB_REPOSITORY_MOCK),
+					});
+				} catch {
+					// The client timeout aborts this route before the delayed response.
+				}
+			},
+		);
+
+		await page.goto(GITHUB_CARD_PATH, { waitUntil: "domcontentloaded" });
+		const card = page.locator("#swup-container a.card-github");
+		await expect(card).toHaveAttribute("data-github-state", "error", {
+			timeout: 15_000,
+		});
+		await expect(card).toHaveClass(/\bfetch-error\b/);
+		await expect(card.locator("[data-github-description]")).toBeHidden();
+		await expect(card.locator("[data-github-info]")).toBeHidden();
+		await expect(card).toHaveAttribute("aria-busy", "false");
+	});
+
 	test("keeps Mermaid styles page-scoped while deferring its runtime", async ({
 		page,
 	}) => {

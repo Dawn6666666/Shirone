@@ -47,6 +47,13 @@ const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 		},
 	},
 	{
+		selector: ".m3-spoiler[data-spoiler]",
+		initialize: async (root) => {
+			const { initSpoilers } = await import("./spoilers");
+			initSpoilers(root);
+		},
+	},
+	{
 		selector: ".katex-display",
 		initialize: async (root) => {
 			const { initKaTeXScrollbars } = await import("./katex-scroll");
@@ -58,6 +65,13 @@ const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 		initialize: async () => {
 			const { initMermaidDiagrams } = await import("./mermaid");
 			await initMermaidDiagrams();
+		},
+	},
+	{
+		selector: "[data-github-card][data-github-repo]",
+		initialize: async (root) => {
+			const { initGithubCards } = await import("./github-cards");
+			initGithubCards(root);
 		},
 	},
 ];

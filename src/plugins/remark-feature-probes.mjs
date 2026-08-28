@@ -46,6 +46,9 @@ export function remarkFeatureProbes() {
 			if (node.type === "textDirective" && node.name === "m3-mark") {
 				syntaxes.add("marker");
 			}
+			if (node.type === "textDirective" && node.name === "spoiler") {
+				syntaxes.add("spoiler");
+			}
 			if (node.type === "contentAnnotationReference") {
 				syntaxes.add("content-annotation");
 			}
