@@ -105,6 +105,35 @@ cached against a hash of the collected charset, so repeat builds skip the work.
   `devDependencies` — the package build fails the release if it finds an
   undeclared bare import. `@iconify-json/simple-icons` was exactly this trap.
 
+## Package-mode pitfalls that cost us a day
+
+Every one of these only bites once the theme runs from `node_modules` under
+pnpm's strict layout, so the source repository never sees them:
+
+- **Bare imports inside the package** — Vite resolves them from the *project*
+  root and fails (`@astrojs/svelte/server.js`, all the `@swup/astro/*` entries).
+  `src/integration/fallback-resolver.ts` retries the failed ones with the
+  package itself as importer.
+- **Node-level `require.resolve`** — astro-icon loads icon sets outside Vite, so
+  `@iconify-json/*` must really exist in the user's project. They are peer
+  dependencies and `init` installs them. Same story for `sharp`, which Astro's
+  image service imports dynamically.
+- **CommonJS deps that get inlined into the SSR bundle** — `stylus` reads
+  `__dirname` and then loads `lib/functions/index.styl` from disk.
+  `src/integration/ssr-node-shims.ts` gives every bundled CJS module its real
+  `__dirname` / `__filename` back.
+- **Images next to content** — `import.meta.glob("../../**")` inside a component
+  can never reach `<project>/shirones/…`. `src/utils/project-images.ts` adds a
+  root-absolute glob that is simply empty in source mode.
+- **`optimizeDeps.include`** — only hints packages the *project* can resolve;
+  in package mode the list is dropped instead of warning on every cold start.
+- **pnpm build approval** — pnpm 11 reads `allowBuilds` from
+  `pnpm-workspace.yaml` and ignores `pnpm.onlyBuiltDependencies` in
+  `package.json`. `init` writes both keys, and rewrites pnpm's
+  `set this to true or false` placeholders.
+- **npm provenance** — the published `repository.url` must point at the
+  publishing repository, not at this one.
+
 ## Publishing
 
 Building and publishing live in
