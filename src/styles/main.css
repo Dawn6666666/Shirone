@@ -1,5 +1,14 @@
 @import "./mermaid.css" layer(components);
 @import "tailwindcss";
+
+/* Tailwind v4 discovers utility classes by scanning the project, and it always
+   skips `node_modules`. That is exactly where the theme lives once it is
+   installed as an npm package, so without this the utilities used by the
+   theme's own components (`w-full`, `inline-flex`, `mx-auto`, …) are never
+   generated and the site renders unstyled. Sources are resolved relative to
+   this file, so `../` is the theme's `src/`, in both source and package mode.
+   Only code files are scanned — fonts and images stay out of the crawl. */
+@source "../**/*.{astro,svelte,ts,tsx,js,jsx,mjs,cjs,md,mdx,html}";
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:where(.dark, .dark *));
 
