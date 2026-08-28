@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-type MarkdownAssetFeature = "collapsePanels" | "trees";
-type MarkdownStylesheetPack = "collapse-panels" | "trees";
+type MarkdownAssetFeature = "collapsePanels" | "marker" | "trees";
+type MarkdownStylesheetPack = "collapse-panels" | "marker" | "trees";
 
 const treesStylesheetPath = resolve(
 	process.cwd(),
@@ -11,6 +11,10 @@ const treesStylesheetPath = resolve(
 const collapsePanelsStylesheetPath = resolve(
 	process.cwd(),
 	"src/styles/markdown/collapse-panels.css",
+);
+const markerStylesheetPath = resolve(
+	process.cwd(),
+	"src/styles/markdown/marker.css",
 );
 
 export type MarkdownFeatureSnapshot = Partial<
@@ -30,6 +34,12 @@ const stylesheetAssets: Record<
 		{
 			pack: "collapse-panels",
 			loadCss: () => readFile(collapsePanelsStylesheetPath, "utf8"),
+		},
+	],
+	marker: [
+		{
+			pack: "marker",
+			loadCss: () => readFile(markerStylesheetPath, "utf8"),
 		},
 	],
 	trees: [

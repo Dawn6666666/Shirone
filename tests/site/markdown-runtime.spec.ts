@@ -7,6 +7,7 @@ const IMAGE_GRID_POST_PATH = "/posts/image-grid-demo/";
 const CODE_POST_PATH = "/posts/expressive-code/";
 const TREE_POST_PATH = "/posts/markdown-enhancements/";
 const COLLAPSE_POST_PATH = "/posts/collapse-panels/";
+const MARKER_POST_PATH = "/posts/marker-highlights/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -16,6 +17,7 @@ const optionalRuntimeModules = {
 	mermaidStyles: /\/src\/styles\/mermaid\.css(?:\?|$)/,
 	trees: /\/src\/styles\/markdown\/trees\.css(?:\?|$)/,
 	collapsePanels: /\/src\/styles\/markdown\/collapse-panels\.css(?:\?|$)/,
+	marker: /\/src\/styles\/markdown\/marker\.css(?:\?|$)/,
 	codeTree: /\/src\/utils\/code-tree\.ts(?:\?|$)/,
 };
 
@@ -217,5 +219,41 @@ test.describe("Markdown syntax runtime loading", () => {
 		await expect(
 			page.locator('style[data-swup-optional="collapse-panels"]'),
 		).toHaveCount(0);
+	});
+
+	test("adds and removes marker styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(page.locator('style[data-swup-optional="marker"]')).toHaveCount(
+			0,
+		);
+		expect(hasRequestFor(requests, [optionalRuntimeModules.marker])).toBe(
+			false,
+		);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			MARKER_POST_PATH,
+		);
+		await page.waitForURL(`**${MARKER_POST_PATH}`);
+		const marker = page.locator(".m3-marker").first();
+		await expect(marker).toBeVisible();
+		await expect(page.locator('style[data-swup-optional="marker"]')).toHaveCount(
+			1,
+		);
+		await expect(marker).toHaveCSS("box-shadow", /inset/);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			PLAIN_POST_PATH,
+		);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(page.locator('style[data-swup-optional="marker"]')).toHaveCount(
+			0,
+		);
 	});
 });

@@ -12,6 +12,7 @@ export function remarkFeatureProbes() {
 			codeInteractions: false,
 			trees: false,
 			collapsePanels: false,
+			marker: false,
 		};
 
 		visit(tree, (node) => {
@@ -41,6 +42,9 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "containerDirective" && node.name === "collapse") {
 				markdownFeatures.collapsePanels = true;
+			}
+			if (node.type === "textDirective" && node.name === "m3-mark") {
+				markdownFeatures.marker = true;
 			}
 		});
 

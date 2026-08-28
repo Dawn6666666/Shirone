@@ -15,6 +15,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		codeInteractions: false,
 		trees: false,
 		collapsePanels: false,
+		marker: false,
 	});
 
 	const mermaid = await renderer.render(
@@ -28,6 +29,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		codeInteractions: false,
 		trees: false,
 		collapsePanels: false,
+		marker: false,
 	});
 });
 
@@ -70,6 +72,11 @@ test("records collapse panels after syntax normalization", async () => {
 	);
 });
 
+test("records marker highlights after syntax normalization", async () => {
+	const marker = await renderer.render("Use ==semantic emphasis==.");
+	assert.equal(marker.metadata.frontmatter.markdownFeatures.marker, true);
+});
+
 test("does not mark ordinary prose with optional capabilities", async () => {
 	const result = await renderer.render("A plain article with no extensions.");
 	assert.deepEqual(
@@ -86,6 +93,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				codeInteractions: false,
 				trees: false,
 				collapsePanels: false,
+				marker: false,
 			},
 			hasMath: false,
 			hasMermaid: false,
