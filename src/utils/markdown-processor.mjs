@@ -55,10 +55,10 @@ export const siteRemarkPlugins = [
 	remarkFileTree,
 	remarkCodeTree,
 	remarkMermaid,
-	remarkFeatureProbes,
 	remarkReadingTime,
 	remarkExcerpt,
 	remarkDirective,
+	remarkFeatureProbes,
 	remarkSectionize,
 	parseDirectiveNode,
 ];

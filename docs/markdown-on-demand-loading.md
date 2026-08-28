@@ -236,6 +236,10 @@ npx.cmd playwright test tests/site/<syntax>.spec.ts
 pnpm.cmd build
 ```
 
+### 指令探针顺序陷阱
+
+`remarkFeatureProbes` 必须在 `remarkDirective` 及语法归一化 remark 插件之后运行。在指令解析前，`::github{...}` 这样的叶子指令仍是普通文本，因此最终 HTML 虽然可能包含组件，但 `remarkPluginFrontmatter.markdownSyntaxes` 仍为空，页面级样式表也会被遗漏。应保留渲染器快照断言，并同时验证直接加载和 Swup 导航。
+
 涉及视觉组件时追加 `tests/site/a11y.spec.ts` 的相关页面；涉及 Mermaid、图片、代码树或动效时追加对应专项用例。
 
 ## 11. 迁移顺序
