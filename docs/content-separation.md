@@ -272,7 +272,7 @@ links:
 
 ## 环境变量与 `.env` 支持
 
-系统会自动读取代码仓根目录下的 `.env`（或 `.env.local`），无需每次在终端手动 `export` 或 `$env:` 设置。优先级从高到低：
+系统会自动读取代码仓根目录下的 `.env` 与 `.env.local`，无需每次在终端手动 `export` 或 `$env:` 设置。来源优先级为：进程环境变量 > `.env.local` > `.env` > `shirone.content.json`；变量之间的决策优先级如下：
 
 | 变量 | 作用 |
 | --- | --- |
@@ -288,12 +288,26 @@ links:
 
 | 命令 | 说明 |
 | --- | --- |
-| `pnpm content:sync` | 物化内容，写出 `content.lock.json`。已并入 `dev` / `start` / `build` 的首位 |
-| `pnpm content:export` | **反向导出**：把代码仓侧的改动回写内容仓。**默认只预演**，加 `--yes` 才执行 |
-| `pnpm content:clean` | 清理物化内容与配置覆盖，恢复主题自带内容状态。**默认只预演**，加 `--yes` 才执行 |
-| `pnpm content:watch` | 物化后持续监听本地内容目录，边写边同步（仅 `type: "path"`） |
-| `pnpm content:validate` | `--dry-run`，只校验结构与冲突，不落盘 |
-| `pnpm content:eject` | 一次性迁移到 `external` 模式，默认只预演 |
+| `pnpm content` / `pnpm content --help` | **全景帮助**：打印工具链指令总览与四维闭环关系 |
+| `pnpm content:status` / `pnpm content status` | **状态诊断**：离线、只读地检测内容源、Git、挂载资产、配置类型、锁文件与物化新旧状态 |
+| `pnpm content:sync` / `pnpm content sync` | 物化内容，写出 `content.lock.json`。已并入 `dev` / `start` / `build` 的首位 |
+| `pnpm content:export` / `pnpm content export` | **反向导出**：把代码仓侧的改动回写内容仓。**默认只预演**，加 `--yes` 才执行 |
+| `pnpm content:clean` / `pnpm content clean` | 清理物化内容与配置覆盖，恢复主题自带内容状态。**默认只预演**，加 `--yes` 才执行 |
+| `pnpm content:watch` / `pnpm content watch` | 物化后持续监听本地内容目录，边写边同步（仅 `type: "path"`） |
+| `pnpm content:validate` / `pnpm content validate` | `--dry-run`，只校验结构与冲突，不落盘 |
+| `pnpm content:eject` / `pnpm content eject` | 一键解耦：一次性迁移到 `external` 模式，默认只预演 |
+
+> 提示：所有指令均支持传统的冒号格式（如 `pnpm content:status`）以及现代的空格子命令格式（如 `pnpm content status`）。
+
+### 状态诊断契约
+
+`content:status` 默认不访问网络，也不创建缓存或临时文件。Git 子进程禁用 optional locks，配置覆盖通过 TypeScript 编译器 API 在内存中完成类型检查。它会区分以下结果：
+
+- `0`：没有阻断问题；允许存在明确标出的非阻断告警，例如本机未安装 Git 时无法读取可选的 path 仓版本信息；
+- `1`：配置无法解析、内容源缺失、远端工作副本身份不匹配、YAML/TypeScript 配置错误、锁文件损坏、commit 或物化文件过期等需要处理的问题；
+- `pnpm content status --remote`：在本地检查之外显式执行 `git ls-remote`，确认远端仓库和目标 ref 当前可访问。只有这个选项会产生外部网络请求。
+
+本地 path 内容源若本身是 Git 仓库，`content:sync` 会把当前 commit 写入 `content.lock.json`；普通非 Git 目录仍受支持，commit 为 `null`。锁文件也记录该次同步实际采用的 prune 策略，避免 `--no-prune` 保留的文件被误判为残留。status 会同时比较当前 commit、锁中的配置文件清单、挂载文件的大小与 mtime，以及生成的 `src/user/user-config.ts`，从而区分“已物化”“生成物被改动”和“内容源已更新但尚未同步”。
 
 四条命令构成一个闭环：
 
@@ -304,7 +318,7 @@ links:
 内容仓 ◀──content:eject── 代码仓          一次性迁出
 ```
 
-`content.lock.json`（已 gitignore）记录本次构建用了哪个内容 commit 与各挂载点统计，用于溯源与回滚。
+`content.lock.json`（已 gitignore）记录本次构建使用的内容源、内容 commit（Git 来源，包括 path Git）、配置文件清单与各挂载点统计，用于溯源与回滚。
 
 ## 本地开发
 
@@ -656,6 +670,8 @@ pnpm content:eject --yes --out ..\my-content
 
 ```powershell
 pnpm content:validate           # 结构、冲突与配置类型
+pnpm content:status             # 离线检查连接、锁与物化新旧状态
+pnpm content:status --remote    # 额外检查远端仓库/ref（会联网）
 pnpm content:export             # 预演反向导出计划（不修改文件）
 pnpm content:clean              # 预演清理计划（不修改文件）
 node --test tests/content-*.test.mjs

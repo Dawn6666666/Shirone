@@ -3,6 +3,7 @@
  *
  * 用法：
  *   pnpm content --help                     # 查看全套指令说明与四维闭环关系
+ *   pnpm content status [--remote]           # 检查内容连接与物化新旧状态
  *   pnpm content sync [args...]             # 等同于 pnpm content:sync
  *   pnpm content clean [args...]            # 等同于 pnpm content:clean
  *   pnpm content export [args...]           # 等同于 pnpm content:export
@@ -20,6 +21,11 @@ const args = process.argv.slice(2);
 const command = args[0];
 
 const COMMAND_MAP = {
+	status: {
+		script: join(DIR, "status.mjs"),
+		extraArgs: [],
+		description: "状态诊断：检查内容源、Git、配置类型、锁文件与物化新旧状态",
+	},
 	sync: {
 		script: join(DIR, "sync.mjs"),
 		extraArgs: [],
@@ -28,12 +34,14 @@ const COMMAND_MAP = {
 	clean: {
 		script: join(DIR, "clean.mjs"),
 		extraArgs: [],
-		description: "安全清理：还原被物化内容，重置配置覆盖（默认预演，--yes 执行）",
+		description:
+			"安全清理：还原被物化内容，重置配置覆盖（默认预演，--yes 执行）",
 	},
 	export: {
 		script: join(DIR, "export.mjs"),
 		extraArgs: [],
-		description: "反向导出：将代码仓侧的改动与配置差分回写内容仓（默认预演，--yes 执行）",
+		description:
+			"反向导出：将代码仓侧的改动与配置差分回写内容仓（默认预演，--yes 执行）",
 	},
 	eject: {
 		script: join(DIR, "eject.mjs"),
@@ -62,12 +70,13 @@ function printHelp() {
 			"  pnpm content:<command> [options]",
 			"",
 			"可用指令：",
-			"  sync      " + COMMAND_MAP.sync.description,
-			"  clean     " + COMMAND_MAP.clean.description,
-			"  export    " + COMMAND_MAP.export.description,
-			"  eject     " + COMMAND_MAP.eject.description,
-			"  watch     " + COMMAND_MAP.watch.description,
-			"  validate  " + COMMAND_MAP.validate.description,
+			`  status    ${COMMAND_MAP.status.description}`,
+			`  sync      ${COMMAND_MAP.sync.description}`,
+			`  clean     ${COMMAND_MAP.clean.description}`,
+			`  export    ${COMMAND_MAP.export.description}`,
+			`  eject     ${COMMAND_MAP.eject.description}`,
+			`  watch     ${COMMAND_MAP.watch.description}`,
+			`  validate  ${COMMAND_MAP.validate.description}`,
 			"",
 			"四维闭环关系：",
 			"  内容仓 ──content:sync──▶ 代码仓          物化",
@@ -82,7 +91,12 @@ function printHelp() {
 	);
 }
 
-if (!command || command === "--help" || command === "-h" || command === "help") {
+if (
+	!command ||
+	command === "--help" ||
+	command === "-h" ||
+	command === "help"
+) {
 	printHelp();
 	process.exit(0);
 }

@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -7,8 +10,9 @@ const CLI_SCRIPT = fileURLToPath(
 	new URL("../scripts/content/cli.mjs", import.meta.url),
 );
 
-function runCli(args = []) {
+function runCli(args = [], { cwd } = {}) {
 	const result = spawnSync(process.execPath, [CLI_SCRIPT, ...args], {
+		cwd,
 		encoding: "utf8",
 		env: { ...process.env, SHIRONE_CONTENT_SYNC: "0" },
 	});
@@ -60,8 +64,28 @@ describe("content CLI 总入口与帮助指令", () => {
 		assert.equal(res.status, 0);
 	});
 
+	it("子命令分发：status 诊断输出", () => {
+		const root = mkdtempSync(join(tmpdir(), "shirone-content-cli-"));
+		try {
+			const userDirectory = join(root, "src/user");
+			mkdirSync(userDirectory, { recursive: true });
+			writeFileSync(
+				join(userDirectory, "user-config.ts"),
+				"export const userConfigOverrides = {};\nexport const userConfigSources = [];\n",
+			);
+			const res = runCli(["status"], { cwd: root });
+			assert.equal(res.status, 0);
+			assert.match(res.stdout, /Shirone 内容分离体系状态与连通性详细诊断报告/);
+			assert.match(res.stdout, /运行模式与决策溯源/);
+			assert.match(res.stdout, /内容源连通性与 Git 状态/);
+			assert.match(res.stdout, /代码仓物化状态、锁文件与新旧一致性/);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
 	it("各具体子脚本均支持 --help", () => {
-		for (const sub of ["sync", "clean", "export", "eject"]) {
+		for (const sub of ["status", "sync", "clean", "export", "eject"]) {
 			const res = runCli([sub, "--help"]);
 			assert.equal(res.status, 0, `subcommand ${sub} should exit 0 on --help`);
 			assert.match(res.output, /用法：/);

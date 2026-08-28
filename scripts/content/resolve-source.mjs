@@ -63,7 +63,12 @@ function readEnv(name) {
 /** 去掉 URL 中的凭据，避免 token 出现在日志里。 */
 export function redactUrl(url) {
 	if (typeof url !== "string") return String(url);
-	return url.replace(/\/\/[^/@]*@/, "//***@");
+	return url
+		.replace(/([a-z][a-z0-9+.-]*:\/\/)[^/\s@]*@/gi, "$1***@")
+		.replace(
+			/([?&][^=&#\s]*(?:auth|key|password|secret|sig|signature|token)[^=&#\s]*=)[^&#\s]*/gi,
+			"$1***",
+		);
 }
 
 /** 把 glob 子集（`**` 与 `*`）编译成正则；仅支持 POSIX 风格的相对路径。 */
@@ -132,19 +137,31 @@ function resolveSchemaVersion(manifest) {
 	return version;
 }
 
-function resolveSource(manifest) {
+function resolveSource(manifest, envOrigins) {
 	const envDir = readEnv("CONTENT_DIR");
 	if (envDir) {
-		return { type: "path", path: envDir, origin: "CONTENT_DIR" };
+		return {
+			type: "path",
+			path: envDir,
+			origin: "CONTENT_DIR",
+			originLocation: envOrigins.get("CONTENT_DIR") ?? "environment",
+		};
 	}
 
 	const envUrl = readEnv("CONTENT_REPO_URL");
 	if (envUrl) {
+		const envRef = readEnv("CONTENT_REPO_REF");
 		return {
 			type: "git",
 			url: envUrl,
-			ref: readEnv("CONTENT_REPO_REF") ?? manifest?.source?.ref ?? "main",
+			ref: envRef ?? manifest?.source?.ref ?? "main",
 			origin: "CONTENT_REPO_URL",
+			originLocation: envOrigins.get("CONTENT_REPO_URL") ?? "environment",
+			refOrigin: envRef
+				? (envOrigins.get("CONTENT_REPO_REF") ?? "environment")
+				: manifest?.source?.ref
+					? "manifest"
+					: "default",
 		};
 	}
 
@@ -156,15 +173,27 @@ function resolveSource(manifest) {
 
 	if (declared.type === "path") {
 		if (!declared.path) fail(`${MANIFEST_FILE} 的 source.path 不能为空。`);
-		return { type: "path", path: declared.path, origin: MANIFEST_FILE };
+		return {
+			type: "path",
+			path: declared.path,
+			origin: MANIFEST_FILE,
+			originLocation: "manifest",
+		};
 	}
 	if (declared.type === "git") {
 		if (!declared.url) fail(`${MANIFEST_FILE} 的 source.url 不能为空。`);
+		const envRef = readEnv("CONTENT_REPO_REF");
 		return {
 			type: "git",
 			url: declared.url,
-			ref: readEnv("CONTENT_REPO_REF") ?? declared.ref ?? "main",
+			ref: envRef ?? declared.ref ?? "main",
 			origin: MANIFEST_FILE,
+			originLocation: "manifest",
+			refOrigin: envRef
+				? (envOrigins.get("CONTENT_REPO_REF") ?? "environment")
+				: declared.ref
+					? "manifest"
+					: "default",
 		};
 	}
 	fail(
@@ -224,9 +253,12 @@ function resolveKeep(manifest) {
  * @param {string} [root] 代码仓根目录
  */
 export function resolveContentSource(root = process.cwd()) {
-	// 加载根目录下可能存在的 .env 文件（若未在环境里显式注入）
-	const envPath = join(root, ".env");
-	if (existsSync(envPath)) {
+	// 进程环境变量优先；文件之间按 .env.local > .env 覆盖。
+	const inheritedEnvKeys = new Set(Object.keys(process.env));
+	const envOrigins = new Map();
+	for (const file of [".env", ".env.local"]) {
+		const envPath = join(root, file);
+		if (!existsSync(envPath)) continue;
 		try {
 			const content = readFileSync(envPath, "utf-8");
 			for (const line of content.split(/\r?\n/)) {
@@ -242,8 +274,9 @@ export function resolveContentSource(root = process.cwd()) {
 				) {
 					val = val.slice(1, -1);
 				}
-				if (key && process.env[key] === undefined) {
+				if (key && !inheritedEnvKeys.has(key)) {
 					process.env[key] = val;
+					envOrigins.set(key, file);
 				}
 			}
 		} catch {
@@ -252,11 +285,15 @@ export function resolveContentSource(root = process.cwd()) {
 	}
 
 	if (isDisabled(process.env.SHIRONE_CONTENT_SYNC)) {
-		return { mode: "local", reason: "SHIRONE_CONTENT_SYNC 已显式关闭" };
+		return {
+			mode: "local",
+			reason: "SHIRONE_CONTENT_SYNC 已显式关闭",
+			reasonLocation: envOrigins.get("SHIRONE_CONTENT_SYNC") ?? "environment",
+		};
 	}
 
 	const { manifestPath, manifest } = readManifest(root);
-	const source = resolveSource(manifest);
+	const source = resolveSource(manifest, envOrigins);
 	if (!source) {
 		return {
 			mode: "local",

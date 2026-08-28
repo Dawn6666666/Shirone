@@ -161,6 +161,7 @@ export function readConfigOverrides(configDirectory) {
 	if (!existsSync(configDirectory)) return [];
 
 	const entries = [];
+	const filesByDomain = new Map();
 	for (const entry of readdirSync(configDirectory, { withFileTypes: true })) {
 		if (!entry.isFile()) continue;
 		const extension = entry.name.slice(entry.name.lastIndexOf("."));
@@ -178,6 +179,15 @@ export function readConfigOverrides(configDirectory) {
 		}
 
 		const relative = `${CONFIG_DIRECTORY}/${entry.name}`;
+		const previous = filesByDomain.get(domain.key);
+		if (previous) {
+			fail(
+				`${previous} 与 ${relative} 同时覆盖 ${domain.key}。` +
+					" 每个配置领域只能保留一个 .yaml 或 .yml 文件。",
+			);
+		}
+		filesByDomain.set(domain.key, relative);
+
 		let value;
 		try {
 			value = parseYaml(

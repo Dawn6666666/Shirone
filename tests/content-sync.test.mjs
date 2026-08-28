@@ -271,6 +271,8 @@ describe("content sync", () => {
 			const lock = readLock(fixture);
 			assert.equal(lock.schemaVersion, 1);
 			assert.equal(lock.source.type, "path");
+			assert.equal(lock.source.commit, null);
+			assert.equal(lock.prune, true);
 			assert.deepEqual(Object.keys(lock.mounts).sort(), [
 				"public",
 				"src/assets",

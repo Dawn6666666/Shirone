@@ -113,6 +113,21 @@ describe("读取内容仓配置", () => {
 		}
 	});
 
+	it("拒绝同一领域同时存在 .yaml 与 .yml", () => {
+		const { base, directory } = createConfigDirectory({
+			"site.yaml": "title: A\n",
+			"site.yml": "title: B\n",
+		});
+		try {
+			expectFailure(
+				() => readConfigOverrides(directory),
+				/同时覆盖 site.*只能保留一个/s,
+			);
+		} finally {
+			rmSync(base, { recursive: true, force: true });
+		}
+	});
+
 	it("文件名拼错时给出最接近的建议", () => {
 		const { base, directory } = createConfigDirectory({
 			"sidbar.yaml": "enable: true\n",

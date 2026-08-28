@@ -208,7 +208,16 @@ function resolveSourceRoot(resolved) {
 				`内容目录不存在：${directory}（来源：${resolved.source.origin}）`,
 			);
 		}
-		return { directory, commit: null };
+		if (!statSync(directory).isDirectory()) {
+			throw new Error(`内容路径不是目录：${directory}`);
+		}
+		let commit = null;
+		try {
+			commit = runGit(["rev-parse", "--verify", "HEAD"], { cwd: directory });
+		} catch {
+			// 普通本地目录同样是受支持的内容源。
+		}
+		return { directory, commit };
 	}
 	return ensureWorkingCopy(resolved.source);
 }
@@ -300,9 +309,10 @@ function writeLockFile(resolved, sourceRoot, commit, mountStats, configFiles) {
 						ref: resolved.source.ref,
 						commit,
 					}
-				: { type: "path", path: toPosix(sourceRoot) },
+				: { type: "path", path: toPosix(sourceRoot), commit },
 		mounts: mountStats,
 		config: configFiles,
+		prune: options.prune && resolved.prune,
 	};
 	if (!options.dryRun) {
 		writeFileSync(join(ROOT, LOCK_FILE), `${JSON.stringify(lock, null, 2)}\n`);
