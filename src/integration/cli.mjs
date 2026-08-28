@@ -61,6 +61,52 @@ async function copyEntry(from, to, { force }) {
 	return { copied: true };
 }
 
+/**
+ * Copy a directory into the project without clobbering what is already there.
+ *
+ * `copyEntry` is all-or-nothing, which is right for `shirones/` but wrong for
+ * `public/`: `pnpm create astro` always leaves a `public/favicon.svg` behind, so
+ * a directory-level "already exists" check silently dropped every one of the
+ * theme's static assets — favicons, banners, album demos — and the first hint
+ * was a deployed site missing images.
+ *
+ * Existing files are kept unless --force, so re-running `init` is safe.
+ */
+async function mergeDirectory(from, to, { force }) {
+	if (!existsSync(from)) return { added: 0, kept: 0 };
+
+	let added = 0;
+	let kept = 0;
+
+	async function walk(source, target) {
+		await mkdir(target, { recursive: true });
+		for (const entry of await readdir(source, { withFileTypes: true })) {
+			const nextSource = join(source, entry.name);
+			const nextTarget = join(target, entry.name);
+			if (entry.isDirectory()) {
+				await walk(nextSource, nextTarget);
+				continue;
+			}
+			if (existsSync(nextTarget) && !force) {
+				kept += 1;
+				continue;
+			}
+			await cp(nextSource, nextTarget, { force: true });
+			added += 1;
+		}
+	}
+
+	await walk(from, to);
+
+	const label = relative(CWD, to) || ".";
+	if (added === 0 && kept > 0) {
+		log.skip(`${label} already populated (${kept} files kept)`);
+	} else {
+		log.ok(`${label} (${added} files${kept ? `, ${kept} kept` : ""})`);
+	}
+	return { added, kept };
+}
+
 async function countFiles(dir) {
 	if (!existsSync(dir)) return 0;
 	let total = 0;
@@ -403,8 +449,9 @@ async function init(args) {
 	// 1. Content + configuration.
 	await copyEntry(join(TEMPLATE_DIR, CONTENT_ROOT), join(CWD, CONTENT_ROOT), { force });
 
-	// 2. Static assets (favicons, banners, demo images).
-	await copyEntry(join(TEMPLATE_DIR, "public"), join(CWD, "public"), { force });
+	// 2. Static assets (favicons, banners, demo images). Merged rather than
+	// copied wholesale: the starter project already owns a `public/`.
+	await mergeDirectory(join(TEMPLATE_DIR, "public"), join(CWD, "public"), { force });
 
 	// 3. Astro entry files.
 	await copyEntry(
