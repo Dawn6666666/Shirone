@@ -1,3 +1,4 @@
+import nodePath from "node:path";
 import type { Plugin } from "vite";
 
 /**
@@ -23,6 +24,37 @@ export function shironesSsrNodeShims(): Plugin {
 		name: "shirones:ssr-node-shims",
 		apply: "build",
 		enforce: "post",
+		/**
+		 * Per-module fix: give every bundled CommonJS module inside
+		 * `node_modules` its *real* `__dirname` / `__filename`, so packages that
+		 * load sibling files from disk at runtime (stylus reads
+		 * `lib/functions/index.styl`) keep working after being inlined.
+		 */
+		transform(code, id, transformOptions) {
+			if (!transformOptions?.ssr) return null;
+			if (!id.includes("node_modules")) return null;
+			const file = id.split("?")[0];
+			if (!/\.(c?js)$/.test(file)) return null;
+
+			const usesFilename =
+				/(?<![\w$.])__filename(?![\w$])/.test(code) &&
+				!/(?:const|let|var|function)\s+__filename\b/.test(code);
+			const usesDirname =
+				/(?<![\w$.])__dirname(?![\w$])/.test(code) &&
+				!/(?:const|let|var|function)\s+__dirname\b/.test(code);
+			if (!usesFilename && !usesDirname) return null;
+
+			const lines: string[] = [];
+			if (usesFilename) {
+				lines.push(`const __filename = ${JSON.stringify(file)};`);
+			}
+			if (usesDirname) {
+				lines.push(
+					`const __dirname = ${JSON.stringify(nodePath.dirname(file))};`,
+				);
+			}
+			return { code: `${lines.join("\n")}\n${code}`, map: null };
+		},
 		configResolved(config) {
 			isSsr = Boolean(config.build?.ssr);
 		},
