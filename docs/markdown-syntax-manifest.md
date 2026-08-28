@@ -1,5 +1,7 @@
 # Markdown 自定义语法索引指南
 
+> 语法命中后的条件样式、动态运行时和 Swup 资源生命周期见 [`markdown-on-demand-loading.md`](./markdown-on-demand-loading.md)。
+
 `src/plugins/markdown/manifest.json` 是 Shirone 已支持的作者级 Markdown 扩展语法的机器可读单一索引。本指南解释清单边界和维护流程；具体 AST、CSS、缓存与测试规则仍以 `docs/markdown-extensions.md` 为准。
 
 ## 1. 清单解决什么问题
