@@ -14,6 +14,8 @@ const ADMONITIONS_POST_PATH = "/posts/admonitions/";
 const ADMONITION_FREE_POST_PATH = "/posts/expressive-code/";
 const ABBREVIATIONS_POST_PATH = "/posts/markdown-abbreviations/";
 const OPTION_GROUPS_POST_PATH = "/posts/option-groups/";
+const IMAGE_PRESENTATIONS_POST_PATH = "/posts/markdown-extended/";
+const IMAGE_PRESENTATIONS_FREE_POST_PATH = "/posts/expressive-code/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -143,6 +145,38 @@ test.describe("Markdown syntax runtime loading", () => {
 		await page.waitForURL(`**${PLAIN_POST_PATH}`);
 		await expect(
 			page.locator('style[data-swup-optional="image-grids"]'),
+		).toHaveCount(0);
+	});
+
+	test("adds and removes image presentation styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		await page.goto(IMAGE_PRESENTATIONS_FREE_POST_PATH, {
+			waitUntil: "networkidle",
+		});
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="image-presentations"]'),
+		).toHaveCount(0);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			IMAGE_PRESENTATIONS_POST_PATH,
+		);
+		await page.waitForURL(`**${IMAGE_PRESENTATIONS_POST_PATH}`);
+		const imagePresentation = page.locator(".markdown-image-figure").first();
+		await expect(
+			page.locator('style[data-swup-optional="image-presentations"]'),
+		).toHaveCount(1);
+		await expect(imagePresentation).toHaveCSS("margin-top", "24px");
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			IMAGE_PRESENTATIONS_FREE_POST_PATH,
+		);
+		await page.waitForURL(`**${IMAGE_PRESENTATIONS_FREE_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="image-presentations"]'),
 		).toHaveCount(0);
 	});
 

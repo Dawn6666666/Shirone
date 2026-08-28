@@ -1,5 +1,7 @@
 import { visit } from "unist-util-visit";
 
+const IMAGE_PRESENTATION_WIDTH_TOKEN = /(?:^|\s)w-(?:[1-9]\d?|100)%(?=\s|$)/;
+
 /**
  * Collect content capabilities during the shared Markdown compilation pass.
  * The values are consumed by route templates to keep optional assets page-scoped.
@@ -18,10 +20,11 @@ export function remarkFeatureProbes() {
 			admonitions: false,
 			abbreviations: false,
 			imageGrids: false,
+			imagePresentations: false,
 			optionGroups: false,
 		};
 
-		visit(tree, (node) => {
+		visit(tree, (node, _index, parent) => {
 			if (node.type === "math" || node.type === "inlineMath") {
 				markdownFeatures.math = true;
 			}
@@ -77,6 +80,15 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "containerDirective" && node.name === "grid") {
 				markdownFeatures.imageGrids = true;
+			}
+			if (
+				node.type === "image" &&
+				parent?.type === "paragraph" &&
+				parent.children.length === 1 &&
+				(Boolean(node.title?.trim()) ||
+					IMAGE_PRESENTATION_WIDTH_TOKEN.test(node.alt ?? ""))
+			) {
+				markdownFeatures.imagePresentations = true;
 			}
 			if (node.type === "containerDirective" && node.name === "tabs") {
 				markdownFeatures.optionGroups = true;

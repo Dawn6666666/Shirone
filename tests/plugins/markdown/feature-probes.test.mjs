@@ -21,6 +21,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		admonitions: false,
 		abbreviations: false,
 		imageGrids: false,
+		imagePresentations: false,
 		optionGroups: false,
 	});
 
@@ -41,6 +42,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		admonitions: false,
 		abbreviations: false,
 		imageGrids: false,
+		imagePresentations: false,
 		optionGroups: false,
 	});
 });
@@ -150,6 +152,24 @@ test("records image grid containers before directive normalization", async () =>
 	);
 });
 
+test("records standalone image presentations without matching inline images", async () => {
+	const presentation = await renderer.render(
+		'![Example w-50%](/images/example.webp "Caption")',
+	);
+	assert.equal(
+		presentation.metadata.frontmatter.markdownFeatures.imagePresentations,
+		true,
+	);
+
+	const inlineImage = await renderer.render(
+		'Inline ![Example w-50%](/images/example.webp "Caption") text.',
+	);
+	assert.equal(
+		inlineImage.metadata.frontmatter.markdownFeatures.imagePresentations,
+		false,
+	);
+});
+
 test("records defined content annotations after reference resolution", async () => {
 	const annotations = await renderer.render(
 		"A note [+example].\n\n[+example]: Annotation content.",
@@ -182,6 +202,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				admonitions: false,
 				abbreviations: false,
 				imageGrids: false,
+				imagePresentations: false,
 				optionGroups: false,
 			},
 			hasMath: false,

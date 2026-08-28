@@ -7,6 +7,7 @@ type MarkdownAssetFeature =
 	| "collapsePanels"
 	| "contentAnnotations"
 	| "imageGrids"
+	| "imagePresentations"
 	| "marker"
 	| "optionGroups"
 	| "steps"
@@ -17,6 +18,7 @@ type MarkdownStylesheetPack =
 	| "collapse-panels"
 	| "content-annotations"
 	| "image-grids"
+	| "image-presentations"
 	| "marker"
 	| "option-groups"
 	| "steps"
@@ -49,6 +51,10 @@ const contentAnnotationsStylesheetPath = resolve(
 const imageGridsStylesheetPath = resolve(
 	process.cwd(),
 	"src/styles/markdown/image-grids.css",
+);
+const imagePresentationsStylesheetPath = resolve(
+	process.cwd(),
+	"src/styles/markdown/image-presentations.css",
 );
 const optionGroupsStylesheetPath = resolve(
 	process.cwd(),
@@ -100,6 +106,12 @@ const stylesheetAssets: Record<
 		{
 			pack: "image-grids",
 			loadCss: () => readFile(imageGridsStylesheetPath, "utf8"),
+		},
+	],
+	imagePresentations: [
+		{
+			pack: "image-presentations",
+			loadCss: () => readFile(imagePresentationsStylesheetPath, "utf8"),
 		},
 	],
 	marker: [
