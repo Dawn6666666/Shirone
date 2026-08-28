@@ -289,7 +289,7 @@ links:
 | 命令 | 说明 |
 | --- | --- |
 | `pnpm content:sync` | 物化内容，写出 `content.lock.json`。已并入 `dev` / `start` / `build` 的首位 |
-| `pnpm content:clean` | 安全清理物化内容与配置覆盖，恢复纯净主题状态；清理前自动在 `.content-backup/` 创建快照 |
+| `pnpm content:clean` | 清理物化内容与配置覆盖，恢复主题自带内容状态。**默认只预演**，加 `--yes` 才执行 |
 | `pnpm content:watch` | 物化后持续监听本地内容目录，边写边同步（仅 `type: "path"`） |
 | `pnpm content:validate` | `--dry-run`，只校验结构与冲突，不落盘 |
 | `pnpm content:eject` | 一次性迁移到 `external` 模式，默认只预演 |
@@ -331,18 +331,77 @@ pnpm dev
 
 ## 安全清理与回退 (`content:clean`)
 
-当需要从物化状态回到初始主题演示状态、或者需要一键清空同步过来的外部文章与配置时，执行：
+从物化状态回到「主题自带内容」的状态：
 
 ```powershell
-pnpm content:clean
+pnpm content:clean          # 预演：只打印清理计划
+pnpm content:clean --yes    # 实际执行
 ```
 
-### 安全与熔断保障（Fail-Safe & Fail-Fast）
+与 `content:eject` 一致，**默认只预演**。可用参数：
 
-1. **自动快照备份**：清理前自动将所有受影响的外部文件与覆盖项打包备份到 `.content-backup/clean-<timestamp>/` 目录（已加入 `.gitignore`），并生成 `manifest.json`；
-2. **100% 可逆还原**：若发生误操作，随时可将 `.content-backup/clean-.../` 内的文件拷回项目恢复；
-3. **阻塞立即熔断**：任何步骤（Git 状态、文件权限、锁定等）遇到阻塞，立即抛出完整诊断信息并中止退出，绝不执行静默删除或部分删除；
-4. **预演模式**：支持 `pnpm content:clean --dry-run` 预览待清理清单而不修改任何文件。
+| 参数 | 作用 |
+| --- | --- |
+| `--yes` | 实际执行清理（不加就只是预演；`--dry-run` 优先级更高，可用于脚本兜底） |
+| `--no-backup` | 跳过 `.content-backup/` 快照备份（不推荐） |
+| `--keep-working-copy` | 保留 `.content-src/`，下次同步不必重新 fetch |
+
+### 清理范围
+
+严格限定在**挂载目标 + 配置生成物**之内：`src/content/`、`src/data/`、`src/assets/`、`public/`、
+`src/user/user-config.ts`、`src/config/FooterConfig.html`（挂载表被 `mounts` 覆盖时按实际挂载点解析）。
+
+**主题源码里的未提交改动不在范围内**，不会被回滚——这是它与 `git checkout -- src/` 的根本区别。
+若某个挂载点被配成 `src` 或仓库根这类过宽的目录，清理会直接拒绝执行，而不是拿 `git clean -x`
+去碰未提交的源码。
+
+三类文件的处理方式不同：
+
+| 文件状态 | 典型来源 | 处理 |
+| --- | --- | --- |
+| 被跟踪且有改动/被裁剪 | 物化覆盖或删掉的 demo 内容 | `git restore` 回 HEAD |
+| 未跟踪 | 尚未 eject 的仓库里新物化进来的文章 | 备份后删除 |
+| 被 `.gitignore` 忽略 | **eject 之后**的全部物化内容 | 备份后删除（`git clean -x`） |
+
+第三类最容易被忽略：`content:eject` 会把 `/src/content/` 等路径写进 `.gitignore`，此后 `git status`
+对它们完全沉默。只看 status 的清理逻辑会「什么都没清掉却报告成功」，因此清理走的是
+`git ls-files --others --ignored`，而不是 `git status`。
+
+### 豁免路径
+
+以下路径既不备份也不删除，与 `sync.mjs` 的 `PROTECTED_PATHS` 同一套语义（重建代价高，
+番剧封面还要打外部 API）：
+
+- `public/assets/moments/thumbnails/**`（说说缩略图）
+- `public/assets/anime/covers/**` 与 `src/data/anime-snapshots/**`（番剧封面与快照）
+- `src/assets/fonts/.subset/**`（子集字体）
+- 各目录的 `.gitkeep`（代码仓用来占位空目录的自有文件）
+
+### 一并清除的缓存
+
+`content.lock.json`、`node_modules/.astro/data-store.json`（Astro 内容层缓存）、`.astro/collections/`、
+`node_modules/.cache/shirone/`（配置校验缓存与「上次校验通过」摘要）、以及 `.content-src/`
+工作副本。不清 Astro 内容层缓存的话，`astro dev` 会拿旧的 content collection 快照继续渲染已删除的文章。
+
+清理后会重新生成离线图标集合与说说缩略图：两者都是内容的派生产物，不重算会留下图标空白
+或指向已删除图片的缩略图。
+
+### 安全机制
+
+1. **默认预演**：不加 `--yes` 只打印计划，包括待还原/待删除清单、备份体积与将被清除的缓存；
+2. **快照备份**：删除或还原前把受影响文件复制到 `.content-backup/clean-<timestamp>/`（已 gitignore），
+   附 `manifest.json` 记录 HEAD、清理范围、统计与还原命令。中文路径同样完整备份
+   （内部统一用 `core.quotepath=false` + `-z` 读取路径，否则非 ASCII 路径会因八进制转义在备份阶段漏掉、
+   却照样被删除）；
+3. **失败即熔断**：任何步骤出错立即中止，并明确区分「未产生破坏性改动」与「已产生部分改动」；
+4. **收尾体检**：提示内容源是否仍然生效（否则下次 `pnpm dev` 会立刻重新物化）、挂载点是否已不被跟踪
+   （eject 之后无法靠清理还原出 demo 内容）、以及是否有被占用而未删掉的残留。
+
+还原备份：
+
+```powershell
+Copy-Item -Recurse -Force .\.content-backup\clean-<timestamp>\* .
+```
 
 ---
 
@@ -454,6 +513,7 @@ pnpm content:eject --yes --out ..\my-content
 
 ```powershell
 pnpm content:validate           # 结构、冲突与配置类型
+pnpm content:clean              # 预演清理计划（不修改文件）
 node --test tests/content-*.test.mjs
 npx.cmd astro check             # 0 error 0 warning
 pnpm build                      # 完整构建
