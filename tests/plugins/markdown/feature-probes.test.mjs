@@ -20,6 +20,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		steps: false,
 		admonitions: false,
 		abbreviations: false,
+		optionGroups: false,
 	});
 
 	const mermaid = await renderer.render(
@@ -38,6 +39,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		steps: false,
 		admonitions: false,
 		abbreviations: false,
+		optionGroups: false,
 	});
 });
 
@@ -114,6 +116,28 @@ test("records visible abbreviations after reference replacement", async () => {
 	);
 });
 
+test("records option group containers after syntax normalization", async () => {
+	const optionGroups = await renderer.render(
+		[
+			"::: tabs",
+			"",
+			"@tab First",
+			"",
+			"First body.",
+			"",
+			"@tab Second",
+			"",
+			"Second body.",
+			"",
+			":::",
+		].join("\n"),
+	);
+	assert.equal(
+		optionGroups.metadata.frontmatter.markdownFeatures.optionGroups,
+		true,
+	);
+});
+
 test("records defined content annotations after reference resolution", async () => {
 	const annotations = await renderer.render(
 		"A note [+example].\n\n[+example]: Annotation content.",
@@ -145,6 +169,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				steps: false,
 				admonitions: false,
 				abbreviations: false,
+				optionGroups: false,
 			},
 			hasMath: false,
 			hasMermaid: false,

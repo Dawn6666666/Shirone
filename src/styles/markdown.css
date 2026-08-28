@@ -1,7 +1,6 @@
 @reference "tailwindcss";
 
 @import "./markdown/disclosures.css";
-@import "./markdown/option-groups.css";
 
 .custom-md {
   h1 {

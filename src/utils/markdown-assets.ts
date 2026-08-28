@@ -7,6 +7,7 @@ type MarkdownAssetFeature =
 	| "collapsePanels"
 	| "contentAnnotations"
 	| "marker"
+	| "optionGroups"
 	| "steps"
 	| "trees";
 type MarkdownStylesheetPack =
@@ -15,6 +16,7 @@ type MarkdownStylesheetPack =
 	| "collapse-panels"
 	| "content-annotations"
 	| "marker"
+	| "option-groups"
 	| "steps"
 	| "trees";
 
@@ -41,6 +43,10 @@ const markerStylesheetPath = resolve(
 const contentAnnotationsStylesheetPath = resolve(
 	process.cwd(),
 	"src/styles/markdown/content-annotations.css",
+);
+const optionGroupsStylesheetPath = resolve(
+	process.cwd(),
+	"src/styles/markdown/option-groups.css",
 );
 const stepsStylesheetPath = resolve(
 	process.cwd(),
@@ -88,6 +94,12 @@ const stylesheetAssets: Record<
 		{
 			pack: "marker",
 			loadCss: () => readFile(markerStylesheetPath, "utf8"),
+		},
+	],
+	optionGroups: [
+		{
+			pack: "option-groups",
+			loadCss: () => readFile(optionGroupsStylesheetPath, "utf8"),
 		},
 	],
 	steps: [

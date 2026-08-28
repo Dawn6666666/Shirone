@@ -13,6 +13,7 @@ const STEPS_POST_PATH = "/posts/steps/";
 const ADMONITIONS_POST_PATH = "/posts/admonitions/";
 const ADMONITION_FREE_POST_PATH = "/posts/expressive-code/";
 const ABBREVIATIONS_POST_PATH = "/posts/markdown-abbreviations/";
+const OPTION_GROUPS_POST_PATH = "/posts/option-groups/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -28,6 +29,7 @@ const optionalRuntimeModules = {
 	steps: /\/src\/styles\/markdown\/steps\.css(?:\?|$)/,
 	admonitions: /\/src\/styles\/markdown\/admonitions\.css(?:\?|$)/,
 	abbreviations: /\/src\/utils\/abbreviations\.ts(?:\?|$)/,
+	optionGroups: /\/src\/utils\/option-groups\.ts(?:\?|$)/,
 	codeTree: /\/src\/utils\/code-tree\.ts(?:\?|$)/,
 };
 
@@ -387,6 +389,50 @@ test.describe("Markdown syntax runtime loading", () => {
 		await page.waitForURL(`**${ADMONITION_FREE_POST_PATH}`);
 		await expect(
 			page.locator('style[data-swup-optional="abbreviations"]'),
+		).toHaveCount(0);
+	});
+
+	test("loads option group assets only for rendered groups", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(ADMONITION_FREE_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="option-groups"]'),
+		).toHaveCount(0);
+		expect(hasRequestFor(requests, [optionalRuntimeModules.optionGroups])).toBe(
+			false,
+		);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			OPTION_GROUPS_POST_PATH,
+		);
+		await page.waitForURL(`**${OPTION_GROUPS_POST_PATH}`);
+		const optionGroup = page.locator(".m3-option-group").first();
+		await expect(optionGroup).toHaveAttribute(
+			"data-option-group-ready",
+			"true",
+		);
+		await expect(
+			page.locator('style[data-swup-optional="option-groups"]'),
+		).toHaveCount(1);
+		await expect(optionGroup).toHaveCSS("border-radius", "12px");
+		await expect
+			.poll(() =>
+				hasRequestFor(requests, [optionalRuntimeModules.optionGroups]),
+			)
+			.toBe(true);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			ADMONITION_FREE_POST_PATH,
+		);
+		await page.waitForURL(`**${ADMONITION_FREE_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="option-groups"]'),
 		).toHaveCount(0);
 	});
 });

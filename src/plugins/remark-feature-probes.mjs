@@ -17,6 +17,7 @@ export function remarkFeatureProbes() {
 			steps: false,
 			admonitions: false,
 			abbreviations: false,
+			optionGroups: false,
 		};
 
 		visit(tree, (node) => {
@@ -72,6 +73,9 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "abbreviation") {
 				markdownFeatures.abbreviations = true;
+			}
+			if (node.type === "containerDirective" && node.name === "tabs") {
+				markdownFeatures.optionGroups = true;
 			}
 		});
 
