@@ -224,6 +224,33 @@ function resolveKeep(manifest) {
  * @param {string} [root] 代码仓根目录
  */
 export function resolveContentSource(root = process.cwd()) {
+	// 加载根目录下可能存在的 .env 文件（若未在环境里显式注入）
+	const envPath = join(root, ".env");
+	if (existsSync(envPath)) {
+		try {
+			const content = readFileSync(envPath, "utf-8");
+			for (const line of content.split(/\r?\n/)) {
+				const trimmed = line.trim();
+				if (!trimmed || trimmed.startsWith("#")) continue;
+				const eqIndex = trimmed.indexOf("=");
+				if (eqIndex === -1) continue;
+				const key = trimmed.slice(0, eqIndex).trim();
+				let val = trimmed.slice(eqIndex + 1).trim();
+				if (
+					(val.startsWith('"') && val.endsWith('"')) ||
+					(val.startsWith("'") && val.endsWith("'"))
+				) {
+					val = val.slice(1, -1);
+				}
+				if (key && process.env[key] === undefined) {
+					process.env[key] = val;
+				}
+			}
+		} catch {
+			// 忽略解析错误
+		}
+	}
+
 	if (isDisabled(process.env.SHIRONE_CONTENT_SYNC)) {
 		return { mode: "local", reason: "SHIRONE_CONTENT_SYNC 已显式关闭" };
 	}
