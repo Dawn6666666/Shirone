@@ -116,6 +116,18 @@ async function ensurePackageJsonScripts(packageName) {
 		changed = true;
 	}
 
+	// pnpm >= 10 refuses to silently skip a dependency's build script, and
+	// `sharp` (image optimisation) needs its. Without this a fresh project
+	// fails `pnpm install` with ERR_PNPM_IGNORED_BUILDS.
+	const builtDeps = ["esbuild", "sharp"];
+	pkg.pnpm ??= {};
+	const existing = new Set(pkg.pnpm.onlyBuiltDependencies ?? []);
+	if (builtDeps.some((dep) => !existing.has(dep))) {
+		for (const dep of builtDeps) existing.add(dep);
+		pkg.pnpm.onlyBuiltDependencies = [...existing].sort();
+		changed = true;
+	}
+
 	if (changed) {
 		await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
 		log.ok("package.json");
