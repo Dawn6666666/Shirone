@@ -142,6 +142,8 @@ export const vi: Translation = {
 	[Key.recentPosts]: "Bài viết mới nhất",
 	[Key.tableOfContents]: "Mục lục",
 	[Key.formulaScrollable]: "Công thức có thể cuộn ngang",
+	[Key.codeBlockExpand]: "Mở rộng khối mã",
+	[Key.codeBlockCollapse]: "Thu gọn khối mã",
 	[Key.announcement]: "Thông báo",
 	[Key.announcementClose]: "Đóng thông báo",
 

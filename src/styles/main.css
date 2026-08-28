@@ -1,4 +1,3 @@
-@import "./mermaid.css" layer(components);
 @import "tailwindcss";
 
 /* Tailwind v4 discovers utility classes by scanning the project, and it always

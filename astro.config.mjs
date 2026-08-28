@@ -72,8 +72,8 @@ function resolveVariantSrc(file) {
 		}
 		throw new Error(
 			`[font-system] Missing required subset font: ${subsetPath}. ` +
-				`Font subsetting is enabled for production builds, but the subset file was not found. ` +
-				`Ensure 'pnpm.cmd fonts:subset' ran successfully before building.`,
+				"Font subsetting is enabled for production builds, but the subset file was not found. " +
+				"Ensure 'pnpm.cmd fonts:subset' ran successfully before building.",
 		);
 	}
 	return `./${file}`;
@@ -150,7 +150,10 @@ export default defineConfig({
 			accessibility: true,
 			updateHead: {
 				awaitAssets: false,
-				persistTags: "link[rel=stylesheet], style",
+				// Keep base styles across Swup visits, but let syntax-scoped styles
+				// disappear when the destination page no longer declares them.
+				persistTags:
+					"link[rel=stylesheet]:not([data-swup-optional]), style:not([data-swup-optional])",
 			},
 			updateBodyClass: false,
 			globalInstance: true,

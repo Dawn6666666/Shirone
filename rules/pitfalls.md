@@ -236,6 +236,22 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
+### 4.5 页面级 Markdown CSS 不能依赖 `?url` 静态导入或预渲染后的 `import.meta.url`
+
+**现象**：树语法的 CSS 已从 `markdown.css` 移出，普通文章也没有对应的 `<link>`，但开发工具仍会请求 `trees.css?url`；改用 `import.meta.url` 读取同一份 CSS 后，开发环境正常，`pnpm.cmd build` 却在 `dist/.prerender` 下报源文件不存在。
+
+**根因**：Astro 页面中的静态或动态 `?url` 导入会进入浏览器可见的 Vite 模块图，在开发期仍可能形成 URL 模块请求，因此不满足未命中语法的零资源请求。静态预渲染会把服务器模块放入 `dist/.prerender`，使相对 `import.meta.url` 不再指向仓库中的 `src/styles`。
+
+**解法**：
+- 对纯 SSR、会影响布局且需要随 Swup 页面离开的样式，在服务器端按特征快照读取 CSS 源文件，并只在命中页 `<head>` 输出带 `data-swup-optional` 的内联 `<style>`；不要为加载 CSS 新增客户端脚本。
+- 服务器读取源码时使用 `resolve(process.cwd(), "src/styles/...")`。构建命令必须从仓库根目录执行；不要把预渲染模块路径当作源码定位依据。
+- `updateHead.persistTags` 必须同时排除 `link[data-swup-optional]` 与 `style[data-swup-optional]`，否则离开命中页后内联规则会遗留在持久外壳中。
+- 回归测试同时断言普通文章没有目标 CSS/JS 请求和可选样式节点，命中页只有一个样式节点且 computed style 生效；最后执行 `pnpm.cmd build` 覆盖预渲染路径。
+
+**教训**：`?url` 没有插入 stylesheet 并不等于没有网络负担；开发期的 URL 模块请求同样属于未命中语法的额外成本。路径方案必须同时经过 dev、Swup 和静态构建验证。
+
+---
+
 ## 5. 测试
 
 ### 5.1 主题初始化后要等过渡收敛

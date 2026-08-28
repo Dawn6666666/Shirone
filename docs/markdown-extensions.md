@@ -1,5 +1,7 @@
 # Markdown 扩展开发规范
 
+> Markdown 语法的内容特征、条件样式包、动态运行时和 Swup 资源生命周期见 [`markdown-on-demand-loading.md`](./markdown-on-demand-loading.md)。
+
 > 本文档定义 Shirone 的 remark/rehype 扩展、生成式 Markdown 小组件、全局内容样式、缓存刷新和验证契约。
 
 已落地的作者语法以 `src/plugins/markdown/manifest.json` 为机器可读单一索引；字段含义、查询和维护流程见 [`markdown-syntax-manifest.md`](markdown-syntax-manifest.md)。未落地的研究能力不得提前登记。

@@ -693,7 +693,9 @@
 				"src/content/posts/guide/index.md"
 			],
 			"tests": ["tests/site/mermaid.spec.ts"],
-			"notes": ["客户端初始化必须覆盖直接加载、Swup、主题变化和文章解密。"]
+			"notes": [
+				"客户端脚本与样式仅在页面含 Mermaid 语法时按需加载；初始化必须覆盖直接加载、Swup、主题变化和文章解密。"
+			]
 		},
 		{
 			"id": "option-groups",

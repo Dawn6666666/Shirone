@@ -28,7 +28,7 @@ const THEME_PROPERTIES = [
 	"--mc-on-error-container",
 ] as const;
 
-let initialized = false;
+let initializationPromise: Promise<void> | undefined;
 let renderTimer: number | undefined;
 let renderSequence = 0;
 let rendering = false;
@@ -387,9 +387,8 @@ export function scheduleMermaidRender(): void {
 	renderTimer = window.setTimeout(() => void renderDiagrams());
 }
 
-export function initMermaidDiagrams(): void {
-	if (initialized) return;
-	initialized = true;
+async function initializeMermaidDiagrams(): Promise<void> {
+	await import("../styles/mermaid.css");
 	lastThemeSignature = readTheme().signature;
 
 	const themeObserver = new MutationObserver(() => {
@@ -417,4 +416,9 @@ export function initMermaidDiagrams(): void {
 		document.addEventListener("swup:enable", bindSwup, { once: true });
 	}
 	scheduleMermaidRender();
+}
+
+export function initMermaidDiagrams(): Promise<void> {
+	initializationPromise ??= initializeMermaidDiagrams();
+	return initializationPromise;
 }
