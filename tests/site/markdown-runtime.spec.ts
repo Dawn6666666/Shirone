@@ -16,6 +16,7 @@ const ABBREVIATIONS_POST_PATH = "/posts/markdown-abbreviations/";
 const OPTION_GROUPS_POST_PATH = "/posts/option-groups/";
 const IMAGE_PRESENTATIONS_POST_PATH = "/posts/markdown-extended/";
 const IMAGE_PRESENTATIONS_FREE_POST_PATH = "/posts/expressive-code/";
+const EXPRESSIVE_CODE_FREE_PATH = "/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -141,8 +142,11 @@ test.describe("Markdown syntax runtime loading", () => {
 		).toHaveCount(1);
 		await expect(imageGrid).toHaveCSS("display", "grid");
 
-		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
-		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			EXPRESSIVE_CODE_FREE_PATH,
+		);
+		await page.waitForURL(`**${EXPRESSIVE_CODE_FREE_PATH}`);
 		await expect(
 			page.locator('style[data-swup-optional="image-grids"]'),
 		).toHaveCount(0);
@@ -200,6 +204,33 @@ test.describe("Markdown syntax runtime loading", () => {
 		expect(
 			requests.some((url) => optionalRuntimeModules.codeCollapse.test(url)),
 		).toBe(true);
+	});
+
+	test("adds and removes Expressive Code styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		await page.goto(EXPRESSIVE_CODE_FREE_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="expressive-code"]'),
+		).toHaveCount(0);
+
+		await page.evaluate((path) => window.swup?.navigate(path), CODE_POST_PATH);
+		await page.waitForURL(`**${CODE_POST_PATH}`);
+		const codeFrame = page.locator(".expressive-code .frame").first();
+		await expect(
+			page.locator('style[data-swup-optional="expressive-code"]'),
+		).toHaveCount(1);
+		await expect(codeFrame).toHaveCSS("box-shadow", "none");
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			EXPRESSIVE_CODE_FREE_PATH,
+		);
+		await page.waitForURL(`**${EXPRESSIVE_CODE_FREE_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="expressive-code"]'),
+		).toHaveCount(0);
 	});
 
 	test("adds and removes tree styles with the Swup page lifecycle", async ({

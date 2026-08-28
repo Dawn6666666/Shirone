@@ -380,7 +380,7 @@
 				"src/plugins/expressive-code/language-badge.ts"
 			],
 			"registeredIn": "astro.config.mjs",
-			"styles": ["src/styles/expressive-code.css"],
+			"styles": ["src/styles/markdown/expressive-code.css"],
 			"runtime": {
 				"mode": "client-enhanced",
 				"modules": ["src/utils/code-copy.ts", "src/utils/code-collapse.ts"],

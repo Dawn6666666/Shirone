@@ -22,6 +22,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		abbreviations: false,
 		imageGrids: false,
 		imagePresentations: false,
+		expressiveCode: false,
 		optionGroups: false,
 	});
 
@@ -43,6 +44,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		abbreviations: false,
 		imageGrids: false,
 		imagePresentations: false,
+		expressiveCode: false,
 		optionGroups: false,
 	});
 });
@@ -170,6 +172,11 @@ test("records standalone image presentations without matching inline images", as
 	);
 });
 
+test("records fenced code blocks for Expressive Code styling", async () => {
+	const code = await renderer.render("```ts\nexport {};\n```");
+	assert.equal(code.metadata.frontmatter.markdownFeatures.expressiveCode, true);
+});
+
 test("records defined content annotations after reference resolution", async () => {
 	const annotations = await renderer.render(
 		"A note [+example].\n\n[+example]: Annotation content.",
@@ -203,6 +210,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				abbreviations: false,
 				imageGrids: false,
 				imagePresentations: false,
+				expressiveCode: false,
 				optionGroups: false,
 			},
 			hasMath: false,

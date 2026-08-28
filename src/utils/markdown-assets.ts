@@ -6,6 +6,7 @@ type MarkdownAssetFeature =
 	| "admonitions"
 	| "collapsePanels"
 	| "contentAnnotations"
+	| "expressiveCode"
 	| "imageGrids"
 	| "imagePresentations"
 	| "marker"
@@ -17,6 +18,7 @@ type MarkdownStylesheetPack =
 	| "admonitions"
 	| "collapse-panels"
 	| "content-annotations"
+	| "expressive-code"
 	| "image-grids"
 	| "image-presentations"
 	| "marker"
@@ -47,6 +49,10 @@ const markerStylesheetPath = resolve(
 const contentAnnotationsStylesheetPath = resolve(
 	process.cwd(),
 	"src/styles/markdown/content-annotations.css",
+);
+const expressiveCodeStylesheetPath = resolve(
+	process.cwd(),
+	"src/styles/markdown/expressive-code.css",
 );
 const imageGridsStylesheetPath = resolve(
 	process.cwd(),
@@ -100,6 +106,12 @@ const stylesheetAssets: Record<
 		{
 			pack: "content-annotations",
 			loadCss: () => readFile(contentAnnotationsStylesheetPath, "utf8"),
+		},
+	],
+	expressiveCode: [
+		{
+			pack: "expressive-code",
+			loadCss: () => readFile(expressiveCodeStylesheetPath, "utf8"),
 		},
 	],
 	imageGrids: [

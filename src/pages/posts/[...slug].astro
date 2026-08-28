@@ -71,6 +71,9 @@ const isEncrypted = Boolean(
 	entry.data.password && entry.data.password.trim().length > 0,
 );
 const scope = `post:${entry.id}`;
+const hasFencedCodeBlock = /(^|\r?\n)[ \t]{0,3}(?:`{3,}|~{3,})/.test(
+	entry.body ?? "",
+);
 
 const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 const hasMath = Boolean(
@@ -79,6 +82,10 @@ const hasMath = Boolean(
 );
 const markdownStylesheetAssets = await getMarkdownStylesheetAssets({
 	...remarkPluginFrontmatter.markdownFeatures,
+	expressiveCode: Boolean(
+		remarkPluginFrontmatter.markdownFeatures?.expressiveCode ||
+			hasFencedCodeBlock,
+	),
 });
 const effectiveHeadings = isEncrypted ? [] : headings;
 const imageBasePath = entry.filePath

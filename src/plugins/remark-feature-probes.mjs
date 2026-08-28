@@ -21,6 +21,7 @@ export function remarkFeatureProbes() {
 			abbreviations: false,
 			imageGrids: false,
 			imagePresentations: false,
+			expressiveCode: false,
 			optionGroups: false,
 		};
 
@@ -39,6 +40,9 @@ export function remarkFeatureProbes() {
 				(node.meta?.includes("collapse") || node.meta?.includes("tree"))
 			) {
 				markdownFeatures.codeInteractions = true;
+			}
+			if (node.type === "code") {
+				markdownFeatures.expressiveCode = true;
 			}
 			if (
 				node.type === "fileTree" ||
