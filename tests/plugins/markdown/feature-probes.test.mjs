@@ -15,6 +15,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		codeInteractions: false,
 		trees: false,
 		collapsePanels: false,
+		contentAnnotations: false,
 		marker: false,
 	});
 
@@ -29,6 +30,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		codeInteractions: false,
 		trees: false,
 		collapsePanels: false,
+		contentAnnotations: false,
 		marker: false,
 	});
 });
@@ -77,6 +79,16 @@ test("records marker highlights after syntax normalization", async () => {
 	assert.equal(marker.metadata.frontmatter.markdownFeatures.marker, true);
 });
 
+test("records defined content annotations after reference resolution", async () => {
+	const annotations = await renderer.render(
+		"A note [+example].\n\n[+example]: Annotation content.",
+	);
+	assert.equal(
+		annotations.metadata.frontmatter.markdownFeatures.contentAnnotations,
+		true,
+	);
+});
+
 test("does not mark ordinary prose with optional capabilities", async () => {
 	const result = await renderer.render("A plain article with no extensions.");
 	assert.deepEqual(
@@ -93,6 +105,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				codeInteractions: false,
 				trees: false,
 				collapsePanels: false,
+				contentAnnotations: false,
 				marker: false,
 			},
 			hasMath: false,

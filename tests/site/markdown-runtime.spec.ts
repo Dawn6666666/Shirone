@@ -8,6 +8,7 @@ const CODE_POST_PATH = "/posts/expressive-code/";
 const TREE_POST_PATH = "/posts/markdown-enhancements/";
 const COLLAPSE_POST_PATH = "/posts/collapse-panels/";
 const MARKER_POST_PATH = "/posts/marker-highlights/";
+const CONTENT_ANNOTATIONS_POST_PATH = "/posts/content-annotations/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -18,6 +19,8 @@ const optionalRuntimeModules = {
 	trees: /\/src\/styles\/markdown\/trees\.css(?:\?|$)/,
 	collapsePanels: /\/src\/styles\/markdown\/collapse-panels\.css(?:\?|$)/,
 	marker: /\/src\/styles\/markdown\/marker\.css(?:\?|$)/,
+	contentAnnotations:
+		/\/src\/styles\/markdown\/content-annotations\.css(?:\?|$)/,
 	codeTree: /\/src\/utils\/code-tree\.ts(?:\?|$)/,
 };
 
@@ -255,5 +258,41 @@ test.describe("Markdown syntax runtime loading", () => {
 		await expect(page.locator('style[data-swup-optional="marker"]')).toHaveCount(
 			0,
 		);
+	});
+
+	test("adds and removes content annotation styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="content-annotations"]'),
+		).toHaveCount(0);
+		expect(
+			hasRequestFor(requests, [optionalRuntimeModules.contentAnnotations]),
+		).toBe(false);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			CONTENT_ANNOTATIONS_POST_PATH,
+		);
+		await page.waitForURL(`**${CONTENT_ANNOTATIONS_POST_PATH}`);
+		const trigger = page.locator(".m3-content-note__trigger").first();
+		await expect(trigger).toBeVisible();
+		await expect(
+			page.locator('style[data-swup-optional="content-annotations"]'),
+		).toHaveCount(1);
+		await expect(trigger).toHaveCSS("border-radius", "999px");
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			PLAIN_POST_PATH,
+		);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="content-annotations"]'),
+		).toHaveCount(0);
 	});
 });

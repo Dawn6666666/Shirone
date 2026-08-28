@@ -12,6 +12,7 @@ export function remarkFeatureProbes() {
 			codeInteractions: false,
 			trees: false,
 			collapsePanels: false,
+			contentAnnotations: false,
 			marker: false,
 		};
 
@@ -45,6 +46,9 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "textDirective" && node.name === "m3-mark") {
 				markdownFeatures.marker = true;
+			}
+			if (node.type === "contentAnnotationReference") {
+				markdownFeatures.contentAnnotations = true;
 			}
 		});
 
