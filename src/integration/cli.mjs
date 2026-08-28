@@ -71,14 +71,18 @@ async function countFiles(dir) {
 }
 
 /**
- * Peer dependencies that must sit at the *project* root.
+ * Peers the user's project must depend on directly.
  *
- * Vite resolves `optimizeDeps.include` from the project root, and
- * `@astrojs/svelte` registers a dozen `svelte/*` subpaths there. With pnpm's
- * strict layout a copy nested inside the theme package is invisible, so svelte
- * has to be a direct dependency of the user's project.
+ * Some tooling resolves from the project root rather than from the importing
+ * file, and pnpm's strict layout hides the theme's own dependencies there:
+ * `@astrojs/svelte` registers `svelte/*` subpaths in `optimizeDeps.include`,
+ * and astro-icon loads `@iconify-json/*` sets through `require.resolve` in
+ * Node. Installing them at the root is the only thing that satisfies both.
+ *
+ * The list is derived from the package's own `peerDependencies`, minus
+ * `astro`, which the user necessarily already has.
  */
-const REQUIRED_PEERS = ["svelte"];
+const PEERS_PROVIDED_BY_USER = ["astro"];
 
 /** Dependencies whose install scripts must be allowed to run. */
 const BUILT_DEPENDENCIES = ["esbuild", "sharp"];
@@ -130,12 +134,11 @@ async function ensurePackageJsonScripts(packageName) {
 	let changed = false;
 
 	const addedPeers = [];
-	for (const peer of REQUIRED_PEERS) {
+	for (const [peer, range] of Object.entries(await themePeers())) {
+		if (PEERS_PROVIDED_BY_USER.includes(peer)) continue;
 		if (pkg.dependencies[peer] || pkg.devDependencies?.[peer]) continue;
-		const range = await peerRange(packageName, peer);
-		if (!range) continue;
 		pkg.dependencies[peer] = range;
-		addedPeers.push(`${peer}@${range}`);
+		addedPeers.push(peer);
 		changed = true;
 	}
 
@@ -174,13 +177,13 @@ async function ensurePackageJsonScripts(packageName) {
 	return addedPeers;
 }
 
-/** Read a peer range straight out of the installed package. */
-async function peerRange(packageName, peer) {
+/** Read the theme's declared peer dependencies. */
+async function themePeers() {
 	try {
 		const raw = await readFile(join(PACKAGE_ROOT, "package.json"), "utf8");
-		return JSON.parse(raw).peerDependencies?.[peer] ?? null;
+		return JSON.parse(raw).peerDependencies ?? {};
 	} catch {
-		return null;
+		return {};
 	}
 }
 
@@ -297,7 +300,7 @@ ${colours.bold}Project layout${colours.reset}
 
 ${colours.bold}Next${colours.reset}${
 		addedPeers?.length
-			? `\n  ${colours.yellow}pnpm install${colours.reset}  ${colours.dim}# added ${addedPeers.join(", ")}${colours.reset}`
+			? `\n  ${colours.yellow}pnpm install${colours.reset}  ${colours.dim}# ${addedPeers.length} dependencies were added${colours.reset}`
 			: ""
 	}
   ${colours.dim}pnpm dev${colours.reset}

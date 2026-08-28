@@ -364,7 +364,13 @@ async function createBundledIntegrations(paths: ResolvedShironesPaths) {
 				Boolean(event.state?.url?.includes("#")),
 		}),
 		icon({
+			// Every collection the theme references. The upstream source config
+			// carried a stray malformed key here and omitted material-symbols and
+			// simple-icons, which only worked because astro-icon fell back to
+			// auto-discovery in a flat node_modules.
 			include: {
+				"material-symbols": ["*"],
+				"simple-icons": ["*"],
 				"fa6-brands": ["*"],
 				"fa6-regular": ["*"],
 				"fa6-solid": ["*"],
