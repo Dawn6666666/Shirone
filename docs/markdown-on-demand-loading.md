@@ -120,7 +120,7 @@ Fancybox、远程视频、GitHub API 和其他第三方能力必须在内容命�
 
 ## 5. 特征快照契约
 
-`remarkPluginFrontmatter.markdownFeatures` 是构建期生成数据，不是作者配置。迁移期保留已有 `hasMath`、`hasMermaid` 和 `hasCodeInteractions` 兼容字段；新消费者必须优先读取命名空间字段。
+`remarkPluginFrontmatter.markdownFeatures` 是构建期生成数据，不是作者配置。迁移期保留已有 `hasMath`、`hasMermaid` 和 `hasCodeInteractions` 兼容字段；新消费者必须优先读取命名空间字段。若第三方 Markdown 集成在该快照可用前消费节点，页面可读取同一归一化语法链生成的专用源 AST 特征；不得改用正文正则或客户端 DOM 探测。
 
 目标快照应表达语法事实，而不是直接复制打包决策：
 

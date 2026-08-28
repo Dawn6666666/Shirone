@@ -21,6 +21,7 @@ import { resolveAsset } from "@utils/asset-utils";
 import { getSortedPosts } from "@utils/content-utils";
 import { formatDateToYYYYMMDD } from "@utils/date-utils";
 import { getMarkdownStylesheetAssets } from "@utils/markdown-assets";
+import { getSourceMarkdownFeatures } from "@utils/markdown-source-features";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import katexStylesheet from "katex/dist/katex.css?url";
@@ -71,21 +72,22 @@ const isEncrypted = Boolean(
 	entry.data.password && entry.data.password.trim().length > 0,
 );
 const scope = `post:${entry.id}`;
-const hasFencedCodeBlock = /(^|\r?\n)[ \t]{0,3}(?:`{3,}|~{3,})/.test(
-	entry.body ?? "",
-);
 
 const { Content, headings, remarkPluginFrontmatter } = await render(entry);
+const markdownFeatures = remarkPluginFrontmatter.markdownFeatures;
+const sourceMarkdownFeatures = markdownFeatures?.expressiveCode
+	? undefined
+	: getSourceMarkdownFeatures(entry.body);
 const hasMath = Boolean(
-	remarkPluginFrontmatter.markdownFeatures?.math ??
+	markdownFeatures?.math ??
 		remarkPluginFrontmatter.hasMath,
 );
 const markdownStylesheetAssets = await getMarkdownStylesheetAssets({
-	...remarkPluginFrontmatter.markdownFeatures,
+	...markdownFeatures,
 	math: hasMath,
 	expressiveCode: Boolean(
-		remarkPluginFrontmatter.markdownFeatures?.expressiveCode ||
-			hasFencedCodeBlock,
+		markdownFeatures?.expressiveCode ||
+			sourceMarkdownFeatures?.expressiveCode,
 	),
 });
 const effectiveHeadings = isEncrypted ? [] : headings;
