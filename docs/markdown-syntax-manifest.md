@@ -59,7 +59,7 @@ $manifest.syntaxes | Where-Object id -eq "file-tree" | ConvertTo-Json -Depth 10
 | `implementation` | 仓库内生产实现路径；纯第三方转换可以为空数组 |
 | `registeredIn` | 实际注册入口，通常是统一处理器或 `astro.config.mjs` |
 | `styles` | 该语法依赖的样式所有者 |
-| `stylesheetPacks` | 顶层条件样式包注册表；每个包声明唯一 `id`、触发它的构建期 `features` 与实际 CSS `styles`，由服务端资源装配器直接消费 |
+| `stylesheetPacks` | 顶层条件样式包注册表；每个包声明唯一 `id`、触发它的构建期 `syntaxes` 与实际 CSS `styles`，由服务端资源装配器直接消费 |
 | `runtime` | `mode`、客户端模块和可能产生的网络请求 |
 | `docs` | 面向作者的真实演示或使用文档 |
 | `tests` | 已有的语法、DOM 或页面回归测试；缺口如实保留为空数组 |

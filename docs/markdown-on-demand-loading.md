@@ -120,18 +120,18 @@ Fancybox、远程视频、GitHub API 和其他第三方能力必须在内容命�
 
 ## 5. 特征快照契约
 
-`remarkPluginFrontmatter.markdownFeatures` 是构建期生成数据，不是作者配置。迁移期保留已有 `hasMath`、`hasMermaid` 和 `hasCodeInteractions` 兼容字段；新消费者必须优先读取命名空间字段。若第三方 Markdown 集成在该快照可用前消费节点，页面可读取同一归一化语法链生成的专用源 AST 特征；不得改用正文正则或客户端 DOM 探测。
+`remarkPluginFrontmatter.markdownSyntaxes` 是构建期生成数据，不是作者配置。它取代布尔 `markdownFeatures` 与 `hasMath`、`hasMermaid`、`hasCodeInteractions` 兼容字段。若第三方 Markdown 集成在该快照可用前消费节点，页面可读取同一归一化语法链生成的专用源 AST 快照；不得改用正文正则或客户端 DOM 探测。
 
 目标快照应表达语法事实，而不是直接复制打包决策：
 
 ```ts
-type MarkdownFeatureSnapshot = {
+type MarkdownSyntaxSnapshot = {
 	schema: 1;
 	syntaxes: readonly MarkdownSyntaxId[];
 };
 ```
 
-样式包和运行时由站点注册表根据 `syntaxes` 推导；页面级 CSS 以 manifest 顶层 `stylesheetPacks` 的特征声明为准。禁止让每个插件直接写入 CSS URL、chunk 名或页面模板标记，否则资源拆包会反向污染解析层。
+样式包和运行时由站点注册表根据 `syntaxes` 推导；页面级 CSS 以 manifest 顶层 `stylesheetPacks` 的语法声明为准。禁止让每个插件直接写入 CSS URL、chunk 名或页面模板标记，否则资源拆包会反向污染解析层。
 
 迁移要求：
 
@@ -139,7 +139,7 @@ type MarkdownFeatureSnapshot = {
 2. 语法 ID 必须来自 Markdown manifest；未知 ID 在开发和 CI 中报错。
 3. 离线渲染器与 Astro `render(entry)` 必须返回相同快照。
 4. 加密文章仍在构建期获得完整快照，但受保护正文不能因为资源标签泄露敏感文本。
-5. 兼容字段只能由快照派生，并在所有消费者迁移后单独退役。
+5. 兼容字段不得重新引入；需要布尔判断时由消费者调用共享快照查询函数。
 
 ## 6. 现有语法的目标分类
 
@@ -245,7 +245,7 @@ pnpm.cmd build
 5. 迁移纯 SSR 语法样式，确认没有引入客户端加载器。
 6. 迁移交互语法样式与运行时，继续复用 `markdown-runtime.ts`。
 7. 处理 `markdown-extend.styl` 中的遗留语法，最后再收紧基础包边界。
-8. 所有消费者迁移后删除 `hasMath` 等兼容字段。
+8. 所有消费者迁移后删除已废弃的特征映射和兼容字段。
 
 每一步必须可独立提交、可独立回滚，并保持当前文章无需修改 frontmatter。
 

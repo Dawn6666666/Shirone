@@ -1,4 +1,5 @@
 import { visit } from "unist-util-visit";
+import { createMarkdownSyntaxSnapshot } from "../utils/markdown-syntaxes.mjs";
 
 const IMAGE_PRESENTATION_WIDTH_TOKEN = /(?:^|\s)w-(?:[1-9]\d?|100)%(?=\s|$)/;
 
@@ -8,62 +9,48 @@ const IMAGE_PRESENTATION_WIDTH_TOKEN = /(?:^|\s)w-(?:[1-9]\d?|100)%(?=\s|$)/;
  */
 export function remarkFeatureProbes() {
 	return (tree, { data }) => {
-		const markdownFeatures = {
-			math: false,
-			mermaid: false,
-			codeInteractions: false,
-			trees: false,
-			collapsePanels: false,
-			contentAnnotations: false,
-			marker: false,
-			steps: false,
-			admonitions: false,
-			abbreviations: false,
-			imageGrids: false,
-			imagePresentations: false,
-			expressiveCode: false,
-			optionGroups: false,
-		};
+		const syntaxes = new Set();
 
 		visit(tree, (node, _index, parent) => {
 			if (node.type === "math" || node.type === "inlineMath") {
-				markdownFeatures.math = true;
+				syntaxes.add("math");
 			}
 			if (
 				node.type === "mermaid" ||
 				(node.type === "code" && node.lang?.toLowerCase() === "mermaid")
 			) {
-				markdownFeatures.mermaid = true;
+				syntaxes.add("mermaid");
 			}
 			if (
 				node.type === "code" &&
-				(node.meta?.includes("collapse") || node.meta?.includes("tree"))
+				!(parent?.type === "containerDirective" && parent.name === "code-tree")
 			) {
-				markdownFeatures.codeInteractions = true;
-			}
-			if (node.type === "code") {
-				markdownFeatures.expressiveCode = true;
+				syntaxes.add("expressive-code");
 			}
 			if (
 				node.type === "fileTree" ||
-				(node.type === "containerDirective" && node.name === "file-tree") ||
-				(node.type === "containerDirective" &&
-					node.name === "code-tree" &&
-					node.children?.some((child) => child.type === "code"))
+				(node.type === "containerDirective" && node.name === "file-tree")
 			) {
-				markdownFeatures.trees = true;
+				syntaxes.add("file-tree");
+			}
+			if (
+				node.type === "containerDirective" &&
+				node.name === "code-tree" &&
+				node.children?.some((child) => child.type === "code")
+			) {
+				syntaxes.add("code-tree");
 			}
 			if (node.type === "containerDirective" && node.name === "collapse") {
-				markdownFeatures.collapsePanels = true;
+				syntaxes.add("collapse-panels");
 			}
 			if (node.type === "textDirective" && node.name === "m3-mark") {
-				markdownFeatures.marker = true;
+				syntaxes.add("marker");
 			}
 			if (node.type === "contentAnnotationReference") {
-				markdownFeatures.contentAnnotations = true;
+				syntaxes.add("content-annotation");
 			}
 			if (node.type === "containerDirective" && node.name === "steps") {
-				markdownFeatures.steps = true;
+				syntaxes.add("steps");
 			}
 			if (
 				node.type === "containerDirective" &&
@@ -77,13 +64,13 @@ export function remarkFeatureProbes() {
 					"admonition-details",
 				].includes(node.name)
 			) {
-				markdownFeatures.admonitions = true;
+				syntaxes.add("admonition");
 			}
 			if (node.type === "abbreviation") {
-				markdownFeatures.abbreviations = true;
+				syntaxes.add("abbreviation");
 			}
 			if (node.type === "containerDirective" && node.name === "grid") {
-				markdownFeatures.imageGrids = true;
+				syntaxes.add("image-grid");
 			}
 			if (
 				node.type === "image" &&
@@ -92,17 +79,15 @@ export function remarkFeatureProbes() {
 				(Boolean(node.title?.trim()) ||
 					IMAGE_PRESENTATION_WIDTH_TOKEN.test(node.alt ?? ""))
 			) {
-				markdownFeatures.imagePresentations = true;
+				syntaxes.add("image-presentation");
 			}
 			if (node.type === "containerDirective" && node.name === "tabs") {
-				markdownFeatures.optionGroups = true;
+				syntaxes.add("option-groups");
 			}
 		});
 
-		data.astro.frontmatter.markdownFeatures = markdownFeatures;
-		data.astro.frontmatter.hasMath = markdownFeatures.math;
-		data.astro.frontmatter.hasMermaid = markdownFeatures.mermaid;
-		data.astro.frontmatter.hasCodeInteractions =
-			markdownFeatures.codeInteractions;
+		data.astro.frontmatter.markdownSyntaxes = createMarkdownSyntaxSnapshot([
+			...syntaxes,
+		]);
 	};
 }

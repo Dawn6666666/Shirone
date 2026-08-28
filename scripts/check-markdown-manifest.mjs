@@ -62,6 +62,7 @@ if (manifest.schema !== 1) fail(`不支持的 schema：${manifest.schema}`);
 if (!Array.isArray(manifest.syntaxes)) fail("syntaxes 必须是数组");
 
 const syntaxes = Array.isArray(manifest.syntaxes) ? manifest.syntaxes : [];
+const manifestSyntaxIds = new Set(syntaxes.map((syntax) => syntax.id));
 if (!Array.isArray(manifest.stylesheetPacks)) {
 	fail("stylesheetPacks 必须是数组");
 }
@@ -70,7 +71,7 @@ const stylesheetPacks = Array.isArray(manifest.stylesheetPacks)
 	? manifest.stylesheetPacks
 	: [];
 const seenStylesheetPackIds = new Set();
-const seenStylesheetPackFeatures = new Set();
+const seenStylesheetPackSyntaxes = new Set();
 const seenStylesheetPackStyles = new Set();
 let previousStylesheetPackId = "";
 
@@ -95,19 +96,22 @@ for (const pack of stylesheetPacks) {
 	}
 	previousStylesheetPackId = pack.id;
 
-	for (const field of ["features", "styles"]) {
+	for (const field of ["syntaxes", "styles"]) {
 		if (!Array.isArray(pack[field]) || pack[field].length === 0) {
 			fail(`${owner}.${field} 必须是非空数组`);
 		}
 	}
-	for (const feature of pack.features ?? []) {
-		if (!/^[a-z][A-Za-z0-9]*$/.test(feature)) {
-			fail(`${owner}.features 包含无效特征名：${feature}`);
+	for (const syntaxId of pack.syntaxes ?? []) {
+		if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(syntaxId)) {
+			fail(`${owner}.syntaxes 包含无效语法 ID：${syntaxId}`);
 		}
-		if (seenStylesheetPackFeatures.has(feature)) {
-			fail(`特征只能属于一个 stylesheet pack：${feature}`);
+		if (!manifestSyntaxIds.has(syntaxId)) {
+			fail(`${owner}.syntaxes 引用了未登记语法：${syntaxId}`);
 		}
-		seenStylesheetPackFeatures.add(feature);
+		if (seenStylesheetPackSyntaxes.has(syntaxId)) {
+			fail(`语法只能属于一个 stylesheet pack：${syntaxId}`);
+		}
+		seenStylesheetPackSyntaxes.add(syntaxId);
 	}
 	for (const stylePath of pack.styles ?? []) {
 		if (!stylePath.endsWith(".css")) {

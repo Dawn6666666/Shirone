@@ -262,7 +262,7 @@ pnpm.cmd astro dev --port 4321
 
 - 每个语法的禁用态测试使用明确的 `*_FREE_POST_PATH`，并选择经内容检查确认不含该语法的文章；
 - 保留已有测试的基线，除非它们也需要证明不命中同一个语法，避免无关路径替换扩大回归面；
-- 失败时先检查目标页的 `remarkPluginFrontmatter.markdownFeatures` 和实际 Markdown 内容，再检查 `<head>`、Swup 生命周期与请求记录。
+- 失败时先检查目标页的 `remarkPluginFrontmatter.markdownSyntaxes` 和实际 Markdown 内容，再检查 `<head>`、Swup 生命周期与请求记录。
 
 **教训**：测试基线是资源隔离契约的一部分。变量名中的 `PLAIN` 不足以证明页面没有命中待测语法。
 
@@ -301,6 +301,30 @@ pnpm.cmd astro dev --port 4321
 **解法**：供 Node 直接执行的 `.ts`/`.mjs` 工具模块统一写成 `import manifest from "./manifest.json" with { type: "json" };`。不要只依赖 Astro 开发服务器或构建通过来证明独立工具可运行。
 
 **教训**：共享构建期工具新增 JSON 依赖后，至少运行一次对应的 Node 单测或脚本入口。
+
+---
+
+### 4.10 嵌套代码块不能同时触发容器语法和 Expressive Code
+
+**现象**：`code-tree` 内的 fenced code 同时被记录为 `code-tree` 与 `expressive-code`，使文章额外注入 Expressive Code 的页面级样式包。
+
+**根因**：共享 AST 遍历按节点类型标记普通 code fence 时，没有排除已被容器语法拥有的子节点；同一个源节点因此落入两个互斥的语法分类。
+
+**解法**：探针标记普通 fenced code 前，检查其父节点是否为 `code-tree` 容器；容器内部代码只记录为 `code-tree`。源 AST 回退探针使用相同排除条件，并保留两条回归用例。
+
+**教训**：语法快照应记录最终 DOM 所有权，而不是只按 AST 节点类型累加；嵌套语法必须明确分类优先级。
+
+---
+
+### 4.11 `.mjs` 的同名 `.d.ts` 不会自动成为 TypeScript 模块声明
+
+**现象**：TypeScript 文件从 `./module.mjs` 导入类型时，即使目录中存在 `module.d.ts`，Astro check 仍报告该类型不是模块导出成员。
+
+**根因**：带扩展名的 ESM 导入按实际 `.mjs` 模块解析，TypeScript 不会把同名 `.d.ts` 自动当作其声明覆盖；该行为与无扩展名模块解析不同。
+
+**解法**：为 `.mjs` 运行时模块提供同名 `.d.mts` 声明，并让 TypeScript/Astro 消费者使用显式 `.mjs` 导入；简单局部数据契约也可在消费者中声明最小结构类型。不要为了仅有的类型信息改变可被 Node 直接执行的运行时导入。
+
+**教训**：新增 Node 原生可执行的 `.mjs` 工具模块后，必须运行 Astro check 验证 TypeScript 消费端，而不只运行 Node 单测。
 
 ---
 

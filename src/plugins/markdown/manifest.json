@@ -4,62 +4,62 @@
 	"stylesheetPacks": [
 		{
 			"id": "abbreviations",
-			"features": ["abbreviations"],
+			"syntaxes": ["abbreviation"],
 			"styles": ["src/styles/markdown/abbreviations.css"]
 		},
 		{
 			"id": "admonitions",
-			"features": ["admonitions"],
+			"syntaxes": ["admonition"],
 			"styles": ["src/styles/markdown/admonitions.css"]
 		},
 		{
 			"id": "collapse-panels",
-			"features": ["collapsePanels"],
+			"syntaxes": ["collapse-panels"],
 			"styles": ["src/styles/markdown/collapse-panels.css"]
 		},
 		{
 			"id": "content-annotations",
-			"features": ["contentAnnotations"],
+			"syntaxes": ["content-annotation"],
 			"styles": ["src/styles/markdown/content-annotations.css"]
 		},
 		{
 			"id": "expressive-code",
-			"features": ["expressiveCode"],
+			"syntaxes": ["expressive-code"],
 			"styles": ["src/styles/markdown/expressive-code.css"]
 		},
 		{
 			"id": "image-grids",
-			"features": ["imageGrids"],
+			"syntaxes": ["image-grid"],
 			"styles": ["src/styles/markdown/image-grids.css"]
 		},
 		{
 			"id": "image-presentations",
-			"features": ["imagePresentations"],
+			"syntaxes": ["image-presentation"],
 			"styles": ["src/styles/markdown/image-presentations.css"]
 		},
 		{
 			"id": "marker",
-			"features": ["marker"],
+			"syntaxes": ["marker"],
 			"styles": ["src/styles/markdown/marker.css"]
 		},
 		{
 			"id": "math",
-			"features": ["math"],
+			"syntaxes": ["math"],
 			"styles": ["src/styles/markdown/math.css"]
 		},
 		{
 			"id": "option-groups",
-			"features": ["optionGroups"],
+			"syntaxes": ["option-groups"],
 			"styles": ["src/styles/markdown/option-groups.css"]
 		},
 		{
 			"id": "steps",
-			"features": ["steps"],
+			"syntaxes": ["steps"],
 			"styles": ["src/styles/markdown/steps.css"]
 		},
 		{
 			"id": "trees",
-			"features": ["trees"],
+			"syntaxes": ["code-tree", "file-tree"],
 			"styles": ["src/styles/markdown/trees.css"]
 		}
 	],

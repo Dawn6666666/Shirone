@@ -6,25 +6,28 @@ import markdownManifest from "../plugins/markdown/manifest.json" with {
 
 type MarkdownStylesheetPack = {
 	id: string;
-	features: readonly string[];
+	syntaxes: readonly string[];
 	styles: readonly string[];
 };
 
-export type MarkdownFeatureSnapshot = Partial<Record<string, boolean>>;
+type MarkdownSyntaxSnapshot = {
+	schema: 1;
+	syntaxes: readonly string[];
+};
 
 const stylesheetPacks =
 	markdownManifest.stylesheetPacks as readonly MarkdownStylesheetPack[];
 
 /**
- * Resolves page-scoped stylesheets from manifest-owned feature declarations.
+ * Resolves page-scoped stylesheets from manifest-owned syntax declarations.
  * The template marks each style block as Swup-optional so stale syntax styles
  * are removed during Swup navigation.
  */
 export async function getMarkdownStylesheetAssets(
-	features: MarkdownFeatureSnapshot,
+	snapshot: MarkdownSyntaxSnapshot,
 ): Promise<Array<{ pack: string; css: string }>> {
-	const activePacks = stylesheetPacks.filter(({ features: packFeatures }) =>
-		packFeatures.some((feature) => features[feature]),
+	const activePacks = stylesheetPacks.filter(({ syntaxes }) =>
+		syntaxes.some((syntaxId) => snapshot.syntaxes.includes(syntaxId)),
 	);
 
 	return Promise.all(

@@ -5,8 +5,9 @@ import { visit } from "unist-util-visit";
 import { remarkCodeTree } from "../plugins/markdown/code/remark-code-tree.mjs";
 import { remarkFileTree } from "../plugins/markdown/code/remark-file-tree.mjs";
 import { remarkMermaid } from "../plugins/remark-mermaid.mjs";
+import { createMarkdownSyntaxSnapshot } from "./markdown-syntaxes.mjs";
 
-const sourceFeatureProcessor = unified()
+const sourceSyntaxProcessor = unified()
 	.use(remarkParse)
 	.use(remarkDirective)
 	.use(remarkFileTree)
@@ -14,24 +15,24 @@ const sourceFeatureProcessor = unified()
 	.use(remarkMermaid);
 
 /**
- * Detects page-scoped Markdown features from the normalized source AST.
- *
- * This runs only during SSR/builds. It complements render metadata for
- * integrations that consume their input before Astro exposes frontmatter.
+ * Detects source-only syntax facts for integrations that run before Astro
+ * exposes render frontmatter.
  */
-export function getSourceMarkdownFeatures(source = "") {
-	const tree = sourceFeatureProcessor.runSync(
-		sourceFeatureProcessor.parse(source),
+export function getSourceMarkdownSyntaxSnapshot(source = "") {
+	const tree = sourceSyntaxProcessor.runSync(
+		sourceSyntaxProcessor.parse(source),
 	);
-	let expressiveCode = false;
+	let hasExpressiveCode = false;
 
 	visit(tree, "code", (_node, _index, parent) => {
 		if (parent?.type === "containerDirective" && parent.name === "code-tree") {
 			return;
 		}
 
-		expressiveCode = true;
+		hasExpressiveCode = true;
 	});
 
-	return { expressiveCode };
+	return createMarkdownSyntaxSnapshot(
+		hasExpressiveCode ? ["expressive-code"] : [],
+	);
 }
