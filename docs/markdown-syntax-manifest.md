@@ -1,4 +1,5 @@
 # Markdown 自定义语法索引指南
+> 插件注册顺序、阶段依赖和变更验收以 [`markdown-plugin-order.md`](./markdown-plugin-order.md) 为准。
 
 > 语法命中后的条件样式、动态运行时和 Swup 资源生命周期见 [`markdown-on-demand-loading.md`](./markdown-on-demand-loading.md)。
 

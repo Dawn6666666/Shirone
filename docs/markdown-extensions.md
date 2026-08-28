@@ -1,4 +1,5 @@
 # Markdown 扩展开发规范
+> 插件注册顺序、阶段依赖和变更验收以 [`markdown-plugin-order.md`](./markdown-plugin-order.md) 为准。
 
 > Markdown 语法的内容特征、条件样式包、动态运行时和 Swup 资源生命周期见 [`markdown-on-demand-loading.md`](./markdown-on-demand-loading.md)。
 
