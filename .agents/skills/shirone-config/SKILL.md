@@ -1,0 +1,64 @@
+---
+name: shirone-config
+description: Configuring a Shirone blog site - site identity, theme colors, navigation, sidebar, pages, comments, music, anime sources, fonts, llms.txt, and build/deploy. Use when enabling or tuning features, changing site behavior, or preparing deployment.
+---
+
+# Shirone 站点配置
+
+配置的唯一入口是 `src/config/`(类型在 `src/types/`),**注释就是文档**——每个字段的语义、默认值和可选值都写在配置文件注释里。完整契约见 `src/config/README.md`。
+
+## 分层原则:配置管行为,数据管内容
+
+- `src/config/*Config.ts`:页面开关 `enable`、分类顺序 `categories`、单项禁用 `disabledKeys`、排序 `order`、数据源与凭据;
+- `src/data/*.ts`:具体内容实体(`projects.ts`、`skills.ts`、`timeline.ts`、`devices.ts`、`friends.ts`、`compass.ts`、`anime.ts`、`music.ts`);
+- 消费方统一从 `@/config` barrel 导入(个别循环依赖模块例外,见配置目录 README)。
+
+## 常用配置速查
+
+| 文件 | 职能 |
+|---|---|
+| `siteConfig.ts` | 站点 URL/base、标题、语言、HCT 主题色种子(色相×风格)、背景纹理、横幅、TOC 深度、favicon |
+| `profileConfig.ts` | 头像、名称、简介、社交链接 |
+| `navBarConfig.ts` | 导航链接(`LinkPresets` 预设) |
+| `sidebarConfig.ts` | 侧栏编排:`arrangement` 单/双栏、`side`、widget 清单与页面过滤 |
+| `postListConfig.ts` | 分页大小、list/grid 布局 |
+| `articleConfig.ts` | 相关文章、分享与海报 |
+| `commentConfig.ts` | 评论系统(默认关闭,Twikoo 等) |
+| `musicConfig.ts` | 侧栏音乐(当前默认启用，可手动关闭；local/custom/meting/mixed 四种模式) |
+| `animeConfig.ts` | 追番页数据源:本地 / Bangumi 快照 / Bilibili 快照 |
+| `fontConfig.ts` | 字体(构建期 TTF→WOFF2 子集化) |
+| `llmsConfig.ts` | 生成 AI 友好的 `/llms.txt` 与 `/llms-full.txt` |
+| `skillsConfig.ts` 等页面配置 | 技能/项目/时间线/设备页开关与分类,内容在对应 `src/data/*.ts`；友链、罗盘、番剧和音乐数据也在该目录维护 |
+| `fabConfig.ts` | 右下角悬浮控制流 |
+| `footerConfig.ts` / `FooterConfig.html` | 可选页脚 HTML 注入(默认关闭) |
+| `licenseConfig.ts` / `expressiveCodeConfig.ts` | 文章版权声明与代码块主题 |
+| `announcementConfig.ts` / `imageBloomConfig.ts` / `textureConfig.ts` | 公告、图片辉光与背景纹理的站点级行为 |
+
+## 启用可选功能的通用模式
+
+可选功能在关闭或未配置时必须**零开销**(零请求/零 DOM/零 bundle)；是否默认启用由现有产品配置决定，不得在修改 skill 时擅自改变。启用时:
+
+1. 在对应 `*Config.ts` 置 `enable: true` 并填写凭据(如 Twikoo `envId`);
+2. 部分功能需同时满足多条件,如侧栏音乐要求:`musicConfig.enable` + 数据源有有效曲目 + `sidebarConfig.components` 中 music 条目 `enable: true`;
+3. 侧栏 widget 的显隐/分栏/页面范围在 `sidebarConfig.ts` 编排;
+4. 页面级开关(如 skills/projects)关闭时导航入口同步隐藏。
+
+## 构建与部署(摘要)
+
+标准流程(详见 `INDEX.md`):
+
+1. 确认 `src/config/siteConfig.ts` 与 `astro.config.mjs` 的 `site`/`base`;
+2. 发布前检查:`npx.cmd astro check`、`pnpm.cmd check:manifest`、`pnpm.cmd type-check`;
+3. 构建:`pnpm.cmd build`(含图标、缩略图、字体子集化、Pagefind 索引);
+4. 托管平台:Install `pnpm.cmd install --frozen-lockfile`,Build `pnpm.cmd build`,Output `dist`;
+5. 发布后验证首页、文章页、资源路径、明暗主题初始化与 Swup 导航。
+
+`dist/` 是可再生产物,不手改;URL 或 `base` 变更后必须重新构建。
+
+## 必读文档
+
+- `src/config/README.md` — 配置契约、config/data 判别表、导入规则
+- `INDEX.md` — 部署分层与标准部署流程
+- `README.md` — Quick Start 与主配置表
+- `src/config/` 各文件 — 字段级注释文档
+- `src/data/` — 内容实体数据文件

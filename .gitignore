@@ -57,3 +57,6 @@ tests/site/visual.spec.ts-snapshots/
 artifacts/lighthouse/*
 !artifacts/lighthouse/.gitkeep
 .lighthouseci/
+
+# generated AI skills plugin packages
+artifacts/shirone-ai-*
