@@ -33,8 +33,16 @@ removes a disk read per render:
 import treesCss from "../styles/markdown/trees.css?raw";
 ```
 
-`import.meta.url` is **not** a safe substitute: in an SSR build Rollup rewrites
-it to the emitted chunk's location, not the source file's.
+`import.meta.url` is **not** a safe substitute: the pages are rendered by Node
+during the build, and in that bundle Rollup rewrites `import.meta.url` to the
+emitted chunk's location rather than the source file's.
+
+> **"Server" in a static site.** Shirone ships as SSG — every page is HTML on
+> disk and there is no server at runtime. But Astro still *renders* those pages
+> by executing components in Node at build time, and Vite calls that build the
+> SSR build (hence `src/integration/ssr-node-shims.ts`). So build-time Node
+> concerns — `__dirname`, `require`, filesystem reads — are real here even
+> though nothing runs on a server in production.
 
 `process.cwd()` *is* correct when the target genuinely belongs to the user —
 `public/images/albums/`, a directory named in their config, generated caches
@@ -53,8 +61,12 @@ const found = [
 ].find((candidate) => fs.existsSync(candidate));
 ```
 
-The same applies to any default path written into a config file: a default of
-`"src/data/anime-snapshots"` points at nothing in a user's project.
+The same applies to any default path written into a config file — it will be
+resolved against the user's project. `animeConfig.ts` defaults its snapshot
+cache to `"src/data/anime-snapshots"`, which is why the pipeline rewrites that
+literal to `shirones/config/data/anime-snapshots` when it scaffolds the
+template. A new default of this kind needs either a rewrite rule in
+`prepare-templates.mjs` or a path that is already correct in both layouts.
 
 ## Tailwind
 
