@@ -5,6 +5,7 @@ const PLAIN_POST_PATH = "/posts/admonitions/";
 const RICH_POST_PATH = "/posts/mdx-showcase/";
 const IMAGE_GRID_POST_PATH = "/posts/image-grid-demo/";
 const CODE_POST_PATH = "/posts/expressive-code/";
+const TREE_POST_PATH = "/posts/markdown-enhancements/";
 
 const optionalRuntimeModules = {
 	fancybox: /\/src\/utils\/fancybox-handler\.ts(?:\?|$)/,
@@ -12,6 +13,8 @@ const optionalRuntimeModules = {
 	katex: /\/src\/utils\/katex-scroll\.ts(?:\?|$)/,
 	mermaid: /\/src\/utils\/mermaid\.ts(?:\?|$)/,
 	mermaidStyles: /\/src\/styles\/mermaid\.css(?:\?|$)/,
+	trees: /\/src\/styles\/markdown\/trees\.css(?:\?|$)/,
+	codeTree: /\/src\/utils\/code-tree\.ts(?:\?|$)/,
 };
 
 function trackOptionalRuntimeRequests(page: Page): string[] {
@@ -123,5 +126,58 @@ test.describe("Markdown syntax runtime loading", () => {
 		expect(
 			requests.some((url) => optionalRuntimeModules.codeCollapse.test(url)),
 		).toBe(true);
+	});
+
+	test("adds and removes tree styles with the Swup page lifecycle", async ({
+		page,
+	}) => {
+		const requests = trackOptionalRuntimeRequests(page);
+
+		await page.goto(PLAIN_POST_PATH, { waitUntil: "networkidle" });
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await expect(
+			page.locator('style[data-swup-optional="trees"]'),
+		).toHaveCount(0);
+		expect(
+			hasRequestFor(requests, [
+				optionalRuntimeModules.trees,
+				optionalRuntimeModules.codeTree,
+			]),
+		).toBe(false);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			TREE_POST_PATH,
+		);
+		await page.waitForURL(`**${TREE_POST_PATH}`);
+		const fileTree = page.locator(".m3-file-tree").first();
+		await expect(fileTree).toBeVisible();
+		await expect(
+			page.locator('style[data-swup-optional="trees"]'),
+		).toHaveCount(1);
+		await expect(fileTree).toHaveCSS("border-radius", "16px");
+
+		const codeTreeButtons = page.locator(".m3-code-tree__file-btn");
+		await codeTreeButtons.nth(1).click();
+		await expect(codeTreeButtons.nth(1)).toHaveClass(
+			/\bm3-code-tree__file-btn--active\b/,
+		);
+		await expect
+			.poll(() =>
+				hasRequestFor(requests, [
+					optionalRuntimeModules.trees,
+					optionalRuntimeModules.codeTree,
+				]),
+			)
+			.toBe(true);
+
+		await page.evaluate(
+			(path) => window.swup?.navigate(path),
+			PLAIN_POST_PATH,
+		);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="trees"]'),
+		).toHaveCount(0);
 	});
 });

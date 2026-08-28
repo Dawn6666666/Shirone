@@ -152,7 +152,8 @@ export default defineConfig({
 				awaitAssets: false,
 				// Keep base styles across Swup visits, but let syntax-scoped styles
 				// disappear when the destination page no longer declares them.
-				persistTags: "link[rel=stylesheet]:not([data-swup-optional]), style",
+				persistTags:
+					"link[rel=stylesheet]:not([data-swup-optional]), style:not([data-swup-optional])",
 			},
 			updateBodyClass: false,
 			globalInstance: true,

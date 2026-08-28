@@ -13,6 +13,7 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		math: true,
 		mermaid: false,
 		codeInteractions: false,
+		trees: false,
 	});
 
 	const mermaid = await renderer.render(
@@ -24,7 +25,31 @@ test("records math and Mermaid capabilities in render frontmatter", async () => 
 		math: false,
 		mermaid: true,
 		codeInteractions: false,
+		trees: false,
 	});
+});
+
+test("records file-tree and code-tree capabilities after syntax transforms", async () => {
+	const fileTree = await renderer.render(
+		[
+			':::file-tree{title="Source"}',
+			"- src/",
+			"  - index.ts",
+			":::",
+		].join("\n"),
+	);
+	assert.equal(fileTree.metadata.frontmatter.markdownFeatures.trees, true);
+
+	const codeTree = await renderer.render(
+		[
+			':::code-tree{title="Source"}',
+			"```ts title=\"src/index.ts\"",
+			"export {};",
+			"```",
+			":::",
+		].join("\n"),
+	);
+	assert.equal(codeTree.metadata.frontmatter.markdownFeatures.trees, true);
 });
 
 test("does not mark ordinary prose with optional capabilities", async () => {
@@ -41,6 +66,7 @@ test("does not mark ordinary prose with optional capabilities", async () => {
 				math: false,
 				mermaid: false,
 				codeInteractions: false,
+				trees: false,
 			},
 			hasMath: false,
 			hasMermaid: false,

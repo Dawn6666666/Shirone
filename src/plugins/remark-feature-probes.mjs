@@ -10,6 +10,7 @@ export function remarkFeatureProbes() {
 			math: false,
 			mermaid: false,
 			codeInteractions: false,
+			trees: false,
 		};
 
 		visit(tree, (node) => {
@@ -27,6 +28,16 @@ export function remarkFeatureProbes() {
 				(node.meta?.includes("collapse") || node.meta?.includes("tree"))
 			) {
 				markdownFeatures.codeInteractions = true;
+			}
+			if (
+				node.type === "fileTree" ||
+				(node.type === "containerDirective" &&
+					node.name === "file-tree") ||
+				(node.type === "containerDirective" &&
+					node.name === "code-tree" &&
+					node.children?.some((child) => child.type === "code"))
+			) {
+				markdownFeatures.trees = true;
 			}
 		});
 

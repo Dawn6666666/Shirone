@@ -78,7 +78,7 @@
 
 ### B. 条件样式包
 
-SSR 组件和首帧布局依赖的样式使用构建期特征决定 `<link rel="stylesheet">` 是否出现。样式按共享所有权分包，不按语法数量机械拆包。
+SSR 组件和首帧布局依赖的样式使用构建期特征决定条件 `<link rel="stylesheet">` 或内联 `<style>` 是否出现。样式按共享所有权分包，不按语法数量机械拆包。
 
 目标样式包如下：
 
@@ -94,6 +94,13 @@ SSR 组件和首帧布局依赖的样式使用构建期特征决定 `<link rel="
 | `markdown-math` | math | KaTeX 与滚动容器依赖 |
 
 同一页面命中多个消费者时，每个样式包只能声明一次。若实测某个包非常小且拆分会增加更多请求，可以与生命周期相同的相邻包合并；合并决定必须记录在清单说明中，并以生产构建请求数据为依据。
+
+页面级样式有两种允许的输出形式：
+
+- 可由构建器安全产出地址的样式使用 `<link rel="stylesheet" data-swup-optional="<pack-id>">`。
+- 纯 SSR 样式若用 `?url` 导入会让未命中页面仍请求 Vite URL 模块，可由服务器按 `process.cwd()` 解析源码并输出 `<style data-swup-optional="<pack-id>">`。不得使用预渲染后的 `import.meta.url` 回读 `src/styles`，因为静态构建时模块已移动到 `dist/.prerender`。
+
+两种形式都必须由当前页面的特征快照决定，且同一包在一个 `<head>` 中只出现一次。
 
 ### C. 选择器驱动的动态运行时
 
@@ -161,15 +168,15 @@ Mermaid 当前属于“首次命中按需”。若后续要求离开 Mermaid 页
 
 持久外壳不随 `#swup-container` 重建，因此页面资源和运行时必须分别处理：
 
-1. 基础 stylesheet 使用 Swup 的持久规则保留。
-2. 条件 stylesheet 必须带 `data-swup-optional="<pack-id>"`，不得匹配持久 stylesheet 选择器。
+1. 基础 `<link>` 和 `<style>` 使用 Swup 的持久规则保留。
+2. 条件 stylesheet 或 style block 必须带 `data-swup-optional="<pack-id>"`，不得匹配持久选择器。
 3. 从命中页导航到未命中页时，旧条件 stylesheet 必须移除；反向导航必须插入目标 stylesheet。
 4. 影响布局的 stylesheet 必须在目标内容显示前可用。不能用 `content:replace` 后的异步导入弥补。
 5. `content:replace` 后，运行时调度器只扫描新的 `#swup-container`；全局事件委托可以保留，但必须幂等绑定。
 6. `page:view` 用于依赖最终可见页面的行为，不得重复承担内容替换初始化。
 7. 浏览器前进/后退和 Swup cache 恢复必须与普通客户端导航等价。
 
-`astro.config.mjs` 的 `persistTags` 规则必须持续排除 `[data-swup-optional]`。新增样式包时不得把可选 link 改成 `data-swup-persist`。
+`astro.config.mjs` 的 `persistTags` 规则必须持续从 `link` 与 `style` 两类节点排除 `[data-swup-optional]`。新增样式包时不得把可选资源改成 `data-swup-persist`。
 
 ## 8. 加密文章
 
@@ -233,7 +240,7 @@ pnpm.cmd build
 
 1. 扩展特征快照和 manifest 校验，但保留现有兼容字段。
 2. 从 `markdown.css` 中分离基础规则与条件样式包，先迁移文件树/代码树共享样式。
-3. 在文章模板中根据注册表输出去重的 `data-swup-optional` stylesheet。
+3. 在文章模板中根据注册表输出去重的 `data-swup-optional` stylesheet 或 style block。
 4. 为普通文章、树语法文章和相互 Swup 导航增加请求与 computed-style 测试。
 5. 迁移纯 SSR 语法样式，确认没有引入客户端加载器。
 6. 迁移交互语法样式与运行时，继续复用 `markdown-runtime.ts`。
@@ -252,4 +259,3 @@ pnpm.cmd build
 - 禁止在 Swup 导航后保留会影响普通页面的未限定语法样式。
 - 禁止把动态 CSS import 宣称为可自动卸载的页面级隔离。
 - 禁止为了减少请求把重型第三方 CSS 合并回全站基础包。
-
