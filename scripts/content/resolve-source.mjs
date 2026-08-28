@@ -8,8 +8,18 @@
  * 契约与使用方式见 `docs/content-separation.md`。
  */
 
-import { existsSync, readFileSync } from "node:fs";
-import { isAbsolute, join, normalize, sep } from "node:path";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
+import {
+	basename,
+	dirname,
+	isAbsolute,
+	join,
+	normalize,
+	relative,
+	resolve,
+	sep,
+	win32,
+} from "node:path";
 
 /** 代码仓根目录下的内容分离清单文件名。 */
 export const MANIFEST_FILE = "shirone.content.json";
@@ -69,6 +79,49 @@ export function redactUrl(url) {
 			/([?&][^=&#\s]*(?:auth|key|password|secret|sig|signature|token)[^=&#\s]*=)[^&#\s]*/gi,
 			"$1***",
 		);
+}
+
+/** 归一化仓库 URL，供 origin / lock 身份比对；凭据与 query 不参与仓库身份。 */
+export function canonicalGitUrl(url) {
+	return redactUrl(String(url).trim())
+		.replace(/[?#].*$/, "")
+		.replace(/\.git\/?$/i, "")
+		.replace(/\/$/, "");
+}
+
+/**
+ * 解析路径中已经存在的部分，以便识别指向其他目录的符号链接或 Windows junction。
+ * 不存在的尾部保持原样，因此该函数不会为了比较路径而创建目录。
+ */
+function resolvePhysicalPath(value) {
+	let current = resolve(value);
+	const missingSegments = [];
+	while (!existsSync(current)) {
+		const parent = dirname(current);
+		if (parent === current) return resolve(value);
+		missingSegments.unshift(basename(current));
+		current = parent;
+	}
+	return resolve(realpathSync(current), ...missingSegments);
+}
+
+/** 判断两个绝对或相对路径是否相同、互为父子目录，并解析已存在的链接路径。 */
+export function pathsOverlap(left, right) {
+	const physicalLeft = resolvePhysicalPath(left);
+	const physicalRight = resolvePhysicalPath(right);
+	const contains = (parent, child) => {
+		const difference = relative(parent, child);
+		return (
+			difference === "" ||
+			(!isAbsolute(difference) &&
+				difference !== ".." &&
+				!difference.startsWith(`..${sep}`))
+		);
+	};
+	return (
+		contains(physicalLeft, physicalRight) ||
+		contains(physicalRight, physicalLeft)
+	);
 }
 
 /** 把 glob 子集（`**` 与 `*`）编译成正则；仅支持 POSIX 风格的相对路径。 */
@@ -201,6 +254,83 @@ function resolveSource(manifest, envOrigins) {
 	);
 }
 
+const RESERVED_MOUNT_SOURCE_ROOTS = new Set([".git", "node_modules"]);
+const RESERVED_MOUNT_TARGET_ROOTS = new Set([
+	".git",
+	".astro",
+	".content-backup",
+	".content-src",
+	".export-backup",
+	"node_modules",
+	"scripts",
+	"tests",
+]);
+
+function normalizeMountDirectory(value, label) {
+	if (typeof value !== "string" || value.trim() === "") {
+		fail(`${label} 必须是非空字符串。`);
+	}
+	const raw = value.trim();
+	const rawSegments = toPosix(raw).split("/");
+	const normalized = toPosix(normalize(raw)).replace(/\/$/, "");
+	if (
+		isAbsolute(raw) ||
+		win32.isAbsolute(raw) ||
+		normalized === "." ||
+		rawSegments.includes("..") ||
+		normalized.split("/").includes("..")
+	) {
+		fail(`${label} 必须是不含 ".." 的相对目录，收到 ${value}。`);
+	}
+	return normalized;
+}
+
+function relativeDirectoriesOverlap(left, right) {
+	const normalizedLeft = left.toLowerCase();
+	const normalizedRight = right.toLowerCase();
+	return (
+		normalizedLeft === normalizedRight ||
+		normalizedLeft.startsWith(`${normalizedRight}/`) ||
+		normalizedRight.startsWith(`${normalizedLeft}/`)
+	);
+}
+
+function validateMountBoundaries(mounts) {
+	const entries = [...mounts.entries()];
+	for (const [source, target] of entries) {
+		const sourceRoot = source.split("/")[0].toLowerCase();
+		const targetRoot = target.split("/")[0].toLowerCase();
+		if (RESERVED_MOUNT_SOURCE_ROOTS.has(sourceRoot)) {
+			fail(`mounts.${source} 不能读取保留目录 ${sourceRoot}/。`);
+		}
+		if (target.toLowerCase() === "src") {
+			fail(
+				`mounts.${source} 指向整个 src/，范围过于宽泛，请使用更具体的目标目录。`,
+			);
+		}
+		if (RESERVED_MOUNT_TARGET_ROOTS.has(targetRoot)) {
+			fail(`mounts.${source} 不能写入保留目录 ${targetRoot}/。`);
+		}
+	}
+
+	for (let left = 0; left < entries.length; left += 1) {
+		for (let right = left + 1; right < entries.length; right += 1) {
+			const [leftSource, leftTarget] = entries[left];
+			const [rightSource, rightTarget] = entries[right];
+			if (relativeDirectoriesOverlap(leftSource, rightSource)) {
+				fail(
+					`挂载源 ${leftSource}/ 与 ${rightSource}/ 相互交叠，会重复读取同一批文件。`,
+				);
+			}
+			if (relativeDirectoriesOverlap(leftTarget, rightTarget)) {
+				fail(
+					`挂载目标 ${leftTarget}/ 与 ${rightTarget}/ 相互交叠，会造成覆盖或错误裁剪。`,
+				);
+			}
+		}
+	}
+}
+
 function resolveMounts(manifest) {
 	const overrides = manifest?.mounts;
 	if (overrides === undefined) return { ...DEFAULT_MOUNTS };
@@ -212,27 +342,35 @@ function resolveMounts(manifest) {
 		fail(`${MANIFEST_FILE} 的 mounts 必须是对象。`);
 	}
 
-	const mounts = { ...DEFAULT_MOUNTS };
-	for (const [sourceDir, target] of Object.entries(overrides)) {
-		if (target === null || target === false) {
-			// 显式关闭某个挂载点。
-			delete mounts[sourceDir];
-			continue;
-		}
-		if (typeof target !== "string" || target === "") {
-			fail(`mounts.${sourceDir} 必须是非空字符串、null 或 false。`);
-		}
-		if (
-			isAbsolute(target) ||
-			toPosix(normalize(target)).split("/").includes("..")
-		) {
+	const mounts = new Map(Object.entries(DEFAULT_MOUNTS));
+	const normalizedOverrideSources = new Map();
+	for (const [rawSourceDir, target] of Object.entries(overrides)) {
+		const sourceDir = normalizeMountDirectory(
+			rawSourceDir,
+			`mounts 的源目录 ${JSON.stringify(rawSourceDir)}`,
+		);
+		const duplicate = normalizedOverrideSources.get(sourceDir.toLowerCase());
+		if (duplicate !== undefined) {
 			fail(
-				`mounts.${sourceDir} 必须是不含 ".." 的仓库相对路径，收到 ${target}。`,
+				`mounts 的源目录 ${JSON.stringify(rawSourceDir)} 与 ${JSON.stringify(duplicate)} 归一化后重复。`,
 			);
 		}
-		mounts[sourceDir] = toPosix(normalize(target));
+		normalizedOverrideSources.set(sourceDir.toLowerCase(), rawSourceDir);
+		if (target === null || target === false) {
+			// 显式关闭某个挂载点。
+			mounts.delete(sourceDir);
+			continue;
+		}
+		if (typeof target !== "string" || target.trim() === "") {
+			fail(`mounts.${sourceDir} 必须是非空字符串、null 或 false。`);
+		}
+		mounts.set(
+			sourceDir,
+			normalizeMountDirectory(target, `mounts.${sourceDir}`),
+		);
 	}
-	return mounts;
+	validateMountBoundaries(mounts);
+	return Object.fromEntries(mounts);
 }
 
 function resolveKeep(manifest) {

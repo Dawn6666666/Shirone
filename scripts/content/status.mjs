@@ -24,6 +24,7 @@ import {
 	readConfigOverrides,
 } from "./config-overlay.mjs";
 import {
+	canonicalGitUrl,
 	DEFAULT_MOUNTS,
 	LOCK_FILE,
 	MANIFEST_FILE,
@@ -101,13 +102,6 @@ function normalizeText(value) {
 function normalizePathForCompare(value) {
 	const normalized = toPosix(resolve(value)).replace(/\/$/, "");
 	return process.platform === "win32" ? normalized.toLowerCase() : normalized;
-}
-
-function canonicalGitUrl(value) {
-	return redactUrl(String(value).trim())
-		.replace(/[?#].*$/, "")
-		.replace(/\.git\/?$/i, "")
-		.replace(/\/$/, "");
 }
 
 function safeErrorText(error) {

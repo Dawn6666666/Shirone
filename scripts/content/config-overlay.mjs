@@ -429,9 +429,16 @@ export function typeCheckModule(root, lineOwners) {
  * @param {string} options.sourceRoot 内容仓根目录
  * @param {boolean} [options.dryRun] 只校验不落盘
  * @param {(message: string) => void} [options.warn]
+ * @param {string[]} [options.previousConfigFiles] 上一次 lock 记录的配置文件
  * @returns {{files: string[], changed: boolean}}
  */
-export function syncUserConfig({ root, sourceRoot, dryRun = false, warn }) {
+export function syncUserConfig({
+	root,
+	sourceRoot,
+	dryRun = false,
+	warn,
+	previousConfigFiles = [],
+}) {
 	const configDirectory = join(sourceRoot, CONFIG_DIRECTORY);
 	const entries = readConfigOverrides(configDirectory);
 	const { source, lineOwners } = generateModule(entries);
@@ -478,13 +485,51 @@ export function syncUserConfig({ root, sourceRoot, dryRun = false, warn }) {
 	const files = entries.map((entry) => entry.file);
 
 	const footerSource = join(configDirectory, FOOTER_HTML_SOURCE);
+	const footerTarget = join(root, FOOTER_HTML_TARGET);
+	let footerChanged = false;
 	if (existsSync(footerSource)) {
-		if (!dryRun) {
-			const footerTarget = join(root, FOOTER_HTML_TARGET);
+		const sourceBody = readFileSync(footerSource);
+		const targetBody = existsSync(footerTarget)
+			? readFileSync(footerTarget)
+			: null;
+		footerChanged = !targetBody?.equals(sourceBody);
+		if (!dryRun && footerChanged) {
 			mkdirSync(dirname(footerTarget), { recursive: true });
 			copyFileSync(footerSource, footerTarget);
 		}
 		files.push(`${CONFIG_DIRECTORY}/${FOOTER_HTML_SOURCE}`);
+	} else if (
+		previousConfigFiles.includes(`${CONFIG_DIRECTORY}/${FOOTER_HTML_SOURCE}`)
+	) {
+		let themeFooter = null;
+		try {
+			themeFooter = execFileSync(
+				"git",
+				["--no-optional-locks", "show", `HEAD:${FOOTER_HTML_TARGET}`],
+				{
+					cwd: root,
+					stdio: ["ignore", "pipe", "ignore"],
+					env: { ...process.env, GIT_OPTIONAL_LOCKS: "0" },
+				},
+			);
+		} catch {
+			// eject 后目标不再被 Git 跟踪；此时应删除旧的外部页脚。
+		}
+
+		const targetBody = existsSync(footerTarget)
+			? readFileSync(footerTarget)
+			: null;
+		footerChanged = themeFooter
+			? !targetBody?.equals(themeFooter)
+			: targetBody !== null;
+		if (!dryRun && footerChanged) {
+			if (themeFooter) {
+				mkdirSync(dirname(footerTarget), { recursive: true });
+				writeFileSync(footerTarget, themeFooter);
+			} else {
+				rmSync(footerTarget, { force: true });
+			}
+		}
 	}
 
 	if (existsSync(configDirectory) && files.length === 0) {
@@ -493,5 +538,5 @@ export function syncUserConfig({ root, sourceRoot, dryRun = false, warn }) {
 		);
 	}
 
-	return { files, changed };
+	return { files, changed: changed || footerChanged };
 }

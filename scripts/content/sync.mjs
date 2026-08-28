@@ -18,6 +18,7 @@ import {
 	existsSync,
 	mkdirSync,
 	readdirSync,
+	readFileSync,
 	rmdirSync,
 	rmSync,
 	statSync,
@@ -29,6 +30,7 @@ import { dirname, join, resolve } from "node:path";
 import { CONFIG_DIRECTORY } from "./config-domains.mjs";
 import { syncUserConfig } from "./config-overlay.mjs";
 import {
+	canonicalGitUrl,
 	LOCK_FILE,
 	matchesAny,
 	PROTECTED_PATHS,
@@ -68,6 +70,12 @@ const options = {
 	quiet: args.has("--quiet"),
 	help: args.has("--help") || args.has("-h"),
 };
+const unknownArgs = [...args].filter(
+	(argument) =>
+		!["--dry-run", "--watch", "--no-prune", "--quiet", "--help", "-h"].includes(
+			argument,
+		),
+);
 
 if (options.help) {
 	console.log(
@@ -82,6 +90,13 @@ if (options.help) {
 		].join("\n"),
 	);
 	process.exit(0);
+}
+
+if (unknownArgs.length > 0) {
+	console.error(
+		`[content] sync 不支持参数：${unknownArgs.join("、")}。运行 --help 查看可用参数。`,
+	);
+	process.exit(1);
 }
 
 function log(message) {
@@ -156,9 +171,45 @@ function runGit(gitArgs, { cwd = ROOT, redact } = {}) {
 			.map((value) => (value === redact ? redactUrl(value) : value))
 			.join(" ");
 		throw new Error(
-			`git ${safeArgs} 执行失败：${redactUrl(detail) || error.message}`,
+			`git ${safeArgs} 执行失败：${redactUrl(detail || error.message)}`,
 		);
 	}
+}
+
+function readReusableRemoteLock() {
+	try {
+		const lock = JSON.parse(readFileSync(join(ROOT, LOCK_FILE), "utf8"));
+		return lock?.source?.type === "git" ? lock.source : null;
+	} catch {
+		return null;
+	}
+}
+
+function assertReusableWorkingCopy(source, workingCopy, commit, origin) {
+	const lockSource = readReusableRemoteLock();
+	if (
+		canonicalGitUrl(origin) !== canonicalGitUrl(source.url) ||
+		!lockSource ||
+		canonicalGitUrl(lockSource.url) !== canonicalGitUrl(source.url) ||
+		lockSource.ref !== source.ref ||
+		lockSource.commit !== commit
+	) {
+		throw new Error(
+			"CONTENT_SYNC_PULL=false 只能复用与当前 URL、ref、commit 完全一致的工作副本。" +
+				" 请移除该变量先执行一次 content sync，或恢复与当前配置匹配的 content.lock.json。",
+		);
+	}
+	const dirty = runGit(["status", "--porcelain=v1", "-uall"], {
+		cwd: workingCopy,
+	});
+	if (dirty) {
+		throw new Error(
+			`CONTENT_SYNC_PULL=false 不能复用有未提交改动的 ${WORKING_COPY_DIR}/。` +
+				" 请先还原该工作副本，或移除该变量后重新拉取。",
+		);
+	}
+	log(`复用本地内容工作副本 ${WORKING_COPY_DIR} @ ${commit.slice(0, 8)}`);
+	return { directory: workingCopy, commit };
 }
 
 /**
@@ -169,8 +220,18 @@ function runGit(gitArgs, { cwd = ROOT, redact } = {}) {
  */
 function ensureWorkingCopy(source) {
 	const workingCopy = join(ROOT, WORKING_COPY_DIR);
-	const allowFetch = process.env.CONTENT_SYNC_PULL !== "false";
+	const allowFetch = !new Set(["0", "false", "no", "off"]).has(
+		String(process.env.CONTENT_SYNC_PULL ?? "")
+			.trim()
+			.toLowerCase(),
+	);
 	const isInitialized = existsSync(join(workingCopy, ".git"));
+
+	if (!isInitialized && !allowFetch) {
+		throw new Error(
+			`CONTENT_SYNC_PULL=false，但 ${WORKING_COPY_DIR}/ 尚未初始化；为遵守离线设置，本次不会创建副本或访问远端。`,
+		);
+	}
 
 	if (!isInitialized) {
 		rmSync(workingCopy, { recursive: true, force: true });
@@ -182,17 +243,45 @@ function ensureWorkingCopy(source) {
 		});
 	}
 
-	if (!isInitialized || allowFetch) {
-		log(`拉取内容仓 ${redactUrl(source.url)} @ ${source.ref}`);
-		runGit(["fetch", "--depth", "1", "--force", "origin", source.ref], {
+	let origin;
+	try {
+		origin = runGit(["remote", "get-url", "origin"], { cwd: workingCopy });
+	} catch (error) {
+		if (!allowFetch) throw error;
+		runGit(["remote", "add", "origin", source.url], {
 			cwd: workingCopy,
 			redact: source.url,
 		});
-		runGit(["checkout", "--detach", "--force", "FETCH_HEAD"], {
-			cwd: workingCopy,
-		});
-		runGit(["clean", "-ffdx"], { cwd: workingCopy });
+		origin = source.url;
 	}
+	if (canonicalGitUrl(origin) !== canonicalGitUrl(source.url)) {
+		if (!allowFetch) {
+			throw new Error(
+				`CONTENT_SYNC_PULL=false，但 ${WORKING_COPY_DIR}/ 的 origin 与当前内容源不一致；本次不会改写或拉取工作副本。`,
+			);
+		}
+		runGit(["remote", "set-url", "origin", source.url], {
+			cwd: workingCopy,
+			redact: source.url,
+		});
+		origin = source.url;
+		log(`已更新 ${WORKING_COPY_DIR}/ 的 origin 以匹配当前内容源`);
+	}
+
+	if (!allowFetch) {
+		const commit = runGit(["rev-parse", "HEAD"], { cwd: workingCopy });
+		return assertReusableWorkingCopy(source, workingCopy, commit, origin);
+	}
+
+	log(`拉取内容仓 ${redactUrl(source.url)} @ ${source.ref}`);
+	runGit(["fetch", "--depth", "1", "--force", "origin", source.ref], {
+		cwd: workingCopy,
+		redact: source.url,
+	});
+	runGit(["checkout", "--detach", "--force", "FETCH_HEAD"], {
+		cwd: workingCopy,
+	});
+	runGit(["clean", "-ffdx"], { cwd: workingCopy });
 
 	return {
 		directory: workingCopy,
@@ -320,6 +409,17 @@ function writeLockFile(resolved, sourceRoot, commit, mountStats, configFiles) {
 	return lock;
 }
 
+function readPreviousConfigFiles() {
+	try {
+		const lock = JSON.parse(readFileSync(join(ROOT, LOCK_FILE), "utf8"));
+		return Array.isArray(lock.config)
+			? lock.config.filter((file) => typeof file === "string")
+			: [];
+	} catch {
+		return [];
+	}
+}
+
 function runSync() {
 	const resolved = resolveContentSource(ROOT);
 	if (resolved.mode === "local") {
@@ -327,6 +427,7 @@ function runSync() {
 		return null;
 	}
 
+	const previousConfigFiles = readPreviousConfigFiles();
 	const { directory: sourceRoot, commit } = resolveSourceRoot(resolved);
 	warnUnmountedDirectories(sourceRoot, resolved.mounts);
 
@@ -352,6 +453,7 @@ function runSync() {
 		sourceRoot,
 		dryRun: options.dryRun,
 		warn,
+		previousConfigFiles,
 	});
 
 	if (Object.keys(mountStats).length === 0 && config.files.length === 0) {

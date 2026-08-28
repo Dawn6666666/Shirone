@@ -15,7 +15,7 @@ import { after, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const CLEAN_SCRIPT = fileURLToPath(
-	new URL("../scripts/content/clean.mjs", import.meta.url),
+	new URL("../../scripts/content/clean.mjs", import.meta.url),
 );
 
 const fixtures = [];

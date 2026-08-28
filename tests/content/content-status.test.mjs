@@ -13,13 +13,13 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
-import { EMPTY_MODULE } from "../scripts/content/config-overlay.mjs";
+import { EMPTY_MODULE } from "../../scripts/content/config-overlay.mjs";
 
 const STATUS_SCRIPT = fileURLToPath(
-	new URL("../scripts/content/status.mjs", import.meta.url),
+	new URL("../../scripts/content/status.mjs", import.meta.url),
 );
 const SYNC_SCRIPT = fileURLToPath(
-	new URL("../scripts/content/sync.mjs", import.meta.url),
+	new URL("../../scripts/content/sync.mjs", import.meta.url),
 );
 
 function write(root, relativePath, contents = "test\n") {

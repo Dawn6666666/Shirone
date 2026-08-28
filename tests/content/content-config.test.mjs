@@ -14,13 +14,13 @@ import {
 	CONFIG_DOMAINS,
 	DOMAIN_BY_FILE,
 	GENERATED_CONFIG_FILE,
-} from "../scripts/content/config-domains.mjs";
+} from "../../scripts/content/config-domains.mjs";
 import {
 	EMPTY_MODULE,
 	generateModule,
 	readConfigOverrides,
 	syncUserConfig,
-} from "../scripts/content/config-overlay.mjs";
+} from "../../scripts/content/config-overlay.mjs";
 
 /** 只造内容仓的 `config/` 目录；类型校验另有一组用例覆盖。 */
 function createConfigDirectory(files) {
@@ -202,7 +202,7 @@ describe("读取内容仓配置", () => {
 describe("生成覆盖层模块", () => {
 	it("没有覆盖时与仓库里已提交的空模块完全一致", () => {
 		const committed = readFileSync(
-			new URL(`../${GENERATED_CONFIG_FILE}`, import.meta.url),
+			new URL(`../../${GENERATED_CONFIG_FILE}`, import.meta.url),
 			"utf8",
 		);
 		// 没有这条一致性，local 模式下重新生成就会弄脏 git status。
@@ -323,7 +323,7 @@ describe("生成覆盖层模块", () => {
 });
 
 describe("类型校验（真实 tsc，跑在本仓库上）", () => {
-	const repoRoot = fileURLToPath(new URL("..", import.meta.url));
+	const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 	const generated = join(repoRoot, GENERATED_CONFIG_FILE);
 
 	/**

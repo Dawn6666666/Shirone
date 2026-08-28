@@ -87,6 +87,8 @@ import {
 	LOCK_FILE,
 	matchesAny,
 	PROTECTED_PATHS,
+	pathsOverlap,
+	redactUrl,
 	resolveContentSource,
 	toPosix,
 	topSegment,
@@ -184,13 +186,41 @@ const options = {
 	help: args.includes("--help") || args.includes("-h"),
 };
 
-const outIndex = args.indexOf("--out");
-if (outIndex !== -1) {
-	if (!args[outIndex + 1] || args[outIndex + 1].startsWith("-")) {
-		console.error("[content:export] --out 需要一个目录参数。");
-		process.exit(1);
+if (!options.help) {
+	const knownFlags = new Set([
+		"--yes",
+		"--dry-run",
+		"--config",
+		"--posts",
+		"--prune",
+		"--prune-config",
+		"--force",
+	]);
+	let sawOut = false;
+	for (let index = 0; index < args.length; index += 1) {
+		const argument = args[index];
+		if (argument === "--out") {
+			if (sawOut) {
+				console.error("[content:export] --out 只能指定一次。");
+				process.exit(1);
+			}
+			const value = args[index + 1];
+			if (!value || value.startsWith("-")) {
+				console.error("[content:export] --out 需要一个目录参数。");
+				process.exit(1);
+			}
+			options.out = value;
+			sawOut = true;
+			index += 1;
+			continue;
+		}
+		if (!knownFlags.has(argument)) {
+			console.error(
+				`[content:export] 不支持参数：${argument}。运行 --help 查看可用参数。`,
+			);
+			process.exit(1);
+		}
 	}
-	options.out = args[outIndex + 1];
 }
 
 /** 破坏性阶段是否已经开始——决定失败时该说「内容仓原样」还是「已写入部分文件」。 */
@@ -361,7 +391,7 @@ function formatValue(value) {
 if (options.help) {
 	console.log(
 		[
-			"用法：node scripts/content/export.mjs [--yes] [--config|--posts] [--prune] [--force] [--out <dir>]",
+			"用法：node scripts/content/export.mjs [--yes|--dry-run] [--config|--posts] [--prune] [--force] [--out <dir>]",
 			"",
 			"  （无参数）/--dry-run  预演：只打印导出计划，不修改任何文件",
 			"  --yes                 实际执行导出（--dry-run 优先级更高）",
@@ -432,26 +462,19 @@ const targetRoot =
 		? resolve(ROOT, resolved.source.path)
 		: resolve(ROOT, options.out);
 
-if (targetRoot === resolve(ROOT, WORKING_COPY_DIR)) {
-	fail(
-		"解析导出目标",
-		new Error(`导出目标不能是 ${WORKING_COPY_DIR}/`),
-		"它是 content:sync 管理的浅工作副本，每次同步都会被 git clean -ffdx 抹掉。",
-	);
-}
-if (targetRoot === ROOT) {
-	fail(
-		"解析导出目标",
-		new Error("导出目标不能是代码仓自身"),
-		"导出会把挂载目标下的文件按内容仓布局写到目标目录，指向代码仓会造成自我覆盖。",
-	);
-}
 if (!existsSync(targetRoot) || !statSync(targetRoot).isDirectory()) {
 	fail(
 		"解析导出目标",
 		new Error(`导出目标不存在或不是目录：${targetRoot}`),
 		"content:export 只写入**已存在**的内容仓，不负责创建它——" +
 			" 首次迁出请用 pnpm content:eject。",
+	);
+}
+if (pathsOverlap(ROOT, targetRoot)) {
+	fail(
+		"解析导出目标",
+		new Error("导出目标不能与代码仓相同，也不能互为父子目录"),
+		"内容导出必须写入独立仓库；路径重叠会造成自我覆盖、重复遍历或把内容仓纳入代码仓。",
 	);
 }
 
@@ -471,7 +494,7 @@ if (existsSync(lockPath)) {
 			}
 		} else if (lock?.source?.type === "git") {
 			warn(
-				`${LOCK_FILE} 记录上次同步来自远端仓库（${lock.source.url ?? "?"} @ ${
+				`${LOCK_FILE} 记录上次同步来自远端仓库（${redactUrl(lock.source.url ?? "?")} @ ${
 					lock.source.ref ?? "?"
 				}），而本次导出写入本地目录 ${toPosix(targetRoot)}。` +
 					" 请确认这个目录就是那个仓库的检出。",

@@ -30,14 +30,14 @@ import {
 	flattenOverride,
 	isPlainObject,
 	OMIT,
-} from "../scripts/content/config-diff.mjs";
-import { EXPORTABLE_DOMAINS } from "../scripts/content/config-introspect.mjs";
+} from "../../scripts/content/config-diff.mjs";
+import { EXPORTABLE_DOMAINS } from "../../scripts/content/config-introspect.mjs";
 
 const EXPORT_SCRIPT = fileURLToPath(
-	new URL("../scripts/content/export.mjs", import.meta.url),
+	new URL("../../scripts/content/export.mjs", import.meta.url),
 );
 const SYNC_SCRIPT = fileURLToPath(
-	new URL("../scripts/content/sync.mjs", import.meta.url),
+	new URL("../../scripts/content/sync.mjs", import.meta.url),
 );
 
 const fixtures = [];
@@ -242,7 +242,7 @@ function createFixture({ contentRepoGit = true, manifest } = {}) {
 		);
 	}
 	// 桩 tsc：让 typeCheckModule 走通而不引入真实 typescript 依赖。
-	// 类型校验本身由 tests/content-config.test.mjs 覆盖，这里只验证「校验被调用且不留痕」。
+	// 类型校验本身由 tests/content/content-config.test.mjs 覆盖，这里只验证「校验被调用且不留痕」。
 	write(code, "node_modules/typescript/bin/tsc", "// stub tsc: 恒定成功\n");
 
 	// 主题自有资产与构建期生成物：导出必须原样放过它们。
@@ -272,7 +272,7 @@ function latestBackup(contentRoot) {
 /** 用真实内省链路取当前生效配置，用于往返不变式比对。 */
 async function effectiveConfig(codeRoot) {
 	const { introspectConfig } = await import(
-		"../scripts/content/config-introspect.mjs"
+		"../../scripts/content/config-introspect.mjs"
 	);
 	const { values } = introspectConfig(codeRoot);
 	return Object.fromEntries(
@@ -524,6 +524,37 @@ describe("content:export 安全闸门", () => {
 
 		assert.match(output, /不存在或不是目录/);
 		assert.match(output, /content:eject/);
+	});
+
+	it("拒绝与代码仓重叠的导出目标", () => {
+		const { code } = createFixture();
+		const nested = join(code, "nested-content");
+		mkdirSync(nested, { recursive: true });
+
+		for (const target of [code, nested]) {
+			const output = expectFailure(() => exportRun(code, ["--out", target]));
+			assert.match(output, /不能与代码仓相同|互为父子目录/);
+			assert.match(output, /未向内容仓写入任何内容/);
+		}
+	});
+
+	it("历史锁中的仓库凭据不会出现在告警里", () => {
+		const { code } = createFixture();
+		write(
+			code,
+			"content.lock.json",
+			JSON.stringify({
+				source: {
+					type: "git",
+					url: "https://alice:secret@example.invalid/repo.git?token=querysecret",
+					ref: "main",
+				},
+			}),
+		);
+
+		const output = exportRun(code);
+		assert.doesNotMatch(output, /alice:secret|querysecret/);
+		assert.match(output, /https:\/\/\*\*\*@example\.invalid/);
 	});
 
 	it("content.lock.json 指向别处时告警，提示可能指错仓库", () => {

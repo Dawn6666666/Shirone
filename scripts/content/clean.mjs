@@ -108,6 +108,17 @@ const options = {
 	keepWorkingCopy: args.includes("--keep-working-copy"),
 	help: args.includes("--help") || args.includes("-h"),
 };
+const unknownArgs = args.filter(
+	(argument) =>
+		![
+			"--yes",
+			"--dry-run",
+			"--no-backup",
+			"--keep-working-copy",
+			"--help",
+			"-h",
+		].includes(argument),
+);
 
 /** 破坏性阶段是否已经开始——决定失败时该告诉用户「工作区原样」还是「已部分改动」。 */
 let mutated = false;
@@ -219,7 +230,7 @@ function formatBytes(bytes) {
 if (options.help) {
 	console.log(
 		[
-			"用法：node scripts/content/clean.mjs [--yes] [--no-backup] [--keep-working-copy]",
+			"用法：node scripts/content/clean.mjs [--yes|--dry-run] [--no-backup] [--keep-working-copy]",
 			"",
 			"  （无参数）/--dry-run  预演：只打印清理计划，不修改任何文件",
 			"  --yes                 实际执行清理",
@@ -233,6 +244,13 @@ if (options.help) {
 	process.exit(0);
 }
 
+if (unknownArgs.length > 0) {
+	console.error(
+		`[content:clean] 不支持参数：${unknownArgs.join("、")}。运行 --help 查看可用参数。`,
+	);
+	process.exit(1);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. 解析清理范围：挂载目标 + 配置生成物
 // ─────────────────────────────────────────────────────────────────────────────
@@ -241,6 +259,13 @@ let resolved;
 try {
 	resolved = resolveContentSource(ROOT);
 } catch (error) {
+	if (/mounts\.|挂载/.test(error.message)) {
+		fail(
+			"校验清理范围",
+			error,
+			`无法从 ${MANIFEST_FILE} 安全确定物化范围；请先修正 mounts，避免清理错误目录。`,
+		);
+	}
 	// 清单写错不该阻止清理——恰恰这时候最需要回到干净状态。
 	warn(`读取内容源配置失败，按默认挂载表继续：${error.message}`);
 	resolved = { mode: "local", reason: "内容源配置无法解析" };

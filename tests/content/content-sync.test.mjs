@@ -14,7 +14,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const SYNC_SCRIPT = fileURLToPath(
-	new URL("../scripts/content/sync.mjs", import.meta.url),
+	new URL("../../scripts/content/sync.mjs", import.meta.url),
 );
 
 function write(root, relativePath, contents = "x") {
@@ -22,6 +22,26 @@ function write(root, relativePath, contents = "x") {
 	mkdirSync(dirname(absolute), { recursive: true });
 	writeFileSync(absolute, contents);
 	return absolute;
+}
+
+function git(cwd, args) {
+	return execFileSync("git", ["-c", "core.quotepath=false", ...args], {
+		cwd,
+		encoding: "utf8",
+		stdio: ["ignore", "pipe", "pipe"],
+	}).trim();
+}
+
+function initRepo(root) {
+	git(root, ["init", "--quiet", "--initial-branch", "main"]);
+	git(root, ["config", "user.name", "Test"]);
+	git(root, ["config", "user.email", "test@example.com"]);
+	git(root, ["config", "core.autocrlf", "false"]);
+}
+
+function commitAll(root, message = "test: fixture") {
+	git(root, ["add", "-A"]);
+	git(root, ["commit", "--quiet", "-m", message]);
 }
 
 /** 造一对「代码仓 / 内容仓」骨架，尽量贴近真实目录布局。 */
@@ -261,6 +281,150 @@ describe("content sync", () => {
 			assert.match(stderr, /schemaVersion/);
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
+		}
+	});
+
+	it("拒绝逃逸、保留目录和相互交叠的挂载映射", () => {
+		const fixture = createFixture();
+		try {
+			for (const mounts of [
+				{ "../outside": "src/content" },
+				{ "content/../data": "custom/data" },
+				{ extra: "scripts/content" },
+				{ extra: "src/content/posts" },
+				{ "content/posts": "public/duplicate" },
+				{
+					content: false,
+					public: false,
+					"content/./posts": "custom/one",
+					"content/posts": "custom/two",
+				},
+			]) {
+				write(
+					fixture.repo,
+					"shirone.content.json",
+					JSON.stringify({ schemaVersion: 1, mounts }),
+				);
+				const { stderr } = runSync(fixture, { expectFailure: true });
+				assert.match(stderr, /相对目录|保留目录|相互交叠|归一化后重复/);
+			}
+			assert.ok(!exists(fixture, "content.lock.json"));
+		} finally {
+			rmSync(fixture.base, { recursive: true, force: true });
+		}
+	});
+
+	it("CONTENT_SYNC_PULL=false 不初始化远端副本，并只复用锁定身份一致的副本", () => {
+		const fixture = createFixture();
+		try {
+			initRepo(fixture.content);
+			commitAll(fixture.content);
+			const remoteEnv = {
+				CONTENT_DIR: "",
+				CONTENT_REPO_URL: fixture.content,
+				CONTENT_REPO_REF: "main",
+			};
+
+			let result = runSync(fixture, {
+				env: { ...remoteEnv, CONTENT_SYNC_PULL: "false" },
+				expectFailure: true,
+			});
+			assert.match(result.stderr, /尚未初始化|不会创建副本或访问远端/);
+			assert.ok(!exists(fixture, ".content-src"));
+
+			runSync(fixture, { env: remoteEnv });
+			result = runSync(fixture, {
+				env: { ...remoteEnv, CONTENT_SYNC_PULL: "false" },
+			});
+			assert.match(result.stdout, /复用本地内容工作副本/);
+
+			const workingCopy = join(fixture.repo, ".content-src");
+			write(workingCopy, "content/posts/hello.md", "# locally changed");
+			result = runSync(fixture, {
+				env: { ...remoteEnv, CONTENT_SYNC_PULL: "false" },
+				expectFailure: true,
+			});
+			assert.match(result.stderr, /不能复用有未提交改动/);
+			git(workingCopy, ["restore", "--", "content/posts/hello.md"]);
+
+			result = runSync(fixture, {
+				env: {
+					...remoteEnv,
+					CONTENT_REPO_REF: "another-ref",
+					CONTENT_SYNC_PULL: "false",
+				},
+				expectFailure: true,
+			});
+			assert.match(result.stderr, /URL、ref、commit 完全一致/);
+		} finally {
+			rmSync(fixture.base, { recursive: true, force: true });
+		}
+	});
+
+	it("远端 URL 变化时更新工作副本 origin 后再拉取", () => {
+		const fixture = createFixture();
+		const second = join(fixture.base, "second-content");
+		try {
+			initRepo(fixture.content);
+			commitAll(fixture.content);
+			write(second, "content/posts/from-second.md", "# second");
+			initRepo(second);
+			commitAll(second);
+
+			const remoteEnv = {
+				CONTENT_DIR: "",
+				CONTENT_REPO_REF: "main",
+			};
+			runSync(fixture, {
+				env: { ...remoteEnv, CONTENT_REPO_URL: fixture.content },
+			});
+			runSync(fixture, {
+				env: { ...remoteEnv, CONTENT_REPO_URL: second },
+			});
+
+			const workingCopy = join(fixture.repo, ".content-src");
+			assert.equal(git(workingCopy, ["remote", "get-url", "origin"]), second);
+			assert.equal(
+				read(fixture, "src/content/posts/from-second.md"),
+				"# second",
+			);
+		} finally {
+			rmSync(fixture.base, { recursive: true, force: true });
+		}
+	});
+
+	it("内容仓删除 footer.html 后恢复主题页脚或移除非跟踪页脚", () => {
+		const tracked = createFixture();
+		const ejected = createFixture();
+		try {
+			write(
+				tracked.repo,
+				"src/config/FooterConfig.html",
+				"<!-- theme footer -->",
+			);
+			initRepo(tracked.repo);
+			commitAll(tracked.repo);
+			write(tracked.content, "config/footer.html", "<p>external</p>");
+			runSync(tracked);
+			assert.equal(
+				read(tracked, "src/config/FooterConfig.html"),
+				"<p>external</p>",
+			);
+			rmSync(join(tracked.content, "config/footer.html"));
+			runSync(tracked);
+			assert.equal(
+				read(tracked, "src/config/FooterConfig.html"),
+				"<!-- theme footer -->",
+			);
+
+			write(ejected.content, "config/footer.html", "<p>external</p>");
+			runSync(ejected);
+			rmSync(join(ejected.content, "config/footer.html"));
+			runSync(ejected);
+			assert.ok(!exists(ejected, "src/config/FooterConfig.html"));
+		} finally {
+			rmSync(tracked.base, { recursive: true, force: true });
+			rmSync(ejected.base, { recursive: true, force: true });
 		}
 	});
 

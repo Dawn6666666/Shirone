@@ -5,7 +5,7 @@
  * 主题使用者 clone 后的行为不受影响。
  *
  * 用法：
- *   node scripts/content/eject.mjs                    # 预演，只打印将要发生的改动
+ *   node scripts/content/eject.mjs [--dry-run]        # 预演，只打印将要发生的改动
  *   node scripts/content/eject.mjs --yes               # 实际执行
  *   node scripts/content/eject.mjs --yes --out ../my-content
  */
@@ -32,7 +32,12 @@ import {
 	FOOTER_HTML_TARGET,
 	GENERATED_CONFIG_FILE,
 } from "./config-domains.mjs";
-import { MANIFEST_FILE, matchesAny, toPosix } from "./resolve-source.mjs";
+import {
+	MANIFEST_FILE,
+	matchesAny,
+	pathsOverlap,
+	toPosix,
+} from "./resolve-source.mjs";
 
 const ROOT = process.cwd();
 
@@ -80,7 +85,7 @@ const GITIGNORE_HEADER =
 
 const args = process.argv.slice(2);
 const options = {
-	apply: args.includes("--yes"),
+	apply: args.includes("--yes") && !args.includes("--dry-run"),
 	force: args.includes("--force"),
 	help: args.includes("--help") || args.includes("-h"),
 	out: "../shirone-content",
@@ -89,10 +94,10 @@ const options = {
 if (options.help) {
 	console.log(
 		[
-			"用法：node scripts/content/eject.mjs [--yes] [--force] [--out <dir>]",
+			"用法：node scripts/content/eject.mjs [--yes|--dry-run] [--force] [--out <dir>]",
 			"",
-			"  （无参数）        预演模式：打印将要导出的文件与配置计划，不修改任何文件",
-			"  --yes             实际执行迁移，将仓内内容解耦导出为独立内容仓",
+			"  （无参数）/--dry-run  预演模式：打印计划，不修改任何文件",
+			"  --yes                实际执行迁移（--dry-run 优先级更高）",
 			"  --out <dir>       指定导出目标目录（默认：../shirone-content）",
 			"  --force           强制导出（允许导出到非空目录或在工作区不干净时执行）",
 		].join("\n"),
@@ -100,13 +105,31 @@ if (options.help) {
 	process.exit(0);
 }
 
-const outIndex = args.indexOf("--out");
-if (outIndex !== -1) {
-	if (!args[outIndex + 1]) {
-		console.error("[content] --out 需要一个目录参数。");
+const knownFlags = new Set(["--yes", "--dry-run", "--force"]);
+let sawOut = false;
+for (let index = 0; index < args.length; index += 1) {
+	const argument = args[index];
+	if (argument === "--out") {
+		if (sawOut) {
+			console.error("[content] --out 只能指定一次。");
+			process.exit(1);
+		}
+		const value = args[index + 1];
+		if (!value || value.startsWith("-")) {
+			console.error("[content] --out 需要一个目录参数。");
+			process.exit(1);
+		}
+		options.out = value;
+		sawOut = true;
+		index += 1;
+		continue;
+	}
+	if (!knownFlags.has(argument)) {
+		console.error(
+			`[content] eject 不支持参数：${argument}。运行 --help 查看可用参数。`,
+		);
 		process.exit(1);
 	}
-	options.out = args[outIndex + 1];
 }
 
 function log(message) {
@@ -408,9 +431,14 @@ function writeManifest(outAbsolute) {
 }
 
 function main() {
-	assertCleanWorktree();
-
 	const outAbsolute = resolve(ROOT, options.out);
+	if (pathsOverlap(ROOT, outAbsolute)) {
+		throw new Error(
+			`导出目录 ${outAbsolute} 与代码仓 ${ROOT} 相互重叠。` +
+				" 请使用代码仓之外的独立目录，避免自我复制或覆盖源码。",
+		);
+	}
+	assertCleanWorktree();
 	if (
 		existsSync(outAbsolute) &&
 		readdirSync(outAbsolute).length > 0 &&
@@ -463,7 +491,7 @@ function main() {
 	);
 	log("  2. 把内容仓推到远端，并在其中配置 secrets.DISPATCH_TOKEN");
 	log(
-		"  3. 在代码仓复制 .github/workflows/deploy.example.yml 为 deploy.yml 并补全部署步骤",
+		"  3. 在代码仓复制 .github/workflows/deploy.yml.example 为 deploy.yml 并补全部署步骤",
 	);
 	log("  4. 在代码仓提交 .gitignore、shirone.content.json 与索引变更");
 }

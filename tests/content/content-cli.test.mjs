@@ -7,7 +7,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const CLI_SCRIPT = fileURLToPath(
-	new URL("../scripts/content/cli.mjs", import.meta.url),
+	new URL("../../scripts/content/cli.mjs", import.meta.url),
 );
 
 function runCli(args = [], { cwd } = {}) {
@@ -89,6 +89,26 @@ describe("content CLI 总入口与帮助指令", () => {
 			const res = runCli([sub, "--help"]);
 			assert.equal(res.status, 0, `subcommand ${sub} should exit 0 on --help`);
 			assert.match(res.output, /用法：/);
+		}
+	});
+
+	it("所有公开子命令都拒绝未知参数", () => {
+		for (const sub of [
+			"status",
+			"sync",
+			"clean",
+			"export",
+			"eject",
+			"watch",
+			"validate",
+		]) {
+			const res = runCli([sub, "--definitely-unknown"]);
+			assert.equal(
+				res.status,
+				1,
+				`subcommand ${sub} should reject unknown args`,
+			);
+			assert.match(res.output, /不支持参数/);
 		}
 	});
 });

@@ -68,7 +68,7 @@ export const siteConfig: SiteConfig = withUserConfig("site", {
 
 新增配置领域时，除了本文下方的清单，还要在
 `scripts/content/config-domains.mjs` 补一行登记（领域名、YAML 文件名、类型），
-它同时驱动生成、校验与 `content:eject` 的起步文件；`tests/content-config.test.mjs`
+它同时驱动生成、校验与 `content:eject` 的起步文件；`tests/content/content-config.test.mjs`
 会检查登记表的文件名唯一且为 kebab-case。
 
 `navBarConfig` 是唯一不走 `withUserConfig()` 的领域：导航项要引用 `LinkPresets`

@@ -113,7 +113,8 @@ themeColor:
 **注释就是配置文档**，本表不重复它。`.yml` 后缀同样接受；空文件与纯注释文件视作没有覆盖。
 
 `config/footer.html` 是唯一的非 YAML 入口，原样拷贝到 `src/config/FooterConfig.html`，
-需要同时在 `footer.yaml` 里 `enable: true` 才会注入。
+需要同时在 `footer.yaml` 里 `enable: true` 才会注入。若后续从内容仓删除该文件，下一次 sync
+会恢复代码仓中被跟踪的主题页脚；eject 后目标不再被跟踪时，则移除旧的物化页脚。
 
 `config/llms.yaml` 覆盖 `/llms.txt` 与 `/llms-full.txt` 的生成行为（A 级纯数据领域，
 不含任何函数或预设引用，因此走标准的「默认值 ⊕ 覆盖」）：
@@ -231,6 +232,10 @@ links:
 
 这条规则让「主题自有资产」与「用户内容」可以共存于同一个目录树而互不干扰。
 
+自定义 `mounts` 的源与目标都必须是仓库内的相对目录，不能包含 `..`，也不能读取
+`.git/`、`node_modules/` 或写入 `.git/`、`scripts/`、`tests/` 等保留目录。多个挂载的源或目标
+不得相同或互为父子目录；否则两次同步会重复读取、互相覆盖或把前一个挂载的文件错误裁剪掉。
+
 ### 构建期生成物豁免
 
 以下路径与内容仓可能拥有的目录共享顶层段，因此显式豁免：既不参与裁剪，也不接受内容仓覆盖。
@@ -280,7 +285,7 @@ links:
 | `CONTENT_DIR` | 本地内容目录，最高优先级；CI 中配合 `actions/checkout` 使用，本地可直接写在根目录 `.env` 中 |
 | `CONTENT_REPO_URL` | 远端内容仓；私有仓用 `https://x-access-token:<TOKEN>@github.com/OWNER/REPO.git`，token 在所有日志与 `content.lock.json` 中都会被脱敏 |
 | `CONTENT_REPO_REF` | 覆盖 ref（分支、Tag 或 Commit SHA） |
-| `CONTENT_SYNC_PULL=false` | 复用已存在的 `.content-src/` 工作副本，不再 fetch |
+| `CONTENT_SYNC_PULL=false` | 离线复用已存在且干净的 `.content-src/`；要求 origin、ref、HEAD 与 `content.lock.json` 完全一致，否则拒绝执行，绝不隐式初始化或 fetch |
 
 空字符串等同于未设置，便于在 CI 中用空值关闭某个来源。
 
@@ -374,7 +379,7 @@ pnpm content:export --yes --config  # 只回写配置
 | `--prune` | 允许删除内容仓中代码仓已不存在的文件（**默认关闭**） |
 | `--prune-config` | 允许删除内容仓 YAML 中「已等于主题默认值」的冗余键（**默认关闭**） |
 | `--force` | 跳过「内容仓工作区干净」与「物化状态一致」两项检查 |
-| `--out <dir>` | 覆盖导出目标（默认取当前生效的内容源目录） |
+| `--out <dir>` | 覆盖导出目标（默认取当前生效的内容源目录）；必须是与代码仓不重叠的独立目录 |
 
 ### 内容文件：挂载表反转
 
@@ -622,6 +627,9 @@ pnpm content:eject --yes                 # 实际执行，默认导出到 ../shi
 pnpm content:eject --yes --out ..\my-content
 ```
 
+`--dry-run` 始终优先于 `--yes`，可作为自动化调用的安全兜底。`--out` 必须位于代码仓之外，
+不能指向代码仓本身、父目录或子目录，避免自我复制、覆盖源码或把内容仓纳入代码仓。
+
 `--yes` 会做四件事：
 
 1. 把用户内容按内容仓布局导出到目标目录，并生成 `README.md`、`.gitignore`、
@@ -637,7 +645,7 @@ pnpm content:eject --yes --out ..\my-content
 其余领域刻意留空：把此刻的默认值全量倒进内容仓，等于把配置冻结在这一版主题上，
 日后主题新增的默认值再也进不来。需要改哪个领域，就照 `config/README.md` 新建对应的 YAML。
 
-执行前要求工作区干净；导出目录必须不存在或为空。两项都可以用 `--force` 跳过，但不建议。
+执行前要求工作区干净；导出目录必须不存在或为空。两项都可以用 `--force` 跳过，但目录重叠检查不能跳过。
 
 内容仓推到远端之后，把 `shirone.content.json` 的 `source` 改成：
 
@@ -674,7 +682,7 @@ pnpm content:status             # 离线检查连接、锁与物化新旧状态
 pnpm content:status --remote    # 额外检查远端仓库/ref（会联网）
 pnpm content:export             # 预演反向导出计划（不修改文件）
 pnpm content:clean              # 预演清理计划（不修改文件）
-node --test tests/content-*.test.mjs
+node --test tests/content/*.test.mjs
 npx.cmd astro check             # 0 error 0 warning
 pnpm build                      # 完整构建
 ```

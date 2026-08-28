@@ -6,6 +6,7 @@ import {
 	mkdtempSync,
 	readFileSync,
 	rmSync,
+	symlinkSync,
 	writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,7 +15,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const EJECT_SCRIPT = fileURLToPath(
-	new URL("../scripts/content/eject.mjs", import.meta.url),
+	new URL("../../scripts/content/eject.mjs", import.meta.url),
 );
 
 function write(root, relativePath, contents = "x") {
@@ -76,6 +77,63 @@ describe("content eject", () => {
 			assert.ok(!existsSync(fixture.out));
 			assert.equal(git(fixture.repo, ["status", "--porcelain"]), "");
 			assert.ok(!existsSync(join(fixture.repo, "shirone.content.json")));
+		} finally {
+			rmSync(fixture.base, { recursive: true, force: true });
+		}
+	});
+
+	it("--dry-run 优先于 --yes，避免脚本化调用时误写", () => {
+		const fixture = createFixture();
+		try {
+			const stdout = runEject(fixture, [
+				"--yes",
+				"--dry-run",
+				"--out",
+				fixture.out,
+			]);
+			assert.match(stdout, /预演/);
+			assert.ok(!existsSync(fixture.out));
+			assert.equal(git(fixture.repo, ["status", "--porcelain"]), "");
+		} finally {
+			rmSync(fixture.base, { recursive: true, force: true });
+		}
+	});
+
+	it("拒绝把导出目录指向代码仓本身或其子目录", () => {
+		const fixture = createFixture();
+		try {
+			for (const target of [fixture.repo, join(fixture.repo, "content-repo")]) {
+				assert.throws(
+					() => runEject(fixture, ["--force", "--dry-run", "--out", target]),
+					/相互重叠|status 1/,
+				);
+			}
+			assert.equal(git(fixture.repo, ["status", "--porcelain"]), "");
+		} finally {
+			rmSync(fixture.base, { recursive: true, force: true });
+		}
+	});
+
+	it("目标尚不存在时也能识别父目录链接造成的代码仓重叠", () => {
+		const fixture = createFixture();
+		try {
+			const alias = join(fixture.base, "repo-link");
+			symlinkSync(
+				fixture.repo,
+				alias,
+				process.platform === "win32" ? "junction" : "dir",
+			);
+			assert.throws(
+				() =>
+					runEject(fixture, [
+						"--force",
+						"--dry-run",
+						"--out",
+						join(alias, "future-content"),
+					]),
+				/相互重叠|status 1/,
+			);
+			assert.equal(git(fixture.repo, ["status", "--porcelain"]), "");
 		} finally {
 			rmSync(fixture.base, { recursive: true, force: true });
 		}

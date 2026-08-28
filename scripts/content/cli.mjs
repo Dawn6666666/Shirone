@@ -121,4 +121,7 @@ if (result.error) {
 	process.exit(1);
 }
 
-process.exit(result.status ?? 0);
+if (result.signal) {
+	console.error(`[content] 子指令被信号 ${result.signal} 终止。`);
+}
+process.exit(result.status ?? 1);
