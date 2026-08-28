@@ -23,7 +23,6 @@ const optionalRuntimeModules = {
 	codeCollapse: /\/src\/utils\/code-collapse\.ts(?:\?|$)/,
 	katex: /\/src\/utils\/katex-scroll\.ts(?:\?|$)/,
 	mermaid: /\/src\/utils\/mermaid\.ts(?:\?|$)/,
-	mermaidStyles: /\/src\/styles\/mermaid\.css(?:\?|$)/,
 	trees: /\/src\/styles\/markdown\/trees\.css(?:\?|$)/,
 	collapsePanels: /\/src\/styles\/markdown\/collapse-panels\.css(?:\?|$)/,
 	marker: /\/src\/styles\/markdown\/marker\.css(?:\?|$)/,
@@ -54,7 +53,7 @@ function hasRequestFor(requests: string[], modules: Array<RegExp>): boolean {
 }
 
 test.describe("Markdown syntax runtime loading", () => {
-	test("defers math and Mermaid assets until a Swup target uses them", async ({
+	test("keeps Mermaid styles page-scoped while deferring its runtime", async ({
 		page,
 	}) => {
 		const requests = trackOptionalRuntimeRequests(page);
@@ -65,7 +64,6 @@ test.describe("Markdown syntax runtime loading", () => {
 			hasRequestFor(requests, [
 				optionalRuntimeModules.katex,
 				optionalRuntimeModules.mermaid,
-				optionalRuntimeModules.mermaidStyles,
 			]),
 		).toBe(false);
 
@@ -76,10 +74,15 @@ test.describe("Markdown syntax runtime loading", () => {
 			"ready",
 			{ timeout: 15_000 },
 		);
-		const formula = page.locator(".katex-display").first();
+		const mermaidSurface = page.locator(".markdown-mermaid__surface").first();
 		await expect(
-			page.locator('style[data-swup-optional="math"]'),
+			page.locator('style[data-swup-optional="mermaid"]'),
 		).toHaveCount(1);
+		await expect(mermaidSurface).toHaveCSS("border-top-style", "solid");
+		const formula = page.locator(".katex-display").first();
+		await expect(page.locator('style[data-swup-optional="math"]')).toHaveCount(
+			1,
+		);
 		await formula.scrollIntoViewIfNeeded();
 		await expect(formula).toHaveAttribute(
 			"data-scrollbar-initialized",
@@ -90,12 +93,18 @@ test.describe("Markdown syntax runtime loading", () => {
 		expect(
 			requests.some((url) => optionalRuntimeModules.mermaid.test(url)),
 		).toBe(true);
-		expect(
-			requests.some((url) => optionalRuntimeModules.mermaidStyles.test(url)),
-		).toBe(true);
+		expect(requests.some((url) => /mermaid\.css(?:\?|$)/.test(url))).toBe(
+			false,
+		);
 		expect(requests.some((url) => optionalRuntimeModules.katex.test(url))).toBe(
 			true,
 		);
+
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="mermaid"]'),
+		).toHaveCount(0);
 	});
 
 	test("defers Fancybox until a Swup target contains a lightbox", async ({

@@ -48,6 +48,11 @@
 			"styles": ["src/styles/markdown/math.css"]
 		},
 		{
+			"id": "mermaid",
+			"syntaxes": ["mermaid"],
+			"styles": ["src/styles/mermaid.css"]
+		},
+		{
 			"id": "option-groups",
 			"syntaxes": ["option-groups"],
 			"styles": ["src/styles/markdown/option-groups.css"]

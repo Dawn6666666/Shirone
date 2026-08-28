@@ -156,13 +156,13 @@ type MarkdownSyntaxSnapshot = {
 | image-presentation | media | 无 | 条件 CSS，纯 SSR |
 | marker | inline enhancements | 无 | 条件 CSS，纯 SSR |
 | math | math | `katex-scroll.ts` | 条件第三方 CSS + 选择器动态 JS |
-| mermaid | Mermaid 专用样式 | `mermaid.ts`、`mermaid-interaction.ts` | 可读 fallback；运行时与增强样式首次命中加载 |
+| mermaid | Mermaid 专用样式 | `mermaid.ts`、`mermaid-interaction.ts` | 可读 fallback；样式严格按页管理，运行时首次命中加载 |
 | option-groups | option groups | `option-groups.ts` | 条件 CSS + 选择器动态 JS |
 | steps | steps | 无 | 条件 CSS，纯 SSR |
 | github-card | legacy | 内联脚本与 GitHub API | 不扩展使用面；迁移前保持兼容 |
 | spoiler | legacy | 无 | 不扩展使用面；迁移时补齐触屏与键盘语义 |
 
-Mermaid 当前属于“首次命中按需”。若后续要求离开 Mermaid 页面后移除样式节点，应将其样式改为 Swup 管理的可选 stylesheet，而不是在运行时中手工遍历并删除 Vite 注入节点。
+Mermaid 样式由 `stylesheetPacks.mermaid` 输出为 Swup 管理的可选 style block，离开 Mermaid 页面后随页面 head 生命周期移除；`mermaid.ts` 与交互模块仍仅在首次命中 Mermaid DOM 时加载。不得在运行时中手工遍历或删除 Vite 注入节点。
 
 ## 7. Swup 生命周期
 
