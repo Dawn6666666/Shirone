@@ -202,9 +202,17 @@ pnpm.cmd astro dev --port 4321
 
 **附加**：未认证的 GitHub API 按 IP 限流（60 次/小时），测试中务必 mock（`page.route`）避免 flaky。
 
+### 4.3 AbortController 超时不能当作 Swup 取消
+
+**现象**：GitHub API 超时后，卡片一直保留 `fetch-waiting` 和 `aria-busy="true"`，SSR 仓库链接也无法回到可用状态。
+
+**根因**：超时和 Swup 内容替换都通过同一个 `AbortController` 触发 `AbortError`。如果 catch 只判断 `signal.aborted`，就会把超时误判为正常的旧页面清理。
+
+**解法**：为超时单独记录 `timedOut` 标记。仅在请求确实失败或超时且卡片仍连接到文档时设置错误状态；Swup 取消的旧卡片不再修改 DOM。超时和非 2xx 响应都必须收起动态字段并保留 SSR 链接。
+
 ---
 
-### 4.3 Markdown 扩展 DOM 存在但样式消失，不一定是缓存
+### 4.4 Markdown 扩展 DOM 存在但样式消失，不一定是缓存
 
 **现象**：Skills 等普通内容正常，但 About 页的 GitHub 卡片只剩无样式链接；检查 HTML 时 `.card-github` 节点仍然存在。
 
@@ -217,7 +225,7 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
-### 4.4 Tailwind Typography 会介入 Markdown 小组件的内部布局
+### 4.5 Tailwind Typography 会介入 Markdown 小组件的内部布局
 
 **现象**：Markdown 小组件已经命中自己的 CSS，但 `ul`/`ol` 仍出现意外的 margin 或 padding；提高组件选择器权重后计算样式仍不改变。File Tree 曾把嵌套目录设为 `padding-inline-start: 8px`，浏览器实际仍得到 Typography 注入的约 `1.625em`。
 
@@ -236,7 +244,7 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
-### 4.5 页面级 Markdown CSS 不能依赖 `?url` 静态导入或预渲染后的 `import.meta.url`
+### 4.6 页面级 Markdown CSS 不能依赖 `?url` 静态导入或预渲染后的 `import.meta.url`
 
 **现象**：树语法的 CSS 已从 `markdown.css` 移出，普通文章也没有对应的 `<link>`，但开发工具仍会请求 `trees.css?url`；改用 `import.meta.url` 读取同一份 CSS 后，开发环境正常，`pnpm.cmd build` 却在 `dist/.prerender` 下报源文件不存在。
 
@@ -252,7 +260,7 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
-### 4.6 按页样式测试的“普通文章”基线可能本身命中待迁移语法
+### 4.7 按页样式测试的“普通文章”基线可能本身命中待迁移语法
 
 **现象**：为新的 Markdown 语法添加“普通文章无可选样式”断言时，起始页已经存在目标 `data-swup-optional` 样式块，导致禁用态断言失败；此前未按页拆分的全局 CSS 会掩盖这个错误的测试前提。
 
@@ -268,7 +276,7 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
-### 4.7 Swup 样式回归夹具不能混入无关的外部运行时
+### 4.8 Swup 样式回归夹具不能混入无关的外部运行时
 
 **现象**：目标语法页同时包含 Mermaid、GitHub 卡片等额外运行时；卡片请求失败后，从该页面返回基线页的 Swup 导航可能无法收敛，掩盖了实际已正确注入和移除的可选样式。
 
@@ -280,7 +288,7 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
-### 4.8 第三方 Markdown 集成可能在特征快照前改写节点
+### 4.9 第三方 Markdown 集成可能在特征快照前改写节点
 
 **现象**：共享 Remark 处理器的 fenced code 探测单测通过，但 Astro 页面中的 `remarkPluginFrontmatter` 仍未标记 Expressive Code，按页样式包因此没有注入。
 
@@ -292,7 +300,7 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
-### 4.9 Node 原生 TypeScript 测试不会隐式加载 JSON 模块
+### 4.10 Node 原生 TypeScript 测试不会隐式加载 JSON 模块
 
 **现象**：在 Astro/Vite 中可用的 JSON 默认导入，被 Node 的 `node --test` 直接执行时以 `ERR_IMPORT_ATTRIBUTE_MISSING` 失败。
 
@@ -304,7 +312,7 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
-### 4.10 嵌套代码块不能同时触发容器语法和 Expressive Code
+### 4.11 嵌套代码块不能同时触发容器语法和 Expressive Code
 
 **现象**：`code-tree` 内的 fenced code 同时被记录为 `code-tree` 与 `expressive-code`，使文章额外注入 Expressive Code 的页面级样式包。
 
@@ -316,7 +324,7 @@ pnpm.cmd astro dev --port 4321
 
 ---
 
-### 4.11 `.mjs` 的同名 `.d.ts` 不会自动成为 TypeScript 模块声明
+### 4.12 `.mjs` 的同名 `.d.ts` 不会自动成为 TypeScript 模块声明
 
 **现象**：TypeScript 文件从 `./module.mjs` 导入类型时，即使目录中存在 `module.d.ts`，Astro check 仍报告该类型不是模块导出成员。
 

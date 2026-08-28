@@ -9,6 +9,7 @@ type GithubRepository = {
 
 const repositoryCache = new Map<string, GithubRepository>();
 const activeRequests = new Map<Element, AbortController>();
+const REQUEST_TIMEOUT_MS = 10_000;
 let cleanupBound = false;
 
 function select<T extends Element>(card: Element, selector: string): T | null {
@@ -135,7 +136,11 @@ async function hydrateCard(card: HTMLElement): Promise<void> {
 	if (!repo) return;
 
 	const controller = new AbortController();
-	const timeout = window.setTimeout(() => controller.abort(), 10_000);
+	let timedOut = false;
+	const timeout = window.setTimeout(() => {
+		timedOut = true;
+		controller.abort();
+	}, REQUEST_TIMEOUT_MS);
 	activeRequests.set(card, controller);
 	card.classList.remove("fetch-error");
 	card.classList.add("fetch-waiting");
@@ -148,12 +153,17 @@ async function hydrateCard(card: HTMLElement): Promise<void> {
 		renderRepository(card, repository);
 		card.dataset.githubState = "ready";
 	} catch (error) {
-		if (!controller.signal.aborted) {
+		if ((!controller.signal.aborted || timedOut) && card.isConnected) {
 			hideDynamicDetails(card);
 			card.classList.remove("fetch-waiting");
 			card.classList.add("fetch-error");
 			card.dataset.githubState = "error";
-			console.warn(`Failed to load GitHub card for ${repo}`, error);
+			console.warn(
+				timedOut
+					? `Timed out loading GitHub card for ${repo}`
+					: `Failed to load GitHub card for ${repo}`,
+				error,
+			);
 		}
 	} finally {
 		window.clearTimeout(timeout);

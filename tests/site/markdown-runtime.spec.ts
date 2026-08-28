@@ -145,6 +145,61 @@ test.describe("Markdown syntax runtime loading", () => {
 		]);
 	});
 
+	test("keeps the SSR fallback when GitHub API returns an error", async ({
+		page,
+	}) => {
+		await page.route("https://api.github.com/repos/LyraVoid/Shirone", (route) =>
+			route.fulfill({
+				status: 503,
+				contentType: "application/json",
+				body: JSON.stringify({ message: "service unavailable" }),
+			}),
+		);
+
+		await page.goto(GITHUB_CARD_PATH, { waitUntil: "domcontentloaded" });
+		const card = page.locator("#swup-container a.card-github");
+		await expect(card).toHaveAttribute("data-github-state", "error");
+		await expect(card).toHaveClass(/\bfetch-error\b/);
+		await expect(card).toHaveAttribute(
+			"href",
+			"https://github.com/LyraVoid/Shirone",
+		);
+		await expect(card.locator("[data-github-description]")).toBeHidden();
+		await expect(card.locator("[data-github-info]")).toBeHidden();
+		await expect(card.locator("[data-github-avatar]")).toBeHidden();
+		await expect(card).toHaveAttribute("aria-busy", "false");
+	});
+
+	test("resolves a timed out GitHub request to the SSR fallback", async ({
+		page,
+	}) => {
+		await page.route(
+			"https://api.github.com/repos/LyraVoid/Shirone",
+			async (route) => {
+				await new Promise((resolve) => setTimeout(resolve, 10_250));
+				try {
+					await route.fulfill({
+						status: 200,
+						contentType: "application/json",
+						body: JSON.stringify(GITHUB_REPOSITORY_MOCK),
+					});
+				} catch {
+					// The client timeout aborts this route before the delayed response.
+				}
+			},
+		);
+
+		await page.goto(GITHUB_CARD_PATH, { waitUntil: "domcontentloaded" });
+		const card = page.locator("#swup-container a.card-github");
+		await expect(card).toHaveAttribute("data-github-state", "error", {
+			timeout: 15_000,
+		});
+		await expect(card).toHaveClass(/\bfetch-error\b/);
+		await expect(card.locator("[data-github-description]")).toBeHidden();
+		await expect(card.locator("[data-github-info]")).toBeHidden();
+		await expect(card).toHaveAttribute("aria-busy", "false");
+	});
+
 	test("keeps Mermaid styles page-scoped while deferring its runtime", async ({
 		page,
 	}) => {
