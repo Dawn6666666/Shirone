@@ -1,5 +1,4 @@
 import { existsSync } from "node:fs";
-import { createRequire } from "node:module";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { AstroIntegration } from "astro";
@@ -211,7 +210,7 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 							// resolve. Under pnpm's strict layout these are nested
 							// inside the package, and listing an unresolvable id makes
 							// Vite log a warning for every one of them on every build.
-							include: resolvableFromProject(paths, [
+							include: prebundleCandidates(paths, [
 								"mermaid",
 								"@panzoom/panzoom",
 								"overlayscrollbars",
@@ -292,19 +291,17 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
  * `node_modules/.pnpm/...` and are invisible from there, so every unresolvable
  * entry produces a "Failed to resolve dependency" warning.
  */
-function resolvableFromProject(
+function prebundleCandidates(
 	paths: ResolvedShironesPaths,
 	specifiers: string[],
 ): string[] {
-	const require = createRequire(join(paths.projectRoot, "package.json"));
-	return specifiers.filter((specifier) => {
-		try {
-			require.resolve(specifier);
-			return true;
-		} catch {
-			return false;
-		}
-	});
+	// Pre-bundling is a dev-server nicety. In package mode these libraries live
+	// inside the theme's own `node_modules`, where Vite — which resolves
+	// `optimizeDeps.include` from the *project* root — cannot see them, and it
+	// warns once per entry on every cold start. Node's `require.resolve` is not
+	// a reliable proxy for what Vite can reach, so simply skip the hint there.
+	if (paths.isPluginMode) return [];
+	return specifiers;
 }
 
 /**

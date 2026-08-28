@@ -95,32 +95,73 @@ const BUILT_DEPENDENCIES = ["esbuild", "sharp"];
  * `allowBuilds` in pnpm 11, `onlyBuiltDependencies` in pnpm 10 — so both are
  * written. npm and yarn ignore this file entirely.
  */
+/**
+ * Approve the install scripts the theme needs (`sharp` for image optimisation,
+ * `esbuild` for loading the TypeScript config).
+ *
+ * pnpm 11 renamed the setting to an `allowBuilds` map in `pnpm-workspace.yaml`
+ * and no longer reads the `pnpm` field of `package.json`; pnpm 10 still wants
+ * the `onlyBuiltDependencies` list. We write both. When a failed install has
+ * already left pnpm's own placeholder behind
+ * (`esbuild: set this to true or false`), we flip it to `true` instead of
+ * treating the file as configured.
+ */
 async function ensurePnpmWorkspace() {
 	const file = join(CWD, "pnpm-workspace.yaml");
-	const block = [
+	const allowBlock = [
 		"allowBuilds:",
 		...BUILT_DEPENDENCIES.map((dep) => `  ${dep}: true`),
+	].join("\n");
+	const onlyBlock = [
 		"onlyBuiltDependencies:",
 		...BUILT_DEPENDENCIES.map((dep) => `  - ${dep}`),
-		"",
 	].join("\n");
 
-	if (existsSync(file)) {
-		const current = await readFile(file, "utf8");
-		if (current.includes("allowBuilds")) {
-			log.skip("pnpm-workspace.yaml already configured");
-			return;
-		}
-		await writeFile(file, `${current.trimEnd()}\n\n${block}`, "utf8");
-	} else {
+	if (!existsSync(file)) {
 		await writeFile(
 			file,
-			`# Lets these dependencies run their install scripts.\n` +
-				`# sharp powers Astro's image optimisation and will not work without it.\n` +
-				block,
+			"# Lets these dependencies run their install scripts.\n" +
+				"# sharp powers Astro's image optimisation and will not work without it.\n" +
+				`${allowBlock}\n${onlyBlock}\n`,
 			"utf8",
 		);
+		log.ok("pnpm-workspace.yaml");
+		return;
 	}
+
+	const original = await readFile(file, "utf8");
+	let lines = original.split("\n");
+
+	const allowIndex = lines.findIndex((line) => /^allowBuilds:\s*$/.test(line));
+	if (allowIndex === -1) {
+		lines = [...lines.join("\n").trimEnd().split("\n"), "", ...allowBlock.split("\n")];
+	} else {
+		// Rewrite the whole indented block so placeholders become `true`.
+		let end = allowIndex + 1;
+		while (end < lines.length && /^\s+\S/.test(lines[end])) end += 1;
+		const existing = lines.slice(allowIndex + 1, end);
+		const kept = existing.filter((line) => {
+			const name = line.trim().split(":")[0];
+			return !BUILT_DEPENDENCIES.includes(name);
+		});
+		lines = [
+			...lines.slice(0, allowIndex + 1),
+			...BUILT_DEPENDENCIES.map((dep) => `  ${dep}: true`),
+			...kept,
+			...lines.slice(end),
+		];
+	}
+
+	if (!lines.some((line) => /^onlyBuiltDependencies:\s*$/.test(line))) {
+		lines = [...lines.join("\n").trimEnd().split("\n"), ...onlyBlock.split("\n")];
+	}
+
+	const next = `${lines.join("\n").trimEnd()}\n`;
+	if (next === original) {
+		log.skip("pnpm-workspace.yaml already configured");
+		return;
+	}
+	await writeFile(file, next, "utf8");
 	log.ok("pnpm-workspace.yaml");
 }
 
@@ -159,14 +200,11 @@ async function ensurePackageJsonScripts(packageName) {
 		changed = true;
 	}
 
-	// pnpm >= 10 refuses to silently skip a dependency's build script, and
-	// `sharp` (image optimisation) needs its. Without this a fresh project
-	// fails `pnpm install` with ERR_PNPM_IGNORED_BUILDS.
-	pkg.pnpm ??= {};
-	const existing = new Set(pkg.pnpm.onlyBuiltDependencies ?? []);
-	if (BUILT_DEPENDENCIES.some((dep) => !existing.has(dep))) {
-		for (const dep of BUILT_DEPENDENCIES) existing.add(dep);
-		pkg.pnpm.onlyBuiltDependencies = [...existing].sort();
+	// Build-script approval lives in `pnpm-workspace.yaml` (see
+	// `ensurePnpmWorkspace`): pnpm 11 ignores the `pnpm` field of package.json
+	// and warns about it, so we deliberately do not write it here.
+	if (pkg.pnpm && Object.keys(pkg.pnpm).length === 0) {
+		delete pkg.pnpm;
 		changed = true;
 	}
 
