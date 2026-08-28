@@ -49,6 +49,9 @@ export function remarkFeatureProbes() {
 			if (node.type === "textDirective" && node.name === "spoiler") {
 				syntaxes.add("spoiler");
 			}
+			if (node.type === "leafDirective" && node.name === "github") {
+				syntaxes.add("github-card");
+			}
 			if (node.type === "contentAnnotationReference") {
 				syntaxes.add("content-annotation");
 			}
