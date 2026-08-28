@@ -13,10 +13,9 @@ import { createOverlayTargets, resolveOverride } from "./overlay.ts";
  * We therefore bundle those modules on the fly with esbuild, applying the same
  * override rules the Vite plugin uses, and import the result.
  *
- * The bundle is written into `<projectRoot>/.shirones/loaded/` rather than
- * imported from a `data:` URL, because bare specifiers (`unified`, `rehype-*`)
- * cannot be resolved from a data URL — they need a real file location inside
- * the project so Node walks up to the project's `node_modules`.
+ * The bundle is self-contained (npm dependencies are inlined) and written to
+ * `<projectRoot>/.shirones/loaded/`, keyed by a hash of its own contents so
+ * repeated builds reuse it.
  */
 
 export interface LoadedModule {
@@ -99,13 +98,19 @@ function overlayEsbuildPlugin(paths: ResolvedShironesPaths) {
 				return file ? { path: redirect(file) } : undefined;
 			});
 
-			// Everything else (npm packages, `astro:*`) stays external so it is
-			// resolved by Node from the user's project at import time.
+			// `astro` and its virtual modules must never be bundled: they are
+			// supplied by the host Astro process.
+			//
+			// Everything else (remark/rehype/unified/…) *is* bundled. That is
+			// deliberate: the output is written to a cache directory whose
+			// location has no relationship to the package's `node_modules`, and
+			// under pnpm's strict layout a bare specifier there would not
+			// resolve. Inlining removes the resolution problem entirely.
 			// biome-ignore lint/suspicious/noExplicitAny: see above.
-			build.onResolve({ filter: /^[^./]/ }, (args: any) => {
-				if (!args.importer) return undefined;
-				return { path: args.path, external: true };
-			});
+			build.onResolve({ filter: /^astro(:|\/|$)/ }, (args: any) => ({
+				path: args.path,
+				external: true,
+			}));
 		},
 	};
 }
@@ -139,6 +144,15 @@ export async function loadModuleFile(
 		logLevel: "silent",
 		// Keep JSON/asset imports inert: config modules only need plain values.
 		loader: { ".json": "json" },
+		// Some transitive dependencies are CommonJS and call `require()` for
+		// Node builtins. esbuild's ESM output shims that with a `__require`
+		// helper which prefers a real `require` when one is in scope, so we
+		// provide one.
+		banner: {
+			js:
+				"import { createRequire as __shironesCreateRequire } from 'node:module';\n" +
+				"const require = __shironesCreateRequire(import.meta.url);",
+		},
 		plugins: [overlayEsbuildPlugin(paths)],
 	});
 

@@ -70,13 +70,34 @@ async function countFiles(dir) {
 	return total;
 }
 
+/**
+ * Peer dependencies that must sit at the *project* root.
+ *
+ * Vite resolves `optimizeDeps.include` from the project root, and
+ * `@astrojs/svelte` registers a dozen `svelte/*` subpaths there. With pnpm's
+ * strict layout a copy nested inside the theme package is invisible, so svelte
+ * has to be a direct dependency of the user's project.
+ */
+const REQUIRED_PEERS = ["svelte"];
+
 async function ensurePackageJsonScripts(packageName) {
 	const pkgPath = join(CWD, "package.json");
 	if (!existsSync(pkgPath)) return;
 
 	const pkg = JSON.parse(await readFile(pkgPath, "utf8"));
 	pkg.scripts ??= {};
+	pkg.dependencies ??= {};
 	let changed = false;
+
+	const addedPeers = [];
+	for (const peer of REQUIRED_PEERS) {
+		if (pkg.dependencies[peer] || pkg.devDependencies?.[peer]) continue;
+		const range = await peerRange(packageName, peer);
+		if (!range) continue;
+		pkg.dependencies[peer] = range;
+		addedPeers.push(`${peer}@${range}`);
+		changed = true;
+	}
 
 	const wanted = {
 		dev: "astro dev",
@@ -97,7 +118,18 @@ async function ensurePackageJsonScripts(packageName) {
 
 	if (changed) {
 		await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
-		log.ok(`package.json (scripts for ${packageName})`);
+		log.ok("package.json");
+	}
+	return addedPeers;
+}
+
+/** Read a peer range straight out of the installed package. */
+async function peerRange(packageName, peer) {
+	try {
+		const raw = await readFile(join(PACKAGE_ROOT, "package.json"), "utf8");
+		return JSON.parse(raw).peerDependencies?.[peer] ?? null;
+	} catch {
+		return null;
 	}
 }
 
@@ -188,9 +220,13 @@ async function init(args) {
 		{ force },
 	);
 
-	// 4. Project metadata.
+	// 4. `astro-icon` scans this directory for local SVGs; creating it up front
+	//    avoids a confusing ENOENT warning on the first build.
+	await mkdir(join(CWD, "src/icons"), { recursive: true });
+
+	// 5. Project metadata.
 	await ensureTsConfig(packageName, { force });
-	await ensurePackageJsonScripts(packageName);
+	const addedPeers = await ensurePackageJsonScripts(packageName);
 
 	const postCount = await countFiles(join(CWD, CONTENT_ROOT, "content/posts"));
 
@@ -207,7 +243,11 @@ ${colours.bold}Project layout${colours.reset}
   ${CONTENT_ROOT}/content/           posts, moments, about
   public/                   static assets
 
-${colours.bold}Next${colours.reset}
+${colours.bold}Next${colours.reset}${
+		addedPeers?.length
+			? `\n  ${colours.yellow}pnpm install${colours.reset}  ${colours.dim}# added ${addedPeers.join(", ")}${colours.reset}`
+			: ""
+	}
   ${colours.dim}pnpm dev${colours.reset}
 `);
 }

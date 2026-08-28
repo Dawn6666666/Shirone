@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { extname, join, relative, resolve } from "node:path";
+import { dirname, extname, join, relative, resolve } from "node:path";
 import type { Plugin } from "vite";
 import { normalisePath } from "./paths.ts";
 import type { ResolvedShironesPaths } from "./types.ts";
@@ -107,17 +107,40 @@ export interface OverlayPluginOptions {
 	verbose?: boolean;
 }
 
+/** Theme path aliases, mapped to sub-directories of the package `src/`. */
+const ALIAS_MAP: [string, string][] = [
+	["@components/", "components/"],
+	["@utils/", "utils/"],
+	["@layouts/", "layouts/"],
+	["@i18n/", "i18n/"],
+	["@constants/", "constants/"],
+	["@assets/", "assets/"],
+	// `@/` is the broadest pattern and must be tested last.
+	["@/", ""],
+];
+
+/** Split a Vite id into its path and query (`?raw`, `?url`, `?astro&type=…`). */
+function splitQuery(id: string): [string, string] {
+	const index = id.indexOf("?");
+	return index === -1 ? [id, ""] : [id.slice(0, index), id.slice(index)];
+}
+
 /**
  * Vite plugin implementing Shirone's component/config override system.
  *
- * Unlike a plain alias table this hooks `resolveId` *after* the default
- * resolution, which means it catches **both** aliased imports (`@/config/...`)
- * and deep relative imports (`../data/music.ts`) with one mechanism.
+ * It deliberately resolves candidates itself instead of delegating to
+ * `this.resolve()`. An earlier version round-tripped every specifier through
+ * the resolver so it could inspect the final path; that also intercepted bare
+ * package specifiers such as `shirones/collections` and broke them. Now the
+ * plugin only reacts to the two shapes that can possibly reference theme
+ * internals — alias imports and relative imports from inside the package —
+ * and returns `null` for everything else, leaving Vite's resolution untouched.
  */
 export function shironesOverlay(options: OverlayPluginOptions): Plugin {
 	const { paths, components = {}, verbose = false } = options;
 	const targets = createOverlayTargets(paths);
-	const applied = new Set<string>();
+	const packageSrc = normalisePath(paths.packageSrc);
+	const logged = new Set<string>();
 
 	// Pre-resolve the explicit override map to absolute paths.
 	const explicit = new Map<string, string>();
@@ -132,14 +155,14 @@ export function shironesOverlay(options: OverlayPluginOptions): Plugin {
 		explicit.set(normalisePath(key).replace(/\.(astro|svelte|ts|js)$/, ""), target);
 	}
 
+	/** Explicit-map lookup for an absolute path inside the package. */
 	function explicitOverrideFor(absolutePath: string): string | null {
-		const componentsDir = normalisePath(join(paths.packageSrc, "components"));
-		const layoutsDir = normalisePath(join(paths.packageSrc, "layouts"));
+		if (explicit.size === 0) return null;
 		const normalised = normalisePath(absolutePath);
 
 		for (const [dir, prefix] of [
-			[componentsDir, ""],
-			[layoutsDir, "layouts/"],
+			[normalisePath(join(paths.packageSrc, "components")), ""],
+			[normalisePath(join(paths.packageSrc, "layouts")), "layouts/"],
 		] as const) {
 			if (!normalised.startsWith(`${dir}/`)) continue;
 			const key = `${prefix}${normalised.slice(dir.length + 1)}`.replace(
@@ -152,40 +175,61 @@ export function shironesOverlay(options: OverlayPluginOptions): Plugin {
 		return null;
 	}
 
+	/** Map an alias specifier onto an absolute path inside the package. */
+	function resolveAlias(source: string): string | null {
+		for (const [prefix, sub] of ALIAS_MAP) {
+			if (!source.startsWith(prefix)) continue;
+			return join(paths.packageSrc, sub, source.slice(prefix.length));
+		}
+		return null;
+	}
+
+	function overrideFor(absolutePath: string): string | null {
+		return explicitOverrideFor(absolutePath) ?? resolveOverride(targets, absolutePath);
+	}
+
+	function report(from: string, to: string): void {
+		if (!verbose || logged.has(from)) return;
+		logged.add(from);
+		console.log(
+			`[shirones] override ${relative(paths.packageSrc, from)} → ${relative(
+				paths.projectRoot,
+				to,
+			)}`,
+		);
+	}
+
 	return {
 		name: "shirones:overlay",
 		enforce: "pre",
 
-		async resolveId(source, importer, resolveOptions) {
-			// Avoid infinite recursion through our own hook.
-			if (resolveOptions?.custom?.["shirones:overlay"]) return null;
+		resolveId(source, importer) {
+			const [sourcePath, query] = splitQuery(source);
 
-			const resolved = await this.resolve(source, importer, {
-				...resolveOptions,
-				skipSelf: true,
-				custom: { ...resolveOptions?.custom, "shirones:overlay": true },
-			});
-			if (!resolved || resolved.external) return resolved;
-
-			// Strip Vite/Astro query suffixes (`?raw`, `?url`, `?astro&type=...`).
-			const [cleanPath, query = ""] = resolved.id.split("?");
-			const suffix = query ? `?${query}` : "";
-
-			const override =
-				explicitOverrideFor(cleanPath) ?? resolveOverride(targets, cleanPath);
-			if (!override) return resolved;
-
-			if (verbose && !applied.has(cleanPath)) {
-				applied.add(cleanPath);
-				console.log(
-					`[shirones] override ${relative(paths.packageSrc, cleanPath)} -> ${relative(
-						paths.projectRoot,
-						override,
-					)}`,
-				);
+			// ── Case 1: theme alias (`@/config/siteConfig`, `@components/…`) ──
+			const aliased = resolveAlias(sourcePath);
+			if (aliased) {
+				const override = overrideFor(aliased);
+				if (override) {
+					report(aliased, override);
+					return `${override}${query}`;
+				}
+				// Not overridden: let `resolve.alias` handle it as usual.
+				return null;
 			}
 
-			return { ...resolved, id: `${override}${suffix}` };
+			// ── Case 2: relative import from a file inside the package ────────
+			if (!importer || !sourcePath.startsWith(".")) return null;
+
+			const [importerPath] = splitQuery(importer);
+			if (!normalisePath(importerPath).startsWith(`${packageSrc}/`)) return null;
+
+			const candidate = resolve(dirname(importerPath), sourcePath);
+			const override = overrideFor(candidate);
+			if (!override) return null;
+
+			report(candidate, override);
+			return `${override}${query}`;
 		},
 	};
 }

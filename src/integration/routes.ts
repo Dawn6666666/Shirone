@@ -14,9 +14,21 @@ export interface ShironeRoute {
 /** File extensions Astro treats as routable page modules. */
 const PAGE_EXTENSIONS = [".astro", ".ts", ".js", ".md", ".mdx"];
 
+/**
+ * Documentation files that live alongside pages but must never become routes.
+ * The theme keeps authoring notes in `src/pages/AGENTS.md`.
+ */
+const DOC_FILENAMES = new Set([
+	"AGENTS.md",
+	"README.md",
+	"CONTRIBUTING.md",
+	"LICENSE.md",
+]);
+
 function isPageFile(name: string): boolean {
 	if (name.startsWith("_")) return false;
 	if (name.endsWith(".d.ts")) return false;
+	if (DOC_FILENAMES.has(name)) return false;
 	return PAGE_EXTENSIONS.some((ext) => name.endsWith(ext));
 }
 

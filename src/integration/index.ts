@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { AstroIntegration } from "astro";
@@ -202,12 +203,16 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 							(await import("@tailwindcss/vite")).default(),
 						],
 						optimizeDeps: {
-							include: [
+							// Only pre-bundle what the *user's* project can actually
+							// resolve. Under pnpm's strict layout these are nested
+							// inside the package, and listing an unresolvable id makes
+							// Vite log a warning for every one of them on every build.
+							include: resolvableFromProject(paths, [
 								"mermaid",
 								"@panzoom/panzoom",
 								"overlayscrollbars",
 								"@fancyapps/ui",
-							],
+							]),
 						},
 						build: {
 							minify: "esbuild",
@@ -275,6 +280,30 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 }
 
 /**
+ * Filter a list of bare specifiers down to those Node can resolve from the
+ * user's project root.
+ *
+ * Vite resolves `optimizeDeps.include` relative to the project root. When the
+ * theme is installed with pnpm, its own dependencies live under
+ * `node_modules/.pnpm/...` and are invisible from there, so every unresolvable
+ * entry produces a "Failed to resolve dependency" warning.
+ */
+function resolvableFromProject(
+	paths: ResolvedShironesPaths,
+	specifiers: string[],
+): string[] {
+	const require = createRequire(join(paths.projectRoot, "package.json"));
+	return specifiers.filter((specifier) => {
+		try {
+			require.resolve(specifier);
+			return true;
+		} catch {
+			return false;
+		}
+	});
+}
+
+/**
  * Instantiate the integrations the theme depends on. Users get them for free so
  * a fresh project only needs `integrations: [shirones()]`.
  */
@@ -283,7 +312,7 @@ async function createBundledIntegrations(paths: ResolvedShironesPaths) {
 		{ default: swup },
 		{ default: icon },
 		{ default: expressiveCode },
-		{ default: svelte },
+		{ default: svelte, vitePreprocess },
 		{ default: sitemap },
 		{ default: mdx },
 		{ pluginCollapsibleSections },
@@ -379,6 +408,11 @@ async function createBundledIntegrations(paths: ResolvedShironesPaths) {
 			frames: { showCopyToClipboardButton: false },
 		}),
 		svelte({
+			// The theme's Svelte components use `<style lang="stylus">`, which
+			// needs `vitePreprocess`. In source mode that comes from the repo's
+			// `svelte.config.js`; a user's project has no such file, so the
+			// integration supplies it.
+			preprocess: [vitePreprocess({ script: true })],
 			compilerOptions: {
 				// CSS-source hashing keeps SSR and client scope hashes stable.
 				cssHash: ({ css, hash }: { css: string; hash: (s: string) => string }) =>
