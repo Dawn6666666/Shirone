@@ -11,7 +11,7 @@
  */
 
 import { existsSync } from "node:fs";
-import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -279,6 +279,112 @@ async function ensureTsConfig(packageName, { force }) {
 	}
 }
 
+/** Every filename Astro will load a config from, in its own resolution order. */
+const ASTRO_CONFIG_FILENAMES = [
+	"astro.config.mjs",
+	"astro.config.js",
+	"astro.config.ts",
+	"astro.config.mts",
+	"astro.config.cjs",
+];
+
+const BACKUP_DIR = ".shirones-backup";
+
+/** Move a file out of the way instead of deleting the user's work. */
+async function backup(relativePath) {
+	const from = join(CWD, relativePath);
+	const to = join(CWD, BACKUP_DIR, relativePath);
+	await mkdir(dirname(to), { recursive: true });
+	await rename(from, to);
+	return join(BACKUP_DIR, relativePath);
+}
+
+/**
+ * Install the theme's `astro.config.mjs`.
+ *
+ * `pnpm create astro` always leaves a config behind, so "skip if it exists"
+ * silently produced a project where the integration was never registered —
+ * Astro then served its own starter page and the theme appeared to do nothing.
+ * A config that does not mention the package is therefore replaced (the old one
+ * is kept as a backup); a config that already wires the theme in is left alone.
+ */
+async function ensureAstroConfig(packageName, { force }) {
+	const present = ASTRO_CONFIG_FILENAMES.filter((name) => existsSync(join(CWD, name)));
+	const target = join(CWD, "astro.config.mjs");
+
+	for (const name of present) {
+		const current = await readFile(join(CWD, name), "utf8");
+		const wired = current.includes(packageName) || current.includes("shirones");
+
+		if (wired && !force) {
+			log.skip(`${name} already wires the theme in`);
+			return;
+		}
+
+		const saved = await backup(name);
+		log.warn(`${name} did not register the theme — kept a copy at ${saved}`);
+	}
+
+	await cp(join(TEMPLATE_DIR, "astro.config.mjs"), target, { force: true });
+	log.ok("astro.config.mjs");
+}
+
+/**
+ * Get the starter files out of the way.
+ *
+ * Anything in `src/pages/` beats an injected route, so the starter
+ * `index.astro` would keep serving Astro's welcome screen forever. Worse,
+ * `src/layouts/Layout.astro` and `src/components/*` are exactly where the theme
+ * looks for user overrides, so the starter versions would silently replace the
+ * theme's own layout. None of it is content the user wrote, but we move rather
+ * than delete.
+ */
+async function clearStarterFiles() {
+	const suspects = [
+		"src/pages/index.astro",
+		"src/components/Welcome.astro",
+		"src/layouts/Layout.astro",
+		"src/assets/astro.svg",
+		"src/assets/background.svg",
+	];
+
+	const moved = [];
+	for (const relativePath of suspects) {
+		const file = join(CWD, relativePath);
+		if (!existsSync(file)) continue;
+
+		if (relativePath.endsWith(".astro")) {
+			const contents = await readFile(file, "utf8");
+			const isStarter =
+				contents.includes("Welcome") ||
+				contents.includes("astro.build") ||
+				contents.includes("<slot />");
+			if (!isStarter) {
+				log.warn(`${relativePath} is yours — left in place, but it overrides the theme`);
+				continue;
+			}
+		}
+
+		moved.push(await backup(relativePath));
+	}
+
+	if (moved.length > 0) {
+		log.ok(`moved ${moved.length} starter files to ${BACKUP_DIR}/`);
+	}
+
+	// A `src/pages/` that still holds routes shadows the theme's own pages.
+	const pagesDir = join(CWD, "src/pages");
+	if (existsSync(pagesDir)) {
+		const leftovers = (await readdir(pagesDir)).filter((name) => !name.startsWith("."));
+		if (leftovers.length > 0) {
+			log.warn(
+				`src/pages/ still contains ${leftovers.join(", ")} — ` +
+					"file routes win over the theme's injected routes",
+			);
+		}
+	}
+}
+
 async function init(args) {
 	const force = args.includes("--force") || args.includes("-f");
 	const packageName = await readPackageName();
@@ -306,11 +412,10 @@ async function init(args) {
 		join(CWD, "src/content.config.ts"),
 		{ force },
 	);
-	await copyEntry(
-		join(TEMPLATE_DIR, "astro.config.mjs"),
-		join(CWD, "astro.config.mjs"),
-		{ force },
-	);
+	await ensureAstroConfig(packageName, { force });
+
+	// 3b. Starter files from `pnpm create astro` shadow the theme.
+	await clearStarterFiles();
 
 	// 4. `astro-icon` scans this directory for local SVGs; creating it up front
 	//    avoids a confusing ENOENT warning on the first build.
