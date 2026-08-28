@@ -35,7 +35,7 @@ if (existsSync(footerTarget)) {
 	}
 }
 
-// 2. 清理 lock 文件与 git 工作副本
+// 2. 清理 lock 文件、工作副本与 Astro 缓存
 const lockFile = join(root, LOCK_FILE);
 if (existsSync(lockFile)) {
 	rmSync(lockFile, { force: true });
@@ -46,6 +46,22 @@ if (existsSync(workingCopy)) {
 	rmSync(workingCopy, { recursive: true, force: true });
 }
 
+const astroCache = join(root, ".astro", "data-store.json");
+if (existsSync(astroCache)) {
+	rmSync(astroCache, { force: true });
+}
+
+const validationStamp = join(
+	root,
+	"node_modules",
+	".cache",
+	"shirone",
+	"user-config.ok",
+);
+if (existsSync(validationStamp)) {
+	rmSync(validationStamp, { force: true });
+}
+
 // 3. 通过 git 恢复被修改的主题自带文件，并清理外部物化带来的未跟踪文件
 try {
 	execFileSync("git", ["checkout", "--", "src/", "public/"], {
@@ -54,7 +70,7 @@ try {
 	});
 	execFileSync(
 		"git",
-		["clean", "-fd", "src/content/", "src/data/", "public/"],
+		["clean", "-fd", "src/content/", "src/data/", "src/assets/", "public/"],
 		{
 			cwd: root,
 			stdio: "ignore",
@@ -64,9 +80,17 @@ try {
 	console.warn(`[content:clean] git 清理警告: ${err.message}`);
 }
 
-// 4. 重新生成默认离线图标
+// 4. 重新生成主题默认离线图标与朋友圈缩略图
 try {
 	execFileSync("node", ["scripts/icons/generate-local-icons.mjs"], {
+		cwd: root,
+		stdio: "ignore",
+	});
+	execFileSync("node", ["scripts/images/generate-moment-thumbnails.mjs"], {
+		cwd: root,
+		stdio: "ignore",
+	});
+	execFileSync("git", ["checkout", "--", "src/generated/local-icon-collections.ts"], {
 		cwd: root,
 		stdio: "ignore",
 	});
