@@ -1,17 +1,12 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+// The stylesheets are inlined by the bundler rather than read from disk at
+// render time: `process.cwd()` is the *user's* project when the theme runs as
+// an npm package, where `src/styles/` does not exist, so a filesystem lookup
+// would fail the build for every article that uses these features.
+import collapsePanelsCss from "../styles/markdown/collapse-panels.css?raw";
+import treesCss from "../styles/markdown/trees.css?raw";
 
 type MarkdownAssetFeature = "collapsePanels" | "trees";
 type MarkdownStylesheetPack = "collapse-panels" | "trees";
-
-const treesStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/trees.css",
-);
-const collapsePanelsStylesheetPath = resolve(
-	process.cwd(),
-	"src/styles/markdown/collapse-panels.css",
-);
 
 export type MarkdownFeatureSnapshot = Partial<
 	Record<MarkdownAssetFeature, boolean>
@@ -29,13 +24,13 @@ const stylesheetAssets: Record<
 	collapsePanels: [
 		{
 			pack: "collapse-panels",
-			loadCss: () => readFile(collapsePanelsStylesheetPath, "utf8"),
+			loadCss: async () => collapsePanelsCss,
 		},
 	],
 	trees: [
 		{
 			pack: "trees",
-			loadCss: () => readFile(treesStylesheetPath, "utf8"),
+			loadCss: async () => treesCss,
 		},
 	],
 };
