@@ -165,6 +165,8 @@ Use `pnpm build` as the build command and `dist` as the output directory. More d
 - [`docs/sidebar-system.md`](./docs/sidebar-system.md) - sidebar orchestration and Swup synchronization
 - [`docs/on-demand-loading.md`](./docs/on-demand-loading.md) - zero-burden optional features
 - [`docs/font-system.md`](./docs/font-system.md) - font configuration and production subsetting
+- [`docs/npm-package-mode.md`](./docs/npm-package-mode.md) - how the theme also runs as an npm package, and the override system
+- [`docs/packaging-contract.md`](./docs/packaging-contract.md) - rules new theme code must follow to keep working when installed from npm
 
 ## Contributing
 
