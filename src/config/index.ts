@@ -66,4 +66,4 @@ export {
 	umamiConfig,
 	type ResolvedUmamiOptions,
 	resolveUmamiOptions,
-} from "./UmamiConfig";
+} from "./umamiConfig";

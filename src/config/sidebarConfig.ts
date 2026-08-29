@@ -20,8 +20,9 @@
  * 类型定义见 src/types/sidebarConfig.ts。
  */
 import type { SidebarConfig } from "@/types/sidebarConfig";
+import { withUserConfig } from "../utils/config-overlay.ts";
 
-export const sidebarConfig: SidebarConfig = {
+export const sidebarConfig: SidebarConfig = withUserConfig("sidebar", {
 	enable: true,
 	arrangement: "dual",
 	side: "left",
@@ -91,4 +92,4 @@ export const sidebarConfig: SidebarConfig = {
 			pages: ["post"],
 		},
 	],
-};
+});

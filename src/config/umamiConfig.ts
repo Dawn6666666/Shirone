@@ -1,4 +1,5 @@
 import type { ResolvedUmamiOptions, UmamiConfig } from "@/types/umamiConfig";
+import { withUserConfig } from "../utils/config-overlay.ts";
 
 /**
  * Umami 统计配置单一真源（由 oddmisc 提供）。
@@ -8,12 +9,12 @@ import type { ResolvedUmamiOptions, UmamiConfig } from "@/types/umamiConfig";
  *
  * 详细用法见：`docs/umami-guide.md`
  */
-export const umamiConfig: UmamiConfig = {
+export const umamiConfig: UmamiConfig = withUserConfig("umami", {
 	/** 全局 Umami 统计总开关：false 时完全不加载 oddmisc 运行时脚本与 DOM */
 	enable: false,
 	/** Umami 分享链接（必填） */
 	shareUrl: "",
-};
+});
 
 /**
  * 解析并校验 Umami 配置。未启用或关键参数缺失时返回 null。

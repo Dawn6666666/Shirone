@@ -179,7 +179,7 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 					c: unknown,
 				) => unknown;
 
-				const umamiModule = await loadConfigModule(paths, "UmamiConfig");
+				const umamiModule = await loadConfigModule(paths, "umamiConfig");
 				const umamiConfig = umamiModule.umamiConfig as { shareUrl: string };
 				const resolveUmamiOptions = umamiModule.resolveUmamiOptions as (
 					c: unknown,

@@ -16,7 +16,7 @@ import { resolvedFontOptions } from "./src/config/fontConfig.ts";
 import { musicConfig, resolveMusicOptions } from "./src/config/musicConfig.ts";
 import { sidebarConfig } from "./src/config/sidebarConfig.ts";
 import { siteConfig } from "./src/config/siteConfig.ts";
-import { resolveUmamiOptions, umamiConfig } from "./src/config/UmamiConfig.ts";
+import { resolveUmamiOptions, umamiConfig } from "./src/config/umamiConfig.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { getLocalFontVariants } from "./src/utils/font-options.ts";
