@@ -1,5 +1,5 @@
-import type { Page, Request } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import type { Page, Request } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 const PLAIN_POST_PATH = "/posts/admonitions/";
@@ -21,6 +21,7 @@ const EXPRESSIVE_CODE_FREE_PATH = "/";
 const GITHUB_CARD_PATH = "/about/";
 const ACFUN_VIDEO_PATH = "/posts/video/";
 const ARTPLAYER_VIDEO_PATH = "/posts/video/";
+const AUDIO_READER_POST_PATH = "/posts/audio-reader/";
 const BILIBILI_VIDEO_PATH = "/posts/video/";
 const YOUTUBE_VIDEO_PATH = "/posts/video/";
 
@@ -99,6 +100,16 @@ function trackArtPlayerVideoRequests(page: Page): string[] {
 	return requests;
 }
 
+function trackAudioReaderRequests(page: Page): string[] {
+	const requests: string[] = [];
+	page.on("request", (request: Request) => {
+		if (new URL(request.url()).pathname === "/assets/audio/Baka.wav") {
+			requests.push(request.url());
+		}
+	});
+	return requests;
+}
+
 function trackBilibiliPlayerRequests(page: Page): string[] {
 	const requests: string[] = [];
 	page.on("request", (request: Request) => {
@@ -153,6 +164,108 @@ test.describe("Markdown syntax runtime loading", () => {
 		).toHaveCount(0);
 	});
 
+	test("renders Audio Reader as a compact speaker control without preloading", async ({
+		page,
+	}) => {
+		const audioRequests = trackAudioReaderRequests(page);
+		await page.addInitScript(() => {
+			const playingMedia = new WeakSet<HTMLMediaElement>();
+			Object.defineProperty(HTMLMediaElement.prototype, "paused", {
+				configurable: true,
+				get(this: HTMLMediaElement) {
+					return !playingMedia.has(this);
+				},
+			});
+			Object.defineProperty(HTMLMediaElement.prototype, "play", {
+				configurable: true,
+				value(this: HTMLMediaElement) {
+					playingMedia.add(this);
+					this.dispatchEvent(new Event("play"));
+					return Promise.resolve();
+				},
+			});
+			Object.defineProperty(HTMLMediaElement.prototype, "pause", {
+				configurable: true,
+				value(this: HTMLMediaElement) {
+					playingMedia.delete(this);
+					this.dispatchEvent(new Event("pause"));
+				},
+			});
+		});
+
+		await page.goto(AUDIO_READER_POST_PATH, { waitUntil: "networkidle" });
+		const readers = page.locator("#swup-container [data-audio-reader]");
+		await expect(readers).toHaveCount(5);
+		const reader = readers.first();
+		const audio = reader.locator("audio");
+		const toggle = reader.locator("[data-audio-reader-toggle]");
+		expect(await toggle.evaluate((element) => element.tagName)).toBe("BUTTON");
+		expect(
+			await readers
+				.locator("audio")
+				.evaluateAll((elements) =>
+					elements.map((element) => element.getAttribute("src")),
+				),
+		).toEqual([
+			"/assets/audio/Baka.wav",
+			"/assets/audio/Ciallo.wav",
+			"/assets/audio/Ehe.wav",
+			"/assets/audio/Imoi.wav",
+			"/assets/audio/Zako.wav",
+		]);
+		await expect(audio).toHaveAttribute("preload", "none");
+		await expect(audio).not.toHaveAttribute("controls", "");
+		await expect(reader.locator("audio[controls]")).toHaveCount(0);
+		expect(audioRequests).toEqual([]);
+		await expect(toggle).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+		const inlineScale = await toggle.evaluate((element) => {
+			const fontSize = Number.parseFloat(getComputedStyle(element).fontSize);
+			return element.getBoundingClientRect().width / fontSize;
+		});
+		expect(inlineScale).toBeLessThanOrEqual(1.5);
+		await expect(
+			page.locator('style[data-swup-optional="audio-reader"]'),
+		).toHaveCount(1);
+
+		await toggle.click();
+		await expect(reader).toHaveAttribute("data-audio-reader-state", "playing");
+		await expect(toggle).toHaveAttribute("aria-pressed", "true");
+		await expect(reader.locator(".m3-audio-reader__speaker")).toHaveCSS(
+			"animation-name",
+			"m3-audio-reader-wave",
+		);
+		await page.emulateMedia({ reducedMotion: "reduce" });
+		await expect(reader.locator(".m3-audio-reader__speaker")).toHaveCSS(
+			"animation-name",
+			"none",
+		);
+		await page.emulateMedia({ reducedMotion: "no-preference" });
+		await page.evaluate(() =>
+			document.documentElement.classList.add("motion-reduced"),
+		);
+		await expect(reader.locator(".m3-audio-reader__speaker")).toHaveCSS(
+			"animation-name",
+			"none",
+		);
+		await toggle.press("Space");
+		await expect(reader).toHaveAttribute("data-audio-reader-state", "paused");
+		await expect(toggle).toHaveAttribute("aria-pressed", "false");
+		await toggle.press("Space");
+		await expect(reader).toHaveAttribute("data-audio-reader-state", "playing");
+		await expect(toggle).toHaveAttribute("aria-pressed", "true");
+		const a11y = await new AxeBuilder({ page })
+			.include("[data-audio-reader]")
+			.analyze();
+		expect(a11y.violations).toEqual([]);
+
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="audio-reader"]'),
+		).toHaveCount(0);
+	});
+
 	test("defers the AcFun player until facade activation and cleans styles on navigation", async ({
 		page,
 	}) => {
@@ -177,7 +290,9 @@ test.describe("Markdown syntax runtime loading", () => {
 			"href",
 			"https://www.acfun.cn/v/ac48649632",
 		);
-		const a11y = await new AxeBuilder({ page }).include("[data-acfun]").analyze();
+		const a11y = await new AxeBuilder({ page })
+			.include("[data-acfun]")
+			.analyze();
 		expect(a11y.violations).toEqual([]);
 
 		await facade.locator("[data-acfun-activate]").click();
@@ -191,9 +306,7 @@ test.describe("Markdown syntax runtime loading", () => {
 			"referrerpolicy",
 			"strict-origin-when-cross-origin",
 		);
-		expect(playerRequests).toEqual([
-			"https://www.acfun.cn/player/ac48649632",
-		]);
+		expect(playerRequests).toEqual(["https://www.acfun.cn/player/ac48649632"]);
 
 		await page.waitForFunction(() => Boolean(window.swup?.navigate));
 		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
@@ -201,9 +314,9 @@ test.describe("Markdown syntax runtime loading", () => {
 		await expect(page.locator('style[data-swup-optional="acfun"]')).toHaveCount(
 			0,
 		);
-		await expect(page.locator("#swup-container [data-acfun] iframe")).toHaveCount(
-			0,
-		);
+		await expect(
+			page.locator("#swup-container [data-acfun] iframe"),
+		).toHaveCount(0);
 	});
 
 	test("defers the YouTube player until facade activation and cleans styles on navigation", async ({
@@ -219,9 +332,9 @@ test.describe("Markdown syntax runtime loading", () => {
 		await expect(facade).toHaveCount(1);
 		await expect(facade.locator("iframe")).toHaveCount(0);
 		await expect(playerRequests).toEqual([]);
-		await expect(page.locator('style[data-swup-optional="youtube"]')).toHaveCount(
-			1,
-		);
+		await expect(
+			page.locator('style[data-swup-optional="youtube"]'),
+		).toHaveCount(1);
 		await expect(facade.locator(".m3-youtube__stage")).toHaveCSS(
 			"aspect-ratio",
 			"16 / 9",
@@ -230,7 +343,9 @@ test.describe("Markdown syntax runtime loading", () => {
 			"href",
 			"https://www.youtube.com/watch?v=5gIf0_xpFPI",
 		);
-		const a11y = await new AxeBuilder({ page }).include("[data-youtube]").analyze();
+		const a11y = await new AxeBuilder({ page })
+			.include("[data-youtube]")
+			.analyze();
 		expect(a11y.violations).toEqual([]);
 
 		await facade.locator("[data-youtube-activate]").click();
@@ -251,12 +366,12 @@ test.describe("Markdown syntax runtime loading", () => {
 		await page.waitForFunction(() => Boolean(window.swup?.navigate));
 		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
 		await page.waitForURL(`**${PLAIN_POST_PATH}`);
-		await expect(page.locator('style[data-swup-optional="youtube"]')).toHaveCount(
-			0,
-		);
-		await expect(page.locator("#swup-container [data-youtube] iframe")).toHaveCount(
-			0,
-		);
+		await expect(
+			page.locator('style[data-swup-optional="youtube"]'),
+		).toHaveCount(0);
+		await expect(
+			page.locator("#swup-container [data-youtube] iframe"),
+		).toHaveCount(0);
 	});
 
 	test("defers the Bilibili player until facade activation and cleans styles on navigation", async ({
@@ -272,9 +387,9 @@ test.describe("Markdown syntax runtime loading", () => {
 		await expect(facade).toHaveCount(1);
 		await expect(facade.locator("iframe")).toHaveCount(0);
 		await expect(playerRequests).toEqual([]);
-		await expect(page.locator('style[data-swup-optional="bilibili"]')).toHaveCount(
-			1,
-		);
+		await expect(
+			page.locator('style[data-swup-optional="bilibili"]'),
+		).toHaveCount(1);
 		await expect(facade.locator(".m3-bilibili__stage")).toHaveCSS(
 			"aspect-ratio",
 			"16 / 9",
@@ -283,7 +398,9 @@ test.describe("Markdown syntax runtime loading", () => {
 			"href",
 			"https://www.bilibili.com/video/BV1fK4y1s7Qf/?p=1",
 		);
-		const a11y = await new AxeBuilder({ page }).include("[data-bilibili]").analyze();
+		const a11y = await new AxeBuilder({ page })
+			.include("[data-bilibili]")
+			.analyze();
 		expect(a11y.violations).toEqual([]);
 
 		await facade.locator("[data-bilibili-activate]").click();
@@ -304,10 +421,12 @@ test.describe("Markdown syntax runtime loading", () => {
 		await page.waitForFunction(() => Boolean(window.swup?.navigate));
 		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
 		await page.waitForURL(`**${PLAIN_POST_PATH}`);
-		await expect(page.locator('style[data-swup-optional="bilibili"]')).toHaveCount(
-			0,
-		);
-		await expect(page.locator("#swup-container [data-bilibili] iframe")).toHaveCount(0);
+		await expect(
+			page.locator('style[data-swup-optional="bilibili"]'),
+		).toHaveCount(0);
+		await expect(
+			page.locator("#swup-container [data-bilibili] iframe"),
+		).toHaveCount(0);
 	});
 
 	test("hydrates legacy GitHub cards only after their syntax is rendered", async ({

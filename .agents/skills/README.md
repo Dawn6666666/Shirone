@@ -38,7 +38,7 @@
 | 技能 | 适用任务 |
 |---|---|
 | [shirone-writing](shirone-writing/SKILL.md) | 撰写文章与动态:frontmatter、草稿、加密、图片 |
-| [shirone-markdown-syntax](shirone-markdown-syntax/SKILL.md) | 使用 17 种自定义 Markdown 语法写作 |
+| [shirone-markdown-syntax](shirone-markdown-syntax/SKILL.md) | 使用自定义 Markdown 语法写作 |
 | [shirone-config](shirone-config/SKILL.md) | 站点配置、启用可选功能、构建与部署 |
 | [shirone-data](shirone-data/SKILL.md) | 管理相册及 friends、anime、projects、skills、devices、timeline 等数据页内容 |
 

@@ -51,6 +51,10 @@ description: Authoring content with Shirone's custom Markdown syntaxes - admonit
 - 加密文章的语法增强(如 mermaid)在解密后会正确初始化,无需额外处理;
 - 内联 `w-N%` 是 alt 中的宽度令牌(1–100),越界值保留原文。
 
+## Audio Reader 音频
+
+使用 `:audio-reader[标题]{src="/..."}` 插入紧凑的行内朗读按钮。指令标签和 `src` 均为必填项；来源仅接受站内根路径或显式 HTTPS 地址。标签只作为纯文本显示，隐藏的原生音频元素使用 `preload="none"`，仅在点击扬声器按钮后开始加载。
+
 ## 必读文档
 
 - `src/plugins/markdown/manifest.json` — 每种语法的 forms/attributes/示例/运行时成本(单一真源)

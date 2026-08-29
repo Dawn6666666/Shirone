@@ -12,6 +12,13 @@ function hasMatch(root: ParentNode, selector: string): boolean {
 
 const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 	{
+		selector: "[data-audio-reader]",
+		initialize: async (root) => {
+			const { initAudioReaders } = await import("./audio-reader");
+			initAudioReaders(root);
+		},
+	},
+	{
 		selector: "[data-acfun]",
 		initialize: async (root) => {
 			const { initAcFunEmbeds } = await import("./acfun");

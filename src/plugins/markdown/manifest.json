@@ -23,6 +23,11 @@
 			"styles": ["src/styles/markdown/artplayer.css"]
 		},
 		{
+			"id": "audio-reader",
+			"syntaxes": ["audio-reader"],
+			"styles": ["src/styles/markdown/audio-reader.css"]
+		},
+		{
 			"id": "bilibili",
 			"syntaxes": ["bilibili"],
 			"styles": ["src/styles/markdown/bilibili.css"]
@@ -331,6 +336,62 @@
 			"notes": [
 				"The initial output uses native SSR video controls with preload=none; no ArtPlayer package or client module is loaded.",
 				"Invalid source, title, or poster values remain ordinary Markdown and do not declare optional page resources."
+			]
+		},
+		{
+			"id": "audio-reader",
+			"name": "Audio Reader",
+			"status": "stable",
+			"category": "inline-extension",
+			"source": "shirone",
+			"summary": "Renders a validated audio source as a plain inline label with a compact speaker playback control.",
+			"forms": [
+				{
+					"kind": "text-directive",
+					"pattern": ":audio-reader[title]{src=\"...\"}",
+					"example": ":audio-reader[Pronunciation sample]{src=\"/assets/music/url/cl.mp3\"}"
+				}
+			],
+			"attributes": [
+				{
+					"name": "title",
+					"required": true,
+					"values": "non-empty directive label",
+					"default": null
+				},
+				{
+					"name": "src",
+					"required": true,
+					"values": "site-root path or explicit HTTPS audio URL",
+					"default": null
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/core/audio-reader.d.mts",
+				"src/plugins/markdown/core/audio-reader.mjs",
+				"src/plugins/markdown/remark-audio-reader.mjs",
+				"src/plugins/rehype-component-audio-reader.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/audio-reader.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/audio-reader.ts"],
+				"network": [
+					"author-declared audio source only after activation; preload=none"
+				]
+			},
+			"docs": [
+				"src/content/posts/audio-reader.md",
+				".agents/skills/shirone-markdown-syntax/SKILL.md"
+			],
+			"tests": [
+				"tests/plugins/markdown/inline/audio-reader.test.mjs",
+				"tests/site/markdown-runtime.spec.ts"
+			],
+			"notes": [
+				"The initial SSR output keeps the label as plain text and never renders a navigable source link; the client runtime activates inline playback.",
+				"Invalid source or empty label values remain ordinary Markdown and do not declare optional page resources."
 			]
 		},
 		{
