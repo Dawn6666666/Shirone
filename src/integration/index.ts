@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { AstroIntegration } from "astro";
 import { shironesFallbackResolver } from "./fallback-resolver.ts";
@@ -31,7 +32,24 @@ const RESOLVED_MUSIC_VIRTUAL_ID = `\0${MUSIC_VIRTUAL_ID}`;
  */
 function createAliases(paths: ResolvedShironesPaths) {
 	const src = paths.packageSrc;
+
+	// `@iconify/svelte` ships `OfflineIcon.svelte`/`offline-functions.js` as
+	// internal dist files that the source `astro.config.mjs` aliases through
+	// `node_modules/@iconify/svelte/dist/*`. In package mode that directory
+	// lives inside the theme's own dependency tree, so resolve it from here.
+	const iconifyDist = dirname(
+		createRequire(import.meta.url).resolve("@iconify/svelte/dist/OfflineIcon.svelte"),
+	);
+
 	return [
+		{
+			find: "@shirone/iconify-offline",
+			replacement: join(iconifyDist, "OfflineIcon.svelte"),
+		},
+		{
+			find: "@shirone/iconify-offline-functions",
+			replacement: join(iconifyDist, "offline-functions.js"),
+		},
 		// `@iconify/svelte` is swapped for the theme's tree-shaken Icon component.
 		{
 			find: /^@iconify\/svelte$/,
@@ -182,7 +200,7 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 				// ── 5. Bundled integrations ─────────────────────────────────────
 				const integrations = options.bundledIntegrations === false
 					? []
-					: await createBundledIntegrations(paths);
+					: await createBundledIntegrations(paths, command);
 
 				// ── 6. Push everything into the Astro config ────────────────────
 				updateConfig({
@@ -308,7 +326,10 @@ function prebundleCandidates(
  * Instantiate the integrations the theme depends on. Users get them for free so
  * a fresh project only needs `integrations: [shirones()]`.
  */
-async function createBundledIntegrations(paths: ResolvedShironesPaths) {
+async function createBundledIntegrations(
+	paths: ResolvedShironesPaths,
+	command: string,
+) {
 	const [
 		{ default: swup },
 		{ default: icon },
@@ -424,6 +445,9 @@ async function createBundledIntegrations(paths: ResolvedShironesPaths) {
 				// CSS-source hashing keeps SSR and client scope hashes stable.
 				cssHash: ({ css, hash }: { css: string; hash: (s: string) => string }) =>
 					`svelte-${hash(css)}`,
+				// Keep repeated Svelte compiler diagnostics out of the dev
+				// terminal; check/build still surface the full warning set.
+				warningFilter: () => command !== "dev",
 			},
 		}),
 		sitemap(),
