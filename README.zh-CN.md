@@ -88,6 +88,15 @@ pnpm dev
 
 完整配置契约请参阅 [`src/config/README.md`](./src/config/README.md)。
 
+## 官方配套仓库
+
+Shirone 将主题源码、个人站点内容和 npm 发布职责分离；以下官方仓库分别服务于不同工作流：
+
+| 仓库 | 适用场景 | 包含内容 |
+| --- | --- | --- |
+| [Shirone-Content](https://github.com/LyraVoid/Shirone-Content) | 使用外部内容源的双仓博客 | 文章、说说、数据、媒体与 `config/*.yaml` 覆盖的内容模板。请 Fork 或克隆到自己的仓库（通常设为私有），再让本主题仓指向它。参阅[内容分离指南](./docs/content-separation/README.md)。 |
+| [Shirone-NPM](https://github.com/LyraVoid/Shirone-NPM) | 维护和发布 `shirones` npm 包 | 手动构建与发布流水线。它在构建时拉取本仓库，且刻意不保存主题源码；普通博客用户应安装 `shirones`，不需要直接使用此仓库。参阅 [npm 包模式](./docs/npm-package-mode.md)。 |
+
 ## 核心配置
 
 | 文件 | 用途 |

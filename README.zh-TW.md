@@ -88,6 +88,15 @@ pnpm dev
 
 完整設定契約請參閱 [`src/config/README.md`](./src/config/README.md)。
 
+## 官方配套儲存庫
+
+Shirone 將主題原始碼、個人網站內容與 npm 發布職責分離；下列官方儲存庫分別服務不同工作流程：
+
+| 儲存庫 | 適用情境 | 包含內容 |
+| --- | --- | --- |
+| [Shirone-Content](https://github.com/LyraVoid/Shirone-Content) | 使用外部內容來源的雙儲存庫網誌 | 文章、動態、資料、媒體與 `config/*.yaml` 覆寫的內容範本。請 Fork 或複製到自己的儲存庫（通常設為私有），再讓本主題儲存庫指向它。參閱[內容分離指南](./docs/content-separation/README.md)。 |
+| [Shirone-NPM](https://github.com/LyraVoid/Shirone-NPM) | 維護與發布 `shirones` npm 套件 | 手動建置與發布流程。它在建置時拉取本儲存庫，並刻意不保存主題原始碼；一般網誌使用者應安裝 `shirones`，不需要直接使用此儲存庫。參閱 [npm 套件模式](./docs/npm-package-mode.md)。 |
+
 ## 核心設定
 
 | 檔案 | 用途 |

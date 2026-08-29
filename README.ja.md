@@ -88,6 +88,15 @@ Windows PowerShell の実行ポリシーでスクリプトがブロックされ�
 
 設定全体の仕様は [`src/config/README.md`](./src/config/README.md) を参照してください。
 
+## 公式連携リポジトリ
+
+Shirone ではテーマのソースコード、個人サイトのコンテンツ、npm 公開の責務を分離しています。公式リポジトリはそれぞれ異なるワークフローに対応します。
+
+| リポジトリ | 用途 | 内容 |
+| --- | --- | --- |
+| [Shirone-Content](https://github.com/LyraVoid/Shirone-Content) | 外部コンテンツを使う二つのリポジトリ構成のブログ | 記事、モーメント、データ、メディア、`config/*.yaml` オーバーレイのためのコンテンツテンプレートです。Fork または clone して自分のリポジトリ（通常は非公開）に置き、このテーマリポジトリから参照します。[コンテンツ分離ガイド](./docs/content-separation/README.md)を参照してください。 |
+| [Shirone-NPM](https://github.com/LyraVoid/Shirone-NPM) | `shirones` npm パッケージの保守と公開 | 手動のビルド・公開パイプラインです。ビルド時にこのリポジトリを取得し、テーマのソースコードは意図的に保存しません。通常のブログ利用者は `shirones` をインストールすればよく、このリポジトリを直接使う必要はありません。[npm パッケージモード](./docs/npm-package-mode.md)を参照してください。 |
+
 ## 主な設定ファイル
 
 | ファイル | 用途 |

@@ -92,6 +92,15 @@ On Windows PowerShell installations where script execution is restricted, use `p
 
 See [`src/config/README.md`](./src/config/README.md) for the complete configuration contract.
 
+## Official Companion Repositories
+
+Shirone keeps theme source, personal site content, and npm publishing responsibilities separate. These official repositories serve different workflows:
+
+| Repository | Use it for | What it contains |
+| --- | --- | --- |
+| [Shirone-Content](https://github.com/LyraVoid/Shirone-Content) | Running a blog in the external-content, dual-repository mode | A content template for posts, moments, data, media, and `config/*.yaml` overlays. Fork or clone it into your own repository, normally private, then point this theme repository at it. See the [content-separation guide](./docs/content-separation/README.md). |
+| [Shirone-NPM](https://github.com/LyraVoid/Shirone-NPM) | Maintaining and publishing the `shirones` npm package | The manual build-and-publish pipeline. It pulls this repository at build time and deliberately contains no theme source; regular blog users install `shirones` rather than working in this repository. See [npm package mode](./docs/npm-package-mode.md). |
+
 ## Main Configuration
 
 | File | Purpose |
