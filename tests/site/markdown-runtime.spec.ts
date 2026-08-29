@@ -20,6 +20,7 @@ const IMAGE_PRESENTATIONS_FREE_POST_PATH = "/posts/expressive-code/";
 const EXPRESSIVE_CODE_FREE_PATH = "/";
 const GITHUB_CARD_PATH = "/about/";
 const BILIBILI_VIDEO_PATH = "/posts/video/";
+const YOUTUBE_VIDEO_PATH = "/posts/video/";
 
 const GITHUB_REPOSITORY_MOCK = {
 	description: "A static blog template built with Astro.",
@@ -85,7 +86,70 @@ function trackBilibiliPlayerRequests(page: Page): string[] {
 	return requests;
 }
 
+function trackYouTubePlayerRequests(page: Page): string[] {
+	const requests: string[] = [];
+	page.on("request", (request: Request) => {
+		if (new URL(request.url()).hostname === "www.youtube-nocookie.com") {
+			requests.push(request.url());
+		}
+	});
+	return requests;
+}
+
 test.describe("Markdown syntax runtime loading", () => {
+	test("defers the YouTube player until facade activation and cleans styles on navigation", async ({
+		page,
+	}) => {
+		const playerRequests = trackYouTubePlayerRequests(page);
+		await page.route("https://www.youtube-nocookie.com/**", (route) =>
+			route.fulfill({ status: 200, contentType: "text/html", body: "Player" }),
+		);
+
+		await page.goto(YOUTUBE_VIDEO_PATH, { waitUntil: "networkidle" });
+		const facade = page.locator("#swup-container [data-youtube]");
+		await expect(facade).toHaveCount(1);
+		await expect(facade.locator("iframe")).toHaveCount(0);
+		await expect(playerRequests).toEqual([]);
+		await expect(page.locator('style[data-swup-optional="youtube"]')).toHaveCount(
+			1,
+		);
+		await expect(facade.locator(".m3-youtube__stage")).toHaveCSS(
+			"aspect-ratio",
+			"16 / 9",
+		);
+		await expect(facade.locator(".m3-youtube__source")).toHaveAttribute(
+			"href",
+			"https://www.youtube.com/watch?v=5gIf0_xpFPI",
+		);
+		const a11y = await new AxeBuilder({ page }).include("[data-youtube]").analyze();
+		expect(a11y.violations).toEqual([]);
+
+		await facade.locator("[data-youtube-activate]").click();
+		const player = facade.locator("iframe");
+		await expect(player).toHaveAttribute(
+			"src",
+			"https://www.youtube-nocookie.com/embed/5gIf0_xpFPI?rel=0&modestbranding=1",
+		);
+		await expect(player).toHaveAttribute("loading", "lazy");
+		await expect(player).toHaveAttribute(
+			"referrerpolicy",
+			"strict-origin-when-cross-origin",
+		);
+		expect(playerRequests).toEqual([
+			"https://www.youtube-nocookie.com/embed/5gIf0_xpFPI?rel=0&modestbranding=1",
+		]);
+
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(page.locator('style[data-swup-optional="youtube"]')).toHaveCount(
+			0,
+		);
+		await expect(page.locator("#swup-container [data-youtube] iframe")).toHaveCount(
+			0,
+		);
+	});
+
 	test("defers the Bilibili player until facade activation and cleans styles on navigation", async ({
 		page,
 	}) => {

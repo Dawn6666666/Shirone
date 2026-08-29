@@ -1,5 +1,6 @@
 import { visit } from "unist-util-visit";
 import { getBilibiliEmbedData } from "./markdown/core/bilibili.mjs";
+import { getYouTubeEmbedData } from "./markdown/core/youtube.mjs";
 import { createMarkdownSyntaxSnapshot } from "../utils/markdown-syntaxes.mjs";
 
 const IMAGE_PRESENTATION_WIDTH_TOKEN = /(?:^|\s)w-(?:[1-9]\d?|100)%(?=\s|$)/;
@@ -60,6 +61,13 @@ export function remarkFeatureProbes() {
 				getBilibiliEmbedData(node.attributes)
 			) {
 				syntaxes.add("bilibili");
+			}
+			if (
+				node.type === "leafDirective" &&
+				node.name === "youtube" &&
+				getYouTubeEmbedData(node.attributes)
+			) {
+				syntaxes.add("youtube");
 			}
 			if (node.type === "contentAnnotationReference") {
 				syntaxes.add("content-annotation");

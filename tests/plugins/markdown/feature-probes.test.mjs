@@ -193,6 +193,17 @@ test("records Bilibili facades after directive parsing", async () => {
 	});
 });
 
+test("records YouTube facades after directive parsing", async () => {
+	const result = await renderer.render(
+		'::youtube{id="5gIf0_xpFPI" title="YouTube video"}',
+	);
+
+	assert.deepEqual(result.metadata.frontmatter.markdownSyntaxes, {
+		schema: 1,
+		syntaxes: ["youtube"],
+	});
+});
+
 test("does not mark ordinary prose with optional capabilities", async () => {
 	const result = await renderer.render("A plain article with no extensions.");
 	assert.deepEqual(result.metadata.frontmatter.markdownSyntaxes, {

@@ -21,7 +21,7 @@ published: 2023-10-19
 
 ## YouTube
 
-<iframe width="100%" height="468" src="https://www.youtube.com/embed/5gIf0_xpFPI?si=N1WTorLKL0uwLsU_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+::youtube{id="5gIf0_xpFPI" title="YouTube video"}
 
 ## Bilibili
 

@@ -28,12 +28,14 @@ import { remarkContentAnnotations } from "../plugins/markdown/remark-content-ann
 import { remarkIncludes } from "../plugins/markdown/remark-includes.mjs";
 import { remarkMarker } from "../plugins/markdown/remark-marker.mjs";
 import { remarkOptionGroups } from "../plugins/markdown/remark-option-groups.mjs";
+import { remarkYouTube } from "../plugins/markdown/remark-youtube.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { BilibiliComponent } from "../plugins/rehype-component-bilibili.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
 import { MarkerComponent } from "../plugins/rehype-component-marker.mjs";
 import { SpoilerComponent } from "../plugins/rehype-component-spoiler.mjs";
+import { YouTubeComponent } from "../plugins/rehype-component-youtube.mjs";
 import { rehypeMarkdownImages } from "../plugins/rehype-markdown-images.mjs";
 import { rehypeResponsiveTables } from "../plugins/rehype-responsive-tables.mjs";
 import { parseDirectiveNode } from "../plugins/remark-directive-rehype.js";
@@ -63,6 +65,7 @@ export const siteRemarkPlugins = [
 	remarkExcerpt,
 	remarkDirective,
 	remarkBilibili,
+	remarkYouTube,
 	remarkFeatureProbes,
 	remarkSectionize,
 	parseDirectiveNode,
@@ -81,6 +84,7 @@ export const siteRehypePlugins = [
 		{
 			components: {
 				bilibili: BilibiliComponent,
+				youtube: YouTubeComponent,
 				collapse: CollapsePanelsComponent,
 				tabs: OptionGroupsComponent,
 				"file-tree": FileTreeComponent,

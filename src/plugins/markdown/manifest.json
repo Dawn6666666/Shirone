@@ -81,6 +81,11 @@
 			"id": "trees",
 			"syntaxes": ["code-tree", "file-tree"],
 			"styles": ["src/styles/markdown/trees.css"]
+		},
+		{
+			"id": "youtube",
+			"syntaxes": ["youtube"],
+			"styles": ["src/styles/markdown/youtube.css"]
 		}
 	],
 	"syntaxes": [
@@ -1050,6 +1055,65 @@
 			],
 			"notes": [
 				"容器只接受一个有序列表；视觉序号附带 aria-hidden，原始 ol/li 语义保留，纯 SSR 输出且零客户端 JavaScript 负担。"
+			]
+		},
+		{
+			"id": "youtube",
+			"name": "YouTube Video",
+			"status": "stable",
+			"category": "leaf-directive",
+			"source": "shirone",
+			"summary": "将受限 YouTube 视频 ID 渲染为可访问的 SSR 视频 facade，并在明确点击后加载 privacy-enhanced 播放器。",
+			"forms": [
+				{
+					"kind": "leaf-directive",
+					"pattern": "::youtube{id=\"...\" title=\"...\" poster=\"/...\"}",
+					"example": "::youtube{id=\"5gIf0_xpFPI\" title=\"YouTube video\"}"
+				}
+			],
+			"attributes": [
+				{
+					"name": "id",
+					"required": true,
+					"values": "strict 11-character YouTube video ID",
+					"default": null
+				},
+				{
+					"name": "title",
+					"required": true,
+					"values": "non-empty video title",
+					"default": null
+				},
+				{
+					"name": "poster",
+					"required": false,
+					"values": "site-root path or explicit HTTPS image URL",
+					"default": null
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/core/youtube.d.mts",
+				"src/plugins/markdown/core/youtube.mjs",
+				"src/plugins/markdown/remark-youtube.mjs",
+				"src/plugins/rehype-component-youtube.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/youtube.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/youtube.ts"],
+				"network": [
+					"activation only: https://www.youtube-nocookie.com/embed/{id}?rel=0&modestbranding=1"
+				]
+			},
+			"docs": ["src/content/posts/video.md"],
+			"tests": [
+				"tests/plugins/markdown/leaf/youtube.test.mjs",
+				"tests/site/markdown-runtime.spec.ts"
+			],
+			"notes": [
+				"初始 SSR DOM 不含 iframe、YouTube 脚本或 provider poster 请求；标题和 YouTube 页面链接始终保留。",
+				"非法视频 ID、空标题或非法海报地址不触发可选资源；运行时只从验证后的字段生成白名单播放器 URL。"
 			]
 		}
 	]

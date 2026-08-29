@@ -19,6 +19,13 @@ const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 		},
 	},
 	{
+		selector: "[data-youtube]",
+		initialize: async (root) => {
+			const { initYouTubeEmbeds } = await import("./youtube");
+			initYouTubeEmbeds(root);
+		},
+	},
+	{
 		selector: ".expressive-code",
 		initialize: async (root) => {
 			const { initCodeBlockCollapsing } = await import("./code-collapse");

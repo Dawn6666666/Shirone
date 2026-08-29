@@ -43,6 +43,10 @@
 
 `remarkBilibili` 在 `remarkDirective` 之后、`remarkFeatureProbes` 之前运行。它只读取 `leafDirective` 的 `bvid`、`title` 和 `p` 属性：合法输入保留给后续 facade 渲染，非法输入还原为普通文本。因此 feature probe 只会为实际可渲染的 Bilibili facade 声明页面级资源。
 
+### 2.3 YouTube 验证
+
+`remarkYouTube` 紧随 `remarkBilibili`，同样位于 `remarkDirective` 与 `remarkFeatureProbes` 之间。它只接受严格的 11 字符视频 ID、非空 `title` 和安全的可选 `poster`；非法输入还原为普通文本，因此 feature probe 只会为实际可渲染的 YouTube facade 声明页面级资源。
+
 ## 3. Rehype 顺序
 
 | 阶段 | 插件 | 顺序约束 | 责任 |
