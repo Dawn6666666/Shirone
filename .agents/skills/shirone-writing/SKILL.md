@@ -12,8 +12,10 @@ description: Writing blog posts and moments for a Shirone blog - frontmatter sch
 ```yaml
 ---
 title: 必填
-published: 2026-01-01   # 必填日期
-updated: 2026-02-01     # 可选
+published: 2026-01-01   # 必填日历日期
+publishedAt: 2026-01-01T09:30:00+08:00 # 可选精确发布时间，用于同日排序
+updated: 2026-02-01     # 可选日历日期
+updatedAt: 2026-02-01T14:20:00+08:00   # 可选精确更新时间
 description: 摘要文本
 image: 封面图路径
 tags: [astro, 笔记]
@@ -31,6 +33,13 @@ hideHomeContent: true   # 加密内容在首页隐藏(默认 true)
 ```
 
 `prevTitle`/`prevSlug`/`nextTitle`/`nextSlug` 为系统内部字段,不要手写。
+
+## 日期与排序
+
+- `published` 和 `updated` 是日历日期，使用 `YYYY-MM-DD`；它们决定文章归档与跨日排序。
+- 同一天发布多篇文章时，为每篇补充带时区偏移的 ISO 8601 `publishedAt`，例如 `2026-01-01T09:30:00+08:00`。列表会在置顶状态相同、`published` 相同的文章之间按该时间倒序排列。
+- `publishedAt` 必须落在 `siteConfig.timeZone` 解释后的 `published` 当天；修改日期时，`updatedAt` 也必须落在对应 `updated` 当天，且不能单独存在。
+- 未填写精确时间时保持兼容：同日文章以内容 ID 作稳定兜底排序。不要把 `published` 写成带时间的字符串；站点时区改用 `shirone-config` 配置。
 
 ## 动态(moments)frontmatter
 

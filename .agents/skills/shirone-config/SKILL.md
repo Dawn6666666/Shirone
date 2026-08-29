@@ -35,6 +35,12 @@ description: Configuring a Shirone blog site - site identity, theme colors, navi
 | `licenseConfig.ts` / `expressiveCodeConfig.ts` | 文章版权声明与代码块主题 |
 | `announcementConfig.ts` / `imageBloomConfig.ts` / `textureConfig.ts` | 公告、图片辉光与背景纹理的站点级行为 |
 
+## 内容时间
+
+`siteConfig.timeZone` 使用 IANA 时区名（默认 `Asia/Shanghai`），用于解释文章的 `publishedAt` / `updatedAt` 精确时间并校验其所属日历日期。它独立于 `lang`：语言切换不会改变内容归档日期或同日文章排序。
+
+修改该值前，检查已有文章的精确时间在新时区下是否仍落在其 `published`（以及可选的 `updated`）日期；否则构建会报错。仅有 `published: YYYY-MM-DD` 的既有内容不受影响。文章字段的写法和同日排序规则见 `shirone-writing`。
+
 ## 启用可选功能的通用模式
 
 可选功能在关闭或未配置时必须**零开销**(零请求/零 DOM/零 bundle)；是否默认启用由现有产品配置决定，不得在修改 skill 时擅自改变。启用时:
