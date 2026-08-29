@@ -47,6 +47,8 @@ Every Markdown (`.md`) or MDX (`.mdx`) post starts with a YAML frontmatter block
 title: "Exploring Material 3 Expressive Design"
 published: 2026-08-26
 updated: 2026-08-27
+publishedAt: 2026-08-26T10:00:00+08:00
+updatedAt: 2026-08-27T09:30:00+08:00
 pinned: true
 description: "A deep dive into dynamic HCT color science and fluid transitions in Shirone."
 image: "./cover.webp"
@@ -63,7 +65,9 @@ comment: true
 | :--- | :--- | :---: | :--- |
 | `title` | `string` | **Yes** | The main title of the post. |
 | `published` | `Date` | **Yes** | Publication date in `YYYY-MM-DD` format. |
+| `publishedAt` | `Date` | No | Precise publication instant used to order posts published on the same day. It must fall on `published` in the configured site time zone. |
 | `updated` | `Date` | No | Last updated date. When provided, an update notice badge is displayed. |
+| `updatedAt` | `Date` | No | Precise update instant used by feeds and machine-readable metadata. It must be paired with `updated`. |
 | `pinned` | `boolean` | No | Pin the post to the top of article lists (default: `false`). |
 | `description` | `string` | No | Post summary displayed in article cards, search results, and OpenGraph metadata. |
 | `image` | `string` | No | Cover image path. Supports relative (`./cover.webp`), public (`/images/cover.jpg`), or remote URLs. |

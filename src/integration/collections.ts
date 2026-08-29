@@ -41,7 +41,9 @@ function normaliseBase(value: string): string {
 export const postSchema = z.object({
 	title: z.string(),
 	published: z.date(),
+	publishedAt: z.date().optional(),
 	updated: z.date().optional(),
+	updatedAt: z.date().optional(),
 	pinned: z.boolean().optional().default(false),
 	draft: z.boolean().optional().default(false),
 	comment: z.boolean().optional().default(true),

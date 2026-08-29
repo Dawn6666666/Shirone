@@ -1,22 +1,21 @@
 import { type CollectionEntry, getCollection } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import {
+	comparePublicationEntries,
+	validatePublicationMetadata,
+} from "@utils/content-date";
 import { siteMarkdownProcessor } from "@utils/markdown-processor";
 import { getCategoryUrl } from "@utils/url-utils.ts";
 
 // // Retrieve posts and sort them by publication date
-async function getRawSortedPosts() {
+async function getRawSortedPosts(): Promise<CollectionEntry<"posts">[]> {
 	const allBlogPosts = await getCollection("posts", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
 
-	const sorted = allBlogPosts.sort((a, b) => {
-		if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
-
-		const dateA = new Date(a.data.published);
-		const dateB = new Date(b.data.published);
-		return dateA > dateB ? -1 : 1;
-	});
+	for (const post of allBlogPosts) validatePublicationMetadata(post);
+	const sorted = allBlogPosts.sort(comparePublicationEntries);
 	return sorted;
 }
 
@@ -168,12 +167,7 @@ export async function getSortedMoments(): Promise<MomentItem[]> {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
 
-	const sorted = entries.sort((a, b) => {
-		if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
-		const dateA = new Date(a.data.published);
-		const dateB = new Date(b.data.published);
-		return dateA > dateB ? -1 : 1;
-	});
+	const sorted = entries.sort(comparePublicationEntries);
 
 	momentsRendererPromise ??= siteMarkdownProcessor.createRenderer({});
 	const renderer = await momentsRendererPromise;

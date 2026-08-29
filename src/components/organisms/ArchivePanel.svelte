@@ -14,6 +14,7 @@ import SegmentedButton from "@components/atoms/selection/SegmentedButton.svelte"
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
+import { formatCalendarDate } from "@utils/content-date";
 import { getPostUrlBySlug, url } from "@utils/url-utils";
 import { onMount } from "svelte";
 
@@ -111,9 +112,7 @@ const filtered = $derived(
 );
 
 function formatDate(date: Date) {
-	const month = (date.getMonth() + 1).toString().padStart(2, "0");
-	const day = date.getDate().toString().padStart(2, "0");
-	return `${month}-${day}`;
+	return formatCalendarDate(date).slice(5);
 }
 
 function toItem(post: Post): ArchiveItem {
@@ -149,7 +148,7 @@ const groups = $derived.by((): ArchiveGroup[] => {
 		}
 	} else {
 		for (const p of filtered) {
-			add(String(p.data.published.getFullYear()), toItem(p));
+			add(formatCalendarDate(p.data.published).slice(0, 4), toItem(p));
 		}
 	}
 	const list = [...buckets.entries()].map(([id, items]) => ({

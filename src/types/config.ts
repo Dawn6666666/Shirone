@@ -45,6 +45,9 @@ export type SiteConfig = {
 		| "tr"
 		| "id";
 
+	/** IANA time zone used to interpret precise content timestamps. */
+	timeZone: string;
+
 	themeColor: {
 		hue: number;
 		fixed: boolean;
@@ -152,6 +155,9 @@ export type BlogPostData = {
 	body: string;
 	title: string;
 	published: Date;
+	publishedAt?: Date;
+	updated?: Date;
+	updatedAt?: Date;
 	description: string;
 	tags: string[];
 	draft?: boolean;

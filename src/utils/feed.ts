@@ -1,5 +1,6 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { getPublishedInstant, getUpdatedInstant } from "@utils/content-date";
 import { getSortedPosts } from "@utils/content-utils";
 import { isEncryptedPost } from "@utils/post-encryption";
 import { url } from "@utils/url-utils";
@@ -82,8 +83,8 @@ export async function getFeedPosts(site: URL): Promise<FeedPostItem[]> {
 		}
 
 		const postUrl = new URL(url(`/posts/${post.id}/`), site).href;
-		const pubDate = new Date(post.data.published);
-		const updated = post.data.updated ? new Date(post.data.updated) : pubDate;
+		const pubDate = getPublishedInstant(post.data);
+		const updated = getUpdatedInstant(post.data);
 
 		return {
 			id: post.id,
