@@ -41,7 +41,8 @@
 | [shirone-markdown-syntax](shirone-markdown-syntax/SKILL.md) | 使用自定义 Markdown 语法写作 |
 | [shirone-config](shirone-config/SKILL.md) | 站点配置、npm 包初始化、启用可选功能、构建与部署 |
 | [shirone-data](shirone-data/SKILL.md) | 管理相册及 friends、anime、projects、skills、devices、timeline 等数据页内容 |
-| [shirone-content](shirone-content/SKILL.md) | 内容分离与双仓运维:内容源配置、YAML 配置覆盖、sync/export/clean/eject、双仓 CI |
+| [shirone-content-config](shirone-content-config/SKILL.md) | 内容分离配置:内容源、清单、挂载、YAML 覆盖与配置校验 |
+| [shirone-content](shirone-content/SKILL.md) | 内容分离与双仓运维:sync/export/clean/eject、状态诊断与双仓 CI |
 
 ## 约定
 

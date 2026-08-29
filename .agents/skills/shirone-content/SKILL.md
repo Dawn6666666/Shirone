@@ -1,6 +1,6 @@
 ---
 name: shirone-content
-description: Managing Shirone content separation and dual-repository workflows - sourcing content from a separate Git repo or local directory, YAML configuration overlays, CLI commands (sync, status, export, clean, eject, watch, validate), safe backups, reverse-export diffing, and dual-repo CI/CD deployment. Use when configuring CONTENT_DIR or CONTENT_REPO_URL, migrating a fork to external mode, writing config overlay YAML in the content repo, syncing or exporting content between the two repos, resetting the workspace to the theme demo state, or wiring repository_dispatch builds.
+description: Operate Shirone content separation and dual-repository workflows after configuration is established. Use for content:sync, content:watch, content:status, content:export, content:clean, content:eject, safe backups, reverse-export diffing, and dual-repository CI/CD operations. Use shirone-content-config to configure CONTENT_DIR, CONTENT_REPO_URL, shirone.content.json, mounts, or config/*.yaml overlays.
 ---
 
 # Shirone 内容分离与双仓运维
@@ -16,12 +16,12 @@ description: Managing Shirone content separation and dual-repository workflows -
 
 ## 何时使用本技能
 
-1. 配置内容源或切换模式:`CONTENT_DIR`、`CONTENT_REPO_URL`、`CONTENT_REPO_REF`、`shirone.content.json`(示例 `shirone.content.example.json`),或执行 `pnpm content:eject` 迁出双仓;
-2. 日常同步与写作:`pnpm content:sync`(已并入 `dev`/`build` 首位)、`pnpm content:watch`(仅 `type: "path"`)、`pnpm content:status`(离线诊断,`--remote` 才联网);
-3. 维护内容仓 `config/` 下 22 个领域的 YAML 覆盖,或排查其类型校验报错;
-4. 反向导出:把工作区里误写或调好的文章、图片、配置改动回写内容仓(`pnpm content:export`);
-5. 工作区重置:清理物化内容与生成物,回到主题自带 Demo 态(`pnpm content:clean`);
-6. 双仓 GitHub Actions 自动化构建部署与排错(`.github/workflows/deploy.yml.example`、`.github/workflows/content-validate.yml`)。
+1. 日常同步与写作:`pnpm content:sync`(已并入 `dev`/`build` 首位)、`pnpm content:watch`(仅 `type: "path"`)、`pnpm content:status`(离线诊断,`--remote` 才联网);
+2. 反向导出:把工作区里误写或调好的文章、图片、配置改动回写内容仓(`pnpm content:export`);
+3. 工作区重置:清理物化内容与生成物,回到主题自带 Demo 态(`pnpm content:clean`);
+4. 已建立双仓后的 GitHub Actions 自动化构建部署与排错(`.github/workflows/deploy.yml.example`、`.github/workflows/content-validate.yml`)。
+
+内容源、清单、挂载与 `config/*.yaml` 覆盖的初始化或变更，先使用 `shirone-content-config`。
 
 ## CLI 核心工具链
 
