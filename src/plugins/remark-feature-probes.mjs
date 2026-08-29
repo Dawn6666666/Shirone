@@ -1,4 +1,5 @@
 import { visit } from "unist-util-visit";
+import { getBilibiliEmbedData } from "./markdown/core/bilibili.mjs";
 import { createMarkdownSyntaxSnapshot } from "../utils/markdown-syntaxes.mjs";
 
 const IMAGE_PRESENTATION_WIDTH_TOKEN = /(?:^|\s)w-(?:[1-9]\d?|100)%(?=\s|$)/;
@@ -52,6 +53,13 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "leafDirective" && node.name === "github") {
 				syntaxes.add("github-card");
+			}
+			if (
+				node.type === "leafDirective" &&
+				node.name === "bilibili" &&
+				getBilibiliEmbedData(node.attributes)
+			) {
+				syntaxes.add("bilibili");
 			}
 			if (node.type === "contentAnnotationReference") {
 				syntaxes.add("content-annotation");

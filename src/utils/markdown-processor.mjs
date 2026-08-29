@@ -22,12 +22,14 @@ import {
 import { StepsComponent } from "../plugins/markdown/containers/rehype-steps.mjs";
 import { remarkAbbreviations } from "../plugins/markdown/remark-abbreviations.mjs";
 import { remarkAdmonitions } from "../plugins/markdown/remark-admonitions.mjs";
+import { remarkBilibili } from "../plugins/markdown/remark-bilibili.mjs";
 import { remarkCollapsePanels } from "../plugins/markdown/remark-collapse-panels.mjs";
 import { remarkContentAnnotations } from "../plugins/markdown/remark-content-annotations.mjs";
 import { remarkIncludes } from "../plugins/markdown/remark-includes.mjs";
 import { remarkMarker } from "../plugins/markdown/remark-marker.mjs";
 import { remarkOptionGroups } from "../plugins/markdown/remark-option-groups.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
+import { BilibiliComponent } from "../plugins/rehype-component-bilibili.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
 import { MarkerComponent } from "../plugins/rehype-component-marker.mjs";
@@ -60,6 +62,7 @@ export const siteRemarkPlugins = [
 	remarkReadingTime,
 	remarkExcerpt,
 	remarkDirective,
+	remarkBilibili,
 	remarkFeatureProbes,
 	remarkSectionize,
 	parseDirectiveNode,
@@ -77,6 +80,7 @@ export const siteRehypePlugins = [
 		rehypeComponents,
 		{
 			components: {
+				bilibili: BilibiliComponent,
 				collapse: CollapsePanelsComponent,
 				tabs: OptionGroupsComponent,
 				"file-tree": FileTreeComponent,

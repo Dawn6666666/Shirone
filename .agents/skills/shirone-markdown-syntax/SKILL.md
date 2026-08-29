@@ -27,6 +27,10 @@ description: Authoring content with Shirone's custom Markdown syntaxes - admonit
 | 文件包含 | `<!-- @include: 路径 -->`,支持 `{2-6}` 行范围与 `#region` | `markdown-includes.md` |
 | 代码块元数据 | Expressive Code:`title`、`ins={2}`、`del={3-5}`、`collapse={4-8}`、`showLineNumbers`、`frame` 等 | `expressive-code.md` |
 
+## Bilibili 视频
+
+使用 `::bilibili{bvid="BV..." title="..." p=1 poster="/..."}` 嵌入视频。`bvid` 和非空 `title` 必填，`p` 为可选正整数，`poster` 仅接受站内根路径或显式 HTTPS 图片地址。首屏输出标题、播放按钮和 Bilibili 回退链接；点击播放按钮后才加载播放器。非法输入保留为普通 Markdown。
+
 ## 使用要点
 
 - 大多数语法对**非法或残缺输入回退为普通 Markdown** 并保留原文,不会静默改写;

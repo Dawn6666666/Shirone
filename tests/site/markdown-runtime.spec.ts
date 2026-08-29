@@ -1,4 +1,5 @@
 import type { Page, Request } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const PLAIN_POST_PATH = "/posts/admonitions/";
@@ -18,6 +19,7 @@ const IMAGE_PRESENTATIONS_POST_PATH = "/posts/markdown-extended/";
 const IMAGE_PRESENTATIONS_FREE_POST_PATH = "/posts/expressive-code/";
 const EXPRESSIVE_CODE_FREE_PATH = "/";
 const GITHUB_CARD_PATH = "/about/";
+const BILIBILI_VIDEO_PATH = "/posts/video/";
 
 const GITHUB_REPOSITORY_MOCK = {
 	description: "A static blog template built with Astro.",
@@ -74,7 +76,67 @@ function trackGitHubApiRequests(page: Page): string[] {
 	return requests;
 }
 
+function trackBilibiliPlayerRequests(page: Page): string[] {
+	const requests: string[] = [];
+	page.on("request", (request: Request) => {
+		if (new URL(request.url()).hostname === "player.bilibili.com")
+			requests.push(request.url());
+	});
+	return requests;
+}
+
 test.describe("Markdown syntax runtime loading", () => {
+	test("defers the Bilibili player until facade activation and cleans styles on navigation", async ({
+		page,
+	}) => {
+		const playerRequests = trackBilibiliPlayerRequests(page);
+		await page.route("https://player.bilibili.com/**", (route) =>
+			route.fulfill({ status: 200, contentType: "text/html", body: "Player" }),
+		);
+
+		await page.goto(BILIBILI_VIDEO_PATH, { waitUntil: "networkidle" });
+		const facade = page.locator("#swup-container [data-bilibili]");
+		await expect(facade).toHaveCount(1);
+		await expect(facade.locator("iframe")).toHaveCount(0);
+		await expect(playerRequests).toEqual([]);
+		await expect(page.locator('style[data-swup-optional="bilibili"]')).toHaveCount(
+			1,
+		);
+		await expect(facade.locator(".m3-bilibili__stage")).toHaveCSS(
+			"aspect-ratio",
+			"16 / 9",
+		);
+		await expect(facade.locator(".m3-bilibili__source")).toHaveAttribute(
+			"href",
+			"https://www.bilibili.com/video/BV1fK4y1s7Qf/?p=1",
+		);
+		const a11y = await new AxeBuilder({ page }).include("[data-bilibili]").analyze();
+		expect(a11y.violations).toEqual([]);
+
+		await facade.locator("[data-bilibili-activate]").click();
+		const player = facade.locator("iframe");
+		await expect(player).toHaveAttribute(
+			"src",
+			"https://player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1&high_quality=1&danmaku=0",
+		);
+		await expect(player).toHaveAttribute("loading", "lazy");
+		await expect(player).toHaveAttribute(
+			"referrerpolicy",
+			"strict-origin-when-cross-origin",
+		);
+		expect(playerRequests).toEqual([
+			"https://player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1&high_quality=1&danmaku=0",
+		]);
+
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(page.locator('style[data-swup-optional="bilibili"]')).toHaveCount(
+			0,
+		);
+		await expect(page.locator("#swup-container [data-bilibili] iframe")).toHaveCount(0);
+	});
+
 	test("hydrates legacy GitHub cards only after their syntax is rendered", async ({
 		page,
 	}) => {

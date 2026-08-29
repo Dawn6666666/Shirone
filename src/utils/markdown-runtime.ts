@@ -12,6 +12,13 @@ function hasMatch(root: ParentNode, selector: string): boolean {
 
 const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 	{
+		selector: "[data-bilibili]",
+		initialize: async (root) => {
+			const { initBilibiliEmbeds } = await import("./bilibili");
+			initBilibiliEmbeds(root);
+		},
+	},
+	{
 		selector: ".expressive-code",
 		initialize: async (root) => {
 			const { initCodeBlockCollapsing } = await import("./code-collapse");

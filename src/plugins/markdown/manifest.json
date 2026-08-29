@@ -13,6 +13,11 @@
 			"styles": ["src/styles/markdown/admonitions.css"]
 		},
 		{
+			"id": "bilibili",
+			"syntaxes": ["bilibili"],
+			"styles": ["src/styles/markdown/bilibili.css"]
+		},
+		{
 			"id": "collapse-panels",
 			"syntaxes": ["collapse-panels"],
 			"styles": ["src/styles/markdown/collapse-panels.css"]
@@ -193,6 +198,71 @@
 			"notes": [
 				"方括号标题、空格标题与 GitHub Alert 统一进入同一 Admonition renderer。",
 				"details 使用原生 disclosure，无 hydration、客户端模块或网络请求。"
+			]
+		},
+		{
+			"id": "bilibili",
+			"name": "Bilibili Video",
+			"status": "stable",
+			"category": "leaf-directive",
+			"source": "shirone",
+			"summary": "将受限 BV 号渲染为可访问的 SSR 视频 facade，并在明确点击后加载 Bilibili 播放器。",
+			"forms": [
+				{
+					"kind": "leaf-directive",
+					"pattern": "::bilibili{bvid=\"BV...\" title=\"...\" p=1 poster=\"/...\"}",
+					"example": "::bilibili{bvid=\"BV1fK4y1s7Qf\" title=\"Bilibili video\" p=1}"
+				}
+			],
+			"attributes": [
+				{
+					"name": "bvid",
+					"required": true,
+					"values": "strict Bilibili BV identifier",
+					"default": null
+				},
+				{
+					"name": "title",
+					"required": true,
+					"values": "non-empty video title",
+					"default": null
+				},
+				{
+					"name": "p",
+					"required": false,
+					"values": "positive integer part number",
+					"default": 1
+				},
+				{
+					"name": "poster",
+					"required": false,
+					"values": "site-root path or explicit HTTPS image URL",
+					"default": null
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/core/bilibili.d.mts",
+				"src/plugins/markdown/core/bilibili.mjs",
+				"src/plugins/markdown/remark-bilibili.mjs",
+				"src/plugins/rehype-component-bilibili.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/bilibili.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/bilibili.ts"],
+				"network": [
+					"activation only: https://player.bilibili.com/player.html?bvid={bvid}&p={p}&high_quality=1&danmaku=0"
+				]
+			},
+			"docs": ["src/content/posts/video.md"],
+			"tests": [
+				"tests/plugins/markdown/leaf/bilibili.test.mjs",
+				"tests/site/markdown-runtime.spec.ts"
+			],
+			"notes": [
+				"初始 SSR DOM 不含 iframe、Bilibili 脚本或 provider poster 请求；标题和 Bilibili 页面链接始终保留。",
+				"非法 BV 号、空标题或非法分 P 不触发可选资源；运行时只从验证后的字段生成白名单播放器 URL。"
 			]
 		},
 		{
