@@ -28,9 +28,13 @@ export const umamiConfig: UmamiConfig = withUserConfig("umami", {
 # 内容仓/config/umami.yaml
 enable: true
 shareUrl: https://your-umami-instance.com/share/<shareId>
+# 可选：只有需要向 Umami 上报访问时才同时填写以下两项。
+# websiteId: your-website-id
+# scriptUrl: https://your-umami-instance.com/script.js
 ```
 
 配置覆盖会在 `content:sync` 时自动编译并合并到主题默认值；未填写的字段继续使用默认值。
+`websiteId` 与 `scriptUrl` 都是可选字段：同时省略时仅启用公开分享统计；需要访问采集时必须同时填写，单独填写任一字段不会加载采集脚本。
 
 ### 2. 获取分享链接
 

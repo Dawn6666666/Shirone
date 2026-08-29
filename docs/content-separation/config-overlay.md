@@ -53,6 +53,8 @@ themeColor:
 
 各配置领域的可用字段、默认值与逐项注释均以代码仓中的 `src/config/<domain>Config.ts` 为准。系统同样支持 `.yml` 后缀；空文件与纯注释文件视作不覆盖。
 
+`config/umami.yaml` 的 `websiteId` 与 `scriptUrl` 是可选的成对字段。省略两者时，`enable` 与 `shareUrl` 仍会启用公开统计读取；只有需要向 Umami 上报访问时才同时填写两者，单独填写任一字段不会加载采集脚本。
+
 ### 自定义页脚注入 (`config/footer.html`)
 
 `config/footer.html` 是唯一的非 YAML 入口，用于注入自定义页脚 HTML 代码（如备案号、统计脚本等）。
