@@ -169,6 +169,12 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 					c: unknown,
 				) => unknown;
 
+				const umamiModule = await loadConfigModule(paths, "UmamiConfig");
+				const umamiConfig = umamiModule.umamiConfig as { shareUrl: string };
+				const resolveUmamiOptions = umamiModule.resolveUmamiOptions as (
+					c: unknown,
+				) => unknown;
+
 				const musicWidgetEnabled = Boolean(
 					sidebarConfig?.enable &&
 						sidebarConfig.components?.some(
@@ -177,6 +183,7 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 				);
 				const musicEnabled =
 					musicWidgetEnabled && resolveMusicOptions(musicConfig) !== null;
+				const umamiEnabled = resolveUmamiOptions(umamiConfig) !== null;
 
 				// ── 2. Watch config files so the dev server restarts on edits ───
 				if (command === "dev" && existsSync(paths.configDir)) {
@@ -206,7 +213,10 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 				// ── 5. Bundled integrations ─────────────────────────────────────
 				const integrations = options.bundledIntegrations === false
 					? []
-					: await createBundledIntegrations(paths, command);
+					: await createBundledIntegrations(paths, command, {
+							umamiConfig,
+							umamiEnabled,
+						});
 
 				// ── 6. Push everything into the Astro config ────────────────────
 				updateConfig({
@@ -338,6 +348,7 @@ function prebundleCandidates(
 async function createBundledIntegrations(
 	paths: ResolvedShironesPaths,
 	command: string,
+	options: { umamiConfig: { shareUrl: string }; umamiEnabled: boolean },
 ) {
 	const [
 		{ default: swup },
@@ -348,6 +359,7 @@ async function createBundledIntegrations(
 		{ default: mdx },
 		{ pluginCollapsibleSections },
 		{ pluginLineNumbers },
+		{ oddmisc },
 	] = await Promise.all([
 		import("@swup/astro"),
 		import("astro-icon"),
@@ -357,7 +369,10 @@ async function createBundledIntegrations(
 		import("@astrojs/mdx"),
 		import("@expressive-code/plugin-collapsible-sections"),
 		import("@expressive-code/plugin-line-numbers"),
+		import("oddmisc/astro"),
 	]);
+
+	const { umamiConfig, umamiEnabled } = options;
 
 	const ecModule = await loadConfigModule(paths, "expressiveCodeConfig");
 	const expressiveCodeConfig = ecModule.expressiveCodeConfig as {
@@ -383,6 +398,15 @@ async function createBundledIntegrations(
 	};
 
 	return [
+		...(umamiEnabled
+			? [
+					oddmisc({
+						umami: {
+							shareUrl: umamiConfig.shareUrl,
+						},
+					}),
+				]
+			: []),
 		swup({
 			theme: false,
 			ignore: ['a[href="#"]'],

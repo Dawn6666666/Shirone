@@ -11,11 +11,13 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, fontProviders } from "astro/config";
 import expressiveCode from "astro-expressive-code";
 import icon from "astro-icon";
+import { oddmisc } from "oddmisc/astro";
 import { expressiveCodeConfig } from "./src/config/expressiveCodeConfig.ts";
 import { resolvedFontOptions } from "./src/config/fontConfig.ts";
 import { musicConfig, resolveMusicOptions } from "./src/config/musicConfig.ts";
 import { sidebarConfig } from "./src/config/sidebarConfig.ts";
 import { siteConfig } from "./src/config/siteConfig.ts";
+import { umamiConfig, resolveUmamiOptions } from "./src/config/UmamiConfig.ts";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
 import { getLocalFontVariants } from "./src/utils/font-options.ts";
@@ -28,6 +30,8 @@ const musicWidgetEnabled =
 	);
 const musicFeatureEnabled =
 	resolveMusicOptions(musicConfig) !== null && musicWidgetEnabled;
+
+const umamiFeatureEnabled = resolveUmamiOptions(umamiConfig) !== null;
 const musicSidebarModuleId = "virtual:shirone-music-sidebar";
 const resolvedMusicSidebarModuleId = `\0${musicSidebarModuleId}`;
 
@@ -145,8 +149,17 @@ export default defineConfig({
 	base: siteConfig.base ?? "/",
 	trailingSlash: "always",
 	fonts: configuredFonts,
-	integrations: [
-		swup({
+integrations: [
+			...(umamiFeatureEnabled
+				? [
+						oddmisc({
+							umami: {
+								shareUrl: umamiConfig.shareUrl,
+							},
+						}),
+					]
+				: []),
+			swup({
 			theme: false,
 			ignore: 'a[href="#"]',
 			animationClass: "transition-swup-",

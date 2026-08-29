@@ -86,6 +86,7 @@
     "markdown-it": "^14.3.0",
     "mdast-util-to-string": "^4.0.0",
     "mermaid": "^11.17.0",
+    "oddmisc": "^1.2.8",
     "overlayscrollbars": "^2.16.0",
     "pagefind": "^1.5.2",
     "qrcode": "^1.5.4",
