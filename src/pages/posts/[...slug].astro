@@ -13,6 +13,7 @@ import ArticleDiscovery from "@components/organisms/ArticleDiscovery.astro";
 import ArticleShare from "@components/organisms/ArticleShare.svelte";
 import CommentSection from "@components/organisms/comment/CommentSection.astro";
 import EncryptedContent from "@components/organisms/EncryptedContent.astro";
+import UmamiStats from "@components/organisms/UmamiStats.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
@@ -39,7 +40,9 @@ import {
 	resolveArticleShareOptions,
 	resolveCommentOptions,
 	resolveLastUpdatedNoticeOptions,
+	resolveUmamiOptions,
 	siteConfig,
+	umamiConfig,
 } from "@/config";
 
 export async function getStaticPaths() {
@@ -101,6 +104,7 @@ const postCommentEnabled =
 	entry.data.comment !== false && Boolean(resolveCommentOptions(commentConfig));
 const lastUpdatedNotice = resolveLastUpdatedNoticeOptions(articleConfig);
 const shareOptions = resolveArticleShareOptions(articleConfig);
+const umamiEnabled = resolveUmamiOptions(umamiConfig) !== null;
 const authorAvatarUrl = shareOptions
 	? await resolveAsset(profileConfig.avatar ?? "")
 	: "";
@@ -183,16 +187,28 @@ const jsonLd = {
             </div>
 
             <!-- metadata -->
-            <div class="onload-animation">
-                <PostMetadata
-                        class="mb-5"
-                        published={entry.data.published}
-                        updated={entry.data.updated}
-                        tags={entry.data.tags}
-                        category={entry.data.category}
-                ></PostMetadata>
-                {!entry.data.image && <div class="border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div>}
-            </div>
+			<div class="onload-animation">
+				{umamiEnabled ? (
+					<div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-5">
+						<PostMetadata
+							published={entry.data.published}
+							updated={entry.data.updated}
+							tags={entry.data.tags}
+							category={entry.data.category}
+						></PostMetadata>
+						<UmamiStats variant="meta" path={getPostUrlBySlug(entry.id)} />
+					</div>
+				) : (
+					<PostMetadata
+						class="mb-5"
+						published={entry.data.published}
+						updated={entry.data.updated}
+						tags={entry.data.tags}
+						category={entry.data.category}
+					></PostMetadata>
+				)}
+				{!entry.data.image && <div class="border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div>}
+			</div>
 
             <!-- always show cover as long as it has one -->
 

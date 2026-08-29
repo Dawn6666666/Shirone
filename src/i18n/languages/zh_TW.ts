@@ -165,6 +165,8 @@ export const zh_TW: Translation = {
 	[Key.statsToday]: "今天",
 	[Key.statsYesterday]: "昨天",
 	[Key.statsDaysAgo]: "{days} 天前",
+	[Key.profileStatsPageViews]: "頁面瀏覽",
+	[Key.profileStatsVisits]: "訪問次數",
 
 	[Key.calendar]: "日曆",
 	[Key.calendarBackToday]: "回到今天",

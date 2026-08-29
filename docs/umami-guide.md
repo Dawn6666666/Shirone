@@ -12,6 +12,9 @@
 export const umamiConfig: UmamiConfig = {
   enable: true,
   shareUrl: "https://your-umami-instance.com/share/<shareId>",
+  // 可选：同时配置以下两项后，页面会加载官方 Umami 脚本采集访问数据。
+  websiteId: "your-website-id",
+  scriptUrl: "https://your-umami-instance.com/script.js",
 };
 ```
 
@@ -27,10 +30,17 @@ export const umamiConfig: UmamiConfig = {
 - `https://cloud.umami.is/analytics/us/share/<shareId>`
 - `https://umami.example.com/analytics/share/<shareId>`
 
+### 3. 可选访问采集
+
+`shareUrl` 只负责读取公开分享统计。需要让 Shirone 页面本身向 Umami 上报访问时，
+再同时配置 `websiteId` 与 `scriptUrl`。只配置其中一项不会加载采集脚本。
+
 ## 零额外负担原则
 
-- `enable: false` 时：零网络请求、零 DOM、零包体积
-- 仅当 `enable: true` 且 `shareUrl` 有效时才注入 oddmisc 运行时
+- `enable: false` 时：零网络请求、零 DOM、零客户端脚本与样式
+- 仅当 `enable: true` 且 `shareUrl` 有效时才注入 oddmisc 运行时与统计 UI
+- UI 由 SSR 直接输出稳定数值槽，异步数据只替换槽内文本，不改变布局
+- 官方 Umami 采集脚本仅在 `websiteId` 与 `scriptUrl` 都有效时加载
 
 ## 客户端 API
 

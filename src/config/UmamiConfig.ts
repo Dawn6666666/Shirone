@@ -13,6 +13,10 @@ export const umamiConfig: UmamiConfig = {
 	enable: false,
 	/** Umami 分享链接（必填） */
 	shareUrl: "",
+	/** Umami Website ID；与 scriptUrl 同时填写时启用访问采集 */
+	websiteId: "",
+	/** Umami 采集脚本 URL；与 websiteId 同时填写时启用访问采集 */
+	scriptUrl: "",
 };
 
 /**
@@ -28,6 +32,8 @@ export function resolveUmamiOptions(config: UmamiConfig): ResolvedUmamiOptions {
 	}
 	return {
 		shareUrl,
+		websiteId: config.websiteId?.trim() || undefined,
+		scriptUrl: config.scriptUrl?.trim() || undefined,
 	};
 }
 

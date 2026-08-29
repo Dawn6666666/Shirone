@@ -6,6 +6,10 @@ export type UmamiConfig = {
 	enable: boolean;
 	/** Umami 分享链接（必填） */
 	shareUrl: string;
+	/** Umami Website ID；与 scriptUrl 同时配置时启用访问采集。 */
+	websiteId?: string;
+	/** Umami 采集脚本 URL；与 websiteId 同时配置时启用访问采集。 */
+	scriptUrl?: string;
 };
 
 /**
@@ -13,4 +17,6 @@ export type UmamiConfig = {
  */
 export type ResolvedUmamiOptions = {
 	shareUrl: string;
+	websiteId?: string;
+	scriptUrl?: string;
 } | null;

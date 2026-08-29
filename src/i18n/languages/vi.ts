@@ -174,6 +174,8 @@ export const vi: Translation = {
 	[Key.statsToday]: "Hôm nay",
 	[Key.statsYesterday]: "Hôm qua",
 	[Key.statsDaysAgo]: "{days} ngày trước",
+	[Key.profileStatsPageViews]: "Lượt xem",
+	[Key.profileStatsVisits]: "Lượt truy cập",
 
 	[Key.calendar]: "Lịch",
 	[Key.calendarBackToday]: "Về hôm nay",
