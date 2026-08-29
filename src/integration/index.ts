@@ -247,7 +247,10 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 							cssMinify: "esbuild",
 							chunkSizeWarningLimit: 1000,
 							rollupOptions: {
-								onwarn(warning, warn) {
+								onwarn(
+									warning: { message: string },
+									warn: (warning: unknown) => void,
+								) {
 									// Astro legitimately mixes static and dynamic imports for
 									// islands; silence that specific advisory.
 									if (
@@ -369,10 +372,20 @@ async function createBundledIntegrations(
 		"plugins/expressive-code/custom-copy-button.js",
 	);
 
+	// Forward-compat options the source `astro.config.mjs` declares but that
+	// `@swup/astro` 1.8.0's `Options` type does not know (and silently drops at
+	// runtime). Spread them so the object-literal excess-property check passes
+	// without deleting them from the mirror or changing runtime behaviour.
+	const swupForwardOptions = {
+		animateHistoryBrowsing: false,
+		skipPopStateHandling: (event: { state?: { url?: string } }) =>
+			Boolean(event.state?.url?.includes("#")),
+	};
+
 	return [
 		swup({
 			theme: false,
-			ignore: 'a[href="#"]',
+			ignore: ['a[href="#"]'],
 			animationClass: "transition-swup-",
 			containers: ["main", "#toc"],
 			smoothScrolling: true,
@@ -385,9 +398,7 @@ async function createBundledIntegrations(
 			},
 			updateBodyClass: false,
 			globalInstance: true,
-			animateHistoryBrowsing: false,
-			skipPopStateHandling: (event: { state?: { url?: string } }) =>
-				Boolean(event.state?.url?.includes("#")),
+			...swupForwardOptions,
 		}),
 		icon({
 			// Every collection the theme references. The upstream source config
@@ -437,7 +448,9 @@ async function createBundledIntegrations(
 					editorTabBarBorderBottomColor: "var(--codeblock-topbar-bg)",
 					terminalTitlebarBorderBottomColor: "none",
 				},
-				textMarkers: { delHue: 0, insHue: 180, markHue: 250 },
+				// Hue values are numbers at runtime (the source config passes the
+				// same), but the published types only accept unresolved CSS strings.
+				textMarkers: { delHue: 0, insHue: 180, markHue: 250 } as never,
 			},
 			frames: { showCopyToClipboardButton: false },
 		}),
