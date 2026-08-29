@@ -12,8 +12,9 @@
 
 import { existsSync } from "node:fs";
 import { cp, mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 const PACKAGE_ROOT = resolve(fileURLToPath(import.meta.url), "../..");
 const TEMPLATE_DIR = join(PACKAGE_ROOT, "template");
@@ -46,6 +47,15 @@ async function readPackageName() {
 		return JSON.parse(raw).name ?? "shirones";
 	} catch {
 		return "shirones";
+	}
+}
+
+async function readPackageVersion() {
+	try {
+		const raw = await readFile(join(PACKAGE_ROOT, "package.json"), "utf8");
+		return JSON.parse(raw).version ?? null;
+	} catch {
+		return null;
 	}
 }
 
@@ -117,18 +127,14 @@ async function countFiles(dir) {
 }
 
 /**
- * Peers the user's project must depend on directly.
- *
- * Some tooling resolves from the project root rather than from the importing
- * file, and pnpm's strict layout hides the theme's own dependencies there:
- * `@astrojs/svelte` registers `svelte/*` subpaths in `optimizeDeps.include`,
- * and astro-icon loads `@iconify-json/*` sets through `require.resolve` in
- * Node. Installing them at the root is the only thing that satisfies both.
- *
- * The list is derived from the package's own `peerDependencies`, minus
- * `astro`, which the user necessarily already has.
+ * The user's project must depend on `astro` and on the theme's peer
+ * dependencies directly. Some tooling resolves from the project root rather
+ * than from the importing file, and pnpm's strict layout hides the theme's own
+ * dependencies there: `@astrojs/svelte` registers `svelte/*` subpaths in
+ * `optimizeDeps.include`, and astro-icon loads `@iconify-json/*` sets through
+ * `require.resolve` in Node. Installing them at the root is the only thing that
+ * satisfies both, so `init` writes them all into package.json and installs.
  */
-const PEERS_PROVIDED_BY_USER = ["astro"];
 
 /** Dependencies whose install scripts must be allowed to run. */
 const BUILT_DEPENDENCIES = ["esbuild", "sharp"];
@@ -211,21 +217,59 @@ async function ensurePnpmWorkspace() {
 	log.ok("pnpm-workspace.yaml");
 }
 
-async function ensurePackageJsonScripts(packageName) {
+async function ensurePackageJson(packageName) {
 	const pkgPath = join(CWD, "package.json");
-	if (!existsSync(pkgPath)) return;
+	const peers = await themePeers();
+
+	// A completely empty directory has no package.json at all. Write a minimal
+	// one so a single `pnpm install` pulls in astro, the theme and its peer
+	// dependencies — no `pnpm create astro` starter needed beforehand.
+	if (!existsSync(pkgPath)) {
+		const version = await readPackageVersion();
+		const dependencies = {
+			astro: peers.astro ?? "^7.0.0",
+			...Object.fromEntries(Object.entries(peers).filter(([name]) => name !== "astro")),
+			[packageName]: version ? `^${version}` : "latest",
+		};
+		const pkg = {
+			name: basename(CWD) || "shirone-site",
+			version: "0.0.1",
+			private: true,
+			type: "module",
+			scripts: {
+				dev: "astro dev",
+				build: "astro build",
+				preview: "astro preview",
+				astro: "astro",
+			},
+			dependencies,
+		};
+		await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
+		log.ok("package.json (created)");
+		return [packageName, ...Object.keys(dependencies)];
+	}
 
 	const pkg = JSON.parse(await readFile(pkgPath, "utf8"));
 	pkg.scripts ??= {};
 	pkg.dependencies ??= {};
+	pkg.devDependencies ??= {};
 	let changed = false;
 
-	const addedPeers = [];
-	for (const [peer, range] of Object.entries(await themePeers())) {
-		if (PEERS_PROVIDED_BY_USER.includes(peer)) continue;
-		if (pkg.dependencies[peer] || pkg.devDependencies?.[peer]) continue;
-		pkg.dependencies[peer] = range;
-		addedPeers.push(peer);
+	// Everything the project must depend on directly: astro, the theme's peers
+	// (svelte, sharp, the iconify sets) and the theme itself. This also covers
+	// a hand-written package.json that never declared the theme.
+	const version = await readPackageVersion();
+	const wantedDeps = {
+		astro: peers.astro ?? "^7.0.0",
+		...Object.fromEntries(Object.entries(peers).filter(([name]) => name !== "astro")),
+		[packageName]: version ? `^${version}` : "latest",
+	};
+
+	const addedDeps = [];
+	for (const [dep, range] of Object.entries(wantedDeps)) {
+		if (pkg.dependencies[dep] || pkg.devDependencies[dep]) continue;
+		pkg.dependencies[dep] = range;
+		addedDeps.push(dep);
 		changed = true;
 	}
 
@@ -258,7 +302,7 @@ async function ensurePackageJsonScripts(packageName) {
 		await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
 		log.ok("package.json");
 	}
-	return addedPeers;
+	return addedDeps;
 }
 
 /** Read the theme's declared peer dependencies. */
@@ -269,6 +313,67 @@ async function themePeers() {
 	} catch {
 		return {};
 	}
+}
+
+/**
+ * Root files the template ships for the user's project. Every one of these
+ * follows the same rule: never overwrite what the user already has. They are
+ * installed with `copyEntry`, which skips existing files unless `--force`.
+ *
+ * `.gitignore` and `.npmrc` ship under `_`-prefixed names because npm and pnpm
+ * strip those exact dotfiles from published tarballs; `init` renames them back.
+ * A `[source, destination]` entry maps the template name to the project name.
+ */
+const ROOT_FILES = [
+	".env.example",
+	["_gitignore", ".gitignore"],
+	["_npmrc", ".npmrc"],
+	"AGENTS.md",
+	"README.md",
+	"pagefind.yml",
+	"frontmatter.json",
+	".vscode/extensions.json",
+];
+
+async function installRootFiles({ force }) {
+	for (const entry of ROOT_FILES) {
+		const [srcName, dstName] = Array.isArray(entry) ? entry : [entry, entry];
+		await copyEntry(join(TEMPLATE_DIR, srcName), join(CWD, dstName), { force });
+	}
+}
+
+/** Pick the package manager from whatever lockfile already exists. */
+function detectPackageManager() {
+	if (existsSync(join(CWD, "pnpm-lock.yaml"))) return "pnpm";
+	if (existsSync(join(CWD, "yarn.lock"))) return "yarn";
+	if (existsSync(join(CWD, "package-lock.json"))) return "npm";
+	return "pnpm";
+}
+
+/**
+ * Install the project's dependencies so `init` works from a completely empty
+ * directory: writing the missing peer dependencies into package.json is only
+ * half the job — they still have to actually be installed (astro included).
+ * Reuses whatever is already in the store, so this is a fast no-op when the
+ * user already ran `pnpm add shirones` beforehand.
+ */
+async function installDependencies() {
+	const pm = detectPackageManager();
+	// pnpm treats a CI environment as `--frozen-lockfile`, and this install
+	// exists precisely because package.json just changed — so opt out.
+	const args = pm === "pnpm" ? ["install", "--no-frozen-lockfile"] : ["install"];
+	log.step(`installing dependencies with ${pm} ${args.slice(1).join(" ")}`);
+	const result = spawnSync(pm, args, {
+		cwd: CWD,
+		stdio: "inherit",
+		shell: process.platform === "win32",
+	});
+	if (result.status !== 0) {
+		log.err(`${pm} install failed — run it manually and check the output above`);
+		process.exitCode = 1;
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -453,6 +558,10 @@ async function init(args) {
 	// copied wholesale: the starter project already owns a `public/`.
 	await mergeDirectory(join(TEMPLATE_DIR, "public"), join(CWD, "public"), { force });
 
+	// 2b. Project root files (.env.example, .gitignore, README, editor hints, …).
+	// Installed without clobbering anything the user already has.
+	await installRootFiles({ force });
+
 	// 3. Astro entry files.
 	await copyEntry(
 		join(TEMPLATE_DIR, "src/content.config.ts"),
@@ -470,8 +579,16 @@ async function init(args) {
 
 	// 5. Project metadata.
 	await ensureTsConfig(packageName, { force });
-	const addedPeers = await ensurePackageJsonScripts(packageName);
+	const addedDeps = await ensurePackageJson(packageName);
 	await ensurePnpmWorkspace();
+
+	// 6. If package.json was created or gained dependencies, install them now —
+	//    that is what lets `init` work from a completely empty directory.
+	if (addedDeps.length > 0) {
+		await installDependencies();
+	} else {
+		log.skip("dependencies already declared");
+	}
 
 	const postCount = await countFiles(join(CWD, CONTENT_ROOT, "content/posts"));
 
@@ -488,11 +605,7 @@ ${colours.bold}Project layout${colours.reset}
   ${CONTENT_ROOT}/content/           posts, moments, about
   public/                   static assets
 
-${colours.bold}Next${colours.reset}${
-		addedPeers?.length
-			? `\n  ${colours.yellow}pnpm install${colours.reset}  ${colours.dim}# ${addedPeers.length} dependencies were added${colours.reset}`
-			: ""
-	}
+${colours.bold}Next${colours.reset}
   ${colours.dim}pnpm dev${colours.reset}
 `);
 }
