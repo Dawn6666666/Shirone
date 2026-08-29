@@ -8,6 +8,11 @@
 			"styles": ["src/styles/markdown/abbreviations.css"]
 		},
 		{
+			"id": "acfun",
+			"syntaxes": ["acfun"],
+			"styles": ["src/styles/markdown/acfun.css"]
+		},
+		{
 			"id": "admonitions",
 			"syntaxes": ["admonition"],
 			"styles": ["src/styles/markdown/admonitions.css"]
@@ -138,6 +143,65 @@
 				"普通文本与标准行内 Markdown 可匹配；代码、链接、图片和原始 HTML 保持作者原文。",
 				"输出原生 abbr 语义（不使用浏览器 title 气泡），释义用原生 Popover 顶层 + CSS Anchor 定位到缩写词，任何布局容器都不会裁剪。",
 				"只在使用者需要时动态加载客户端模块以绑定悬停/聚焦/触屏交互；纯 SSR 与禁用时零网络请求零 DOM 足迹。页面实际包含该功能时才加载。"
+			]
+		},
+		{
+			"id": "acfun",
+			"name": "AcFun Video",
+			"status": "stable",
+			"category": "leaf-directive",
+			"source": "shirone",
+			"summary": "将受限 AcFun 视频 ID 渲染为可访问的 SSR 视频 facade，并在明确点击后加载 AcFun 播放器。",
+			"forms": [
+				{
+					"kind": "leaf-directive",
+					"pattern": "::acfun{acid=\"ac...\" title=\"...\" poster=\"/...\"}",
+					"example": "::acfun{acid=\"ac48649632\" title=\"AcFun video\"}"
+				}
+			],
+			"attributes": [
+				{
+					"name": "acid",
+					"required": true,
+					"values": "strict AcFun ac-prefixed positive integer ID",
+					"default": null
+				},
+				{
+					"name": "title",
+					"required": true,
+					"values": "non-empty video title",
+					"default": null
+				},
+				{
+					"name": "poster",
+					"required": false,
+					"values": "site-root path or explicit HTTPS image URL",
+					"default": null
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/core/acfun.d.mts",
+				"src/plugins/markdown/core/acfun.mjs",
+				"src/plugins/markdown/remark-acfun.mjs",
+				"src/plugins/rehype-component-acfun.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/acfun.css"],
+			"runtime": {
+				"mode": "client-enhanced",
+				"modules": ["src/utils/acfun.ts"],
+				"network": [
+					"activation only: https://www.acfun.cn/player/{acid}"
+				]
+			},
+			"docs": ["src/content/posts/video.md"],
+			"tests": [
+				"tests/plugins/markdown/leaf/acfun.test.mjs",
+				"tests/site/markdown-runtime.spec.ts"
+			],
+			"notes": [
+				"初始 SSR DOM 不含 iframe、AcFun 脚本或 provider poster 请求；标题和 AcFun 页面链接始终保留。",
+				"非法视频 ID、空标题或非法海报地址不触发可选资源；运行时只从验证后的字段生成白名单播放器 URL。"
 			]
 		},
 		{

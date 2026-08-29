@@ -182,6 +182,17 @@ test("renders legacy GitHub cards with an SSR fallback for API enhancement", asy
 	assert.doesNotMatch(result.code, /api\.github\.com|<script/);
 });
 
+test("records AcFun facades after directive parsing", async () => {
+	const result = await renderer.render(
+		'::acfun{acid="ac48649632" title="AcFun video"}',
+	);
+
+	assert.deepEqual(result.metadata.frontmatter.markdownSyntaxes, {
+		schema: 1,
+		syntaxes: ["acfun"],
+	});
+});
+
 test("records Bilibili facades after directive parsing", async () => {
 	const result = await renderer.render(
 		'::bilibili{bvid="BV1fK4y1s7Qf" title="Bilibili video"}',

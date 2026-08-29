@@ -26,3 +26,7 @@ published: 2023-10-19
 ## Bilibili
 
 ::bilibili{bvid="BV1fK4y1s7Qf" title="Bilibili video" p=1}
+
+## AcFun
+
+::acfun{acid="ac48649632" title="AcFun video"}

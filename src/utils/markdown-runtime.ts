@@ -12,6 +12,13 @@ function hasMatch(root: ParentNode, selector: string): boolean {
 
 const runtimeDescriptors: MarkdownRuntimeDescriptor[] = [
 	{
+		selector: "[data-acfun]",
+		initialize: async (root) => {
+			const { initAcFunEmbeds } = await import("./acfun");
+			initAcFunEmbeds(root);
+		},
+	},
+	{
 		selector: "[data-bilibili]",
 		initialize: async (root) => {
 			const { initBilibiliEmbeds } = await import("./bilibili");

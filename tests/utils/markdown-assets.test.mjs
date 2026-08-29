@@ -12,6 +12,7 @@ test("resolves only manifest-declared Markdown stylesheet packs", async () => {
 
 	const assets = await getMarkdownStylesheetAssets(
 		createMarkdownSyntaxSnapshot([
+			"acfun",
 			"bilibili",
 			"file-tree",
 			"image-grid",
@@ -21,10 +22,11 @@ test("resolves only manifest-declared Markdown stylesheet packs", async () => {
 
 	assert.deepEqual(
 		assets.map(({ pack }) => pack),
-		["bilibili", "image-grids", "trees", "youtube"],
+		["acfun", "bilibili", "image-grids", "trees", "youtube"],
 	);
-	assert.match(assets[0].css, /\.m3-bilibili/);
-	assert.match(assets[1].css, /\.image-grid/);
-	assert.match(assets[2].css, /\.m3-file-tree/);
-	assert.match(assets[3].css, /\.m3-youtube/);
+	assert.match(assets[0].css, /\.m3-acfun/);
+	assert.match(assets[1].css, /\.m3-bilibili/);
+	assert.match(assets[2].css, /\.image-grid/);
+	assert.match(assets[3].css, /\.m3-file-tree/);
+	assert.match(assets[4].css, /\.m3-youtube/);
 });

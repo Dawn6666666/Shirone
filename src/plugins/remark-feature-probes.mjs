@@ -1,4 +1,5 @@
 import { visit } from "unist-util-visit";
+import { getAcFunEmbedData } from "./markdown/core/acfun.mjs";
 import { getBilibiliEmbedData } from "./markdown/core/bilibili.mjs";
 import { getYouTubeEmbedData } from "./markdown/core/youtube.mjs";
 import { createMarkdownSyntaxSnapshot } from "../utils/markdown-syntaxes.mjs";
@@ -54,6 +55,13 @@ export function remarkFeatureProbes() {
 			}
 			if (node.type === "leafDirective" && node.name === "github") {
 				syntaxes.add("github-card");
+			}
+			if (
+				node.type === "leafDirective" &&
+				node.name === "acfun" &&
+				getAcFunEmbedData(node.attributes)
+			) {
+				syntaxes.add("acfun");
 			}
 			if (
 				node.type === "leafDirective" &&

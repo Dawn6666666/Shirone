@@ -19,6 +19,7 @@ const IMAGE_PRESENTATIONS_POST_PATH = "/posts/markdown-extended/";
 const IMAGE_PRESENTATIONS_FREE_POST_PATH = "/posts/expressive-code/";
 const EXPRESSIVE_CODE_FREE_PATH = "/";
 const GITHUB_CARD_PATH = "/about/";
+const ACFUN_VIDEO_PATH = "/posts/video/";
 const BILIBILI_VIDEO_PATH = "/posts/video/";
 const YOUTUBE_VIDEO_PATH = "/posts/video/";
 
@@ -77,6 +78,16 @@ function trackGitHubApiRequests(page: Page): string[] {
 	return requests;
 }
 
+function trackAcFunPlayerRequests(page: Page): string[] {
+	const requests: string[] = [];
+	page.on("request", (request: Request) => {
+		if (new URL(request.url()).hostname === "www.acfun.cn") {
+			requests.push(request.url());
+		}
+	});
+	return requests;
+}
+
 function trackBilibiliPlayerRequests(page: Page): string[] {
 	const requests: string[] = [];
 	page.on("request", (request: Request) => {
@@ -97,6 +108,59 @@ function trackYouTubePlayerRequests(page: Page): string[] {
 }
 
 test.describe("Markdown syntax runtime loading", () => {
+	test("defers the AcFun player until facade activation and cleans styles on navigation", async ({
+		page,
+	}) => {
+		const playerRequests = trackAcFunPlayerRequests(page);
+		await page.route("https://www.acfun.cn/player/**", (route) =>
+			route.fulfill({ status: 200, contentType: "text/html", body: "Player" }),
+		);
+
+		await page.goto(ACFUN_VIDEO_PATH, { waitUntil: "networkidle" });
+		const facade = page.locator("#swup-container [data-acfun]");
+		await expect(facade).toHaveCount(1);
+		await expect(facade.locator("iframe")).toHaveCount(0);
+		await expect(playerRequests).toEqual([]);
+		await expect(page.locator('style[data-swup-optional="acfun"]')).toHaveCount(
+			1,
+		);
+		await expect(facade.locator(".m3-acfun__stage")).toHaveCSS(
+			"aspect-ratio",
+			"16 / 9",
+		);
+		await expect(facade.locator(".m3-acfun__source")).toHaveAttribute(
+			"href",
+			"https://www.acfun.cn/v/ac48649632",
+		);
+		const a11y = await new AxeBuilder({ page }).include("[data-acfun]").analyze();
+		expect(a11y.violations).toEqual([]);
+
+		await facade.locator("[data-acfun-activate]").click();
+		const player = facade.locator("iframe");
+		await expect(player).toHaveAttribute(
+			"src",
+			"https://www.acfun.cn/player/ac48649632",
+		);
+		await expect(player).toHaveAttribute("loading", "lazy");
+		await expect(player).toHaveAttribute(
+			"referrerpolicy",
+			"strict-origin-when-cross-origin",
+		);
+		expect(playerRequests).toEqual([
+			"https://www.acfun.cn/player/ac48649632",
+		]);
+
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(page.locator('style[data-swup-optional="acfun"]')).toHaveCount(
+			0,
+		);
+		await expect(page.locator("#swup-container [data-acfun] iframe")).toHaveCount(
+			0,
+		);
+	});
+
 	test("defers the YouTube player until facade activation and cleans styles on navigation", async ({
 		page,
 	}) => {
