@@ -6,14 +6,28 @@
 
 ### 1. 启用统计
 
-编辑 `src/config/UmamiConfig.ts`：
+编辑 `src/config/umamiConfig.ts`：
 
 ```ts
-export const umamiConfig: UmamiConfig = {
+import type { UmamiConfig } from "@/types/umamiConfig";
+import { withUserConfig } from "../utils/config-overlay.ts";
+
+export const umamiConfig: UmamiConfig = withUserConfig("umami", {
   enable: true,
   shareUrl: "https://your-umami-instance.com/share/<shareId>",
-};
+});
 ```
+
+启用内容分离（`external`）模式时，无需修改主题代码仓。在内容仓创建
+`config/umami.yaml`，写入需要覆盖的字段即可：
+
+```yaml
+# 内容仓/config/umami.yaml
+enable: true
+shareUrl: https://your-umami-instance.com/share/<shareId>
+```
+
+配置覆盖会在 `content:sync` 时自动编译并合并到主题默认值；未填写的字段继续使用默认值。
 
 ### 2. 获取分享链接
 
