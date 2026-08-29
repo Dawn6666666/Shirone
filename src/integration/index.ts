@@ -37,8 +37,14 @@ function createAliases(paths: ResolvedShironesPaths) {
 	// internal dist files that the source `astro.config.mjs` aliases through
 	// `node_modules/@iconify/svelte/dist/*`. In package mode that directory
 	// lives inside the theme's own dependency tree, so resolve it from here.
-	const iconifyDist = dirname(
-		createRequire(import.meta.url).resolve("@iconify/svelte/dist/OfflineIcon.svelte"),
+	// Resolve the `package.json` (exported via the `"./*": "./*"` catch-all)
+	// rather than the dist files directly: the package's `exports` map exposes
+	// `./dist/OfflineIcon.svelte` only under the `svelte`/`types` conditions,
+	// which Node's `require.resolve` never matches, so resolving it would throw
+	// "Package subpath is not defined by exports".
+	const iconifyDist = join(
+		dirname(createRequire(import.meta.url).resolve("@iconify/svelte/package.json")),
+		"dist",
 	);
 
 	return [
