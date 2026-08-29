@@ -37,6 +37,7 @@ test("rejects malformed YouTube fields without producing a facade", async () => 
 		'::youtube{id="https://youtu.be/5gIf0_xpFPI" title="URL input"}',
 		'::youtube{id="too-short" title="Invalid ID"}',
 		'::youtube{id="5gIf0_xpFPI" title=""}',
+		'::youtube{id="5gIf0_xpFPI" title="Invalid preload" preload="eager"}',
 	]) {
 		const result = await render(markdown);
 		assert.doesNotMatch(result.code, /data-youtube/);
@@ -45,16 +46,17 @@ test("rejects malformed YouTube fields without producing a facade", async () => 
 	}
 });
 
-test("accepts only safe poster sources", async () => {
-	const localPoster = await render(
-		'::youtube{id="5gIf0_xpFPI" title="Local poster" poster="/images/poster.webp"}',
+test("ignores the removed poster attribute", async () => {
+	const result = await render(
+		'::youtube{id="5gIf0_xpFPI" title="Video" poster="/images/poster.webp"}',
 	);
-	assert.match(localPoster.code, /src="\/images\/poster\.webp"/);
+	assert.match(result.code, /data-youtube/);
+	assert.doesNotMatch(result.code, /poster|m3-youtube__poster/);
+});
 
-	const unsafePoster = await render(
-		'::youtube{id="5gIf0_xpFPI" title="Unsafe poster" poster="javascript:alert(1)"}',
+test("accepts viewport-aware preloading", async () => {
+	const result = await render(
+		'::youtube{id="5gIf0_xpFPI" title="Prepared video" preload="auto"}',
 	);
-	assert.doesNotMatch(unsafePoster.code, /data-youtube/);
-	assert.match(unsafePoster.code, /::youtube/);
-	assert.deepEqual(unsafePoster.metadata.frontmatter.markdownSyntaxes.syntaxes, []);
+	assert.match(result.code, /data-video-preload="auto"/);
 });

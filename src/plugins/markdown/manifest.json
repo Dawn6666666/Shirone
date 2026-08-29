@@ -161,11 +161,11 @@
 			"status": "stable",
 			"category": "leaf-directive",
 			"source": "shirone",
-			"summary": "将受限 AcFun 视频 ID 渲染为可访问的 SSR 视频 facade，并在明确点击后加载 AcFun 播放器。",
+			"summary": "将受限 AcFun 视频 ID 渲染为可访问的 SSR 视频 facade，并在接近视口时预加载或由点击加载 AcFun 播放器。",
 			"forms": [
 				{
 					"kind": "leaf-directive",
-					"pattern": "::acfun{acid=\"ac...\" title=\"...\" poster=\"/...\"}",
+					"pattern": "::acfun{acid=\"ac...\" title=\"...\" preload=\"auto\"}",
 					"example": "::acfun{acid=\"ac48649632\" title=\"AcFun video\"}"
 				}
 			],
@@ -183,15 +183,16 @@
 					"default": null
 				},
 				{
-					"name": "poster",
+					"name": "preload",
 					"required": false,
-					"values": "site-root path or explicit HTTPS image URL",
-					"default": null
+					"values": "none or auto; auto prepares the player near the viewport",
+					"default": "none"
 				}
 			],
 			"implementation": [
 				"src/plugins/markdown/core/acfun.d.mts",
 				"src/plugins/markdown/core/acfun.mjs",
+				"src/plugins/markdown/core/video-preload.mjs",
 				"src/plugins/markdown/remark-acfun.mjs",
 				"src/plugins/rehype-component-acfun.mjs"
 			],
@@ -199,9 +200,9 @@
 			"styles": ["src/styles/markdown/acfun.css"],
 			"runtime": {
 				"mode": "client-enhanced",
-				"modules": ["src/utils/acfun.ts"],
+				"modules": ["src/utils/acfun.ts", "src/utils/video-facade.ts"],
 				"network": [
-					"activation only: https://www.acfun.cn/player/{acid}"
+					"viewport preloading or explicit activation: https://www.acfun.cn/player/{acid}"
 				]
 			},
 			"docs": ["src/content/posts/video.md"],
@@ -210,8 +211,8 @@
 				"tests/site/markdown-runtime.spec.ts"
 			],
 			"notes": [
-				"初始 SSR DOM 不含 iframe、AcFun 脚本或 provider poster 请求；标题和 AcFun 页面链接始终保留。",
-				"非法视频 ID、空标题或非法海报地址不触发可选资源；运行时只从验证后的字段生成白名单播放器 URL。"
+				"初始 SSR DOM 不含 iframe、AcFun 脚本或 provider 请求；标题和 AcFun 页面链接始终保留。",
+				"非法视频 ID 或空标题不触发可选资源；运行时只从验证后的字段生成白名单播放器 URL。"
 			]
 		},
 		{
@@ -289,7 +290,7 @@
 			"forms": [
 				{
 					"kind": "leaf-directive",
-					"pattern": "::artplayer{src=\"...\" title=\"...\" poster=\"/...\"}",
+					"pattern": "::artplayer{src=\"...\" title=\"...\" preload=\"auto\"}",
 					"example": "::artplayer{src=\"/videos/example.mp4\" title=\"Example video\"}"
 				}
 			],
@@ -307,15 +308,16 @@
 					"default": null
 				},
 				{
-					"name": "poster",
+					"name": "preload",
 					"required": false,
-					"values": "site-root path or explicit HTTPS image URL",
-					"default": null
+					"values": "none or auto; auto prepares the player near the viewport",
+					"default": "none"
 				}
 			],
 			"implementation": [
 				"src/plugins/markdown/core/artplayer.d.mts",
 				"src/plugins/markdown/core/artplayer.mjs",
+				"src/plugins/markdown/core/video-preload.mjs",
 				"src/plugins/markdown/remark-artplayer.mjs",
 				"src/plugins/rehype-component-artplayer.mjs"
 			],
@@ -325,7 +327,7 @@
 				"mode": "none",
 				"modules": [],
 				"network": [
-					"author-declared video source only after native playback; preload=none"
+					"author-declared video source; preload accepts none or auto"
 				]
 			},
 			"docs": ["src/content/posts/video.md"],
@@ -334,8 +336,8 @@
 				"tests/site/markdown-runtime.spec.ts"
 			],
 			"notes": [
-				"The initial output uses native SSR video controls with preload=none; no ArtPlayer package or client module is loaded.",
-				"Invalid source, title, or poster values remain ordinary Markdown and do not declare optional page resources."
+				"The initial output uses native SSR video controls; preload defaults to none and auto prepares the source near the viewport without an ArtPlayer package or client module.",
+				"Invalid source or title values remain ordinary Markdown and do not declare optional page resources."
 			]
 		},
 		{
@@ -400,11 +402,11 @@
 			"status": "stable",
 			"category": "leaf-directive",
 			"source": "shirone",
-			"summary": "将受限 BV 号渲染为可访问的 SSR 视频 facade，并在明确点击后加载 Bilibili 播放器。",
+			"summary": "将受限 BV 号渲染为可访问的 SSR 视频 facade，并在接近视口时预加载或由点击加载 Bilibili 播放器。",
 			"forms": [
 				{
 					"kind": "leaf-directive",
-					"pattern": "::bilibili{bvid=\"BV...\" title=\"...\" p=1 poster=\"/...\"}",
+					"pattern": "::bilibili{bvid=\"BV...\" title=\"...\" p=1 preload=\"auto\"}",
 					"example": "::bilibili{bvid=\"BV1fK4y1s7Qf\" title=\"Bilibili video\" p=1}"
 				}
 			],
@@ -428,15 +430,16 @@
 					"default": 1
 				},
 				{
-					"name": "poster",
+					"name": "preload",
 					"required": false,
-					"values": "site-root path or explicit HTTPS image URL",
-					"default": null
+					"values": "none or auto; auto prepares the player near the viewport",
+					"default": "none"
 				}
 			],
 			"implementation": [
 				"src/plugins/markdown/core/bilibili.d.mts",
 				"src/plugins/markdown/core/bilibili.mjs",
+				"src/plugins/markdown/core/video-preload.mjs",
 				"src/plugins/markdown/remark-bilibili.mjs",
 				"src/plugins/rehype-component-bilibili.mjs"
 			],
@@ -444,9 +447,9 @@
 			"styles": ["src/styles/markdown/bilibili.css"],
 			"runtime": {
 				"mode": "client-enhanced",
-				"modules": ["src/utils/bilibili.ts"],
+				"modules": ["src/utils/bilibili.ts", "src/utils/video-facade.ts"],
 				"network": [
-					"activation only: https://player.bilibili.com/player.html?bvid={bvid}&p={p}&high_quality=1&danmaku=0"
+					"viewport preloading or explicit activation: https://player.bilibili.com/player.html?bvid={bvid}&p={p}&high_quality=1&danmaku=0"
 				]
 			},
 			"docs": ["src/content/posts/video.md"],
@@ -455,7 +458,7 @@
 				"tests/site/markdown-runtime.spec.ts"
 			],
 			"notes": [
-				"初始 SSR DOM 不含 iframe、Bilibili 脚本或 provider poster 请求；标题和 Bilibili 页面链接始终保留。",
+				"初始 SSR DOM 不含 iframe、Bilibili 脚本或 provider 请求；标题和 Bilibili 页面链接始终保留。",
 				"非法 BV 号、空标题或非法分 P 不触发可选资源；运行时只从验证后的字段生成白名单播放器 URL。"
 			]
 		},
@@ -1252,11 +1255,11 @@
 			"status": "stable",
 			"category": "leaf-directive",
 			"source": "shirone",
-			"summary": "将受限 YouTube 视频 ID 渲染为可访问的 SSR 视频 facade，并在明确点击后加载 privacy-enhanced 播放器。",
+			"summary": "将受限 YouTube 视频 ID 渲染为可访问的 SSR 视频 facade，并在接近视口时预加载或由点击加载 privacy-enhanced 播放器。",
 			"forms": [
 				{
 					"kind": "leaf-directive",
-					"pattern": "::youtube{id=\"...\" title=\"...\" poster=\"/...\"}",
+					"pattern": "::youtube{id=\"...\" title=\"...\" preload=\"auto\"}",
 					"example": "::youtube{id=\"5gIf0_xpFPI\" title=\"YouTube video\"}"
 				}
 			],
@@ -1274,15 +1277,16 @@
 					"default": null
 				},
 				{
-					"name": "poster",
+					"name": "preload",
 					"required": false,
-					"values": "site-root path or explicit HTTPS image URL",
-					"default": null
+					"values": "none or auto; auto prepares the player near the viewport",
+					"default": "none"
 				}
 			],
 			"implementation": [
 				"src/plugins/markdown/core/youtube.d.mts",
 				"src/plugins/markdown/core/youtube.mjs",
+				"src/plugins/markdown/core/video-preload.mjs",
 				"src/plugins/markdown/remark-youtube.mjs",
 				"src/plugins/rehype-component-youtube.mjs"
 			],
@@ -1290,9 +1294,9 @@
 			"styles": ["src/styles/markdown/youtube.css"],
 			"runtime": {
 				"mode": "client-enhanced",
-				"modules": ["src/utils/youtube.ts"],
+				"modules": ["src/utils/youtube.ts", "src/utils/video-facade.ts"],
 				"network": [
-					"activation only: https://www.youtube-nocookie.com/embed/{id}?rel=0&modestbranding=1"
+					"viewport preloading or explicit activation: https://www.youtube-nocookie.com/embed/{id}?rel=0&modestbranding=1"
 				]
 			},
 			"docs": ["src/content/posts/video.md"],
@@ -1301,8 +1305,8 @@
 				"tests/site/markdown-runtime.spec.ts"
 			],
 			"notes": [
-				"初始 SSR DOM 不含 iframe、YouTube 脚本或 provider poster 请求；标题和 YouTube 页面链接始终保留。",
-				"非法视频 ID、空标题或非法海报地址不触发可选资源；运行时只从验证后的字段生成白名单播放器 URL。"
+				"初始 SSR DOM 不含 iframe、YouTube 脚本或 provider 请求；标题和 YouTube 页面链接始终保留。",
+				"非法视频 ID 或空标题不触发可选资源；运行时只从验证后的字段生成白名单播放器 URL。"
 			]
 		}
 	]

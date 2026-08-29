@@ -1,5 +1,7 @@
 export const BILIBILI_BVID_PATTERN = /^BV[1-9A-HJ-NP-Za-km-z]{10}$/;
 
+import { getVideoPreload } from "./video-preload.mjs";
+
 const POSITIVE_INTEGER_PATTERN = /^[1-9]\d*$/;
 
 function getText(value) {
@@ -15,34 +17,22 @@ function getPart(value) {
 	return Number.isSafeInteger(parsedPart) ? parsedPart : null;
 }
 
-function getSafePoster(value) {
-	const poster = getText(value);
-	if (!poster) return "";
-	if (poster.startsWith("/") && !poster.startsWith("//")) return poster;
-
-	try {
-		return new URL(poster).protocol === "https:" ? poster : null;
-	} catch {
-		return null;
-	}
-}
-
 /** Normalizes the only author-controlled fields accepted by the facade. */
 export function getBilibiliEmbedData(attributes = {}) {
 	const bvid = getText(attributes.bvid);
 	const title = getText(attributes.title);
 	const part = getPart(attributes.p);
-	const poster = getSafePoster(attributes.poster);
+	const preload = getVideoPreload(attributes.preload);
 	if (
 		!BILIBILI_BVID_PATTERN.test(bvid) ||
 		!title ||
 		part === null ||
-		poster === null
+		preload === null
 	) {
 		return null;
 	}
 
-	return { bvid, title, part, poster };
+	return { bvid, title, part, preload };
 }
 
 /** Produces the sole provider URL permitted after an explicit user action. */

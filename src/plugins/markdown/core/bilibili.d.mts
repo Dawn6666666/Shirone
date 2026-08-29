@@ -4,7 +4,7 @@ export type BilibiliEmbedData = {
 	bvid: string;
 	title: string;
 	part: number;
-	poster: string;
+	preload: "none" | "auto";
 };
 
 export function getBilibiliEmbedData(

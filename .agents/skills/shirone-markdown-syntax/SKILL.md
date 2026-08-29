@@ -29,19 +29,19 @@ description: Authoring content with Shirone's custom Markdown syntaxes - admonit
 
 ## Bilibili 视频
 
-使用 `::bilibili{bvid="BV..." title="..." p=1 poster="/..."}` 嵌入视频。`bvid` 和非空 `title` 必填，`p` 为可选正整数，`poster` 仅接受站内根路径或显式 HTTPS 图片地址。首屏输出标题、播放按钮和 Bilibili 回退链接；点击播放按钮后才加载播放器。非法输入保留为普通 Markdown。
+使用 `::bilibili{bvid="BV..." title="..." p=1 preload="auto"}` 嵌入视频。`bvid` 和非空 `title` 必填，`p` 为可选正整数，`preload` 可选值为 `none` 或 `auto`。`auto` 会在视频接近视口时准备播放器，避免首屏一次性加载所有第三方资源；省略时保持点击后加载。首屏输出标题、播放按钮和 Bilibili 回退链接。非法输入保留为普通 Markdown。
 
 ## AcFun 视频
 
-使用 `::acfun{acid="ac..." title="..." poster="/..."}` 嵌入视频。`acid` 必须是 `ac` 加正整数，`title` 必填；`poster` 仅接受站内根路径或显式 HTTPS 图片地址。首屏输出标题、播放按钮和 AcFun 回退链接；点击播放按钮后才加载播放器。非法输入保留为普通 Markdown。
+使用 `::acfun{acid="ac..." title="..." preload="auto"}` 嵌入视频。`acid` 必须是 `ac` 加正整数，`title` 必填；`preload` 可选值为 `none` 或 `auto`。`auto` 会在视频接近视口时准备播放器，省略时保持点击后加载。首屏输出标题、播放按钮和 AcFun 回退链接。非法输入保留为普通 Markdown。
 
 ## ArtPlayer 视频
 
-使用 `::artplayer{src="/..." title="..." poster="/..."}` 输出原生视频控件。`src` 和非空 `title` 必填，来源仅接受站内根路径或显式 HTTPS 地址；`poster` 可选且采用相同限制。首版不加载 ArtPlayer npm 包或客户端模块，视频使用 `preload="none"`，原生控件和源文件链接在无 JavaScript 时仍可用。
+使用 `::artplayer{src="/..." title="..." preload="auto"}` 输出原生视频控件。`src` 和非空 `title` 必填，来源仅接受站内根路径或显式 HTTPS 地址；`preload` 可选值为 `none` 或 `auto`，默认是 `none`。首版不加载 ArtPlayer npm 包或客户端模块，原生控件和源文件链接在无 JavaScript 时仍可用。
 
 ## YouTube 视频
 
-使用 `::youtube{id="..." title="..." poster="/..."}` 嵌入视频。`id` 必须是严格的 11 字符 YouTube 视频 ID，`title` 必填；`poster` 仅接受站内根路径或显式 HTTPS 图片地址。首屏输出标题、播放按钮和 YouTube 回退链接；点击播放按钮后才加载 privacy-enhanced 播放器。非法输入保留为普通 Markdown。
+使用 `::youtube{id="..." title="..." preload="auto"}` 嵌入视频。`id` 必须是严格的 11 字符 YouTube 视频 ID，`title` 必填；`preload` 可选值为 `none` 或 `auto`。`auto` 会在视频接近视口时准备 privacy-enhanced 播放器，省略时保持点击后加载。首屏输出标题、播放按钮和 YouTube 回退链接。非法输入保留为普通 Markdown。
 
 ## 使用要点
 

@@ -1,6 +1,7 @@
 import { getYouTubePlayerUrl } from "../plugins/markdown/core/youtube.mjs";
+import { bindVideoFacadePreload } from "./video-facade";
 
-function activateFacade(facade: HTMLElement): void {
+export function activateYouTubeFacade(facade: HTMLElement): void {
 	if (facade.dataset.youtubeState === "active") return;
 
 	const stage = facade.querySelector<HTMLElement>(".m3-youtube__stage");
@@ -50,6 +51,7 @@ export function initYouTubeEmbeds(root: ParentNode = document): void {
 		if (!button) continue;
 
 		facade.dataset.youtubeBound = "true";
-		button.addEventListener("click", () => activateFacade(facade));
+		button.addEventListener("click", () => activateYouTubeFacade(facade));
 	}
+	bindVideoFacadePreload(root, "[data-youtube]", activateYouTubeFacade);
 }

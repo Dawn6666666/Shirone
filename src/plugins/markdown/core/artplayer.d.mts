@@ -1,7 +1,7 @@
 export type ArtPlayerEmbedData = {
 	src: string;
 	title: string;
-	poster: string;
+	preload: "none" | "auto";
 };
 
 export function getArtPlayerEmbedData(

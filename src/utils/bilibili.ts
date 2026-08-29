@@ -1,6 +1,7 @@
 import { getBilibiliPlayerUrl } from "../plugins/markdown/core/bilibili.mjs";
+import { bindVideoFacadePreload } from "./video-facade";
 
-function activateFacade(facade: HTMLElement): void {
+export function activateBilibiliFacade(facade: HTMLElement): void {
 	if (facade.dataset.bilibiliState === "active") return;
 
 	const stage = facade.querySelector<HTMLElement>(".m3-bilibili__stage");
@@ -53,6 +54,7 @@ export function initBilibiliEmbeds(root: ParentNode = document): void {
 		if (!button) continue;
 
 		facade.dataset.bilibiliBound = "true";
-		button.addEventListener("click", () => activateFacade(facade));
+		button.addEventListener("click", () => activateBilibiliFacade(facade));
 	}
+	bindVideoFacadePreload(root, "[data-bilibili]", activateBilibiliFacade);
 }

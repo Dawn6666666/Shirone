@@ -34,6 +34,7 @@ test("rejects malformed AcFun fields without producing a facade", async () => {
 		'::acfun{acid="https://www.acfun.cn/v/ac48649632" title="URL input"}',
 		'::acfun{acid="ac0" title="Invalid ID"}',
 		'::acfun{acid="ac48649632" title=""}',
+		'::acfun{acid="ac48649632" title="Invalid preload" preload="eager"}',
 	]) {
 		const result = await render(markdown);
 		assert.doesNotMatch(result.code, /data-acfun/);
@@ -42,16 +43,17 @@ test("rejects malformed AcFun fields without producing a facade", async () => {
 	}
 });
 
-test("accepts only safe poster sources", async () => {
-	const localPoster = await render(
-		'::acfun{acid="ac48649632" title="Local poster" poster="/images/poster.webp"}',
+test("ignores the removed poster attribute", async () => {
+	const result = await render(
+		'::acfun{acid="ac48649632" title="Video" poster="/images/poster.webp"}',
 	);
-	assert.match(localPoster.code, /src="\/images\/poster\.webp"/);
+	assert.match(result.code, /data-acfun/);
+	assert.doesNotMatch(result.code, /poster|m3-acfun__poster/);
+});
 
-	const unsafePoster = await render(
-		'::acfun{acid="ac48649632" title="Unsafe poster" poster="javascript:alert(1)"}',
+test("accepts viewport-aware preloading", async () => {
+	const result = await render(
+		'::acfun{acid="ac48649632" title="Prepared video" preload="auto"}',
 	);
-	assert.doesNotMatch(unsafePoster.code, /data-acfun/);
-	assert.match(unsafePoster.code, /::acfun/);
-	assert.deepEqual(unsafePoster.metadata.frontmatter.markdownSyntaxes.syntaxes, []);
+	assert.match(result.code, /data-video-preload="auto"/);
 });

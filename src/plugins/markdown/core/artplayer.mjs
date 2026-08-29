@@ -2,6 +2,8 @@ function getText(value) {
 	return typeof value === "string" ? value.trim() : "";
 }
 
+import { getVideoPreload } from "./video-preload.mjs";
+
 function getSafeUrl(value) {
 	const url = getText(value);
 	if (!url) return null;
@@ -14,18 +16,12 @@ function getSafeUrl(value) {
 	}
 }
 
-function getSafePoster(value) {
-	const poster = getText(value);
-	if (!poster) return "";
-	return getSafeUrl(poster);
-}
-
 /** Normalizes the only author-controlled fields accepted by native video. */
 export function getArtPlayerEmbedData(attributes = {}) {
 	const src = getSafeUrl(attributes.src);
 	const title = getText(attributes.title);
-	const poster = getSafePoster(attributes.poster);
-	if (!src || !title || poster === null) return null;
+	const preload = getVideoPreload(attributes.preload);
+	if (!src || !title || preload === null) return null;
 
-	return { src, title, poster };
+	return { src, title, preload };
 }

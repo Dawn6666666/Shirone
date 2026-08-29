@@ -34,6 +34,7 @@ test("rejects malformed Bilibili fields without producing a facade", async () =>
 	for (const markdown of [
 		'::bilibili{bvid="av170001" title="Legacy ID"}',
 		'::bilibili{bvid="BV1fK4y1s7Qf" title=""}',
+		'::bilibili{bvid="BV1fK4y1s7Qf" title="Invalid preload" preload="eager"}',
 		'::bilibili{bvid="BV1fK4y1s7Qf" title="Bad part" p=0}',
 	]) {
 		const result = await render(markdown);
@@ -43,16 +44,17 @@ test("rejects malformed Bilibili fields without producing a facade", async () =>
 	}
 });
 
-test("accepts only safe poster sources", async () => {
-	const localPoster = await render(
-		'::bilibili{bvid="BV1fK4y1s7Qf" title="Local poster" poster="/images/poster.webp"}',
+test("ignores the removed poster attribute", async () => {
+	const result = await render(
+		'::bilibili{bvid="BV1fK4y1s7Qf" title="Video" poster="/images/poster.webp"}',
 	);
-	assert.match(localPoster.code, /src="\/images\/poster\.webp"/);
+	assert.match(result.code, /data-bilibili/);
+	assert.doesNotMatch(result.code, /poster|m3-bilibili__poster/);
+});
 
-	const unsafePoster = await render(
-		'::bilibili{bvid="BV1fK4y1s7Qf" title="Unsafe poster" poster="javascript:alert(1)"}',
+test("accepts viewport-aware preloading", async () => {
+	const result = await render(
+		'::bilibili{bvid="BV1fK4y1s7Qf" title="Prepared video" preload="auto"}',
 	);
-	assert.doesNotMatch(unsafePoster.code, /data-bilibili/);
-	assert.match(unsafePoster.code, /::bilibili/);
-	assert.deepEqual(unsafePoster.metadata.frontmatter.markdownSyntaxes.syntaxes, []);
+	assert.match(result.code, /data-video-preload="auto"/);
 });

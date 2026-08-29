@@ -1,6 +1,7 @@
 import { getAcFunPlayerUrl } from "../plugins/markdown/core/acfun.mjs";
+import { bindVideoFacadePreload } from "./video-facade";
 
-function activateFacade(facade: HTMLElement): void {
+export function activateAcFunFacade(facade: HTMLElement): void {
 	if (facade.dataset.acfunState === "active") return;
 
 	const stage = facade.querySelector<HTMLElement>(".m3-acfun__stage");
@@ -50,6 +51,7 @@ export function initAcFunEmbeds(root: ParentNode = document): void {
 		if (!button) continue;
 
 		facade.dataset.acfunBound = "true";
-		button.addEventListener("click", () => activateFacade(facade));
+		button.addEventListener("click", () => activateAcFunFacade(facade));
 	}
+	bindVideoFacadePreload(root, "[data-acfun]", activateAcFunFacade);
 }

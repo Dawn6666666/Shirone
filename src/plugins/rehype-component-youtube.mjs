@@ -10,23 +10,9 @@ export function YouTubeComponent(properties, children) {
 
 	const embed = getYouTubeEmbedData(properties);
 	if (!embed) return null;
-	const { id, title, poster } = embed;
+	const { id, title, preload } = embed;
 
-	const stageChildren = [];
-	if (poster) {
-		stageChildren.push(
-			h("img", {
-				class: "m3-youtube__poster",
-				src: poster,
-				alt: "",
-				loading: "lazy",
-				decoding: "async",
-				referrerPolicy: "no-referrer",
-			}),
-		);
-	}
-
-	stageChildren.push(
+	const stageChildren = [
 		h(
 			"button",
 			{
@@ -37,7 +23,7 @@ export function YouTubeComponent(properties, children) {
 			},
 			[h("span", { class: "m3-youtube__play-icon", "aria-hidden": "true" })],
 		),
-	);
+	];
 
 	return h(
 		"figure",
@@ -46,6 +32,7 @@ export function YouTubeComponent(properties, children) {
 			dataYoutube: true,
 			dataYoutubeId: id,
 			dataYoutubeTitle: title,
+			dataVideoPreload: preload,
 		},
 		[
 			h("div", { class: "m3-youtube__stage" }, stageChildren),

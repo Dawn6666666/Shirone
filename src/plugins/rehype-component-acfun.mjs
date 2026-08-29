@@ -10,23 +10,9 @@ export function AcFunComponent(properties, children) {
 
 	const embed = getAcFunEmbedData(properties);
 	if (!embed) return null;
-	const { acid, title, poster } = embed;
+	const { acid, title, preload } = embed;
 
-	const stageChildren = [];
-	if (poster) {
-		stageChildren.push(
-			h("img", {
-				class: "m3-acfun__poster",
-				src: poster,
-				alt: "",
-				loading: "lazy",
-				decoding: "async",
-				referrerPolicy: "no-referrer",
-			}),
-		);
-	}
-
-	stageChildren.push(
+	const stageChildren = [
 		h(
 			"button",
 			{
@@ -37,7 +23,7 @@ export function AcFunComponent(properties, children) {
 			},
 			[h("span", { class: "m3-acfun__play-icon", "aria-hidden": "true" })],
 		),
-	);
+	];
 
 	return h(
 		"figure",
@@ -46,6 +32,7 @@ export function AcFunComponent(properties, children) {
 			dataAcfun: true,
 			dataAcfunAcid: acid,
 			dataAcfunTitle: title,
+			dataVideoPreload: preload,
 		},
 		[
 			h("div", { class: "m3-acfun__stage" }, stageChildren),

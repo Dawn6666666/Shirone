@@ -130,24 +130,30 @@ function trackYouTubePlayerRequests(page: Page): string[] {
 }
 
 test.describe("Markdown syntax runtime loading", () => {
-	test("renders ArtPlayer as a native video without preloading and cleans styles on navigation", async ({
+	test("preloads ArtPlayer as a native video and cleans styles on navigation", async ({
 		page,
 	}) => {
 		const videoRequests = trackArtPlayerVideoRequests(page);
+		await page.route(
+			"https://www.pexels.com/download/video/38538991/",
+			(route) =>
+				route.fulfill({ status: 200, contentType: "video/mp4", body: "" }),
+		);
 
 		await page.goto(ARTPLAYER_VIDEO_PATH, { waitUntil: "networkidle" });
 		const player = page.locator("#swup-container [data-artplayer]");
 		const video = player.locator("video");
 		await expect(player).toHaveCount(1);
 		await expect(player.locator("iframe")).toHaveCount(0);
-		await expect(video).toHaveAttribute("preload", "none");
+		await expect(video).toHaveAttribute("preload", "auto");
 		await expect(video).toHaveAttribute("controls", "");
 		await expect(video).toHaveAttribute("playsinline", "");
 		await expect(video).toHaveAttribute(
 			"src",
 			"https://www.pexels.com/download/video/38538991/",
 		);
-		expect(videoRequests).toEqual([]);
+		await expect(video).not.toHaveAttribute("poster");
+		expect(videoRequests.length).toBeGreaterThan(0);
 		await expect(
 			page.locator('style[data-swup-optional="artplayer"]'),
 		).toHaveCount(1);
@@ -266,19 +272,25 @@ test.describe("Markdown syntax runtime loading", () => {
 		).toHaveCount(0);
 	});
 
-	test("defers the AcFun player until facade activation and cleans styles on navigation", async ({
+	test("preloads the AcFun player near the viewport and cleans styles on navigation", async ({
 		page,
 	}) => {
 		const playerRequests = trackAcFunPlayerRequests(page);
 		await page.route("https://www.acfun.cn/player/**", (route) =>
-			route.fulfill({ status: 200, contentType: "text/html", body: "Player" }),
+			route.fulfill({
+				status: 200,
+				contentType: "text/html",
+				body: "<!doctype html><main><h1>Player</h1></main>",
+			}),
 		);
 
 		await page.goto(ACFUN_VIDEO_PATH, { waitUntil: "networkidle" });
 		const facade = page.locator("#swup-container [data-acfun]");
 		await expect(facade).toHaveCount(1);
-		await expect(facade.locator("iframe")).toHaveCount(0);
-		await expect(playerRequests).toEqual([]);
+		await expect(facade.locator(".m3-acfun__poster")).toHaveCount(0);
+		await facade.scrollIntoViewIfNeeded();
+		await expect(facade.locator("iframe")).toHaveCount(1);
+		expect(playerRequests).toEqual(["https://www.acfun.cn/player/ac48649632"]);
 		await expect(page.locator('style[data-swup-optional="acfun"]')).toHaveCount(
 			1,
 		);
@@ -295,7 +307,6 @@ test.describe("Markdown syntax runtime loading", () => {
 			.analyze();
 		expect(a11y.violations).toEqual([]);
 
-		await facade.locator("[data-acfun-activate]").click();
 		const player = facade.locator("iframe");
 		await expect(player).toHaveAttribute(
 			"src",
@@ -319,19 +330,27 @@ test.describe("Markdown syntax runtime loading", () => {
 		).toHaveCount(0);
 	});
 
-	test("defers the YouTube player until facade activation and cleans styles on navigation", async ({
+	test("preloads the YouTube player near the viewport and cleans styles on navigation", async ({
 		page,
 	}) => {
 		const playerRequests = trackYouTubePlayerRequests(page);
 		await page.route("https://www.youtube-nocookie.com/**", (route) =>
-			route.fulfill({ status: 200, contentType: "text/html", body: "Player" }),
+			route.fulfill({
+				status: 200,
+				contentType: "text/html",
+				body: "<!doctype html><main><h1>Player</h1></main>",
+			}),
 		);
 
 		await page.goto(YOUTUBE_VIDEO_PATH, { waitUntil: "networkidle" });
 		const facade = page.locator("#swup-container [data-youtube]");
 		await expect(facade).toHaveCount(1);
-		await expect(facade.locator("iframe")).toHaveCount(0);
-		await expect(playerRequests).toEqual([]);
+		await expect(facade.locator(".m3-youtube__poster")).toHaveCount(0);
+		await facade.scrollIntoViewIfNeeded();
+		await expect(facade.locator("iframe")).toHaveCount(1);
+		expect(playerRequests).toEqual([
+			"https://www.youtube-nocookie.com/embed/5gIf0_xpFPI?rel=0&modestbranding=1",
+		]);
 		await expect(
 			page.locator('style[data-swup-optional="youtube"]'),
 		).toHaveCount(1);
@@ -348,7 +367,6 @@ test.describe("Markdown syntax runtime loading", () => {
 			.analyze();
 		expect(a11y.violations).toEqual([]);
 
-		await facade.locator("[data-youtube-activate]").click();
 		const player = facade.locator("iframe");
 		await expect(player).toHaveAttribute(
 			"src",
@@ -374,19 +392,27 @@ test.describe("Markdown syntax runtime loading", () => {
 		).toHaveCount(0);
 	});
 
-	test("defers the Bilibili player until facade activation and cleans styles on navigation", async ({
+	test("preloads the Bilibili player near the viewport and cleans styles on navigation", async ({
 		page,
 	}) => {
 		const playerRequests = trackBilibiliPlayerRequests(page);
 		await page.route("https://player.bilibili.com/**", (route) =>
-			route.fulfill({ status: 200, contentType: "text/html", body: "Player" }),
+			route.fulfill({
+				status: 200,
+				contentType: "text/html",
+				body: "<!doctype html><main><h1>Player</h1></main>",
+			}),
 		);
 
 		await page.goto(BILIBILI_VIDEO_PATH, { waitUntil: "networkidle" });
 		const facade = page.locator("#swup-container [data-bilibili]");
 		await expect(facade).toHaveCount(1);
-		await expect(facade.locator("iframe")).toHaveCount(0);
-		await expect(playerRequests).toEqual([]);
+		await expect(facade.locator(".m3-bilibili__poster")).toHaveCount(0);
+		await facade.scrollIntoViewIfNeeded();
+		await expect(facade.locator("iframe")).toHaveCount(1);
+		expect(playerRequests).toEqual([
+			"https://player.bilibili.com/player.html?bvid=BV1fK4y1s7Qf&p=1&high_quality=1&danmaku=0",
+		]);
 		await expect(
 			page.locator('style[data-swup-optional="bilibili"]'),
 		).toHaveCount(1);
@@ -403,7 +429,6 @@ test.describe("Markdown syntax runtime loading", () => {
 			.analyze();
 		expect(a11y.violations).toEqual([]);
 
-		await facade.locator("[data-bilibili-activate]").click();
 		const player = facade.locator("iframe");
 		await expect(player).toHaveAttribute(
 			"src",

@@ -21,16 +21,16 @@ published: 2023-10-19
 
 ## YouTube
 
-::youtube{id="5gIf0_xpFPI" title="YouTube video"}
+::youtube{id="5gIf0_xpFPI" title="YouTube video" preload="auto"}
 
 ## Bilibili
 
-::bilibili{bvid="BV1fK4y1s7Qf" title="Bilibili video" p=1}
+::bilibili{bvid="BV1fK4y1s7Qf" title="Bilibili video" p=1 preload="auto"}
 
 ## AcFun
 
-::acfun{acid="ac48649632" title="AcFun video"}
+::acfun{acid="ac48649632" title="AcFun video" preload="auto"}
 
 ## ArtPlayer
 
-::artplayer{src="https://www.pexels.com/download/video/38538991/" title="Sintel trailer"}
+::artplayer{src="https://www.pexels.com/download/video/38538991/" title="Sintel trailer" preload="auto"}

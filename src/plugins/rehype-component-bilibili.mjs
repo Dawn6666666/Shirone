@@ -10,25 +10,11 @@ export function BilibiliComponent(properties, children) {
 
 	const embed = getBilibiliEmbedData(properties);
 	if (!embed) return null;
-	const { bvid, title, part, poster } = embed;
+	const { bvid, title, part, preload } = embed;
 
 	const videoUrl = new URL(`https://www.bilibili.com/video/${bvid}/`);
 	videoUrl.searchParams.set("p", String(part));
-	const stageChildren = [];
-	if (poster) {
-		stageChildren.push(
-			h("img", {
-				class: "m3-bilibili__poster",
-				src: poster,
-				alt: "",
-				loading: "lazy",
-				decoding: "async",
-				referrerPolicy: "no-referrer",
-			}),
-		);
-	}
-
-	stageChildren.push(
+	const stageChildren = [
 		h(
 			"button",
 			{
@@ -39,7 +25,7 @@ export function BilibiliComponent(properties, children) {
 			},
 			[h("span", { class: "m3-bilibili__play-icon", "aria-hidden": "true" })],
 		),
-	);
+	];
 
 	return h(
 		"figure",
@@ -49,6 +35,7 @@ export function BilibiliComponent(properties, children) {
 			dataBilibiliBvid: bvid,
 			dataBilibiliPart: String(part),
 			dataBilibiliTitle: title,
+			dataVideoPreload: preload,
 		},
 		[
 			h("div", { class: "m3-bilibili__stage" }, stageChildren),

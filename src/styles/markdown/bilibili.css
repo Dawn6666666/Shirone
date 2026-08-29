@@ -14,17 +14,12 @@
   border-radius: var(--shape-corner-l);
 }
 
-.m3-bilibili__poster,
 .m3-bilibili__player {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   border: 0;
-}
-
-.m3-bilibili__poster {
-  object-fit: cover;
 }
 
 .m3-bilibili__play {

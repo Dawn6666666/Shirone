@@ -34,7 +34,7 @@ test("rejects malformed ArtPlayer fields without rendering a player", async () =
 		'::artplayer{title="Missing source"}',
 		'::artplayer{src="javascript:alert(1)" title="Unsafe source"}',
 		'::artplayer{src="/videos/example.mp4" title=""}',
-		'::artplayer{src="/videos/example.mp4" title="Unsafe poster" poster="javascript:alert(1)"}',
+		'::artplayer{src="/videos/example.mp4" title="Invalid preload" preload="eager"}',
 	]) {
 		const result = await render(markdown);
 		assert.doesNotMatch(result.code, /data-artplayer/);
@@ -43,11 +43,18 @@ test("rejects malformed ArtPlayer fields without rendering a player", async () =
 	}
 });
 
-test("accepts safe local video and poster sources", async () => {
+test("accepts safe local video and ignores the removed poster attribute", async () => {
 	const result = await render(
 		'::artplayer{src="/videos/example.mp4" title="Local video" poster="/images/poster.webp"}',
 	);
 
 	assert.match(result.code, /src="\/videos\/example\.mp4"/);
-	assert.match(result.code, /poster="\/images\/poster\.webp"/);
+	assert.doesNotMatch(result.code, /poster|m3-artplayer__poster/);
+});
+
+test("accepts viewport-aware native preloading", async () => {
+	const result = await render(
+		'::artplayer{src="/videos/example.mp4" title="Prepared video" preload="auto"}',
+	);
+	assert.match(result.code, /<video[^>]+preload="auto"/);
 });
