@@ -1,6 +1,6 @@
 ---
 name: shirone-markdown-dev
-description: Developing custom Markdown syntaxes and remark/rehype plugins for the Shirone theme - plugin ownership boundaries, registration order, syntax manifest, content-driven on-demand loading, and tests. Use when adding or changing Markdown extensions, prose plugins, or generated component styles.
+description: Developing custom Markdown syntaxes and remark/rehype plugins for the Shirone theme - plugin ownership boundaries, registration order, syntax manifest, content-driven on-demand loading, npm integration sync, and tests. Use when adding or changing Markdown extensions, prose plugins, generated component styles, or package-mode wiring.
 ---
 
 # Shirone Markdown 扩展开发
@@ -33,3 +33,7 @@ description: Developing custom Markdown syntaxes and remark/rehype plugins for t
 ## 验证命令
 
 `pnpm.cmd check:markdown-manifest` → `pnpm.cmd check:manifest` → `node --test tests/plugins`(递归运行对应插件单测)→ 最小 `tests/site/<spec>.spec.ts` + `tests/site/a11y.spec.ts` → `npx.cmd astro check` → `pnpm.cmd build`。变更陈旧时清 `.astro/data-store.json` 重启。
+
+## npm 包兼容性
+
+Markdown 语法和样式修改必须能被包模式 integration 发现。新增语法和 stylesheet pack 时登记到 `src/plugins/markdown/manifest.json`，并在 `shirones` 打包仓库同步处理示例内容 rewrite。修改路径或 integration wiring 前阅读 `docs/npm-package-mode.md`、`docs/packaging-contract.md` 和 `rules/project-rules.md` 第 12 节。

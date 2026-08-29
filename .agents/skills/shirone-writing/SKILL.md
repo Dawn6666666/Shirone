@@ -58,3 +58,7 @@ hideHomeContent: true   # 加密内容在首页隐藏(默认 true)
 - `scripts/new-post.js` — `pnpm new-post` 脚手架行为
 - `src/content/posts/` — 示例文章(语法活文档)
 - `src/content/moments/` — 动态示例
+
+## npm 包模式内容路径
+
+在运行 `npx.cmd shirones init` 初始化的项目中，将文章和 moments 写入 `shirones/content/posts/` 与 `shirones/content/moments/`。不要编辑 `node_modules/shirones/src/content/`；包模式路径以及 include/图片的归属规则见 `docs/npm-package-mode.md` 和 `docs/packaging-contract.md`。

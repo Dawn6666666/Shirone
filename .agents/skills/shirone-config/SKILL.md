@@ -1,6 +1,6 @@
 ---
 name: shirone-config
-description: Configuring a Shirone blog site - site identity, theme colors, navigation, sidebar, pages, comments, music, anime sources, fonts, llms.txt, and build/deploy. Use when enabling or tuning features, changing site behavior, or preparing deployment.
+description: Configuring a Shirone blog site - site identity, theme colors, navigation, sidebar, pages, comments, music, anime sources, fonts, llms.txt, npm package initialization, and build/deploy. Use when enabling or tuning features, changing site behavior, preparing deployment, or configuring a project that consumes shirones.
 ---
 
 # Shirone 站点配置
@@ -62,3 +62,7 @@ description: Configuring a Shirone blog site - site identity, theme colors, navi
 - `README.md` — Quick Start 与主配置表
 - `src/config/` 各文件 — 字段级注释文档
 - `src/data/` — 内容实体数据文件
+
+## npm 包模式配置
+
+运行 `npx.cmd shirones init` 后，用户配置位于 `shirones/config/`，内容位于 `shirones/content/`。不要编辑 `node_modules/shirones/src/`；包模式的路径和覆盖规则以 `docs/npm-package-mode.md`、`docs/packaging-contract.md` 为准。修改主题默认值时遵循 `rules/project-rules.md` 第 12 节，并同时验证源码模式和包模式。

@@ -1,6 +1,6 @@
 ---
 name: shirone-dev-workflow
-description: Daily development workflow for the Shirone Astro blog theme - environment setup, validation gates, cache clearing, and commit conventions. Use when building, testing, validating, formatting, or committing changes in this repository.
+description: Daily development workflow for the Shirone Astro blog theme - environment setup, validation gates, cache clearing, commit conventions, npm package-mode smoke tests, and release validation. Use when building, testing, validating, formatting, committing, or preparing a Shirone package release.
 ---
 
 # Shirone 开发工作流
@@ -50,3 +50,11 @@ Shirone 是 Astro 7 + Svelte 5 + Tailwind 4 + Stylus + pnpm 的 M3E 博客主题
 - `rules/project-rules.md` — 项目硬性规则与质量门禁
 - `rules/pitfalls.md` — Svelte/Astro/Stylus/缓存/测试踩坑记录
 - `INDEX.md` — 部署分层与标准部署流程
+
+## npm 包模式与发布
+
+Shirone 同时支持源码 checkout 和已发布的 `shirones` npm 包。修改主题源码前先阅读 `docs/npm-package-mode.md`、`docs/packaging-contract.md`，并遵循 `rules/project-rules.md` 第 12 节，确保源码模式与包模式同步。包模式下禁止通过 `process.cwd()` 读取主题自有文件。
+
+进行包模式冒烟测试时，在临时项目运行 `npx.cmd shirones init`，检查 `shirones/`、`public/`、项目根依赖和 pnpm 构建脚本许可配置。先运行 `pnpm.cmd check:manifest`、`npx.cmd astro check`、`pnpm.cmd type-check`、`pnpm.cmd build`，再在包模式临时项目运行 `astro build` 和开发服务器冒烟测试。
+
+发布由 `yCENzh/shirones` 仓库的 Actions -> Build & Publish 手动触发；合并前使用 `Build and validate, but do not publish` 进行预演。npm 版本以本仓库 `package.json` 的 `version` 为准。

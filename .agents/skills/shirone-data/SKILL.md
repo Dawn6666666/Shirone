@@ -46,3 +46,7 @@ public/images/albums/summer/
 - `src/data/` — 各数据页内容实体
 - `src/config/` — 各数据页行为配置
 - `src/pages/AGENTS.md` — 相册保护与 SSR 约束
+
+## npm 包模式数据路径
+
+运行 `npx.cmd shirones init` 后，用户数据生成在 `shirones/config/data/` 和 `shirones/content/`，相册及其他静态媒体仍位于用户项目的 `public/`。不要编辑 `node_modules/shirones` 中的包文件；构建期消费数据路径时遵循 `docs/npm-package-mode.md` 和 `docs/packaging-contract.md`。

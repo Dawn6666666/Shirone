@@ -26,7 +26,7 @@
 
 | 技能 | 适用任务 |
 |---|---|
-| [shirone-dev-workflow](shirone-dev-workflow/SKILL.md) | 日常开发工作流:环境、验证门禁、缓存清理、提交约定 |
+| [shirone-dev-workflow](shirone-dev-workflow/SKILL.md) | 日常开发与 npm 包发布工作流:环境、双模式验证、缓存清理、提交约定 |
 | [shirone-component-dev](shirone-component-dev/SKILL.md) | 新增/修改/移动组件:分层、M3E 令牌、图标、动效、无障碍 |
 | [shirone-markdown-dev](shirone-markdown-dev/SKILL.md) | 开发自定义 Markdown 语法与 remark/rehype 插件 |
 | [shirone-i18n](shirone-i18n/SKILL.md) | 新增/修改 UI 文案与语言包 |
@@ -39,7 +39,7 @@
 |---|---|
 | [shirone-writing](shirone-writing/SKILL.md) | 撰写文章与动态:frontmatter、草稿、加密、图片 |
 | [shirone-markdown-syntax](shirone-markdown-syntax/SKILL.md) | 使用自定义 Markdown 语法写作 |
-| [shirone-config](shirone-config/SKILL.md) | 站点配置、启用可选功能、构建与部署 |
+| [shirone-config](shirone-config/SKILL.md) | 站点配置、npm 包初始化、启用可选功能、构建与部署 |
 | [shirone-data](shirone-data/SKILL.md) | 管理相册及 friends、anime、projects、skills、devices、timeline 等数据页内容 |
 
 ## 约定

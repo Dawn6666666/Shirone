@@ -42,3 +42,7 @@ description: Creating or modifying UI components in the Shirone theme - atomic d
 ## 验证命令
 
 `npx.cmd astro check` → `pnpm.cmd check:manifest`(动过原子时)→ `pnpm.cmd design:lint`(token 违规)→ 最小 Playwright 分片 + `tests/site/icons.spec.ts` + `tests/site/a11y.spec.ts`;动效域变更加 `tests/site/motion.spec.ts`。
+
+## npm 包兼容性
+
+组件和布局修改必须同时适用于仓库 checkout 与 `node_modules` 中的 `shirones`。遵循 `src/integration/overlay.ts` 的覆盖边界，保持包模式 alias 同步，并避免用 `process.cwd()` 读取主题自有文件。双模式检查清单见 `docs/packaging-contract.md` 和 `rules/project-rules.md` 第 12 节。
