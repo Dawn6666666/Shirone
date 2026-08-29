@@ -61,6 +61,13 @@ const optionalMusicSidebarPlugin = {
 };
 
 const isBuildCommand = process.argv.includes("build");
+const isDevCommand = process.argv.includes("dev");
+const iconifyOfflineIconPath = fileURLToPath(
+	new URL("./node_modules/@iconify/svelte/dist/OfflineIcon.svelte", import.meta.url),
+);
+const iconifyOfflineFunctionsPath = fileURLToPath(
+	new URL("./node_modules/@iconify/svelte/dist/offline-functions.js", import.meta.url),
+);
 
 function resolveVariantSrc(file) {
 	if (isBuildCommand && resolvedFontOptions.subsetting?.enable) {
@@ -219,6 +226,9 @@ export default defineConfig({
 			compilerOptions: {
 				// CSS-source hashing keeps SSR and client scope hashes stable after moves.
 				cssHash: ({ css, hash }) => `svelte-${hash(css)}`,
+				// Keep repeated Svelte compiler diagnostics out of the dev terminal;
+				// check/build still surface the full warning set in CI.
+				warningFilter: () => !isDevCommand,
 			},
 		}),
 		sitemap(),
@@ -233,6 +243,14 @@ export default defineConfig({
 	vite: {
 		resolve: {
 			alias: [
+				{
+					find: "@shirone/iconify-offline",
+					replacement: iconifyOfflineIconPath,
+				},
+				{
+					find: "@shirone/iconify-offline-functions",
+					replacement: iconifyOfflineFunctionsPath,
+				},
 				{
 					find: /^@iconify\/svelte$/,
 					replacement: fileURLToPath(

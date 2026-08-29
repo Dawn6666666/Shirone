@@ -159,12 +159,12 @@ type MarkdownSyntaxSnapshot = {
 | mermaid | Mermaid 专用样式 | `mermaid.ts`、`mermaid-interaction.ts` | 可读 fallback；样式严格按页管理，运行时首次命中加载 |
 | option-groups | option groups | `option-groups.ts` | 条件 CSS + 选择器动态 JS |
 | steps | steps | 无 | 条件 CSS，纯 SSR |
-| github-card | legacy | `github-cards.ts` | SSR 仓库链接 + 条件 GitHub API 元数据增强 |
-| spoiler | legacy | 无 | 不扩展使用面；迁移时补齐触屏与键盘语义 |
+| github-card | stable | `github-cards.ts` | SSR 仓库链接 + 条件 GitHub API 元数据增强 |
+| spoiler | stable | `spoilers.ts` | SSR 原生按钮 + 条件键盘/触屏增强 |
 
 Mermaid 样式由 `stylesheetPacks.mermaid` 输出为 Swup 管理的可选 style block，离开 Mermaid 页面后随页面 head 生命周期移除；`mermaid.ts` 与交互模块仍仅在首次命中 Mermaid DOM 时加载。不得在运行时中手工遍历或删除 Vite 注入节点。
 
-Legacy `github-card` 保留 `::github{repo="owner/repo"}` 作者输入。SSR 始终输出含 `noopener noreferrer` 的仓库链接；仅当页面命中该语法时，`github-cards.ts` 才动态加载并请求 GitHub API，以填充描述、星标、分叉、许可证、语言和头像。请求失败时回退为 SSR 链接，Swup 内容替换会取消尚未完成的请求。`spoiler` 仍为 legacy：在补齐原生键盘与触屏语义前，不得新增使用或作为新语法的实现参考。
+`github-card` 保留 `::github{repo="owner/repo"}` 作者输入。SSR 始终输出含 `noopener noreferrer` 的仓库链接；仅当页面命中该语法时，`github-cards.ts` 才动态加载并请求 GitHub API，以填充描述、星标、分叉、许可证、语言和头像。请求失败时回退为 SSR 链接，Swup 内容替换会取消尚未完成的请求。`spoiler` 使用 SSR 原生按钮，并仅在命中语法时加载键盘/触屏增强模块。
 
 ## 7. Swup 生命周期
 
@@ -235,6 +235,10 @@ npx.cmd playwright test tests/site/markdown-runtime.spec.ts
 npx.cmd playwright test tests/site/<syntax>.spec.ts
 pnpm.cmd build
 ```
+
+### 指令探针顺序陷阱
+
+`remarkFeatureProbes` 必须在 `remarkDirective` 及语法归一化 remark 插件之后运行。在指令解析前，`::github{...}` 这样的叶子指令仍是普通文本，因此最终 HTML 虽然可能包含组件，但 `remarkPluginFrontmatter.markdownSyntaxes` 仍为空，页面级样式表也会被遗漏。应保留渲染器快照断言，并同时验证直接加载和 Swup 导航。
 
 涉及视觉组件时追加 `tests/site/a11y.spec.ts` 的相关页面；涉及 Mermaid、图片、代码树或动效时追加对应专项用例。
 

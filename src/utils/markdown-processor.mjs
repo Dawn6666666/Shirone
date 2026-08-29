@@ -24,6 +24,7 @@ import { remarkAbbreviations } from "../plugins/markdown/remark-abbreviations.mj
 import { remarkAdmonitions } from "../plugins/markdown/remark-admonitions.mjs";
 import { remarkCollapsePanels } from "../plugins/markdown/remark-collapse-panels.mjs";
 import { remarkContentAnnotations } from "../plugins/markdown/remark-content-annotations.mjs";
+import { remarkIncludes } from "../plugins/markdown/remark-includes.mjs";
 import { remarkMarker } from "../plugins/markdown/remark-marker.mjs";
 import { remarkOptionGroups } from "../plugins/markdown/remark-option-groups.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
@@ -45,6 +46,7 @@ import { remarkReadingTime } from "../plugins/remark-reading-time.mjs";
  */
 export const siteRemarkPlugins = [
 	remarkEscapeNumericColons,
+	remarkIncludes,
 	remarkContentAnnotations,
 	remarkAbbreviations,
 	remarkAdmonitions,
@@ -55,10 +57,10 @@ export const siteRemarkPlugins = [
 	remarkFileTree,
 	remarkCodeTree,
 	remarkMermaid,
-	remarkFeatureProbes,
 	remarkReadingTime,
 	remarkExcerpt,
 	remarkDirective,
+	remarkFeatureProbes,
 	remarkSectionize,
 	parseDirectiveNode,
 ];

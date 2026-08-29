@@ -28,6 +28,11 @@
 			"styles": ["src/styles/markdown/expressive-code.css"]
 		},
 		{
+			"id": "github-card",
+			"syntaxes": ["github-card"],
+			"styles": ["src/styles/markdown/github-card.css"]
+		},
+		{
 			"id": "image-grids",
 			"syntaxes": ["image-grid"],
 			"styles": ["src/styles/markdown/image-grids.css"]
@@ -528,7 +533,7 @@
 		{
 			"id": "github-card",
 			"name": "GitHub Repository Card",
-			"status": "legacy",
+			"status": "stable",
 			"category": "leaf-directive",
 			"source": "shirone",
 			"summary": "根据 owner/repo 渲染可访问的仓库卡片，并按需读取 GitHub API 的仓库元数据。",
@@ -549,7 +554,7 @@
 			],
 			"implementation": ["src/plugins/rehype-component-github-card.mjs"],
 			"registeredIn": "src/utils/markdown-processor.mjs",
-			"styles": ["src/styles/markdown-extend.styl"],
+			"styles": ["src/styles/markdown/github-card.css"],
 			"runtime": {
 				"mode": "client-enhanced",
 				"modules": ["src/utils/github-cards.ts"],
@@ -562,7 +567,10 @@
 				"src/content/posts/markdown-extended.md",
 				"src/content/posts/guide/index.md"
 			],
-			"tests": [],
+			"tests": [
+				"tests/plugins/markdown/leaf/github-card.test.mjs",
+				"tests/site/markdown-runtime.spec.ts"
+			],
 			"notes": [
 				"SSR 始终输出可点击的 owner/repo 链接；命中语法后才动态加载元数据增强模块。",
 				"客户端读取 GitHub API 的描述、星标、分叉、许可证、语言和头像；请求失败时保留 SSR 链接。"
@@ -580,8 +588,8 @@
 					"kind": "container-directive",
 					"pattern": ":::grid{columns=\"1..6\" aspect=\"W/H\" fit=\"cover|contain\"} ... :::",
 					"example": ":::grid{columns=\"3\" aspect=\"16/9\" fit=\"cover\"}\n![说明](./one.webp)\n![说明](./two.webp)\n:::"
-				}
-			],
+		}
+	],
 			"attributes": [
 				{
 					"name": "columns",
@@ -659,6 +667,63 @@
 			],
 			"tests": ["tests/plugins/rehype-markdown-images.test.mjs"],
 			"notes": ["非法或越界宽度令牌保留在 alt，不静默改写。"]
+		},
+		{
+			"id": "include",
+			"name": "File Include",
+			"status": "stable",
+			"category": "inline-extension",
+			"source": "shirone",
+			"summary": "在构建期将仓库内 Markdown 文件或其中的行范围、命名区域展开到当前文章。",
+			"forms": [
+				{
+					"kind": "comment-directive",
+					"pattern": "<!-- @include: path -->",
+					"example": "<!-- @include: ../snippets/example.md -->"
+				},
+				{
+					"kind": "comment-directive-range",
+					"pattern": "<!-- @include: path{start-end} -->",
+					"example": "<!-- @include: ../snippets/example.md{2-6} -->"
+				},
+				{
+					"kind": "comment-directive-region",
+					"pattern": "<!-- @include: path#region -->",
+					"example": "<!-- @include: ../snippets/example.md#public-api -->"
+				}
+			],
+			"attributes": [
+				{
+					"name": "path",
+					"required": true,
+					"values": "repository-relative path (current-file-relative when a source path is available)",
+					"default": null
+				},
+				{
+					"name": "range or region",
+					"required": false,
+					"values": "{start-end}, {start-}, {-end}, or #region",
+					"default": null
+				}
+			],
+			"implementation": ["src/plugins/markdown/remark-includes.mjs"],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": [],
+			"runtime": {
+				"mode": "none",
+				"modules": [],
+				"network": []
+			},
+			"docs": [
+				"src/content/posts/markdown-includes.md",
+				"docs/markdown-extensions.md"
+			],
+			"tests": ["tests/plugins/markdown/inline/includes.test.mjs"],
+			"notes": [
+				"只处理独立一行且位于 fenced code 之外的注释；缺失、越界、未闭合或递归包含保留原注释。",
+				"文件读取限制在仓库根目录内，展开结果继续经过同一 Markdown 处理链。",
+				"这是构建期纯文本展开，不增加 CSS、客户端脚本、hydration 或网络请求。"
+			]
 		},
 		{
 			"id": "marker",
