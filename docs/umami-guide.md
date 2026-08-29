@@ -12,7 +12,6 @@
 export const umamiConfig: UmamiConfig = {
   enable: true,
   shareUrl: "https://your-umami-instance.com/share/<shareId>",
-  cacheTtl: 3600_000,
 };
 ```
 
@@ -47,17 +46,6 @@ const about = await window.oddmisc.getPageStats("/about");
 // 实时在线访客
 const live = await window.oddmisc.getActiveVisitors();
 
-// 时间序列
-const series = await window.oddmisc.getPageviews({
-  startAt: Date.now() - 24 * 3600_000,
-  endAt: Date.now(),
-  unit: "hour",
-  timezone: "Asia/Shanghai",
-});
-
-// Top 10 路径
-const topPaths = await window.oddmisc.getMetrics("path", { limit: 10 });
-
 // 就绪事件
 window.addEventListener("oddmisc-ready", (e) => {
   e.detail.client.getSiteStats().then(console.log);
@@ -87,7 +75,7 @@ interface StatsResult {
 ## 缓存机制
 
 - 内存 + localStorage 双级缓存
-- 默认 TTL：1 小时（可通过 `cacheTtl` 配置）
+- 默认 TTL：1 小时（由 oddmisc 管理）
 - 缓存命中时返回值带 `_fromCache: true`
 - `client.clearCache()` 可清空缓存
 
@@ -111,6 +99,13 @@ const client = createUmamiClient({
 
 const page = await client.getPageStats("/about");
 const site = await client.getSiteStats();
+const series = await client.getPageviews({
+  startAt: Date.now() - 24 * 3600_000,
+  endAt: Date.now(),
+  unit: "hour",
+  timezone: "Asia/Shanghai",
+});
+const topPaths = await client.getMetrics("path", { limit: 10 });
 ```
 
 ## 浏览器兼容性

@@ -13,8 +13,6 @@ export const umamiConfig: UmamiConfig = {
 	enable: false,
 	/** Umami 分享链接（必填） */
 	shareUrl: "",
-	/** 缓存 TTL（毫秒，默认 1 小时） */
-	cacheTtl: 3600_000,
 };
 
 /**
@@ -30,7 +28,6 @@ export function resolveUmamiOptions(config: UmamiConfig): ResolvedUmamiOptions {
 	}
 	return {
 		shareUrl,
-		cacheTtl: config.cacheTtl ?? 3600_000,
 	};
 }
 

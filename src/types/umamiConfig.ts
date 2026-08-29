@@ -6,8 +6,6 @@ export type UmamiConfig = {
 	enable: boolean;
 	/** Umami 分享链接（必填） */
 	shareUrl: string;
-	/** 缓存 TTL（毫秒，默认 1 小时） */
-	cacheTtl?: number;
 };
 
 /**
@@ -15,5 +13,4 @@ export type UmamiConfig = {
  */
 export type ResolvedUmamiOptions = {
 	shareUrl: string;
-	cacheTtl: number;
 } | null;

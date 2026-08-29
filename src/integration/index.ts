@@ -4,7 +4,6 @@ import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { AstroIntegration } from "astro";
 import { shironesFallbackResolver } from "./fallback-resolver.ts";
-import { shironesSsrNodeShims } from "./ssr-node-shims.ts";
 import { buildFontDeclarations } from "./fonts.ts";
 import {
 	invalidateConfigCache,
@@ -14,9 +13,15 @@ import {
 import { shironesOverlay } from "./overlay.ts";
 import { resolvePaths } from "./paths.ts";
 import { collectRoutes, filterRoutes } from "./routes.ts";
+import { shironesSsrNodeShims } from "./ssr-node-shims.ts";
 import type { ResolvedShironesPaths, ShironesOptions } from "./types.ts";
 
-export type { ShironesOptions, ShironesPaths, ShironesFontOptions } from "./types.ts";
+export type {
+	ShironesFontOptions,
+	ShironesOptions,
+	ShironesPaths,
+} from "./types.ts";
+
 // NOTE: `defineCollections` is deliberately *not* re-exported here. It imports
 // `astro:content`, a virtual module that only exists inside Vite, so pulling it
 // into this Node-side entry would break `astro.config.mjs` loading. Users import
@@ -43,7 +48,9 @@ function createAliases(paths: ResolvedShironesPaths) {
 	// which Node's `require.resolve` never matches, so resolving it would throw
 	// "Package subpath is not defined by exports".
 	const iconifyDist = join(
-		dirname(createRequire(import.meta.url).resolve("@iconify/svelte/package.json")),
+		dirname(
+			createRequire(import.meta.url).resolve("@iconify/svelte/package.json"),
+		),
 		"dist",
 	);
 
@@ -77,7 +84,10 @@ function createAliases(paths: ResolvedShironesPaths) {
  * `astro.config.mjs`: when the music widget is disabled the whole client bundle
  * is dropped instead of shipping dead code.
  */
-function createMusicSidebarPlugin(paths: ResolvedShironesPaths, enabled: boolean) {
+function createMusicSidebarPlugin(
+	paths: ResolvedShironesPaths,
+	enabled: boolean,
+) {
 	const sidebarPath = join(
 		paths.packageSrc,
 		"components/organisms/music/MusicSidebar.astro",
@@ -211,12 +221,13 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 				const processor = markdownModule.siteMarkdownProcessor;
 
 				// ── 5. Bundled integrations ─────────────────────────────────────
-				const integrations = options.bundledIntegrations === false
-					? []
-					: await createBundledIntegrations(paths, command, {
-							umamiConfig,
-							umamiEnabled,
-						});
+				const integrations =
+					options.bundledIntegrations === false
+						? []
+						: await createBundledIntegrations(paths, command, {
+								umamiConfig,
+								umamiEnabled,
+							});
 
 				// ── 6. Push everything into the Astro config ────────────────────
 				updateConfig({
@@ -283,7 +294,10 @@ export function shirones(options: ShironesOptions = {}): AstroIntegration {
 						options.excludeRoutes,
 					);
 					for (const route of routes) {
-						injectRoute({ pattern: route.pattern, entrypoint: route.entrypoint });
+						injectRoute({
+							pattern: route.pattern,
+							entrypoint: route.entrypoint,
+						});
 					}
 					logger.info(`injected ${routes.length} routes`);
 				}
@@ -359,7 +373,6 @@ async function createBundledIntegrations(
 		{ default: mdx },
 		{ pluginCollapsibleSections },
 		{ pluginLineNumbers },
-		{ oddmisc },
 	] = await Promise.all([
 		import("@swup/astro"),
 		import("astro-icon"),
@@ -369,10 +382,14 @@ async function createBundledIntegrations(
 		import("@astrojs/mdx"),
 		import("@expressive-code/plugin-collapsible-sections"),
 		import("@expressive-code/plugin-line-numbers"),
-		import("oddmisc/astro"),
 	]);
-
-	const { umamiConfig, umamiEnabled } = options;
+	const oddmiscIntegration = options.umamiEnabled
+		? (await import("oddmisc/astro")).oddmisc({
+				umami: {
+					shareUrl: options.umamiConfig.shareUrl,
+				},
+			})
+		: null;
 
 	const ecModule = await loadConfigModule(paths, "expressiveCodeConfig");
 	const expressiveCodeConfig = ecModule.expressiveCodeConfig as {
@@ -381,7 +398,10 @@ async function createBundledIntegrations(
 		darkTheme?: string;
 	};
 
-	const badge = await loadPackageModule(paths, "plugins/expressive-code/language-badge.ts");
+	const badge = await loadPackageModule(
+		paths,
+		"plugins/expressive-code/language-badge.ts",
+	);
 	const copyButton = await loadPackageModule(
 		paths,
 		"plugins/expressive-code/custom-copy-button.js",
@@ -398,15 +418,7 @@ async function createBundledIntegrations(
 	};
 
 	return [
-		...(umamiEnabled
-			? [
-					oddmisc({
-						umami: {
-							shareUrl: umamiConfig.shareUrl,
-						},
-					}),
-				]
-			: []),
+		...(oddmiscIntegration ? [oddmiscIntegration] : []),
 		swup({
 			theme: false,
 			ignore: ['a[href="#"]'],
@@ -486,8 +498,13 @@ async function createBundledIntegrations(
 			preprocess: [vitePreprocess({ script: true })],
 			compilerOptions: {
 				// CSS-source hashing keeps SSR and client scope hashes stable.
-				cssHash: ({ css, hash }: { css: string; hash: (s: string) => string }) =>
-					`svelte-${hash(css)}`,
+				cssHash: ({
+					css,
+					hash,
+				}: {
+					css: string;
+					hash: (s: string) => string;
+				}) => `svelte-${hash(css)}`,
 				// Keep repeated Svelte compiler diagnostics out of the dev
 				// terminal; check/build still surface the full warning set.
 				warningFilter: () => command !== "dev",
