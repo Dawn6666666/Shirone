@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import markdownManifest from "../plugins/markdown/manifest.json" with {
 	type: "json",
 };
@@ -27,23 +30,35 @@ const stylesheetPacks =
  *
  * Globbing keeps the manifest as the single source of truth while letting Vite
  * resolve the files relative to this module, which is correct in both modes.
+ *
+ * `import.meta.glob` is a Vite-only API: under plain Node (the unit test
+ * runner) it does not exist, so the glob is guarded and the fallback below
+ * reads straight from the working tree.
  */
-const stylesheetSources = import.meta.glob("../styles/**/*.css", {
-	query: "?raw",
-	import: "default",
-	eager: true,
-}) as Record<string, string>;
+let stylesheetSources: Record<string, string> | undefined;
+try {
+	stylesheetSources = import.meta.glob("../styles/**/*.css", {
+		query: "?raw",
+		import: "default",
+		eager: true,
+	}) as Record<string, string>;
+} catch {
+	stylesheetSources = undefined;
+}
 
 /** `src/styles/markdown/trees.css` → the glob key `../styles/markdown/trees.css`. */
 function readStylesheet(stylePath: string): string {
-	const key = `../${stylePath.replace(/^src\//, "")}`;
-	const css = stylesheetSources[key];
-	if (css === undefined) {
-		throw new Error(
-			`[markdown-assets] ${stylePath} is declared in the Markdown manifest but was not found under src/styles/.`,
-		);
+	if (stylesheetSources) {
+		const key = `../${stylePath.replace(/^src\//, "")}`;
+		const css = stylesheetSources[key];
+		if (css === undefined) {
+			throw new Error(
+				`[markdown-assets] ${stylePath} is declared in the Markdown manifest but was not found under src/styles/.`,
+			);
+		}
+		return css;
 	}
-	return css;
+	return readFileSync(resolve(process.cwd(), stylePath), "utf8");
 }
 
 /**
