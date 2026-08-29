@@ -30,3 +30,7 @@ published: 2023-10-19
 ## AcFun
 
 ::acfun{acid="ac48649632" title="AcFun video"}
+
+## ArtPlayer
+
+::artplayer{src="https://www.pexels.com/download/video/38538991/" title="Sintel trailer"}

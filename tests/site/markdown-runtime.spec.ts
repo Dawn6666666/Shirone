@@ -20,6 +20,7 @@ const IMAGE_PRESENTATIONS_FREE_POST_PATH = "/posts/expressive-code/";
 const EXPRESSIVE_CODE_FREE_PATH = "/";
 const GITHUB_CARD_PATH = "/about/";
 const ACFUN_VIDEO_PATH = "/posts/video/";
+const ARTPLAYER_VIDEO_PATH = "/posts/video/";
 const BILIBILI_VIDEO_PATH = "/posts/video/";
 const YOUTUBE_VIDEO_PATH = "/posts/video/";
 
@@ -88,6 +89,16 @@ function trackAcFunPlayerRequests(page: Page): string[] {
 	return requests;
 }
 
+function trackArtPlayerVideoRequests(page: Page): string[] {
+	const requests: string[] = [];
+	page.on("request", (request: Request) => {
+		if (new URL(request.url()).hostname === "www.pexels.com") {
+			requests.push(request.url());
+		}
+	});
+	return requests;
+}
+
 function trackBilibiliPlayerRequests(page: Page): string[] {
 	const requests: string[] = [];
 	page.on("request", (request: Request) => {
@@ -108,6 +119,40 @@ function trackYouTubePlayerRequests(page: Page): string[] {
 }
 
 test.describe("Markdown syntax runtime loading", () => {
+	test("renders ArtPlayer as a native video without preloading and cleans styles on navigation", async ({
+		page,
+	}) => {
+		const videoRequests = trackArtPlayerVideoRequests(page);
+
+		await page.goto(ARTPLAYER_VIDEO_PATH, { waitUntil: "networkidle" });
+		const player = page.locator("#swup-container [data-artplayer]");
+		const video = player.locator("video");
+		await expect(player).toHaveCount(1);
+		await expect(player.locator("iframe")).toHaveCount(0);
+		await expect(video).toHaveAttribute("preload", "none");
+		await expect(video).toHaveAttribute("controls", "");
+		await expect(video).toHaveAttribute("playsinline", "");
+		await expect(video).toHaveAttribute(
+			"src",
+			"https://www.pexels.com/download/video/38538991/",
+		);
+		expect(videoRequests).toEqual([]);
+		await expect(
+			page.locator('style[data-swup-optional="artplayer"]'),
+		).toHaveCount(1);
+		const a11y = await new AxeBuilder({ page })
+			.include("[data-artplayer]")
+			.analyze();
+		expect(a11y.violations).toEqual([]);
+
+		await page.waitForFunction(() => Boolean(window.swup?.navigate));
+		await page.evaluate((path) => window.swup?.navigate(path), PLAIN_POST_PATH);
+		await page.waitForURL(`**${PLAIN_POST_PATH}`);
+		await expect(
+			page.locator('style[data-swup-optional="artplayer"]'),
+		).toHaveCount(0);
+	});
+
 	test("defers the AcFun player until facade activation and cleans styles on navigation", async ({
 		page,
 	}) => {

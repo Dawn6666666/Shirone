@@ -193,6 +193,17 @@ test("records AcFun facades after directive parsing", async () => {
 	});
 });
 
+test("records ArtPlayer videos after directive parsing", async () => {
+	const result = await renderer.render(
+		'::artplayer{src="/videos/example.mp4" title="Example video"}',
+	);
+
+	assert.deepEqual(result.metadata.frontmatter.markdownSyntaxes, {
+		schema: 1,
+		syntaxes: ["artplayer"],
+	});
+});
+
 test("records Bilibili facades after directive parsing", async () => {
 	const result = await renderer.render(
 		'::bilibili{bvid="BV1fK4y1s7Qf" title="Bilibili video"}',

@@ -18,6 +18,11 @@
 			"styles": ["src/styles/markdown/admonitions.css"]
 		},
 		{
+			"id": "artplayer",
+			"syntaxes": ["artplayer"],
+			"styles": ["src/styles/markdown/artplayer.css"]
+		},
+		{
 			"id": "bilibili",
 			"syntaxes": ["bilibili"],
 			"styles": ["src/styles/markdown/bilibili.css"]
@@ -267,6 +272,65 @@
 			"notes": [
 				"方括号标题、空格标题与 GitHub Alert 统一进入同一 Admonition renderer。",
 				"details 使用原生 disclosure，无 hydration、客户端模块或网络请求。"
+			]
+		},
+		{
+			"id": "artplayer",
+			"name": "ArtPlayer Video",
+			"status": "stable",
+			"category": "leaf-directive",
+			"source": "shirone",
+			"summary": "Renders a validated video source as an accessible SSR native video player without a client-side player dependency.",
+			"forms": [
+				{
+					"kind": "leaf-directive",
+					"pattern": "::artplayer{src=\"...\" title=\"...\" poster=\"/...\"}",
+					"example": "::artplayer{src=\"/videos/example.mp4\" title=\"Example video\"}"
+				}
+			],
+			"attributes": [
+				{
+					"name": "src",
+					"required": true,
+					"values": "site-root path or explicit HTTPS video URL",
+					"default": null
+				},
+				{
+					"name": "title",
+					"required": true,
+					"values": "non-empty video title",
+					"default": null
+				},
+				{
+					"name": "poster",
+					"required": false,
+					"values": "site-root path or explicit HTTPS image URL",
+					"default": null
+				}
+			],
+			"implementation": [
+				"src/plugins/markdown/core/artplayer.d.mts",
+				"src/plugins/markdown/core/artplayer.mjs",
+				"src/plugins/markdown/remark-artplayer.mjs",
+				"src/plugins/rehype-component-artplayer.mjs"
+			],
+			"registeredIn": "src/utils/markdown-processor.mjs",
+			"styles": ["src/styles/markdown/artplayer.css"],
+			"runtime": {
+				"mode": "none",
+				"modules": [],
+				"network": [
+					"author-declared video source only after native playback; preload=none"
+				]
+			},
+			"docs": ["src/content/posts/video.md"],
+			"tests": [
+				"tests/plugins/markdown/leaf/artplayer.test.mjs",
+				"tests/site/markdown-runtime.spec.ts"
+			],
+			"notes": [
+				"The initial output uses native SSR video controls with preload=none; no ArtPlayer package or client module is loaded.",
+				"Invalid source, title, or poster values remain ordinary Markdown and do not declare optional page resources."
 			]
 		},
 		{

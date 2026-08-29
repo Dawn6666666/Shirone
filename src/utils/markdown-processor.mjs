@@ -22,6 +22,7 @@ import {
 import { StepsComponent } from "../plugins/markdown/containers/rehype-steps.mjs";
 import { remarkAbbreviations } from "../plugins/markdown/remark-abbreviations.mjs";
 import { remarkAcFun } from "../plugins/markdown/remark-acfun.mjs";
+import { remarkArtPlayer } from "../plugins/markdown/remark-artplayer.mjs";
 import { remarkAdmonitions } from "../plugins/markdown/remark-admonitions.mjs";
 import { remarkBilibili } from "../plugins/markdown/remark-bilibili.mjs";
 import { remarkCollapsePanels } from "../plugins/markdown/remark-collapse-panels.mjs";
@@ -32,6 +33,7 @@ import { remarkOptionGroups } from "../plugins/markdown/remark-option-groups.mjs
 import { remarkYouTube } from "../plugins/markdown/remark-youtube.mjs";
 import { AdmonitionComponent } from "../plugins/rehype-component-admonition.mjs";
 import { AcFunComponent } from "../plugins/rehype-component-acfun.mjs";
+import { ArtPlayerComponent } from "../plugins/rehype-component-artplayer.mjs";
 import { BilibiliComponent } from "../plugins/rehype-component-bilibili.mjs";
 import { GithubCardComponent } from "../plugins/rehype-component-github-card.mjs";
 import { ImageGridComponent } from "../plugins/rehype-component-image-grid.mjs";
@@ -67,6 +69,7 @@ export const siteRemarkPlugins = [
 	remarkExcerpt,
 	remarkDirective,
 	remarkAcFun,
+	remarkArtPlayer,
 	remarkBilibili,
 	remarkYouTube,
 	remarkFeatureProbes,
@@ -87,6 +90,7 @@ export const siteRehypePlugins = [
 		{
 			components: {
 				acfun: AcFunComponent,
+				artplayer: ArtPlayerComponent,
 				bilibili: BilibiliComponent,
 				youtube: YouTubeComponent,
 				collapse: CollapsePanelsComponent,

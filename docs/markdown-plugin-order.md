@@ -41,7 +41,7 @@
 
 ### 2.2 视频 Facade 验证
 
-`remarkAcFun`、`remarkBilibili` 和 `remarkYouTube` 均在 `remarkDirective` 之后、`remarkFeatureProbes` 之前运行。它们分别验证严格的 AcFun 视频 ID、BV 号与 YouTube 视频 ID，以及非空 `title` 和安全的可选 `poster`；合法输入保留给后续 facade 渲染，非法输入还原为普通文本。因此 feature probe 只会为实际可渲染的视频 facade 声明页面级资源。
+`remarkAcFun`、`remarkArtPlayer`、`remarkBilibili` 和 `remarkYouTube` 均在 `remarkDirective` 之后、`remarkFeatureProbes` 之前运行。它们分别验证严格的 AcFun 视频 ID、安全的原生视频来源、BV 号与 YouTube 视频 ID，以及非空 `title` 和安全的可选 `poster`；合法输入保留给后续渲染，非法输入还原为普通文本。因此 feature probe 只会为实际可渲染的视频组件声明页面级资源。
 
 ## 3. Rehype 顺序
 

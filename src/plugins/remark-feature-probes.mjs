@@ -1,5 +1,6 @@
 import { visit } from "unist-util-visit";
 import { getAcFunEmbedData } from "./markdown/core/acfun.mjs";
+import { getArtPlayerEmbedData } from "./markdown/core/artplayer.mjs";
 import { getBilibiliEmbedData } from "./markdown/core/bilibili.mjs";
 import { getYouTubeEmbedData } from "./markdown/core/youtube.mjs";
 import { createMarkdownSyntaxSnapshot } from "../utils/markdown-syntaxes.mjs";
@@ -62,6 +63,13 @@ export function remarkFeatureProbes() {
 				getAcFunEmbedData(node.attributes)
 			) {
 				syntaxes.add("acfun");
+			}
+			if (
+				node.type === "leafDirective" &&
+				node.name === "artplayer" &&
+				getArtPlayerEmbedData(node.attributes)
+			) {
+				syntaxes.add("artplayer");
 			}
 			if (
 				node.type === "leafDirective" &&
