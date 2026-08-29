@@ -1,6 +1,6 @@
 ---
 name: shirone-config
-description: Configuring a Shirone blog site - site identity, theme colors, navigation, sidebar, pages, comments, music, anime sources, fonts, llms.txt, npm package initialization, and build/deploy. Use when enabling or tuning features, changing site behavior, preparing deployment, or configuring a project that consumes shirones.
+description: Configuring a Shirone blog site - site identity, theme colors, navigation, sidebar, pages, comments, Umami analytics, music, anime sources, fonts, llms.txt, npm package initialization, and build/deploy. Use when enabling or tuning features, changing site behavior, preparing deployment, or configuring a project that consumes shirones.
 ---
 
 # Shirone 站点配置
@@ -24,6 +24,7 @@ description: Configuring a Shirone blog site - site identity, theme colors, navi
 | `postListConfig.ts` | 分页大小、list/grid 布局 |
 | `articleConfig.ts` | 相关文章、分享与海报 |
 | `commentConfig.ts` | 评论系统(默认关闭,Twikoo 等) |
+| `UmamiConfig.ts` | Umami 数据统计：公开分享统计读取，以及可选的官方访问采集脚本 |
 | `musicConfig.ts` | 侧栏音乐(当前默认启用，可手动关闭；local/custom/meting/mixed 四种模式) |
 | `animeConfig.ts` | 追番页数据源:本地 / Bangumi 快照 / Bilibili 快照 |
 | `fontConfig.ts` | 字体(构建期 TTF→WOFF2 子集化) |
@@ -43,6 +44,16 @@ description: Configuring a Shirone blog site - site identity, theme colors, navi
 3. 侧栏 widget 的显隐/分栏/页面范围在 `sidebarConfig.ts` 编排;
 4. 页面级开关(如 skills/projects)关闭时导航入口同步隐藏。
 
+## Umami 数据统计
+
+当用户询问访问统计、Umami、页面浏览量或访客追踪时，只修改 `src/config/UmamiConfig.ts`。字段注释是配置契约的单一真源，完整说明见 `docs/umami-guide.md`。
+
+1. **公开统计读取**：设置 `enable: true` 并填写有效的 `shareUrl`（Umami `share/<shareId>` 格式），启用站点与文章统计 UI。
+2. **官方访问采集**：只有在站点所有者明确要求上报访问数据时，才同时填写 `websiteId` 和 `scriptUrl`。任一字段为空，都不得加载官方 Umami 脚本。
+3. **安全默认**：新项目或未配置时保留 `enable: false`、`shareUrl: ""`、`websiteId: ""`、`scriptUrl: ""`。不要把临时服务器地址、share token、API key 或私密凭据写入 skill 或提交。
+4. **零额外负担与稳定 UI**：关闭或配置不完整时必须没有外部请求、统计 DOM、客户端运行时和功能样式；开启后统计 UI 先由 SSR 输出占位，异步数值只替换固定槽位内的文本，不得造成布局抖动。
+5. **开发服务器**：使用 `shirones()` 的项目修改 Umami 配置后要重启 Astro dev server。集成会在启动时读取配置，已经运行的进程不会因热更新重新创建集成。
+
 ## 构建与部署(摘要)
 
 标准流程(详见 `INDEX.md`):
@@ -58,6 +69,7 @@ description: Configuring a Shirone blog site - site identity, theme colors, navi
 ## 必读文档
 
 - `src/config/README.md` — 配置契约、config/data 判别表、导入规则
+- `docs/umami-guide.md` — Umami share URL、访问采集、客户端 API 与零负担说明
 - `INDEX.md` — 部署分层与标准部署流程
 - `README.md` — Quick Start 与主配置表
 - `src/config/` 各文件 — 字段级注释文档
