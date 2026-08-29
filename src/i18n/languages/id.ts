@@ -175,6 +175,8 @@ export const id: Translation = {
 	[Key.statsToday]: "Hari ini",
 	[Key.statsYesterday]: "Kemarin",
 	[Key.statsDaysAgo]: "{days} hari lalu",
+	[Key.profileStatsPageViews]: "Tampilan",
+	[Key.profileStatsVisits]: "Kunjungan",
 
 	[Key.calendar]: "Kalender",
 	[Key.calendarBackToday]: "Kembali ke hari ini",

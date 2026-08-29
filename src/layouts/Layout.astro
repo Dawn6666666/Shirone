@@ -2,12 +2,15 @@
 import { Font } from "astro:assets";
 import Snackbar from "@components/atoms/overlay/Snackbar.svelte";
 import ConfigCarrier from "@components/system/ConfigCarrier.astro";
+import UmamiRuntime from "@components/system/UmamiRuntime.astro";
 import {
 	expressiveCodeConfig,
 	profileConfig,
 	resolvedFontOptions,
 	resolveTextureOptions,
+	resolveUmamiOptions,
 	siteConfig,
+	umamiConfig,
 } from "@/config";
 import type { SidebarPage } from "@/types/sidebarConfig";
 import {
@@ -52,6 +55,7 @@ const textureOptions = resolveTextureOptions();
 const defaultTexturePreset = textureOptions.defaultPreset;
 const defaultTextureOpacity = textureOptions.defaultOpacity;
 const textureEnabled = textureOptions.enable;
+const umamiOptions = resolveUmamiOptions(umamiConfig);
 
 const hasDesktopBanner = siteConfig.banner.src.desktop.length > 0;
 const hasMobileBanner = siteConfig.banner.src.mobile.length > 0;
@@ -113,6 +117,9 @@ const hasMonoFont =
 		{hasBodyFont && <Font cssVariable={resolvedFontOptions.roles.body.cssVariable as never} preload={resolvedFontOptions.roles.body.preload} />}
 		{hasCjkFont && <Font cssVariable={resolvedFontOptions.roles.cjk.cssVariable as never} preload={resolvedFontOptions.roles.cjk.preload} />}
 		{hasMonoFont && <Font cssVariable={resolvedFontOptions.roles.mono.cssVariable as never} preload={resolvedFontOptions.roles.mono.preload} />}
+		{umamiOptions?.websiteId && umamiOptions.scriptUrl && (
+			<script is:inline async src={umamiOptions.scriptUrl} data-website-id={umamiOptions.websiteId} data-auto-track="true"></script>
+		)}
 				{favicons.map(favicon => (
 			<link rel="icon"
 				href={favicon.src.startsWith('/') ? url(favicon.src) : favicon.src}
@@ -190,6 +197,7 @@ const hasMonoFont =
 		data-banner-has-mobile={String(hasMobileBanner)}
 	>
 		<ConfigCarrier></ConfigCarrier>
+		{umamiOptions && <UmamiRuntime />}
 		{textureEnabled && (
 			<div
 				id="m3e-texture-canvas"

@@ -172,6 +172,8 @@ export const ja: Translation = {
 	[Key.statsToday]: "今日",
 	[Key.statsYesterday]: "昨日",
 	[Key.statsDaysAgo]: "{days}日前",
+	[Key.profileStatsPageViews]: "ページビュー",
+	[Key.profileStatsVisits]: "訪問数",
 
 	[Key.calendar]: "カレンダー",
 	[Key.calendarBackToday]: "今日に戻る",
