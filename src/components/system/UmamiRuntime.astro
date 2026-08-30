@@ -63,7 +63,30 @@
 	}
 
 	.shirone-umami-stats--profile [data-shirone-umami-display] {
+		display: grid;
+		grid-template-columns: auto auto auto;
+		column-gap: var(--m3e-space-2);
+		width: auto;
 		justify-content: center;
+		flex-wrap: nowrap;
+		white-space: nowrap;
+	}
+
+	.shirone-umami-stats--profile [data-shirone-umami-metric]:first-child {
+		justify-content: flex-end;
+	}
+
+	.shirone-umami-stats--profile [data-shirone-umami-metric]:last-child {
+		justify-content: flex-start;
+	}
+
+	.shirone-umami-stats__separator {
+		color: var(--outline);
+	}
+
+	.shirone-umami-stats--profile [data-shirone-umami-value] {
+		inline-size: auto;
+		flex: 0 0 auto;
 	}
 
 	.shirone-umami-stats--profile svg {

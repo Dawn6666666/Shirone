@@ -205,6 +205,21 @@ test.describe("Umami analytics", () => {
 		});
 	}
 
+	test("profile metrics stay on one line", async ({ page }) => {
+		test.skip(
+			!umamiEnabled,
+			"Enable Umami with the documented local test URL to run this assertion",
+		);
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto("/", { waitUntil: "domcontentloaded" });
+		const display = page.locator(
+			".shirone-umami-stats--profile [data-shirone-umami-display]",
+		);
+		await expect(display).toBeVisible();
+		await expect(display).toHaveCSS("flex-wrap", "nowrap");
+		await expect(display).toHaveCSS("white-space", "nowrap");
+	});
+
 	test("enabled runtime loads article stats after Swup navigation", async ({
 		page,
 	}) => {
