@@ -107,6 +107,7 @@ CSS file, so it resolves to the theme's own `src/` in both modes.
 | A config module in `src/config/` | Nothing, if it follows the existing shape — the template picks it up and its relative imports are rewritten. Keep it exporting through the `src/config/index.ts` barrel. |
 | A data module in `src/data/` | Nothing. It is scaffolded to `shirones/config/data/`. Remember imports of `../config/x` become `../x` there. |
 | A component or layout | Nothing for it to work; it becomes overridable automatically. |
+| A new top-level `src/` directory | Add it to `PACKAGE_SRC_DIRS` in the shirones pipeline (`scripts/config.mjs`), or the package will not ship it and every import of it fails at build time. `src/user/` was added upstream after the integration work and missed this — it ships the config-overlay backing module. |
 | A file that is neither source nor content (`.html`, `.json`, an asset read at runtime) | Decide who owns it. Theme-owned → import it through the bundler. User-owned → ship it in the template and probe both locations. |
 
 ## Before merging into the packaged branch
