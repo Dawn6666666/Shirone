@@ -1,4 +1,10 @@
+import { prefersReducedMotion } from "./motion";
+
 let codeTreesInitialized = false;
+let activeModalDialog: HTMLDialogElement | null = null;
+let lastFocusedExpandBtn: HTMLElement | null = null;
+let originalCodeTreePlaceholder: Comment | null = null;
+let mountedCodeTree: HTMLElement | null = null;
 
 function isElementVisible(
 	button: HTMLButtonElement,
@@ -66,9 +72,105 @@ function switchCodeTreeFile(
 	}
 }
 
+function closeCodeTreeModal(): void {
+	if (!activeModalDialog) return;
+
+	const dialog = activeModalDialog;
+	const restoreDom = () => {
+		if (mountedCodeTree && originalCodeTreePlaceholder?.parentNode) {
+			originalCodeTreePlaceholder.parentNode.replaceChild(
+				mountedCodeTree,
+				originalCodeTreePlaceholder,
+			);
+		}
+		mountedCodeTree = null;
+		originalCodeTreePlaceholder = null;
+
+		if (dialog.open) {
+			dialog.close();
+		}
+		dialog.remove();
+		activeModalDialog = null;
+
+		document.body.style.overflow = "";
+
+		if (lastFocusedExpandBtn?.isConnected) {
+			lastFocusedExpandBtn.focus();
+		}
+		lastFocusedExpandBtn = null;
+	};
+
+	if (prefersReducedMotion()) {
+		restoreDom();
+	} else {
+		dialog.classList.add("closing");
+		dialog.addEventListener(
+			"animationend",
+			() => {
+				restoreDom();
+			},
+			{ once: true },
+		);
+	}
+}
+
+function openCodeTreeModal(
+	codeTree: HTMLElement,
+	triggerBtn: HTMLButtonElement,
+): void {
+	if (activeModalDialog) {
+		closeCodeTreeModal();
+	}
+
+	lastFocusedExpandBtn = triggerBtn;
+
+	// Create dialog element within .custom-md wrapper to retain markdown styles
+	const dialog = document.createElement("dialog");
+	dialog.className = "m3-code-tree-dialog custom-md";
+	dialog.setAttribute("aria-label", "Expanded Code Tree");
+
+	// Move DOM node into dialog with placeholder anchor for restoration
+	originalCodeTreePlaceholder = document.createComment(
+		"m3-code-tree-placeholder",
+	);
+	codeTree.parentNode?.insertBefore(originalCodeTreePlaceholder, codeTree);
+	mountedCodeTree = codeTree;
+	dialog.appendChild(codeTree);
+
+	document.body.appendChild(dialog);
+	activeModalDialog = dialog;
+
+	// Backdrop click handler
+	dialog.addEventListener("click", (event) => {
+		if (event.target === dialog) {
+			closeCodeTreeModal();
+		}
+	});
+
+	// Native cancel (ESC) handler
+	dialog.addEventListener("cancel", (event) => {
+		event.preventDefault();
+		closeCodeTreeModal();
+	});
+
+	document.body.style.overflow = "hidden";
+	dialog.showModal();
+
+	const modalExpandBtn = codeTree.querySelector<HTMLButtonElement>(
+		".m3-code-tree__expand-btn",
+	);
+	if (modalExpandBtn) {
+		const collapseLabel =
+			modalExpandBtn.dataset.collapseLabel || "退出放大";
+		modalExpandBtn.setAttribute("aria-label", collapseLabel);
+		modalExpandBtn.title = collapseLabel;
+		modalExpandBtn.focus();
+	}
+}
+
 /**
- * Initializes client-side interactive file navigation and panel switching
- * for M3E Code Trees with delegated listeners, directory disclosures, and full keyboard a11y.
+ * Initializes client-side interactive file navigation, panel switching,
+ * and fullscreen modal expansion for M3E Code Trees with delegated listeners.
  */
 export function initCodeTrees(): void {
 	if (typeof document === "undefined") return;
@@ -80,6 +182,23 @@ export function initCodeTrees(): void {
 		const target = event.target as HTMLElement | null;
 		if (!target) return;
 
+		// 1. Expand / Collapse button click
+		const expandBtn = target.closest<HTMLButtonElement>(
+			".m3-code-tree__expand-btn",
+		);
+		if (expandBtn) {
+			const codeTree = expandBtn.closest<HTMLElement>(".m3-code-tree");
+			if (!codeTree) return;
+
+			if (activeModalDialog && activeModalDialog.contains(expandBtn)) {
+				closeCodeTreeModal();
+			} else {
+				openCodeTreeModal(codeTree, expandBtn);
+			}
+			return;
+		}
+
+		// 2. File button click
 		const fileBtn = target.closest<HTMLButtonElement>(
 			".m3-code-tree__file-btn",
 		);

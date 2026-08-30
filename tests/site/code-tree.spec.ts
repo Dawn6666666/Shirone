@@ -292,6 +292,43 @@ test.describe("Markdown interactive code trees", () => {
 		const pageScrollAfter = await page.evaluate(() => window.scrollY);
 		expect(pageScrollAfter).toBe(pageScrollBefore);
 
-		await expect(nav).toBeVisible();
+			await expect(nav).toBeVisible();
+		});
+
+		test("supports modal fullscreen expand, keyboard escape and focus restore", async ({
+			page,
+		}) => {
+			const codeTrees = await openPost(page);
+			const firstTree = codeTrees.first();
+			const expandBtn = firstTree.locator(".m3-code-tree__expand-btn");
+			await expect(expandBtn).toBeVisible();
+
+			// Click expand button to open dialog
+			await expandBtn.click();
+
+			const dialog = page.locator("dialog.m3-code-tree-dialog");
+			await expect(dialog).toBeVisible();
+			await expect(dialog).toHaveAttribute("open", "");
+
+			// Verify dialog contents and file switching inside dialog
+			const dialogTree = dialog.locator(".m3-code-tree");
+			await expect(dialogTree).toBeVisible();
+
+			const fileButtons = dialog.locator(".m3-code-tree__file-btn");
+			await fileButtons.nth(1).click();
+			const panels = dialog.locator(".m3-code-tree__panel");
+			await expect(panels.nth(1)).toBeVisible();
+			await expect(panels.nth(0)).toBeHidden();
+
+			// Press Escape to close modal
+			await page.keyboard.press("Escape");
+			await expect(dialog).toBeHidden();
+
+			// Verify focus restored to expand button
+			await expect(expandBtn).toBeFocused();
+
+			// Verify tree restored into main document flow
+			await expect(firstTree).toBeVisible();
+			await expect(firstTree.locator(".m3-code-tree__panel").nth(1)).toBeVisible();
+		});
 	});
-});
