@@ -106,9 +106,14 @@ test.describe("动态页", () => {
 		await page.keyboard.press("ArrowLeft");
 		await expect(viewer.locator(".moment-viewer__counter")).toHaveText("1 / 3");
 		// Esc 收起回网格，焦点返回被点击的瓦片
+		await viewer.scrollIntoViewIfNeeded();
+		const scrollBeforeCollapse = await page.evaluate(() => window.scrollY);
 		await page.keyboard.press("Escape");
 		await expect(viewer).toHaveCount(0);
 		await expect(page.locator(".moment-card__gallery--mosaic")).toBeVisible();
+		await expect
+			.poll(() => page.evaluate(() => window.scrollY))
+			.toBe(scrollBeforeCollapse);
 		const focused = await page.evaluate(() =>
 			document.activeElement?.getAttribute("aria-label"),
 		);

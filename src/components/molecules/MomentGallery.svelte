@@ -58,7 +58,9 @@ async function collapseViewer() {
 	viewing = false;
 	// 等网格重新挂载后，把焦点还给当初点击的瓦片
 	await tick();
-	(gridEl?.children[lastIndex] as HTMLButtonElement | undefined)?.focus();
+	(gridEl?.children[lastIndex] as HTMLButtonElement | undefined)?.focus({
+		preventScroll: true,
+	});
 }
 
 function openLightbox(i: number) {
