@@ -3,8 +3,43 @@ import { prefersReducedMotion } from "./motion";
 let codeTreesInitialized = false;
 let activeModalDialog: HTMLDialogElement | null = null;
 let lastFocusedExpandBtn: HTMLElement | null = null;
-let originalCodeTreePlaceholder: Comment | null = null;
+let originalCodeTreePlaceholder: HTMLDivElement | null = null;
 let mountedCodeTree: HTMLElement | null = null;
+let unlockPageScroll: (() => void) | null = null;
+
+function lockPageScroll(): void {
+	const root = document.documentElement;
+	const body = document.body;
+	const previousOverflow = body.style.overflow;
+	const previousPaddingInlineEnd = body.style.paddingInlineEnd;
+	const scrollbarWidth = window.innerWidth - root.clientWidth;
+
+	if (scrollbarWidth > 0) {
+		const currentPadding =
+			Number.parseFloat(getComputedStyle(body).paddingInlineEnd) || 0;
+		body.style.paddingInlineEnd = `${currentPadding + scrollbarWidth}px`;
+	}
+	body.style.overflow = "hidden";
+
+	unlockPageScroll = () => {
+		body.style.overflow = previousOverflow;
+		body.style.paddingInlineEnd = previousPaddingInlineEnd;
+		unlockPageScroll = null;
+	};
+}
+
+function createCodeTreePlaceholder(codeTree: HTMLElement): HTMLDivElement {
+	const rect = codeTree.getBoundingClientRect();
+	const styles = getComputedStyle(codeTree);
+	const placeholder = document.createElement("div");
+	placeholder.className = "m3-code-tree-placeholder";
+	placeholder.setAttribute("aria-hidden", "true");
+	placeholder.style.height = `${rect.height}px`;
+	placeholder.style.marginBlock = `${styles.marginBlockStart} ${styles.marginBlockEnd}`;
+	placeholder.style.marginInline = `${styles.marginInlineStart} ${styles.marginInlineEnd}`;
+	placeholder.style.pointerEvents = "none";
+	return placeholder;
+}
 
 function isElementVisible(
 	button: HTMLButtonElement,
@@ -92,7 +127,7 @@ function closeCodeTreeModal(): void {
 		dialog.remove();
 		activeModalDialog = null;
 
-		document.body.style.overflow = "";
+		unlockPageScroll?.();
 
 		if (lastFocusedExpandBtn?.isConnected) {
 			lastFocusedExpandBtn.focus();
@@ -130,9 +165,7 @@ function openCodeTreeModal(
 	dialog.setAttribute("aria-label", "Expanded Code Tree");
 
 	// Move DOM node into dialog with placeholder anchor for restoration
-	originalCodeTreePlaceholder = document.createComment(
-		"m3-code-tree-placeholder",
-	);
+	originalCodeTreePlaceholder = createCodeTreePlaceholder(codeTree);
 	codeTree.parentNode?.insertBefore(originalCodeTreePlaceholder, codeTree);
 	mountedCodeTree = codeTree;
 	dialog.appendChild(codeTree);
@@ -153,15 +186,14 @@ function openCodeTreeModal(
 		closeCodeTreeModal();
 	});
 
-	document.body.style.overflow = "hidden";
+	lockPageScroll();
 	dialog.showModal();
 
 	const modalExpandBtn = codeTree.querySelector<HTMLButtonElement>(
 		".m3-code-tree__expand-btn",
 	);
 	if (modalExpandBtn) {
-		const collapseLabel =
-			modalExpandBtn.dataset.collapseLabel || "退出放大";
+		const collapseLabel = modalExpandBtn.dataset.collapseLabel || "退出放大";
 		modalExpandBtn.setAttribute("aria-label", collapseLabel);
 		modalExpandBtn.title = collapseLabel;
 		modalExpandBtn.focus();
@@ -190,7 +222,7 @@ export function initCodeTrees(): void {
 			const codeTree = expandBtn.closest<HTMLElement>(".m3-code-tree");
 			if (!codeTree) return;
 
-			if (activeModalDialog && activeModalDialog.contains(expandBtn)) {
+			if (activeModalDialog?.contains(expandBtn)) {
 				closeCodeTreeModal();
 			} else {
 				openCodeTreeModal(codeTree, expandBtn);

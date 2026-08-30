@@ -531,6 +531,7 @@
 .m3-code-tree-dialog {
 	position: fixed;
 	inset: 0;
+	box-sizing: border-box;
 	margin: auto;
 	width: min(94vw, 86rem);
 	height: min(90vh, 58rem);
@@ -595,6 +596,44 @@
 
 .m3-code-tree-dialog .m3-code-tree__icon-collapse {
 	display: inline-flex;
+}
+
+@media (max-width: 47.99rem) {
+	.m3-code-tree-dialog {
+		inset: 0;
+		width: 100dvw;
+		height: 100dvh;
+		max-width: none;
+		max-height: none;
+		margin: 0;
+		border: none;
+		border-radius: 0;
+	}
+
+	.m3-code-tree-dialog .m3-code-tree__body {
+		flex: 1;
+		flex-direction: column;
+		height: auto;
+		min-height: 0;
+	}
+
+	.m3-code-tree-dialog .m3-code-tree__nav {
+		flex: 0 1 auto;
+		width: 100%;
+		min-width: 0;
+		max-width: none;
+		height: auto;
+		max-height: min(30dvh, 14rem);
+		border-inline-end: none;
+		border-bottom: 1px solid var(--outline-variant);
+	}
+
+	.m3-code-tree-dialog .m3-code-tree__content {
+		flex: 1;
+		height: auto;
+		min-height: 0;
+		max-height: none;
+	}
 }
 
 @keyframes m3-code-tree-backdrop-fade-in {
