@@ -7,14 +7,21 @@ import remarkDirective from "remark-directive"; /* Handle directives */
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
 import { siteConfig } from "../config/siteConfig.ts";
+import I18nKey from "../i18n/i18nKey.ts";
+import { i18n } from "../i18n/translation.ts";
 import { remarkCodeTree } from "../plugins/markdown/code/remark-code-tree.mjs";
 import { remarkFileTree } from "../plugins/markdown/code/remark-file-tree.mjs";
+import { remarkFields } from "../plugins/markdown/remark-fields.mjs";
 import { CodeTreeComponent } from "../plugins/markdown/containers/rehype-code-tree.mjs";
 import {
 	CollapsePanelsComponent,
 	rehypeCollapseGroups,
 } from "../plugins/markdown/containers/rehype-collapse-panels.mjs";
 import { FileTreeComponent } from "../plugins/markdown/containers/rehype-file-tree.mjs";
+import {
+	FieldComponent,
+	FieldGroupComponent,
+} from "../plugins/markdown/containers/rehype-fields.mjs";
 import {
 	OptionGroupsComponent,
 	rehypeOptionGroupIds,
@@ -66,6 +73,7 @@ export const siteRemarkPlugins = [
 	remarkMath,
 	remarkFileTree,
 	remarkCodeTree,
+	remarkFields,
 	remarkMermaid,
 	remarkReadingTime,
 	remarkExcerpt,
@@ -100,6 +108,17 @@ export const siteRehypePlugins = [
 				collapse: CollapsePanelsComponent,
 				tabs: OptionGroupsComponent,
 				"file-tree": FileTreeComponent,
+				"field-group": FieldGroupComponent,
+				field: (properties, children) =>
+					FieldComponent(
+						{
+							...properties,
+							"label-required": i18n(I18nKey.fieldRequired),
+							"label-optional": i18n(I18nKey.fieldOptional),
+							"label-deprecated": i18n(I18nKey.fieldDeprecated),
+						},
+						children,
+					),
 				"code-tree": CodeTreeComponent,
 				steps: StepsComponent,
 				github: GithubCardComponent,
