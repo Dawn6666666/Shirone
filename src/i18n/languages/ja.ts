@@ -260,7 +260,9 @@ export const ja: Translation = {
 	[Key.randomReadingSubtitle]: "ほかの記事から一貫した基準で選出",
 	[Key.copySuccess]: "クリップボードにコピーしました",
 	[Key.copyLink]: "リンクをコピー",
+	[Key.copySelection]: "コピー",
 	[Key.copyFailed]: "リンクのコピーに失敗しました。手動でコピーしてください。",
+	[Key.sharePageLink]: "ページリンクを共有",
 
 	[Key.shareArticle]: "記事をシェア",
 	[Key.shareArticleDescription]:

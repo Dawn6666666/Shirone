@@ -252,7 +252,9 @@ export const zh_TW: Translation = {
 	[Key.randomReadingSubtitle]: "從其他文章中穩定抽取",
 	[Key.copySuccess]: "已複製到剪貼簿",
 	[Key.copyLink]: "複製連結",
+	[Key.copySelection]: "複製",
 	[Key.copyFailed]: "複製失敗，請手動複製",
+	[Key.sharePageLink]: "分享頁面連結",
 
 	[Key.shareArticle]: "分享文章",
 	[Key.shareArticleDescription]: "生成精美分享圖或複製連結，與更多人分享本文。",

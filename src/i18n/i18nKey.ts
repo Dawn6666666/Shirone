@@ -132,11 +132,11 @@ enum I18nKey {
 	fieldRequired = "fieldRequired",
 	fieldOptional = "fieldOptional",
 	fieldDeprecated = "fieldDeprecated",
-		codeBlockExpand = "codeBlockExpand",
-		codeBlockCollapse = "codeBlockCollapse",
-		codeTreeExpand = "codeTreeExpand",
-		codeTreeCollapse = "codeTreeCollapse",
-		announcement = "announcement",
+	codeBlockExpand = "codeBlockExpand",
+	codeBlockCollapse = "codeBlockCollapse",
+	codeTreeExpand = "codeTreeExpand",
+	codeTreeCollapse = "codeTreeCollapse",
+	announcement = "announcement",
 	announcementClose = "announcementClose",
 
 	comments = "comments",
@@ -274,7 +274,9 @@ enum I18nKey {
 
 	copySuccess = "copySuccess",
 	copyLink = "copyLink",
+	copySelection = "copySelection",
 	copyFailed = "copyFailed",
+	sharePageLink = "sharePageLink",
 
 	shareArticle = "shareArticle",
 	shareArticleDescription = "shareArticleDescription",

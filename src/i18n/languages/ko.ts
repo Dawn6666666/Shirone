@@ -259,7 +259,9 @@ export const ko: Translation = {
 	[Key.randomReadingSubtitle]: "다른 글에서 일관된 기준으로 선정",
 	[Key.copySuccess]: "클립보드에 복사되었습니다",
 	[Key.copyLink]: "링크 복사",
+	[Key.copySelection]: "복사",
 	[Key.copyFailed]: "링크 복사에 실패했습니다. 직접 복사해 주세요.",
+	[Key.sharePageLink]: "페이지 링크 공유",
 
 	[Key.shareArticle]: "게시글 공유",
 	[Key.shareArticleDescription]:

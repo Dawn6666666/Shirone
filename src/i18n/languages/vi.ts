@@ -262,7 +262,9 @@ export const vi: Translation = {
 	[Key.randomReadingSubtitle]: "Một lựa chọn ổn định từ các bài viết khác",
 	[Key.copySuccess]: "Đã sao chép vào bộ nhớ tạm",
 	[Key.copyLink]: "Sao chép liên kết",
+	[Key.copySelection]: "Sao chép",
 	[Key.copyFailed]: "Sao chép liên kết thất bại. Vui lòng sao chép thủ công.",
+	[Key.sharePageLink]: "Chia sẻ liên kết trang",
 
 	[Key.shareArticle]: "Chia sẻ bài viết",
 	[Key.shareArticleDescription]:

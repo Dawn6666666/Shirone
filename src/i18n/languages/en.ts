@@ -260,7 +260,9 @@ export const en: Translation = {
 	[Key.randomReadingSubtitle]: "A consistent pick from other articles",
 	[Key.copySuccess]: "Copied to clipboard",
 	[Key.copyLink]: "Copy link",
+	[Key.copySelection]: "Copy",
 	[Key.copyFailed]: "Failed to copy link. Please copy manually.",
+	[Key.sharePageLink]: "Share page link",
 
 	[Key.shareArticle]: "Share Article",
 	[Key.shareArticleDescription]:

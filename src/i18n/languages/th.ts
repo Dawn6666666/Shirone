@@ -251,7 +251,9 @@ export const th: Translation = {
 	[Key.randomReadingSubtitle]: "คัดเลือกจากบทความอื่นด้วยเกณฑ์ที่คงที่",
 	[Key.copySuccess]: "คัดลอกไปยังคลิปบอร์ดแล้ว",
 	[Key.copyLink]: "คัดลอกลิงก์",
+	[Key.copySelection]: "คัดลอก",
 	[Key.copyFailed]: "คัดลอกลิงก์ไม่สำเร็จ โปรดคัดลอกด้วยตนเอง",
+	[Key.sharePageLink]: "แชร์ลิงก์หน้า",
 
 	[Key.shareArticle]: "แชร์บทความ",
 	[Key.shareArticleDescription]: "สร้างรูปภาพแชร์หรือคัดลอกลิงก์เพื่อส่งต่อบทความนี้",

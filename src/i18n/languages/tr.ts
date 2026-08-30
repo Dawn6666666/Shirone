@@ -262,7 +262,9 @@ export const tr: Translation = {
 	[Key.randomReadingSubtitle]: "Diğer yazılardan tutarlı bir seçim",
 	[Key.copySuccess]: "Panoya kopyalandı",
 	[Key.copyLink]: "Bağlantıyı kopyala",
+	[Key.copySelection]: "Kopyala",
 	[Key.copyFailed]: "Bağlantı kopyalanamadı. Lütfen manuel kopyalayın.",
+	[Key.sharePageLink]: "Sayfa bağlantısını paylaş",
 
 	[Key.shareArticle]: "Makaleyi Paylaş",
 	[Key.shareArticleDescription]:

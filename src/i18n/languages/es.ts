@@ -262,7 +262,9 @@ export const es: Translation = {
 	[Key.randomReadingSubtitle]: "Una selección estable de otros artículos",
 	[Key.copySuccess]: "Copiado al portapapeles",
 	[Key.copyLink]: "Copiar enlace",
+	[Key.copySelection]: "Copiar",
 	[Key.copyFailed]: "Error al copiar el enlace. Cópialo manualmente.",
+	[Key.sharePageLink]: "Compartir enlace de la página",
 
 	[Key.shareArticle]: "Compartir artículo",
 	[Key.shareArticleDescription]:

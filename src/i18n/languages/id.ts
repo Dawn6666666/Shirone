@@ -264,7 +264,9 @@ export const id: Translation = {
 	[Key.randomReadingSubtitle]: "Pilihan konsisten dari artikel lain",
 	[Key.copySuccess]: "Disalin ke papan klip",
 	[Key.copyLink]: "Salin tautan",
+	[Key.copySelection]: "Salin",
 	[Key.copyFailed]: "Gagal menyalin tautan. Silakan salin manual.",
+	[Key.sharePageLink]: "Bagikan tautan halaman",
 
 	[Key.shareArticle]: "Bagikan Artikel",
 	[Key.shareArticleDescription]:
