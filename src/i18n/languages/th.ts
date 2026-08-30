@@ -1,5 +1,5 @@
-import Key from "../i18nKey";
-import type { Translation } from "../translation";
+import Key from "../i18nKey-runtime.mjs";
+import type { Translation } from "../translation.ts";
 
 export const th: Translation = {
 	[Key.home]: "หน้าแรก",
@@ -134,11 +134,11 @@ export const th: Translation = {
 	[Key.fieldRequired]: "จำเป็น",
 	[Key.fieldOptional]: "ไม่บังคับ",
 	[Key.fieldDeprecated]: "เลิกใช้แล้ว",
-		[Key.codeBlockExpand]: "ขยายบล็อกโค้ด",
-		[Key.codeBlockCollapse]: "ย่อบล็อกโค้ด",
-		[Key.codeTreeExpand]: "ขยายโครงสร้างโค้ด",
-		[Key.codeTreeCollapse]: "ปิดมุมมองขยาย",
-		[Key.announcement]: "ประกาศ",
+	[Key.codeBlockExpand]: "ขยายบล็อกโค้ด",
+	[Key.codeBlockCollapse]: "ย่อบล็อกโค้ด",
+	[Key.codeTreeExpand]: "ขยายโครงสร้างโค้ด",
+	[Key.codeTreeCollapse]: "ปิดมุมมองขยาย",
+	[Key.announcement]: "ประกาศ",
 	[Key.announcementClose]: "ปิดประกาศ",
 
 	[Key.comments]: "ความคิดเห็น",

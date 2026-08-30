@@ -1,5 +1,5 @@
-import Key from "../i18nKey";
-import type { Translation } from "../translation";
+import Key from "../i18nKey-runtime.mjs";
+import type { Translation } from "../translation.ts";
 
 export const es: Translation = {
 	[Key.home]: "Inicio",
@@ -144,11 +144,11 @@ export const es: Translation = {
 	[Key.fieldRequired]: "Obligatorio",
 	[Key.fieldOptional]: "Opcional",
 	[Key.fieldDeprecated]: "Obsoleto",
-		[Key.codeBlockExpand]: "Expandir bloque de código",
-		[Key.codeBlockCollapse]: "Contraer bloque de código",
-		[Key.codeTreeExpand]: "Expandir árbol de código",
-		[Key.codeTreeCollapse]: "Cerrar vista ampliada",
-		[Key.announcement]: "Anuncio",
+	[Key.codeBlockExpand]: "Expandir bloque de código",
+	[Key.codeBlockCollapse]: "Contraer bloque de código",
+	[Key.codeTreeExpand]: "Expandir árbol de código",
+	[Key.codeTreeCollapse]: "Cerrar vista ampliada",
+	[Key.announcement]: "Anuncio",
 	[Key.announcementClose]: "Cerrar anuncio",
 
 	[Key.comments]: "Comentarios",

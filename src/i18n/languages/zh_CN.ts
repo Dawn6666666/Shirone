@@ -1,5 +1,5 @@
-import Key from "../i18nKey";
-import type { Translation } from "../translation";
+import Key from "../i18nKey-runtime.mjs";
+import type { Translation } from "../translation.ts";
 
 export const zh_CN: Translation = {
 	[Key.home]: "主页",
@@ -136,11 +136,11 @@ export const zh_CN: Translation = {
 	[Key.fieldRequired]: "必填",
 	[Key.fieldOptional]: "可选",
 	[Key.fieldDeprecated]: "已弃用",
-		[Key.codeBlockExpand]: "展开代码块",
-		[Key.codeBlockCollapse]: "折叠代码块",
-		[Key.codeTreeExpand]: "放大代码树",
-		[Key.codeTreeCollapse]: "退出放大",
-		[Key.announcement]: "公告",
+	[Key.codeBlockExpand]: "展开代码块",
+	[Key.codeBlockCollapse]: "折叠代码块",
+	[Key.codeTreeExpand]: "放大代码树",
+	[Key.codeTreeCollapse]: "退出放大",
+	[Key.announcement]: "公告",
 	[Key.announcementClose]: "关闭公告",
 
 	[Key.comments]: "评论",

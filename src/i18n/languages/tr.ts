@@ -1,5 +1,5 @@
-import Key from "../i18nKey";
-import type { Translation } from "../translation";
+import Key from "../i18nKey-runtime.mjs";
+import type { Translation } from "../translation.ts";
 
 export const tr: Translation = {
 	[Key.home]: "Anasayfa",
@@ -144,11 +144,11 @@ export const tr: Translation = {
 	[Key.fieldRequired]: "Zorunlu",
 	[Key.fieldOptional]: "İsteğe bağlı",
 	[Key.fieldDeprecated]: "Kullanımdan kaldırıldı",
-		[Key.codeBlockExpand]: "Kod bloğunu genişlet",
-		[Key.codeBlockCollapse]: "Kod bloğunu daralt",
-		[Key.codeTreeExpand]: "Kod ağacını genişlet",
-		[Key.codeTreeCollapse]: "Genişletilmiş görünümü kapat",
-		[Key.announcement]: "Duyuru",
+	[Key.codeBlockExpand]: "Kod bloğunu genişlet",
+	[Key.codeBlockCollapse]: "Kod bloğunu daralt",
+	[Key.codeTreeExpand]: "Kod ağacını genişlet",
+	[Key.codeTreeCollapse]: "Genişletilmiş görünümü kapat",
+	[Key.announcement]: "Duyuru",
 	[Key.announcementClose]: "Duyuruyu Kapat",
 
 	[Key.comments]: "Yorumlar",

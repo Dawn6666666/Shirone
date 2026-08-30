@@ -1,5 +1,5 @@
-import Key from "../i18nKey";
-import type { Translation } from "../translation";
+import Key from "../i18nKey-runtime.mjs";
+import type { Translation } from "../translation.ts";
 
 export const ko: Translation = {
 	[Key.home]: "홈",
@@ -141,11 +141,11 @@ export const ko: Translation = {
 	[Key.fieldRequired]: "필수",
 	[Key.fieldOptional]: "선택 사항",
 	[Key.fieldDeprecated]: "사용 중단",
-		[Key.codeBlockExpand]: "코드 블록 펼치기",
-		[Key.codeBlockCollapse]: "코드 블록 접기",
-		[Key.codeTreeExpand]: "코드 트리 확대",
-		[Key.codeTreeCollapse]: "확대 닫기",
-		[Key.announcement]: "공지사항",
+	[Key.codeBlockExpand]: "코드 블록 펼치기",
+	[Key.codeBlockCollapse]: "코드 블록 접기",
+	[Key.codeTreeExpand]: "코드 트리 확대",
+	[Key.codeTreeCollapse]: "확대 닫기",
+	[Key.announcement]: "공지사항",
 	[Key.announcementClose]: "공지 닫기",
 
 	[Key.comments]: "댓글",

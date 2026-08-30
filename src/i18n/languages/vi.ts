@@ -1,5 +1,5 @@
-import Key from "../i18nKey";
-import type { Translation } from "../translation";
+import Key from "../i18nKey-runtime.mjs";
+import type { Translation } from "../translation.ts";
 
 export const vi: Translation = {
 	[Key.home]: "Trang chủ",
@@ -145,11 +145,11 @@ export const vi: Translation = {
 	[Key.fieldRequired]: "Bắt buộc",
 	[Key.fieldOptional]: "Tùy chọn",
 	[Key.fieldDeprecated]: "Đã lỗi thời",
-		[Key.codeBlockExpand]: "Mở rộng khối mã",
-		[Key.codeBlockCollapse]: "Thu gọn khối mã",
-		[Key.codeTreeExpand]: "Mở rộng cây mã",
-		[Key.codeTreeCollapse]: "Đóng chế độ mở rộng",
-		[Key.announcement]: "Thông báo",
+	[Key.codeBlockExpand]: "Mở rộng khối mã",
+	[Key.codeBlockCollapse]: "Thu gọn khối mã",
+	[Key.codeTreeExpand]: "Mở rộng cây mã",
+	[Key.codeTreeCollapse]: "Đóng chế độ mở rộng",
+	[Key.announcement]: "Thông báo",
 	[Key.announcementClose]: "Đóng thông báo",
 
 	[Key.comments]: "Bình luận",
