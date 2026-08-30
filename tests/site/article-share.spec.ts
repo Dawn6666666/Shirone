@@ -316,4 +316,25 @@ test.describe("article share page integration", () => {
 		const share = page.locator("[data-article-share]");
 		await expect(share).toBeVisible();
 	});
+
+	test("copies the current post URL after Swup navigation", async ({
+		page,
+		context,
+	}) => {
+		await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+			origin: "http://localhost:4321",
+		});
+		await page.goto("/posts/guide/", { waitUntil: "networkidle" });
+		const target = page
+			.locator("[data-article-discovery] .article-discovery-item__link")
+			.first();
+		await expect(target).toBeVisible();
+		await target.click();
+		await expect(page.locator("#copy-post-link")).toBeVisible();
+
+		await page.locator("#copy-post-link").click();
+		const clipboard = await page.evaluate(() => navigator.clipboard.readText());
+		expect(clipboard).toContain("/posts/");
+		expect(clipboard).toBe(await page.evaluate(() => window.location.href));
+	});
 });
