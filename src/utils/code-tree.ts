@@ -7,6 +7,25 @@ let originalCodeTreePlaceholder: HTMLDivElement | null = null;
 let mountedCodeTree: HTMLElement | null = null;
 let unlockPageScroll: (() => void) | null = null;
 
+function setExpandButtonState(
+	button: HTMLButtonElement,
+	expanded: boolean,
+): void {
+	const label = expanded
+		? button.dataset.collapseLabel
+		: button.dataset.expandLabel;
+	if (label) {
+		button.setAttribute("aria-label", label);
+		button.title = label;
+	}
+	button
+		.querySelector(".m3-code-tree__icon-expand")
+		?.classList.toggle("hidden", expanded);
+	button
+		.querySelector(".m3-code-tree__icon-collapse")
+		?.classList.toggle("hidden", !expanded);
+}
+
 function lockPageScroll(): void {
 	const root = document.documentElement;
 	const body = document.body;
@@ -130,6 +149,7 @@ function closeCodeTreeModal(): void {
 		unlockPageScroll?.();
 
 		if (lastFocusedExpandBtn?.isConnected) {
+			setExpandButtonState(lastFocusedExpandBtn as HTMLButtonElement, false);
 			lastFocusedExpandBtn.focus();
 		}
 		lastFocusedExpandBtn = null;
@@ -193,9 +213,7 @@ function openCodeTreeModal(
 		".m3-code-tree__expand-btn",
 	);
 	if (modalExpandBtn) {
-		const collapseLabel = modalExpandBtn.dataset.collapseLabel || "退出放大";
-		modalExpandBtn.setAttribute("aria-label", collapseLabel);
-		modalExpandBtn.title = collapseLabel;
+		setExpandButtonState(modalExpandBtn, true);
 		modalExpandBtn.focus();
 	}
 }

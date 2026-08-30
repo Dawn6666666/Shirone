@@ -357,6 +357,20 @@ test.describe("Markdown interactive code trees", () => {
 
 		// Verify focus restored to expand button
 		await expect(expandBtn).toBeFocused();
+		await expect(expandBtn).toHaveAttribute(
+			"aria-label",
+			await expandBtn.getAttribute("data-expand-label"),
+		);
+		await expect(expandBtn).toHaveAttribute(
+			"title",
+			await expandBtn.getAttribute("data-expand-label"),
+		);
+		await expect(
+			expandBtn.locator(".m3-code-tree__icon-expand"),
+		).not.toHaveClass(/hidden/);
+		await expect(expandBtn.locator(".m3-code-tree__icon-collapse")).toHaveClass(
+			/hidden/,
+		);
 
 		// Verify tree restored into main document flow
 		await expect(firstTree).toBeVisible();
