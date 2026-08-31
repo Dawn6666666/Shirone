@@ -522,6 +522,105 @@ test.describe("Mermaid diagrams", () => {
 		expect(colors.labelColor).not.toBe("rgb(0, 0, 0)");
 	});
 
+	test("keeps Journey task labels readable on their fills", async ({
+		page,
+	}) => {
+		await page.goto(DEMO_PATH, { waitUntil: "domcontentloaded" });
+		const journey = page.locator('svg[aria-roledescription="journey"]');
+		await expect(journey).toHaveCount(1);
+
+		const contrastRatios = await journey.evaluate((svg) => {
+			const toRgb = (value: string): [number, number, number] | null => {
+				const channels = value
+					.match(/[\d.]+/g)
+					?.slice(0, 3)
+					.map(Number);
+				return channels?.length === 3
+					? [channels[0], channels[1], channels[2]]
+					: null;
+			};
+			const luminance = (value: string): number | null => {
+				const channels = toRgb(value);
+				if (!channels) return null;
+				const linear = channels.map((channel) => {
+					const normalized = channel / 255;
+					return normalized <= 0.03928
+						? normalized / 12.92
+						: ((normalized + 0.055) / 1.055) ** 2.4;
+				});
+				return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+			};
+			return [
+				...svg.querySelectorAll<HTMLElement>("div.journey-section, div.task"),
+			].map((label) => {
+				const fill = label
+					.closest("g")
+					?.querySelector<SVGElement>("rect.journey-section, rect.task");
+				const foreground = luminance(getComputedStyle(label).color);
+				const background = fill && luminance(getComputedStyle(fill).fill);
+				if (foreground === null || background === null) return 0;
+				const lighter = Math.max(foreground, background);
+				const darker = Math.min(foreground, background);
+				return (lighter + 0.05) / (darker + 0.05);
+			});
+		});
+
+		expect(contrastRatios.length).toBeGreaterThan(0);
+		for (const ratio of contrastRatios) {
+			expect(ratio).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
+	test("keeps Timeline labels readable on generated section fills", async ({
+		page,
+	}) => {
+		await page.goto(DEMO_PATH, { waitUntil: "domcontentloaded" });
+		const timeline = page.locator('svg[aria-roledescription="timeline"]');
+		await expect(timeline).toHaveCount(1);
+
+		const contrastRatios = await timeline.evaluate((svg) => {
+			const toRgb = (value: string): [number, number, number] | null => {
+				const channels = value
+					.match(/[\d.]+/g)
+					?.slice(0, 3)
+					.map(Number);
+				return channels?.length === 3
+					? [channels[0], channels[1], channels[2]]
+					: null;
+			};
+			const luminance = (value: string): number | null => {
+				const channels = toRgb(value);
+				if (!channels) return null;
+				const linear = channels.map((channel) => {
+					const normalized = channel / 255;
+					return normalized <= 0.03928
+						? normalized / 12.92
+						: ((normalized + 0.055) / 1.055) ** 2.4;
+				});
+				return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+			};
+			return [...svg.querySelectorAll<SVGGElement>(".timeline-node")].map(
+				(node) => {
+					const fill = node.querySelector<SVGElement>(".node-bkg");
+					const label = node.querySelector<SVGTextElement>("text");
+					const foreground = label && luminance(getComputedStyle(label).fill);
+					const background = fill && luminance(getComputedStyle(fill).fill);
+					if (foreground === null || background === null) {
+						return 0;
+					}
+					const lighter = Math.max(foreground, background);
+					const darker = Math.min(foreground, background);
+					return (lighter + 0.05) / (darker + 0.05);
+				},
+			);
+		});
+
+		expect(contrastRatios.length).toBeGreaterThan(0);
+		for (const ratio of contrastRatios) {
+			expect(ratio).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
 	test("recovers contrast when a palette makes surface text too dark", async ({
 		page,
 	}) => {

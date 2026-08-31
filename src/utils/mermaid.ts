@@ -203,6 +203,21 @@ function createThemeVariables(values: Record<string, string>, isDark: boolean) {
 		[onTertiaryContainer, onTertiary, canvasText, inverseOnSurface],
 		MERMAID_TEXT_CONTRAST,
 	);
+	const surfaceLowText = readableColor(
+		surfaceLow,
+		[onSurface, onSurfaceVariant, inverseOnSurface, onPrimaryContainer],
+		MERMAID_TEXT_CONTRAST,
+	);
+	const surfaceContainerText = readableColor(
+		surfaceContainer,
+		[onSurface, onSurfaceVariant, inverseOnSurface, onPrimaryContainer],
+		MERMAID_TEXT_CONTRAST,
+	);
+	const surfaceHighText = readableColor(
+		surfaceHigh,
+		[onSurface, onSurfaceVariant, inverseOnSurface, onPrimaryContainer],
+		MERMAID_TEXT_CONTRAST,
+	);
 	const primaryBorder = readableColor(
 		primaryContainer,
 		[primary, canvasLine, inverseOnSurface],
@@ -225,6 +240,12 @@ function createThemeVariables(values: Record<string, string>, isDark: boolean) {
 		background: surfaceLowest,
 		mainBkg: primaryContainer,
 		textColor: canvasText,
+		journeySectionBackground: surfaceLow,
+		journeySectionTextColor: surfaceLowText,
+		journeyTaskBackground: surfaceContainer,
+		journeyTaskTextColor: surfaceContainerText,
+		timelineNodeBackground: surfaceHigh,
+		timelineNodeTextColor: surfaceHighText,
 
 		// Primary / Node tokens
 		primaryColor: primaryContainer,
@@ -427,6 +448,30 @@ async function renderDiagrams() {
 			diagram.style.setProperty(
 				"--mermaid-canvas-background",
 				themeVariables.background,
+			);
+			diagram.style.setProperty(
+				"--mermaid-journey-section-background",
+				themeVariables.journeySectionBackground,
+			);
+			diagram.style.setProperty(
+				"--mermaid-journey-section-text",
+				themeVariables.journeySectionTextColor,
+			);
+			diagram.style.setProperty(
+				"--mermaid-journey-task-background",
+				themeVariables.journeyTaskBackground,
+			);
+			diagram.style.setProperty(
+				"--mermaid-journey-task-text",
+				themeVariables.journeyTaskTextColor,
+			);
+			diagram.style.setProperty(
+				"--mermaid-timeline-node-background",
+				themeVariables.timelineNodeBackground,
+			);
+			diagram.style.setProperty(
+				"--mermaid-timeline-node-text",
+				themeVariables.timelineNodeTextColor,
 			);
 			const source = readDiagramSource(diagram);
 			const output = diagram.querySelector<HTMLElement>(
