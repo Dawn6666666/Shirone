@@ -218,6 +218,11 @@ function createThemeVariables(values: Record<string, string>, isDark: boolean) {
 		[onSurface, onSurfaceVariant, inverseOnSurface, onPrimaryContainer],
 		MERMAID_TEXT_CONTRAST,
 	);
+	const gitLabelText = readableColor(
+		surfaceContainer,
+		[onSurface, onSurfaceVariant, inverseOnSurface, onPrimaryContainer],
+		MERMAID_TEXT_CONTRAST,
+	);
 	const primaryBorder = readableColor(
 		primaryContainer,
 		[primary, canvasLine, inverseOnSurface],
@@ -246,6 +251,12 @@ function createThemeVariables(values: Record<string, string>, isDark: boolean) {
 		journeyTaskTextColor: surfaceContainerText,
 		timelineNodeBackground: surfaceHigh,
 		timelineNodeTextColor: surfaceHighText,
+		gitLabelBackground: surfaceContainer,
+		gitLabelTextColor: gitLabelText,
+		kanbanColumnBackground: surfaceLow,
+		kanbanColumnTextColor: surfaceLowText,
+		kanbanCardBackground: surfaceContainer,
+		kanbanCardTextColor: surfaceContainerText,
 
 		// Primary / Node tokens
 		primaryColor: primaryContainer,
@@ -476,6 +487,30 @@ async function renderDiagrams() {
 			diagram.style.setProperty(
 				"--mermaid-timeline-node-text",
 				themeVariables.timelineNodeTextColor,
+			);
+			diagram.style.setProperty(
+				"--mermaid-git-label-background",
+				themeVariables.gitLabelBackground,
+			);
+			diagram.style.setProperty(
+				"--mermaid-git-label-text",
+				themeVariables.gitLabelTextColor,
+			);
+			diagram.style.setProperty(
+				"--mermaid-kanban-column-background",
+				themeVariables.kanbanColumnBackground,
+			);
+			diagram.style.setProperty(
+				"--mermaid-kanban-column-text",
+				themeVariables.kanbanColumnTextColor,
+			);
+			diagram.style.setProperty(
+				"--mermaid-kanban-card-background",
+				themeVariables.kanbanCardBackground,
+			);
+			diagram.style.setProperty(
+				"--mermaid-kanban-card-text",
+				themeVariables.kanbanCardTextColor,
 			);
 			const source = readDiagramSource(diagram);
 			const output = diagram.querySelector<HTMLElement>(

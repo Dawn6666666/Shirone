@@ -621,6 +621,109 @@ test.describe("Mermaid diagrams", () => {
 		}
 	});
 
+	test("keeps Git Graph and Kanban labels readable in dark palettes", async ({
+		page,
+	}) => {
+		await page.goto(DEMO_PATH, { waitUntil: "domcontentloaded" });
+		const gitGraph = page.locator('svg[aria-roledescription="gitGraph"]');
+		const kanban = page.locator('svg[aria-roledescription="kanban"]');
+		const gitHost = page
+			.locator(".markdown-mermaid")
+			.filter({ has: gitGraph })
+			.first();
+		await expect(gitGraph).toHaveCount(1);
+		await expect(kanban).toHaveCount(1);
+		await expect(gitHost).toHaveAttribute("data-mermaid-state", "ready", {
+			timeout: 15_000,
+		});
+
+		await page.evaluate(() => {
+			const root = document.documentElement;
+			root.classList.add("dark");
+			root.style.setProperty("--mc-surface-container-lowest", "#101010");
+			root.style.setProperty("--mc-surface-container-low", "#1c1c1c");
+			root.style.setProperty("--mc-surface-container", "#262626");
+			root.style.setProperty("--mc-surface-container-high", "#303030");
+			root.style.setProperty("--mc-on-surface", "#f5f5f5");
+			root.style.setProperty("--mc-on-surface-variant", "#d0d0d0");
+			root.style.setProperty("--mc-inverse-on-surface", "#101010");
+		});
+		await expect
+			.poll(() => gitHost.getAttribute("data-mermaid-theme"), {
+				timeout: 15_000,
+			})
+			.toContain("|#101010|");
+
+		const ratios = await page.evaluate(() => {
+			const luminance = (value: string): number | null => {
+				const channels = value
+					.match(/[\d.]+/g)
+					?.slice(0, 3)
+					.map(Number);
+				if (channels?.length !== 3) return null;
+				const linear = channels.map((channel) => {
+					const normalized = channel / 255;
+					return normalized <= 0.03928
+						? normalized / 12.92
+						: ((normalized + 0.055) / 1.055) ** 2.4;
+				});
+				return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+			};
+			const ratio = (foreground: Element, background: Element): number => {
+				const foregroundLuminance = luminance(
+					getComputedStyle(foreground).fill,
+				);
+				const backgroundLuminance = luminance(
+					getComputedStyle(background).fill,
+				);
+				if (foregroundLuminance === null || backgroundLuminance === null)
+					return 0;
+				const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+				const darker = Math.min(foregroundLuminance, backgroundLuminance);
+				return (lighter + 0.05) / (darker + 0.05);
+			};
+			const pair = (
+				root: ParentNode,
+				foregroundSelector: string,
+				backgroundSelector: string,
+			): number[] => {
+				const foregrounds = [...root.querySelectorAll(foregroundSelector)];
+				const backgrounds = [...root.querySelectorAll(backgroundSelector)];
+				return foregrounds.map((foreground, index) => {
+					const background = backgrounds[index];
+					return background ? ratio(foreground, background) : 0;
+				});
+			};
+			const git = document.querySelector(
+				'svg[aria-roledescription="gitGraph"]',
+			);
+			const board = document.querySelector(
+				'svg[aria-roledescription="kanban"]',
+			);
+			if (!git || !board) return null;
+			return {
+				gitBranches: pair(git, ".branchLabel text", ".branchLabelBkg"),
+				gitCommits: pair(git, ".commit-label", ".commit-label-bkg"),
+				kanbanColumns: pair(
+					board,
+					".cluster-label .nodeLabel",
+					".cluster > rect",
+				),
+				kanbanCards: pair(
+					board,
+					".node .markdown-node-label",
+					".node .label-container",
+				),
+			};
+		});
+
+		expect(ratios).not.toBeNull();
+		for (const group of Object.values(ratios ?? {})) {
+			expect(group.length).toBeGreaterThan(0);
+			for (const ratio of group) expect(ratio).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
 	test("recovers contrast when a palette makes surface text too dark", async ({
 		page,
 	}) => {

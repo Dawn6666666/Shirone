@@ -75,18 +75,18 @@
 
 /* !important boundary: Mermaid-generated SVG inline styles; the diagram
  * owner supplies the contrast-safe values through its scoped custom props. */
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) text,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .label,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .nodeLabel {
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) text,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .label,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .nodeLabel {
 	color: var(--mermaid-canvas-text, var(--on-surface)) !important;
 	fill: var(--mermaid-canvas-text, var(--on-surface)) !important;
 }
 
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node .label,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node .nodeLabel,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node foreignObject,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node foreignObject span,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node foreignObject p {
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node .label,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node .nodeLabel,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node foreignObject,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node foreignObject span,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node foreignObject p {
 	color: var(--mermaid-node-text, var(--on-surface)) !important;
 	fill: var(--mermaid-node-text, var(--on-surface)) !important;
 }
@@ -192,6 +192,50 @@
 .custom-md .markdown-mermaid__diagram svg[aria-roledescription="timeline"] marker path {
 	fill: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
 	stroke: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
+/* Git Graph labels have their own white/default backgrounds. Keep branch and
+ * commit captions paired with a theme surface so both modes remain readable. */
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="gitGraph"] .branchLabelBkg,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="gitGraph"] .commit-label-bkg {
+	fill: var(--mermaid-git-label-background, var(--surface-container)) !important;
+	stroke: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="gitGraph"] .branchLabel text,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="gitGraph"] .branchLabel tspan,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="gitGraph"] .commit-label {
+	color: var(--mermaid-git-label-text, var(--on-surface)) !important;
+	fill: var(--mermaid-git-label-text, var(--on-surface)) !important;
+}
+
+/* Kanban columns and cards use Mermaid's section/node palette independently
+ * from ordinary flowchart nodes, so their labels need matching foregrounds. */
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .cluster > rect {
+	fill: var(--mermaid-kanban-column-background, var(--surface-container-low)) !important;
+	stroke: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .cluster-label,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .cluster-label .nodeLabel,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .cluster-label p {
+	color: var(--mermaid-kanban-column-text, var(--on-surface)) !important;
+	fill: var(--mermaid-kanban-column-text, var(--on-surface)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .node rect,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .node polygon,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .node path {
+	fill: var(--mermaid-kanban-card-background, var(--surface-container)) !important;
+	stroke: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .node .nodeLabel,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .node foreignObject,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .node foreignObject span,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .node foreignObject p {
+	color: var(--mermaid-kanban-card-text, var(--on-surface)) !important;
+	fill: var(--mermaid-kanban-card-text, var(--on-surface)) !important;
 }
 
 .custom-md .markdown-mermaid__diagram .edgeLabel {
