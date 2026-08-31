@@ -467,6 +467,10 @@ async function renderDiagrams() {
 				themeVariables.primaryTextColor,
 			);
 			diagram.style.setProperty(
+				"--mermaid-node-background",
+				themeVariables.primaryColor,
+			);
+			diagram.style.setProperty(
 				"--mermaid-journey-section-background",
 				themeVariables.journeySectionBackground,
 			);

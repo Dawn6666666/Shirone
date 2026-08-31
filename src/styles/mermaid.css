@@ -251,6 +251,23 @@
 	fill: var(--mermaid-class-edge-label-text, var(--on-primary-container)) !important;
 }
 
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node .label-container path,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node .label-container rect {
+	fill: var(--mermaid-node-background, var(--primary-container)) !important;
+	stroke: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node .label-group,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node .members-group,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node .methods-group,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node .nodeLabel,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node foreignObject,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node foreignObject span,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .node foreignObject p {
+	color: var(--mermaid-node-text, var(--on-primary-container)) !important;
+	fill: var(--mermaid-node-text, var(--on-primary-container)) !important;
+}
+
 .custom-md .markdown-mermaid__diagram .edgeLabel {
 	background-color: var(--mermaid-canvas-background, var(--surface-container-lowest));
 	color: var(--mermaid-canvas-text, var(--on-surface));

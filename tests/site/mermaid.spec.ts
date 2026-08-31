@@ -767,18 +767,36 @@ test.describe("Mermaid diagrams", () => {
 				});
 				return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
 			};
-			return [...svg.querySelectorAll<HTMLElement>(".edgeLabel .labelBkg")].map(
-				(label) => {
-					const foreground = luminance(
-						getComputedStyle(label.querySelector(".edgeLabel") ?? label).color,
-					);
-					const background = luminance(getComputedStyle(label).backgroundColor);
+			const edgeRatios = [
+				...svg.querySelectorAll<HTMLElement>(".edgeLabel .labelBkg"),
+			].map((label) => {
+				const foreground = luminance(
+					getComputedStyle(label.querySelector(".edgeLabel") ?? label).color,
+				);
+				const background = luminance(getComputedStyle(label).backgroundColor);
+				if (foreground === null || background === null) return 0;
+				const lighter = Math.max(foreground, background);
+				const darker = Math.min(foreground, background);
+				return (lighter + 0.05) / (darker + 0.05);
+			});
+			const nodeRatios = [
+				...svg.querySelectorAll<HTMLElement>(".node"),
+			].flatMap((node) => {
+				const shape = node.querySelector<SVGElement>(
+					".label-container path, .label-container rect",
+				);
+				const labels = [...node.querySelectorAll<HTMLElement>(".nodeLabel")];
+				if (!shape) return [];
+				return labels.map((label) => {
+					const foreground = luminance(getComputedStyle(label).color);
+					const background = luminance(getComputedStyle(shape).fill);
 					if (foreground === null || background === null) return 0;
 					const lighter = Math.max(foreground, background);
 					const darker = Math.min(foreground, background);
 					return (lighter + 0.05) / (darker + 0.05);
-				},
-			);
+				});
+			});
+			return [...edgeRatios, ...nodeRatios];
 		});
 
 		expect(ratios.length).toBeGreaterThan(0);
