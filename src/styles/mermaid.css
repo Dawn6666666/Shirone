@@ -82,6 +82,15 @@
 	fill: var(--mermaid-canvas-text, var(--on-surface)) !important;
 }
 
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node .label,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node .nodeLabel,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node foreignObject,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node foreignObject span,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]) .node foreignObject p {
+	color: var(--mermaid-node-text, var(--on-surface)) !important;
+	fill: var(--mermaid-node-text, var(--on-surface)) !important;
+}
+
 .custom-md .markdown-mermaid__diagram svg .flowchart-link,
 .custom-md .markdown-mermaid__diagram svg .edgePath path,
 .custom-md .markdown-mermaid__diagram svg .messageLine0,

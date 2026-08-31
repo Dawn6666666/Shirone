@@ -674,5 +674,40 @@ test.describe("Mermaid diagrams", () => {
 				}),
 			)
 			.toBeGreaterThanOrEqual(4.5);
+
+		const nodeContrast = await diagram
+			.locator(".node")
+			.first()
+			.evaluate((node) => {
+				const luminance = (value: string): number | null => {
+					const channels = value
+						.match(/[\d.]+/g)
+						?.slice(0, 3)
+						.map(Number);
+					if (channels?.length !== 3) return null;
+					return channels
+						.map((channel) => {
+							const normalized = channel / 255;
+							return normalized <= 0.03928
+								? normalized / 12.92
+								: ((normalized + 0.055) / 1.055) ** 2.4;
+						})
+						.reduce(
+							(sum, channel, index) =>
+								sum + channel * [0.2126, 0.7152, 0.0722][index],
+							0,
+						);
+				};
+				const label = node.querySelector(".nodeLabel");
+				const shape = node.querySelector(".label-container");
+				if (!label || !shape) return 0;
+				const foreground = luminance(getComputedStyle(label).color);
+				const background = luminance(getComputedStyle(shape).fill);
+				if (foreground === null || background === null) return 0;
+				const lighter = Math.max(foreground, background);
+				const darker = Math.min(foreground, background);
+				return (lighter + 0.05) / (darker + 0.05);
+			});
+		expect(nodeContrast).toBeGreaterThanOrEqual(4.5);
 	});
 });
