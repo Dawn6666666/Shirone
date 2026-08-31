@@ -9,8 +9,8 @@
 	padding: var(--m3e-space-4);
 	border: 1px solid var(--outline-variant);
 	border-radius: var(--shape-corner-l);
-	background: var(--surface-container-lowest);
-	color: var(--on-surface);
+	background: var(--mermaid-canvas-background, var(--surface-container-lowest));
+	color: var(--mermaid-canvas-text, var(--on-surface));
 }
 
 .custom-md .markdown-mermaid__fallback {
@@ -73,21 +73,49 @@
 	margin-inline: auto;
 }
 
+/* !important boundary: Mermaid-generated SVG inline styles; the diagram
+ * owner supplies the contrast-safe values through its scoped custom props. */
+.custom-md .markdown-mermaid__diagram svg text,
+.custom-md .markdown-mermaid__diagram svg .label,
+.custom-md .markdown-mermaid__diagram svg .nodeLabel {
+	color: var(--mermaid-canvas-text, var(--on-surface)) !important;
+	fill: var(--mermaid-canvas-text, var(--on-surface)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg .flowchart-link,
+.custom-md .markdown-mermaid__diagram svg .edgePath path,
+.custom-md .markdown-mermaid__diagram svg .messageLine0,
+.custom-md .markdown-mermaid__diagram svg .messageLine1,
+.custom-md .markdown-mermaid__diagram svg .actor-line,
+.custom-md .markdown-mermaid__diagram svg .loopLine,
+.custom-md .markdown-mermaid__diagram svg .relation,
+.custom-md .markdown-mermaid__diagram svg .transition,
+.custom-md .markdown-mermaid__diagram svg .axis path,
+.custom-md .markdown-mermaid__diagram svg .axis line,
+.custom-md .markdown-mermaid__diagram svg .tick line,
+.custom-md .markdown-mermaid__diagram svg .grid line {
+	stroke: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg .arrowheadPath {
+	fill: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
 .custom-md .markdown-mermaid__diagram .edgeLabel {
-	background-color: var(--surface-container-lowest);
-	color: var(--on-surface);
+	background-color: var(--mermaid-canvas-background, var(--surface-container-lowest));
+	color: var(--mermaid-canvas-text, var(--on-surface));
 }
 
 .custom-md .markdown-mermaid__diagram .edgeLabel rect,
 .custom-md .markdown-mermaid__diagram .edgeLabel .label-container {
-	fill: var(--surface-container-lowest);
+	fill: var(--mermaid-canvas-background, var(--surface-container-lowest));
 }
 
 .custom-md .markdown-mermaid__diagram .edgeLabel span,
 .custom-md .markdown-mermaid__diagram .edgeLabel text,
 .custom-md .markdown-mermaid__diagram .edgeLabel p {
-	color: var(--on-surface);
-	fill: var(--on-surface);
+	color: var(--mermaid-canvas-text, var(--on-surface));
+	fill: var(--mermaid-canvas-text, var(--on-surface));
 }
 
 .custom-md .markdown-mermaid__transform {

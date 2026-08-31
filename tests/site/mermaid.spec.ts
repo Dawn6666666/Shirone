@@ -489,4 +489,59 @@ test.describe("Mermaid diagrams", () => {
 				.violations,
 		).toEqual([]);
 	});
+
+	test("recovers contrast when a palette makes surface text too dark", async ({
+		page,
+	}) => {
+		await page.goto(DEMO_PATH, { waitUntil: "domcontentloaded" });
+		const diagram = page.locator(".markdown-mermaid").first();
+		await expect(diagram).toHaveAttribute("data-mermaid-state", "ready", {
+			timeout: 15_000,
+		});
+
+		await page.evaluate(() => {
+			const root = document.documentElement;
+			root.classList.remove("dark");
+			root.style.setProperty("--mc-surface-container-lowest", "#000000");
+			root.style.setProperty("--mc-on-surface", "#202000");
+			root.style.setProperty("--mc-on-surface-variant", "#303000");
+			root.style.setProperty("--mc-inverse-on-surface", "#ffffff");
+			root.style.setProperty("--mc-primary-container", "#050500");
+			root.style.setProperty("--mc-on-primary-container", "#303000");
+		});
+
+		await expect
+			.poll(() => diagram.getAttribute("data-mermaid-theme"), {
+				timeout: 15_000,
+			})
+			.toContain("|#000000|");
+		const edgeLabel = diagram.locator(".edgeLabel span");
+		const edgeLabelCount = await edgeLabel.count();
+		expect(edgeLabelCount).toBeGreaterThan(0);
+		const firstEdgeLabel = edgeLabel.first();
+		await expect
+			.poll(() =>
+				firstEdgeLabel.evaluate((element) => {
+					const channels = getComputedStyle(element)
+						.color.match(/[\d.]+/g)
+						?.slice(0, 3)
+						.map(Number);
+					if (channels?.length !== 3) return 0;
+					const luminance = channels
+						.map((channel) => {
+							const normalized = channel / 255;
+							return normalized <= 0.03928
+								? normalized / 12.92
+								: ((normalized + 0.055) / 1.055) ** 2.4;
+						})
+						.reduce(
+							(sum, channel, index) =>
+								sum + channel * [0.2126, 0.7152, 0.0722][index],
+							0,
+						);
+					return (luminance + 0.05) / 0.05;
+				}),
+			)
+			.toBeGreaterThanOrEqual(4.5);
+	});
 });
