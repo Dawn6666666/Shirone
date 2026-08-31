@@ -490,6 +490,38 @@ test.describe("Mermaid diagrams", () => {
 		).toEqual([]);
 	});
 
+	test("keeps Mind Map branches and nodes readable", async ({ page }) => {
+		await page.goto(DEMO_PATH, { waitUntil: "domcontentloaded" });
+		const mindMap = page.locator("svg.mindmapDiagram");
+		await expect(mindMap).toHaveCount(1);
+		const labels = mindMap.locator(".mindmap-node .nodeLabel");
+		const labelCount = await labels.count();
+		expect(labelCount).toBeGreaterThan(0);
+		await expect(labels.first()).toBeVisible();
+
+		const colors = await mindMap.evaluate((svg) => {
+			const node = svg.querySelector<SVGElement>(
+				".mindmap-node .node-bkg, .mindmap-node circle",
+			);
+			const edge = svg.querySelector<SVGElement>(".edgePaths path");
+			const label = svg.querySelector<HTMLElement>(".mindmap-node .nodeLabel");
+			if (!node || !edge || !label) {
+				throw new Error("Mind Map SVG elements are missing");
+			}
+			return {
+				nodeFill: getComputedStyle(node).fill,
+				nodeStroke: getComputedStyle(node).stroke,
+				edgeStroke: getComputedStyle(edge).stroke,
+				labelColor: getComputedStyle(label).color,
+			};
+		});
+
+		expect(colors.nodeFill).not.toBe("rgb(0, 0, 0)");
+		expect(colors.nodeStroke).not.toBe("rgb(0, 0, 0)");
+		expect(colors.edgeStroke).not.toBe("rgb(0, 0, 0)");
+		expect(colors.labelColor).not.toBe("rgb(0, 0, 0)");
+	});
+
 	test("recovers contrast when a palette makes surface text too dark", async ({
 		page,
 	}) => {

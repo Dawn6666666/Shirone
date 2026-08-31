@@ -101,6 +101,31 @@
 	fill: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
 }
 
+/* Mind Map uses depth-specific HSL fills generated inside the SVG. Some
+ * dynamic palettes resolve those fills to 0% lightness, so keep its nodes
+ * and branches on the same readable surface/line tokens as other diagrams. */
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .edgePaths path,
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .edge,
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram [class*="section-edge"],
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .node-line- {
+	stroke: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .mindmap-node > .node-bkg,
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .mindmap-node > .label-container,
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .mindmap-node > circle,
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .mindmap-node > path,
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .mindmap-node > rect,
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .mindmap-node > polygon {
+	fill: var(--surface-container-high) !important;
+	stroke: var(--mermaid-canvas-line, var(--on-surface-variant)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg.mindmapDiagram .mindmap-node .nodeLabel {
+	color: var(--mermaid-canvas-text, var(--on-surface)) !important;
+	fill: var(--mermaid-canvas-text, var(--on-surface)) !important;
+}
+
 .custom-md .markdown-mermaid__diagram .edgeLabel {
 	background-color: var(--mermaid-canvas-background, var(--surface-container-lowest));
 	color: var(--mermaid-canvas-text, var(--on-surface));
