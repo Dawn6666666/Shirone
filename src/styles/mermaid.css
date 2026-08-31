@@ -75,18 +75,18 @@
 
 /* !important boundary: Mermaid-generated SVG inline styles; the diagram
  * owner supplies the contrast-safe values through its scoped custom props. */
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) text,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .label,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .nodeLabel {
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]):not([aria-roledescription="classDiagram"]) text,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]):not([aria-roledescription="classDiagram"]) .label,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]):not([aria-roledescription="classDiagram"]) .nodeLabel {
 	color: var(--mermaid-canvas-text, var(--on-surface)) !important;
 	fill: var(--mermaid-canvas-text, var(--on-surface)) !important;
 }
 
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node .label,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node .nodeLabel,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node foreignObject,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node foreignObject span,
-.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]) .node foreignObject p {
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]):not([aria-roledescription="classDiagram"]) .node .label,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]):not([aria-roledescription="classDiagram"]) .node .nodeLabel,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]):not([aria-roledescription="classDiagram"]) .node foreignObject,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]):not([aria-roledescription="classDiagram"]) .node foreignObject span,
+.custom-md .markdown-mermaid__diagram svg:not(.mindmapDiagram):not([aria-roledescription="journey"]):not([aria-roledescription="timeline"]):not([aria-roledescription="gitGraph"]):not([aria-roledescription="kanban"]):not([aria-roledescription="classDiagram"]) .node foreignObject p {
 	color: var(--mermaid-node-text, var(--on-surface)) !important;
 	fill: var(--mermaid-node-text, var(--on-surface)) !important;
 }
@@ -236,6 +236,19 @@
 .custom-md .markdown-mermaid__diagram svg[aria-roledescription="kanban"] .node foreignObject p {
 	color: var(--mermaid-kanban-card-text, var(--on-surface)) !important;
 	fill: var(--mermaid-kanban-card-text, var(--on-surface)) !important;
+}
+
+/* Class diagrams render relation captions inside HTML labelBkg elements. Use
+ * the same primary container/text pairing as the class nodes themselves. */
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .edgeLabel .labelBkg {
+	background-color: var(--mermaid-class-edge-label-background, var(--primary-container)) !important;
+	color: var(--mermaid-class-edge-label-text, var(--on-primary-container)) !important;
+}
+
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .edgeLabel .labelBkg .edgeLabel,
+.custom-md .markdown-mermaid__diagram svg[aria-roledescription="classDiagram"] .edgeLabel .labelBkg p {
+	color: var(--mermaid-class-edge-label-text, var(--on-primary-container)) !important;
+	fill: var(--mermaid-class-edge-label-text, var(--on-primary-container)) !important;
 }
 
 .custom-md .markdown-mermaid__diagram .edgeLabel {

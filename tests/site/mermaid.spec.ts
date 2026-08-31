@@ -724,6 +724,67 @@ test.describe("Mermaid diagrams", () => {
 		}
 	});
 
+	test("keeps Class Diagram relation labels readable", async ({ page }) => {
+		await page.goto(DEMO_PATH, { waitUntil: "domcontentloaded" });
+		const classDiagram = page.locator(
+			'svg[aria-roledescription="classDiagram"]',
+		);
+		const classHost = page.locator(".markdown-mermaid").filter({
+			has: classDiagram,
+		});
+		await expect(classDiagram).toHaveCount(1);
+		await expect(classHost).toHaveAttribute("data-mermaid-state", "ready", {
+			timeout: 15_000,
+		});
+		await page.evaluate(() => {
+			const root = document.documentElement;
+			root.classList.add("dark");
+			root.style.setProperty("--mc-surface-container-lowest", "#101010");
+			root.style.setProperty("--mc-on-surface", "#f5f5f5");
+			root.style.setProperty("--mc-on-surface-variant", "#d0d0d0");
+			root.style.setProperty("--mc-inverse-on-surface", "#101010");
+			root.style.setProperty("--mc-primary-container", "#3f3f3f");
+			root.style.setProperty("--mc-on-primary-container", "#202020");
+		});
+		await expect
+			.poll(() => classHost.getAttribute("data-mermaid-theme"), {
+				timeout: 15_000,
+			})
+			.toContain("|#3f3f3f|");
+
+		const ratios = await classDiagram.evaluate((svg) => {
+			const luminance = (value: string): number | null => {
+				const channels = value
+					.match(/[\d.]+/g)
+					?.slice(0, 3)
+					.map(Number);
+				if (channels?.length !== 3) return null;
+				const linear = channels.map((channel) => {
+					const normalized = channel / 255;
+					return normalized <= 0.03928
+						? normalized / 12.92
+						: ((normalized + 0.055) / 1.055) ** 2.4;
+				});
+				return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+			};
+			return [...svg.querySelectorAll<HTMLElement>(".edgeLabel .labelBkg")].map(
+				(label) => {
+					const foreground = luminance(
+						getComputedStyle(label.querySelector(".edgeLabel") ?? label).color,
+					);
+					const background = luminance(getComputedStyle(label).backgroundColor);
+					if (foreground === null || background === null) return 0;
+					const lighter = Math.max(foreground, background);
+					const darker = Math.min(foreground, background);
+					return (lighter + 0.05) / (darker + 0.05);
+				},
+			);
+		});
+
+		expect(ratios.length).toBeGreaterThan(0);
+		for (const ratio of ratios) expect(ratio).toBeGreaterThanOrEqual(4.5);
+	});
+
 	test("recovers contrast when a palette makes surface text too dark", async ({
 		page,
 	}) => {

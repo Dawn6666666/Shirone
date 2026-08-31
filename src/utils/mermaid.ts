@@ -257,6 +257,8 @@ function createThemeVariables(values: Record<string, string>, isDark: boolean) {
 		kanbanColumnTextColor: surfaceLowText,
 		kanbanCardBackground: surfaceContainer,
 		kanbanCardTextColor: surfaceContainerText,
+		classEdgeLabelBackground: primaryContainer,
+		classEdgeLabelTextColor: primaryText,
 
 		// Primary / Node tokens
 		primaryColor: primaryContainer,
@@ -511,6 +513,14 @@ async function renderDiagrams() {
 			diagram.style.setProperty(
 				"--mermaid-kanban-card-text",
 				themeVariables.kanbanCardTextColor,
+			);
+			diagram.style.setProperty(
+				"--mermaid-class-edge-label-background",
+				themeVariables.classEdgeLabelBackground,
+			);
+			diagram.style.setProperty(
+				"--mermaid-class-edge-label-text",
+				themeVariables.classEdgeLabelTextColor,
 			);
 			const source = readDiagramSource(diagram);
 			const output = diagram.querySelector<HTMLElement>(
