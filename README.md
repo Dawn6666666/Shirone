@@ -19,6 +19,9 @@ A calm reading space for long-form writing, personal collections, and the small 
 
 </div>
 
+> [!IMPORTANT]
+> **Start with the [online documentation](https://docs.shirone.mysqil.com/).** It is the primary guide for setup, configuration, content workflows, and deployment.
+
 ## Start Here
 
 The [online documentation](https://docs.shirone.mysqil.com/) is the main entry point for setup, configuration, content workflows, and deployment. This repository contains the theme source; use [Shirone-Content](https://github.com/LyraVoid/Shirone-Content) when you want to keep personal content in a separate repository.

@@ -19,6 +19,9 @@
 
 </div>
 
+> [!IMPORTANT]
+> **請先閱讀[線上文件](https://docs.shirone.mysqil.com/)。** 主題設定、內容工作流程與部署說明均以此為主要入口。
+
 ## 從這裡開始
 
 [線上文件](https://docs.shirone.mysqil.com/)是設定主題、管理內容和部署網站的主要入口。本儲存庫包含主題原始碼；如果希望將個人內容獨立管理，請使用 [Shirone-Content](https://github.com/LyraVoid/Shirone-Content)。

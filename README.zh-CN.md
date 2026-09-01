@@ -19,6 +19,9 @@
 
 </div>
 
+> [!IMPORTANT]
+> **请先阅读[在线文档](https://docs.shirone.mysqil.com/)。** 主题配置、内容工作流与部署说明均以此为主入口。
+
 ## 从这里开始
 
 [在线文档](https://docs.shirone.mysqil.com/)是配置主题、管理内容和部署站点的主要入口。本仓库包含主题源码；如果希望将个人内容独立管理，请使用 [Shirone-Content](https://github.com/LyraVoid/Shirone-Content)。
