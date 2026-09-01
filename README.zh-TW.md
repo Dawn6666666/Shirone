@@ -20,7 +20,8 @@
 </div>
 
 > [!IMPORTANT]
-> **線上文件：[docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
+> **透過我們的[完整線上文件](https://docs.shirone.mysqil.com/)快速開始。**
+> 無論是自訂主題、設定功能，還是部署至正式環境，文件涵蓋了成功啟動網誌所需的一切內容。
 
 ![Shirone 首頁](./public/assets/projects/shirone.webp)
 

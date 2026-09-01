@@ -20,7 +20,8 @@ Material 3 を基盤とした、表現豊かなアニメ風ブログテーマ。
 </div>
 
 > [!IMPORTANT]
-> **オンラインドキュメント：[docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
+> **[総合ドキュメント](https://docs.shirone.mysqil.com/)で、すぐに始められます。**
+> テーマのカスタマイズ、機能の設定、本番環境へのデプロイまで、ブログを成功させるために必要なすべてをドキュメントで確認できます。
 
 ![Shirone のホームページ](./public/assets/projects/shirone.webp)
 

@@ -20,7 +20,8 @@ Crafted by [matsuzaka-yuki](https://github.com/matsuzaka-yuki)
 </div>
 
 > [!IMPORTANT]
-> **Online documentation: [docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
+> **Get started quickly with our [comprehensive documentation](https://docs.shirone.mysqil.com/).**
+> Whether you are customizing the theme, configuring features, or deploying to production, the documentation covers everything you need to launch your blog successfully.
 
 ![Shirone homepage](./public/assets/projects/shirone.webp)
 

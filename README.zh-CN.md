@@ -20,7 +20,8 @@
 </div>
 
 > [!IMPORTANT]
-> **在线文档：[docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
+> **通过我们的[综合在线文档](https://docs.shirone.mysqil.com/)快速开始。**
+> 无论是自定义主题、配置功能，还是部署到生产环境，文档涵盖了您成功启动博客所需的所有内容。
 
 ![Shirone 首页](./public/assets/projects/shirone.webp)
 
