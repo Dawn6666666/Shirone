@@ -32,6 +32,12 @@ export const GENERATED_CONFIG_FILE = "src/user/user-config.ts";
 export const CONFIG_DOMAINS = Object.freeze([
 	{ key: "site", file: "site", type: "SiteConfig", module: "@/types/config" },
 	{
+		key: "permalink",
+		file: "permalink",
+		type: "PermalinkConfig",
+		module: "@/types/permalinkConfig",
+	},
+	{
 		key: "profile",
 		file: "profile",
 		type: "ProfileConfig",
