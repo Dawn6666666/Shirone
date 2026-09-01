@@ -1,5 +1,5 @@
 import type { CollectionEntry } from "astro:content";
-import { getPostUrl } from "@utils/url-utils";
+import { getPostUrl } from "./url-utils.ts";
 import type { LlmsConfig, LlmsCustomLink } from "@/types/llmsConfig";
 
 const CODE_BLOCK_RE =
