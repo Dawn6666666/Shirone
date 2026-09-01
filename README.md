@@ -8,7 +8,10 @@ An expressive, anime-inspired blog theme built on Material 3.
 
 Crafted by [matsuzaka-yuki](https://github.com/matsuzaka-yuki)
 
-[Live demo](https://shirone.mysqil.com/) · [Documentation](./docs/) · [Report an issue](https://github.com/LyraVoid/Shirone/issues)
+[Live demo](https://shirone.mysqil.com/) · [Documentation](https://docs.shirone.mysqil.com/) · [Report an issue](https://github.com/LyraVoid/Shirone/issues)
+
+> [!IMPORTANT]
+> **Online documentation: [docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
 
 [English](./README.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)
 
@@ -31,9 +34,6 @@ Crafted by [matsuzaka-yuki](https://github.com/matsuzaka-yuki)
     <td align="center"><strong>Quiet by Design</strong><br><sub>SSR-first, accessible, and truly weightless when features are disabled.</sub></td>
   </tr>
 </table>
-
-> [!IMPORTANT]
-> Shirone is currently in alpha. Configuration and component APIs may change before the first stable release.
 
 ## ✦ A Small Spell for Every Story
 

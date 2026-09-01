@@ -8,7 +8,10 @@
 
 由 [matsuzaka-yuki](https://github.com/matsuzaka-yuki) 用心製作
 
-[線上預覽](https://shirone.mysqil.com/) · [專案文件](./docs/) · [回報問題](https://github.com/LyraVoid/Shirone/issues)
+[線上預覽](https://shirone.mysqil.com/) · [專案文件](https://docs.shirone.mysqil.com/) · [回報問題](https://github.com/LyraVoid/Shirone/issues)
+
+> [!IMPORTANT]
+> **線上文件：[docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
 
 [English](./README.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)
 
@@ -31,9 +34,6 @@
     <td align="center"><strong>安靜守護</strong><br><sub>SSR 優先、無障礙友善，可選功能停用時真正不留負擔。</sub></td>
   </tr>
 </table>
-
-> [!IMPORTANT]
-> Shirone 目前仍處於 Alpha 階段，首個穩定版本發佈前，設定與元件 API 可能有所變更。
 
 ## ✦ 寫給每個故事的小小咒語
 

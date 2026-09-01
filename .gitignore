@@ -5,6 +5,7 @@ dist/
 .content-src/
 .content-backup/
 content.lock.json
+Shirone-Content/
 
 # generated types
 .astro/
