@@ -20,6 +20,7 @@ import { onMount } from "svelte";
 
 interface Post {
 	slug: string;
+	url?: string;
 	data: {
 		title: string;
 		tags: string[];
@@ -118,7 +119,7 @@ function formatDate(date: Date) {
 function toItem(post: Post): ArchiveItem {
 	return {
 		title: post.data.title,
-		href: getPostUrlBySlug(post.slug),
+		href: post.url ?? getPostUrlBySlug(post.slug),
 		date: formatDate(post.data.published),
 		category: post.data.category ?? undefined,
 		tags: post.data.tags,

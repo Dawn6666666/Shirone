@@ -28,7 +28,13 @@ const postsCollection = defineCollection({
 		passwordHint: z.string().optional().default(""),
 		hideHomeContent: z.boolean().optional().default(true),
 
+		/* Post alias & custom permalink */
+		alias: z.string().optional(),
+		permalink: z.string().optional(),
+
 		/* For internal use */
+		prevUrl: z.string().optional(),
+		nextUrl: z.string().optional(),
 		prevTitle: z.string().default(""),
 		prevSlug: z.string().default(""),
 		nextTitle: z.string().default(""),

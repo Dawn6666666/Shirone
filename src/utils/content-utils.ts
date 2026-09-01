@@ -1,4 +1,4 @@
-import { type CollectionEntry, getCollection } from "astro:content";
+﻿import { type CollectionEntry, getCollection } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import {
@@ -6,7 +6,8 @@ import {
 	validatePublicationMetadata,
 } from "@utils/content-date";
 import { siteMarkdownProcessor } from "@utils/markdown-processor";
-import { getCategoryUrl } from "@utils/url-utils.ts";
+import { initPostIdMap } from "@utils/permalink-utils";
+import { getCategoryUrl, getPostUrl } from "@utils/url-utils";
 
 // // Retrieve posts and sort them by publication date
 async function getRawSortedPosts(): Promise<CollectionEntry<"posts">[]> {
@@ -16,38 +17,46 @@ async function getRawSortedPosts(): Promise<CollectionEntry<"posts">[]> {
 
 	for (const post of allBlogPosts) validatePublicationMetadata(post);
 	const sorted = allBlogPosts.sort(comparePublicationEntries);
+	initPostIdMap(sorted);
 	return sorted;
 }
 
-export async function getSortedPosts() {
+export async function getSortedPosts(): Promise<CollectionEntry<"posts">[]> {
 	const sorted = await getRawSortedPosts();
 
 	for (let i = 1; i < sorted.length; i++) {
 		sorted[i].data.nextSlug = sorted[i - 1].id;
 		sorted[i].data.nextTitle = sorted[i - 1].data.title;
+		sorted[i].data.nextUrl = getPostUrl(sorted[i - 1]);
 	}
 	for (let i = 0; i < sorted.length - 1; i++) {
 		sorted[i].data.prevSlug = sorted[i + 1].id;
 		sorted[i].data.prevTitle = sorted[i + 1].data.title;
+		sorted[i].data.prevUrl = getPostUrl(sorted[i + 1]);
 	}
 
 	return sorted;
 }
+
 export type PostForList = {
 	slug: string;
 	data: CollectionEntry<"posts">["data"];
+	url?: string;
 };
+
 export async function getSortedPostsList(): Promise<PostForList[]> {
 	const sortedFullPosts = await getRawSortedPosts();
 
-	// delete post.body
-	const sortedPostsList = sortedFullPosts.map((post) => ({
+	// delete post.body, attach pre-calculated URL
+	const sortedPostsList: PostForList[] = sortedFullPosts.map((post) => ({
 		slug: post.id,
 		data: post.data,
+		url: getPostUrl(post),
 	}));
 
 	return sortedPostsList;
 }
+
 export type Tag = {
 	name: string;
 	count: number;

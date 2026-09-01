@@ -1,3 +1,4 @@
+export type { PermalinkConfig } from "./permalinkConfig";
 import type { AUTO_MODE, DARK_MODE, LIGHT_MODE } from "@constants/constants";
 import type { TextureConfig } from "./textureConfig";
 
@@ -163,7 +164,11 @@ export type BlogPostData = {
 	draft?: boolean;
 	image?: string;
 	category?: string;
+	alias?: string;
+	permalink?: string;
 	prevTitle?: string;
+	prevUrl?: string;
+	nextUrl?: string;
 	prevSlug?: string;
 	nextTitle?: string;
 	nextSlug?: string;

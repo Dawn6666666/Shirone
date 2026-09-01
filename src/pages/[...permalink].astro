@@ -29,9 +29,11 @@ import {
 	mergeMarkdownSyntaxSnapshots,
 } from "@utils/markdown-syntaxes.mjs";
 import {
+	generatePermalinkSlug,
+	hasCustomPermalink,
 	initPostIdMap,
 } from "@utils/permalink-utils";
-import { getDir, getPostUrl, getPostUrlBySlug, removeFileExtension } from "@utils/url-utils";
+import { getDir, getPostUrl, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import katexStylesheet from "katex/dist/katex.css?url";
 import overlayScrollbarsStylesheet from "overlayscrollbars/overlayscrollbars.css?url";
@@ -39,6 +41,7 @@ import {
 	articleConfig,
 	commentConfig,
 	licenseConfig,
+	permalinkConfig,
 	profileConfig,
 	resolveArticleDiscoveryOptions,
 	resolveArticleShareOptions,
@@ -61,7 +64,7 @@ export async function getStaticPaths() {
 
 	
 	const paths: {
-		params: { slug: string };
+		params: { permalink: string };
 		props: {
 			entry: CollectionEntry<"posts">;
 			discovery: { related: PostForList[]; random: PostForList[] };
@@ -69,36 +72,32 @@ export async function getStaticPaths() {
 	}[] = [];
 
 	for (const entry of blogEntries) {
-		const defaultSlug = removeFileExtension(entry.id);
-		const current = discoveryCandidates.find(
-			(candidate) => candidate.slug === entry.id,
-		);
-		const discovery =
-			discoveryOptions && current
-				? discoverArticles(
-						current,
-						discoveryCandidates,
-						discoveryOptions.relatedCount,
-						discoveryOptions.randomCount,
-					)
-				: { related: [], random: [] };
+		let permalink: string | null = null;
 
-		paths.push({
-			params: { slug: defaultSlug },
-			props: { entry, discovery },
-		});
+		if (hasCustomPermalink(entry)) {
+			permalink = entry.data.permalink?.replace(/^\/+/, "").replace(/\/+$/, "") ?? null;
+		} else if (permalinkConfig.enable) {
+			permalink = generatePermalinkSlug(entry);
+		}
 
-		if (entry.data.alias) {
-			let alias = entry.data.alias.replace(/^\/+/, "").replace(/\/+$/, "");
-			if (alias.startsWith("posts/")) {
-				alias = alias.replace(/^posts\//, "");
-			}
-			if (alias && alias !== defaultSlug) {
-				paths.push({
-					params: { slug: alias },
-					props: { entry, discovery },
-				});
-			}
+		if (permalink) {
+			const current = discoveryCandidates.find(
+				(candidate) => candidate.slug === entry.id,
+			);
+			const discovery =
+				discoveryOptions && current
+					? discoverArticles(
+							current,
+							discoveryCandidates,
+							discoveryOptions.relatedCount,
+							discoveryOptions.randomCount,
+						)
+					: { related: [], random: [] };
+
+			paths.push({
+				params: { permalink },
+				props: { entry, discovery },
+			});
 		}
 	}
 
