@@ -1,4 +1,4 @@
-﻿import type { PermalinkConfig } from "@/types/permalinkConfig";
+﻿import type { PermalinkConfig } from "../types/permalinkConfig.ts";
 import { withUserConfig } from "../utils/config-overlay.ts";
 
 /**

@@ -1,7 +1,12 @@
-﻿import type { CollectionEntry } from "astro:content";
+﻿/**
+ * 移除文件扩展名（.md, .mdx, .markdown）
+ */
+export function removeFileExtension(id: string): string {
+	return id.replace(/\.(md|mdx|markdown)$/i, "");
+}
+
 import { permalinkConfig } from "../config/permalinkConfig.ts";
 import { siteConfig } from "../config/siteConfig.ts";
-import { removeFileExtension, url } from "./url-utils.ts";
 
 export interface PermalinkDateParts {
 	year: string;
@@ -43,7 +48,7 @@ export function comparePublishedDatesAscending(
  * 按发布时间升序排列（最早的文章 post_id = 1），草稿文章不参与编号
  */
 export function initPostIdMap(
-	posts: Array<CollectionEntry<"posts"> | PostLikeForIdMap>,
+	posts: Array<PostLikeForIdMap>,
 ): Map<string, number> {
 	if (postIdMap) {
 		return postIdMap;
@@ -147,9 +152,9 @@ export function getPostDateParts(
 /**
  * 判断文章是否有自定义根路径 permalink
  */
-export function hasCustomPermalink(
-	post: CollectionEntry<"posts"> | { data?: { permalink?: string } },
-): boolean {
+export function hasCustomPermalink(post: {
+	data?: { permalink?: string };
+}): boolean {
 	return Boolean(post.data?.permalink && post.data.permalink.trim().length > 0);
 }
 
@@ -171,9 +176,7 @@ export type PostLikeForPermalink = {
 /**
  * 生成 permalink 相对 slug（不含 leading/trailing slashes）
  */
-export function generatePermalinkSlug(
-	post: CollectionEntry<"posts"> | PostLikeForPermalink,
-): string {
+export function generatePermalinkSlug(post: PostLikeForPermalink): string {
 	// 1. 若文章有自定义 permalink，最高优先级直接采用
 	if (post.data?.permalink && post.data.permalink.trim().length > 0) {
 		return post.data.permalink.replace(/^\/+/, "").replace(/\/+$/, "");
@@ -233,9 +236,8 @@ export function generatePermalinkSlug(
 /**
  * 获取文章的完整 permalink 路径（如 /my-post/ 或 /2024/12/post/）
  */
-export function getPermalinkPath(
-	post: CollectionEntry<"posts"> | PostLikeForPermalink,
-): string {
+export function getPermalinkPath(post: PostLikeForPermalink): string {
 	const slug = generatePermalinkSlug(post);
-	return url(`/${slug}/`);
+	const cleanSlug = slug.replace(/^\/+/, "").replace(/\/+$/, "");
+	return `/${cleanSlug}/`;
 }

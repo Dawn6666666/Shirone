@@ -1,5 +1,4 @@
-﻿import type { CollectionEntry } from "astro:content";
-import { permalinkConfig } from "../config/permalinkConfig.ts";
+﻿import { permalinkConfig } from "../config/permalinkConfig.ts";
 import type I18nKey from "../i18n/i18nKey.ts";
 import { i18n } from "../i18n/translation.ts";
 import {
@@ -45,7 +44,6 @@ export function getPostUrlByAlias(alias: string): string {
 
 export function getPostUrl(
 	post:
-		| CollectionEntry<"posts">
 		| PostLikeForPermalink
 		| {
 				id?: string;
@@ -71,7 +69,7 @@ export function getPostUrl(
 	}
 
 	if (permalinkConfig.enable) {
-		const slug = generatePermalinkSlug(post as CollectionEntry<"posts">);
+		const slug = generatePermalinkSlug(post as PostLikeForPermalink);
 		return url(`/${slug}/`);
 	}
 

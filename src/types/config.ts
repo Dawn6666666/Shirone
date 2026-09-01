@@ -1,4 +1,5 @@
-export type { PermalinkConfig } from "./permalinkConfig";
+export type { PermalinkConfig } from "./permalinkConfig.ts";
+
 import type { AUTO_MODE, DARK_MODE, LIGHT_MODE } from "@constants/constants";
 import type { TextureConfig } from "./textureConfig";
 
