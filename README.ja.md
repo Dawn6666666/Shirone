@@ -1,16 +1,16 @@
 <div align="center">
 
+<img src="./public/logo/icon.webp" width="88" height="88" alt="Shirone ロゴ" />
+
 # Shirone
 
-<sub>✦ 言葉に色を。ページをめくるたびに、小さな魔法を。✦</sub>
+**Material 3 Expressive を基盤とした、表現豊かなアニメ風ブログテーマ。**
 
-Material 3 を基盤とした、表現豊かなアニメ風ブログテーマ。
-
-[matsuzaka-yuki](https://github.com/matsuzaka-yuki) が心を込めて制作しています
+長文の執筆や個人コレクション、サイトを自分らしくする細部のための、落ち着いた読書空間です。
 
 [デモ](https://shirone.mysqil.com/) · [ドキュメント](https://docs.shirone.mysqil.com/) · [問題を報告](https://github.com/LyraVoid/Shirone/issues)
 
-[English](./README.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)
+[English](./README.md) · [简体中文](./README.zh-CN.md) · [繁體中文](./README.zh-TW.md) · [日本語](./README.ja.md)
 
 ![Node.js >= 22.12](https://img.shields.io/badge/Node.js-%3E%3D22.12-5FA04E?logo=nodedotjs&logoColor=white)
 ![pnpm 9](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
@@ -19,9 +19,15 @@ Material 3 を基盤とした、表現豊かなアニメ風ブログテーマ。
 
 </div>
 
-> [!IMPORTANT]
-> **[総合ドキュメント](https://docs.shirone.mysqil.com/)で、すぐに始められます。**
-> テーマのカスタマイズ、機能の設定、本番環境へのデプロイまで、ブログを成功させるために必要なすべてをドキュメントで確認できます。
+## ここから始める
+
+[オンラインドキュメント](https://docs.shirone.mysqil.com/)が、テーマ設定、コンテンツ管理、デプロイの入口です。このリポジトリにはテーマ本体が含まれています。個人コンテンツを分離して管理する場合は [Shirone-Content](https://github.com/LyraVoid/Shirone-Content) を利用してください。
+
+## 実測パフォーマンス
+
+現在のリファレンス計測では、Performance、Accessibility、Best Practices、SEO がすべて 100、Agentic browsing も 3/3 でした。詳細なパフォーマンス指標も今回の計測では 100 です。実際の結果はホスティング環境、コンテンツ、ネットワーク条件によって変わります。
+
+![Shirone パフォーマンスベンチマーク](./Benchmark.webp)
 
 ![Shirone のホームページ](./public/assets/projects/shirone.webp)
 

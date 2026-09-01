@@ -1,16 +1,16 @@
 <div align="center">
 
+<img src="./public/logo/icon.webp" width="88" height="88" alt="Shirone 图标" />
+
 # Shirone
 
-<sub>✦ 让文字染上色彩，让每一次翻页都像小小的魔法开始。✦</sub>
+**一个基于 Material 3 Expressive、富有表现力的二次元博客主题。**
 
-一个基于 Material 3、富有表现力的二次元博客主题。
-
-由 [matsuzaka-yuki](https://github.com/matsuzaka-yuki) 用心制作
+为长文写作、个人收藏，以及让网站真正属于你的细节而生的安静阅读空间。
 
 [在线预览](https://shirone.mysqil.com/) · [项目文档](https://docs.shirone.mysqil.com/) · [反馈问题](https://github.com/LyraVoid/Shirone/issues)
 
-[English](./README.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)
+[English](./README.md) · [简体中文](./README.zh-CN.md) · [繁體中文](./README.zh-TW.md) · [日本語](./README.ja.md)
 
 ![Node.js >= 22.12](https://img.shields.io/badge/Node.js-%3E%3D22.12-5FA04E?logo=nodedotjs&logoColor=white)
 ![pnpm 9](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
@@ -19,9 +19,15 @@
 
 </div>
 
-> [!IMPORTANT]
-> **通过我们的[综合在线文档](https://docs.shirone.mysqil.com/)快速开始。**
-> 无论是自定义主题、配置功能，还是部署到生产环境，文档涵盖了您成功启动博客所需的所有内容。
+## 从这里开始
+
+[在线文档](https://docs.shirone.mysqil.com/)是配置主题、管理内容和部署站点的主要入口。本仓库包含主题源码；如果希望将个人内容独立管理，请使用 [Shirone-Content](https://github.com/LyraVoid/Shirone-Content)。
+
+## 实测表现
+
+当前参考跑分中，Performance、Accessibility、Best Practices 和 SEO 均为 100，Agentic browsing 三项检查全部通过。详细性能指标在本次测试中同样达到 100；实际结果会因托管环境、内容和网络条件而变化。
+
+![Shirone 性能跑分](./Benchmark.webp)
 
 ![Shirone 首页](./public/assets/projects/shirone.webp)
 

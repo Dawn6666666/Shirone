@@ -1,16 +1,16 @@
 <div align="center">
 
+<img src="./public/logo/icon.webp" width="88" height="88" alt="Shirone logo" />
+
 # Shirone
 
-<sub>✦ Where stories gather color, and every page begins with a little spell. ✦</sub>
+**An expressive, anime-inspired blog theme built on Material 3 Expressive.**
 
-An expressive, anime-inspired blog theme built on Material 3.
-
-Crafted by [matsuzaka-yuki](https://github.com/matsuzaka-yuki)
+A calm reading space for long-form writing, personal collections, and the small details that make a site feel like yours.
 
 [Live demo](https://shirone.mysqil.com/) · [Documentation](https://docs.shirone.mysqil.com/) · [Report an issue](https://github.com/LyraVoid/Shirone/issues)
 
-[English](./README.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)
+[English](./README.md) · [简体中文](./README.zh-CN.md) · [繁體中文](./README.zh-TW.md) · [日本語](./README.ja.md)
 
 ![Node.js >= 22.12](https://img.shields.io/badge/Node.js-%3E%3D22.12-5FA04E?logo=nodedotjs&logoColor=white)
 ![pnpm 9](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
@@ -19,9 +19,15 @@ Crafted by [matsuzaka-yuki](https://github.com/matsuzaka-yuki)
 
 </div>
 
-> [!IMPORTANT]
-> **Get started quickly with our [comprehensive documentation](https://docs.shirone.mysqil.com/).**
-> Whether you are customizing the theme, configuring features, or deploying to production, the documentation covers everything you need to launch your blog successfully.
+## Start Here
+
+The [online documentation](https://docs.shirone.mysqil.com/) is the main entry point for setup, configuration, content workflows, and deployment. This repository contains the theme source; use [Shirone-Content](https://github.com/LyraVoid/Shirone-Content) when you want to keep personal content in a separate repository.
+
+## Verified In Practice
+
+The current reference run scores 100 for Performance, Accessibility, Best Practices, and SEO, with all three agentic browsing checks passing. The detailed performance metrics also reach 100 in this run; results can vary with hosting, content, and network conditions.
+
+![Shirone benchmark](./Benchmark.webp)
 
 ![Shirone homepage](./public/assets/projects/shirone.webp)
 
