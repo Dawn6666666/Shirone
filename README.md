@@ -10,9 +10,6 @@ Crafted by [matsuzaka-yuki](https://github.com/matsuzaka-yuki)
 
 [Live demo](https://shirone.mysqil.com/) · [Documentation](https://docs.shirone.mysqil.com/) · [Report an issue](https://github.com/LyraVoid/Shirone/issues)
 
-> [!IMPORTANT]
-> **Online documentation: [docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
-
 [English](./README.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)
 
 ![Node.js >= 22.12](https://img.shields.io/badge/Node.js-%3E%3D22.12-5FA04E?logo=nodedotjs&logoColor=white)
@@ -21,6 +18,9 @@ Crafted by [matsuzaka-yuki](https://github.com/matsuzaka-yuki)
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639.svg)](./LICENSE)
 
 </div>
+
+> [!IMPORTANT]
+> **Online documentation: [docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
 
 ![Shirone homepage](./public/assets/projects/shirone.webp)
 

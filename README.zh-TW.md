@@ -10,9 +10,6 @@
 
 [線上預覽](https://shirone.mysqil.com/) · [專案文件](https://docs.shirone.mysqil.com/) · [回報問題](https://github.com/LyraVoid/Shirone/issues)
 
-> [!IMPORTANT]
-> **線上文件：[docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
-
 [English](./README.md) | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)
 
 ![Node.js >= 22.12](https://img.shields.io/badge/Node.js-%3E%3D22.12-5FA04E?logo=nodedotjs&logoColor=white)
@@ -21,6 +18,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639.svg)](./LICENSE)
 
 </div>
+
+> [!IMPORTANT]
+> **線上文件：[docs.shirone.mysqil.com](https://docs.shirone.mysqil.com/)**
 
 ![Shirone 首頁](./public/assets/projects/shirone.webp)
 
