@@ -2,17 +2,17 @@
 published: 2026-08-12T18:30:00+08:00
 mood: material-symbols:sentiment-excited-outline-rounded
 tags:
-  - wallpaper
-  - daily
+  - 壁纸
+  - 日常
 images:
   - src: /images/moments/girls-trio/girl-1.webp
-    alt: Lovely girl wallpaper one
+    alt: 可爱少女壁纸一
   - src: /images/moments/girls-trio/girl-2.webp
-    alt: Lovely girl wallpaper two
+    alt: 可爱少女壁纸二
   - src: /images/moments/girls-trio/girl-3.webp
-    alt: Lovely girl wallpaper three
+    alt: 可爱少女壁纸三
 ---
 
-Three new wallpapers, all lovely girls.
+三张新的壁纸，全是可爱的女孩子。
 
-My desktop got brighter, and so did my mood for writing code. Turns out you don't need much — just enough eye candy.
+桌面变得明亮起来，写代码的心情也跟着变好了。原来快乐并不需要很复杂，赏心悦目就足够了。

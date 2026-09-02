@@ -1,40 +1,40 @@
 ---
-title: Markdown Marker Highlights
+title: Markdown 荧光高亮标记
 published: 2026-08-28
-description: Highlight key phrases with token-driven marker syntax in Shirone Markdown.
-tags: [Demo, Markdown, Typography, Shirone]
-category: Guides
-lang: en
+description: 使用基于设计令牌的荧光笔语法高亮关键短语。
+tags: [演示, Markdown, 排版, Shirone]
+category: 指南
+lang: zh_CN
 draft: false
 ---
 
-Marker highlights bring attention to a specific phrase without turning the surrounding paragraph into a separate component. They render as native `<mark>` elements during the build and inherit the active M3E color system.
+荧光标记可将读者的注意力聚焦在特定短语上，而无需将整个段落包裹为独立组件。在构建期间，它们会被编译为原生 `<mark>` 元素，并继承当前激活的 M3E 色彩系统。
 
-## Default emphasis
+## 默认高亮
 
-Use `==text==` when the article's primary color should carry the emphasis. This is useful for ==one decision that readers should retain== while they continue through an ordinary paragraph.
+当需要使用文章主色调进行重点强调时，使用 `==文本内容==`。这在普通段落中突出 ==读者应当铭记的关键结论== 时非常实用。
 
-The marker may contain ==nested **Markdown emphasis**== when the phrase needs a stronger hierarchy.
+荧光标记内部同样支持 ==嵌套 **Markdown 强调样式**==，以实现更丰富的视觉层级。
 
-## Semantic colors
+## 语义化色彩角色
 
-Use a suffix when the meaning needs a different tonal role. The available variants are `primary`, `secondary`, `tertiary`, `error`, and `tip`.
+当短语需要表达不同的语气或语义时，可以添加后缀修饰。支持的变体包括 `primary`、`secondary`、`tertiary`、`error` 以及 `tip`。
 
-- ==Primary connects the phrase to the active theme=={.primary}
-- ==Secondary keeps a supporting distinction quiet=={.secondary}
-- ==Tertiary adds a separate editorial signal=={.tertiary}
-- ==Error identifies a condition that needs correction=={.error}
-- ==Tip highlights practical guidance=={.tip}
+- ==Primary 强调当前短语并与激活的主题主色调保持关联=={.primary}
+- ==Secondary 呈现柔和低调的辅助对比=={.secondary}
+- ==Tertiary 添加独立的第三编辑色调信号=={.tertiary}
+- ==Error 突出需要纠正的错误或异常条件=={.error}
+- ==Tip 高亮实用操作建议=={.tip}
 
-## Author syntax
+## 写作语法
 
 ```markdown
-==Primary marker==
+==主色高亮标记==
 
-==Secondary marker=={.secondary}
-==Tertiary marker=={.tertiary}
-==Error marker=={.error}
-==Tip marker=={.tip}
+==次要色高亮标记=={.secondary}
+==第三色高亮标记=={.tertiary}
+==错误警告高亮标记=={.error}
+==提示建议高亮标记=={.tip}
 ```
 
-Inline code such as `==literal marker syntax==` and fenced examples stay literal, so documentation can explain the syntax without triggering it.
+行内代码（如 `==字面量标记语法==`）以及围栏代码块中的内容将保持原样，方便在文档中讲解该语法而不触发实际渲染。

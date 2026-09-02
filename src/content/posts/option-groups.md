@@ -1,24 +1,24 @@
 ---
-title: Markdown Option Groups
+title: Markdown 选项卡组
 published: 2026-08-28
-description: Present related Markdown alternatives in compact, synchronized M3E option groups.
-tags: [Demo, Markdown, Tabs, Shirone]
-category: Guides
-lang: en
+description: 使用紧凑、可同步的 M3E 选项卡组呈现关联的 Markdown 替代选项。
+tags: [演示, Markdown, 标签页, Shirone]
+category: 指南
+lang: zh_CN
 draft: false
 ---
 
-Option groups keep equivalent instructions together without repeating the surrounding explanation. Each option accepts full block Markdown, while the selected value can synchronize with another group on the same page.
+选项卡组可将不同技术方案的等效操作指令聚合在一起，避免重复书写外围背景说明。每个选项均支持完整的块级 Markdown，且选中的状态可在同页面的其他选项卡组之间联动同步。
 
-## Choose a package manager
+## 选择包管理器
 
-Use `@tab:active` to select the initial option. A suffix after `#` supplies a stable value without changing the visible title.
+使用 `@tab:active` 指定初始激活的选项。在 `#` 后的后缀提供稳定的标识值，且不改变标签的可见标题。
 
 ::: tabs#package-manager
 
 @tab npm
 
-Install the package with npm:
+使用 npm 安装依赖包：
 
 ```powershell
 npm install astro
@@ -26,7 +26,7 @@ npm install astro
 
 @tab:active **pnpm**#pnpm
 
-Install the package with pnpm:
+使用 pnpm 安装依赖包：
 
 ```powershell
 pnpm.cmd add astro
@@ -34,7 +34,7 @@ pnpm.cmd add astro
 
 @tab Bun#bun
 
-Install the package with Bun:
+使用 Bun 安装依赖包：
 
 ```powershell
 bun add astro
@@ -42,9 +42,9 @@ bun add astro
 
 :::
 
-## Run the project
+## 运行项目
 
-This group shares the `package-manager` id. Selecting an option above updates the matching command below and remembers that choice for the next visit.
+此选项卡组共享 `package-manager` 标识。在上方选择某一项时，下方的对应命令会自动同步更新，并在下次访问时记住该偏好。
 
 ::: tabs#package-manager
 
@@ -68,48 +68,48 @@ bun run dev
 
 :::
 
-## Many alternatives
+## 多选项横向滚动
 
-Longer option rows remain on one line and scroll within their own navigation area on narrow screens.
+当选项较多时，选项卡栏保持在单行内，并在窄屏或移动端上支持在导航区域内独立横向滑动。
 
 ::: tabs
 
-@tab Local workstation
+@tab 本地工作站
 
-Use the local toolchain while developing a feature.
+在开发功能特性时使用本地工具链。
 
-@tab Hosted preview environment
+@tab 托管预览环境
 
-Publish a temporary preview for review.
+发布临时预览分支供团队评审。
 
-@tab Continuous integration
+@tab 持续集成
 
-Run deterministic validation for every change.
+对每次代码提交运行确定性的自动化校验。
 
-@tab Production deployment
+@tab 生产环境部署
 
-Promote a verified artifact to production.
+将经过验证的构建产物发布至生产环境。
 
-@tab Offline recovery workflow
+@tab 离线恢复流程
 
-Restore from a local artifact when the network is unavailable.
+在网络不可用时通过本地备份进行恢复。
 
 :::
 
-## Author syntax
+## 写作语法
 
 ````markdown
 ::: tabs#package-manager
 
 @tab npm
 
-Use npm instructions here.
+在此处书写 npm 相关的操作说明。
 
 @tab:active **pnpm**#pnpm
 
-Use pnpm instructions here.
+在此处书写 pnpm 相关的操作说明。
 
 :::
 ````
 
-Each group needs at least two `@tab` sections, and every section needs body content separated from its marker by a blank line. Invalid or incomplete groups remain readable as ordinary Markdown.
+每个选项卡组至少需要两个 `@tab` 分区，且每个分区的内容需与标记行之间保留一个空行。格式不完整或非法的分组将安全降级为普通 Markdown 文本展示。

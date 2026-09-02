@@ -2,19 +2,19 @@
 published: 2026-07-30T14:20:00+08:00
 mood: material-symbols:desktop-windows-outline-rounded
 tags:
-  - life
-  - wallpaper
+  - 生活
+  - 壁纸
 images:
   - src: /images/moments/scenery/scene-1.webp
-    alt: Anime scenery wallpaper one
+    alt: 动漫风景壁纸一
   - src: /images/moments/scenery/scene-2.webp
-    alt: Anime scenery wallpaper two
+    alt: 动漫风景壁纸二
   - src: /images/moments/scenery/scene-3.webp
-    alt: Anime scenery wallpaper three
+    alt: 动漫风景壁纸三
   - src: /images/moments/scenery/scene-4.webp
-    alt: Anime scenery wallpaper four
+    alt: 动漫风景壁纸四
 ---
 
-Picked up a set of anime scenery wallpapers — mountains, sea, sky, each with its own palette.
+收集了一套动漫风景壁纸——有山川、大海与天空，各自带着独特的调色风格。
 
-I rotate them as my desktop, one every few days. Cheaper joy than a new mousepad.
+设为桌面壁纸轮播，每隔几天换一张。比买新鼠标垫划算多了的简单快乐。
