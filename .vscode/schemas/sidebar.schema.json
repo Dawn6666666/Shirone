@@ -159,6 +159,12 @@
                         {
                           "type": "string",
                           "enum": [
+                            "games"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
                             "timeline"
                           ]
                         },
@@ -332,6 +338,12 @@
                           "type": "string",
                           "enum": [
                             "devices"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "games"
                           ]
                         },
                         {
@@ -515,6 +527,12 @@
                         {
                           "type": "string",
                           "enum": [
+                            "games"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
                             "timeline"
                           ]
                         },
@@ -679,6 +697,12 @@
                           "type": "string",
                           "enum": [
                             "devices"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "games"
                           ]
                         },
                         {
@@ -853,6 +877,12 @@
                         {
                           "type": "string",
                           "enum": [
+                            "games"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
                             "timeline"
                           ]
                         },
@@ -1017,6 +1047,12 @@
                           "type": "string",
                           "enum": [
                             "devices"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "games"
                           ]
                         },
                         {
@@ -1209,6 +1245,12 @@
                         {
                           "type": "string",
                           "enum": [
+                            "games"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
                             "timeline"
                           ]
                         },
@@ -1372,6 +1414,12 @@
                           "type": "string",
                           "enum": [
                             "devices"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "games"
                           ]
                         },
                         {

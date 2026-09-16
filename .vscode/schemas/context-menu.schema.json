@@ -78,6 +78,12 @@
               {
                 "type": "string",
                 "enum": [
+                  "games"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
                   "timeline"
                 ]
               },

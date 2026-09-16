@@ -129,6 +129,12 @@ export const CONFIG_DOMAINS = Object.freeze([
 		module: "@/types/devicesConfig",
 	},
 	{
+		key: "games",
+		file: "games",
+		type: "GamesConfig",
+		module: "@/types/gamesConfig",
+	},
+	{
 		key: "music",
 		file: "music",
 		type: "MusicConfig",
